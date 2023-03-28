@@ -1,5 +1,11 @@
 # GreenField JS SDK
 
+## Install
+
+```bash
+> npm install @bnb-chain/greenfield-chain-sdk
+```
+
 ## Documentation
 
 [greenfield-sdk](packages/greenfield-sdk/) is a library that consists of pakcages, a so called monorepo.
