@@ -1,0 +1,16 @@
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/ci-setup
+
+      - name: Build
+        run: pnpm -F "@bnb-chain/**" build
+
+      - run: pnpm install
+      - run: pnpm -F "@bnb-chain/**" run test

@@ -1,0 +1,58 @@
+{
+  "name": "@bnb-chain/greenfield-chain-sdk",
+  "version": "0.0.1",
+  "description": "greenfield js chain sdk",
+  "main": "./dist/esm/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "scripts": {
+    "predev": "rimraf ./dist",
+    "dev": "rollup -cw",
+    "prebuild": "rimraf ./dist",
+    "build": "rollup -c",
+    "test": "TS_NODE_PROJECT=./config/tsconfig-test.json node --es-module-specifier-resolution=node --loader ts-node/esm --nolazy node_modules/mocha/lib/cli/cli.js --timeout 9999999 --color 'test/*.test.ts'",
+    "lint": "prettier --write './src/*.{ts,tsx,js,jsx}' && eslint ./src/ --ext .js,.jsx,.ts,.tsx --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPLv3",
+  "engines": {
+    "yarn": "please use pnpm",
+    "npm": "please use pnpm"
+  },
+  "files": [
+    "dist",
+    "types"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "browserslist": {
+    "production": [
+      "last 2 chrome version",
+      "last 2 firefox version",
+      "last 2 safari version",
+      "last 2 edge version"
+    ]
+  },
+  "dependencies": {
+    "@bnb-chain/greenfield-cosmos-types": "0.3.0-alpha.7",
+    "@cosmjs/proto-signing": "^0.29.5",
+    "@cosmjs/stargate": "^0.29.5",
+    "@cosmjs/tendermint-rpc": "^0.29.5",
+    "@ethereumjs/util": "^8.0.5",
+    "@ethersproject/signing-key": "^5.7.0",
+    "@metamask/eth-sig-util": "^5.0.2"
+  },
+  "devDependencies": {
+    "rollup": "^2.79.1",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5"
+  }
+}
