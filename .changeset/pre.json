@@ -1,0 +1,9 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "@demo/wallet": "0.0.1",
+    "@bnb-chain/greenfield-chain-sdk": "0.0.1"
+  },
+  "changesets": []
+}

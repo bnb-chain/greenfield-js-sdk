@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ESNext",
+    "outDir": "../dist/cjs/",
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  }
+}
