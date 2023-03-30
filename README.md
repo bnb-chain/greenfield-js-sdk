@@ -8,11 +8,11 @@
 
 ## Documentation
 
-[greenfield-sdk](packages/greenfield-sdk/) is a library that consists of pakcages, a so called monorepo.
+greenfield-sdk is a library that consists of pakcages, a so called monorepo.
 
 | Package | Description | Doc |
 | --- | --- | --- |
-| [@bnb-chain/greenfield-chain-sdk](packages/chain-sdk) | A client library for Greenfield Chain | [DOC](docs/CHAIN.md) |
+| [@bnb-chain/greenfield-chain-sdk](packages/chain-sdk) | A client library for Greenfield Chain | [Doc](docs/CHAIN.md) |
 
 ## Supported JS environments
 
@@ -21,15 +21,15 @@
 
 ## Contribution
 
-Look at [CONTRIBUTING](./CONTRIBUTING.md) specifically
+Look over [CONTRIBUTING](./CONTRIBUTING.md)
 
 
 ## Disclaimer
 
-Look at [DISCLAIMER](./DISCLAIMER.md)
+Look over [DISCLAIMER](./DISCLAIMER.md)
 
 ## License
 
 The library is licensed under the
 [GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html),
-also included in our repository in the `LICENSE` file.
+also included in our repository in the [LICENSE](./LICENSE) file.
