@@ -2,57 +2,44 @@ import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1be
 import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coin';
 import { TxBody, TxRaw } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
-import { MsgDeleteBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import { MsgCancelCreateObject } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { bufferToHex } from '@ethereumjs/util';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../../../messages';
 import {
-  newMsgDeleteBucket,
+  ICancelCreateObjectMsg,
+  newMsgCancelCreateObject,
   TYPES,
-  TYPE_URL,
-  type IDeleteBucketMsg,
-} from '../../../messages/greenfield/storage/deleteBucket';
+} from '../../../messages/greenfield/storage/cancelCreateObject';
 import { sign712Tx } from '../../../sign';
-import { type IRawTxInfo } from '../../../tx';
-import { BaseTx, type IBaseMsg } from '../../baseTx';
+import { IRawTxInfo } from '../../../tx';
+import { BaseTx, IBaseMsg } from '../../baseTx';
 
-export class DelBucketTx extends BaseTx {
+export class CancelCreateObjectTx extends BaseTx {
   readonly rpcUrl: string;
   readonly chainId: string;
   public readonly txType: string;
 
   constructor(rpcUrl: string, chainId: string) {
-    super(rpcUrl, chainId, TYPE_URL);
+    super(rpcUrl, chainId, '/bnbchain.greenfield.storage.MsgCancelCreateObject');
 
     this.rpcUrl = rpcUrl;
     this.chainId = chainId;
-    this.txType = TYPE_URL;
+    this.txType = '/bnbchain.greenfield.storage.MsgCancelCreateObject';
   }
 
-  public async signTx({
-    from,
-    bucketName,
-    accountNumber,
-    sequence,
-    gasLimit,
-    denom,
-    gasPrice,
-  }: IBaseMsg & IDeleteBucketMsg) {
-    const fee = generateFee(
-      String(BigInt(gasLimit) * BigInt(gasPrice)),
-      denom,
-      String(gasLimit),
-      from,
-      '',
-    );
-    const msg = newMsgDeleteBucket({
+  public async signTx(params: IBaseMsg & ICancelCreateObjectMsg) {
+    const { accountNumber, bucketName, denom, gasLimit, objectName, sequence, from } = params;
+    const fee = generateFee(String(gasLimit * 1e9), denom, String(gasLimit), from, '');
+    const msg = newMsgCancelCreateObject({
       bucketName,
+      objectName,
       from,
     });
-
     const types = generateTypes(TYPES);
     const messages = generateMessage(accountNumber, sequence, this.chainId, '', fee, msg, '0');
     const eip712 = createEIP712(types, this.chainId, messages);
+
     return await sign712Tx(from, JSON.stringify(eip712));
   }
 
@@ -63,10 +50,11 @@ export class DelBucketTx extends BaseTx {
     gasLimit,
     sign,
     pubKey,
+    objectName,
     denom,
     gasPrice,
   }: IBaseMsg &
-    IDeleteBucketMsg & {
+    ICancelCreateObjectMsg & {
       sign: string;
     } & {
       pubKey: BaseAccount['pubKey'];
@@ -74,6 +62,7 @@ export class DelBucketTx extends BaseTx {
     const bodyBytes = this.getSimulateBytes({
       from,
       bucketName,
+      objectName,
     });
     const authInfoBytes = this.getAuthInfoBytes({ denom, sequence, pubKey, gasLimit, gasPrice });
     const signtureFromWallet = this.getSignture(sign);
@@ -92,22 +81,23 @@ export class DelBucketTx extends BaseTx {
     };
   }
 
-  public getSimulateBytes({
-    from,
-    bucketName,
-  }: Pick<IBaseMsg & IDeleteBucketMsg, 'from' | 'bucketName'>): Uint8Array {
-    const message = MsgDeleteBucket.fromJSON({
+  public getSimulateBytes(params: ICancelCreateObjectMsg): Uint8Array {
+    const { from, bucketName, objectName } = params;
+
+    const message = MsgCancelCreateObject.fromJSON({
       operator: from,
       bucketName,
+      objectName,
     });
-    const messageBytes = MsgDeleteBucket.encode(message).finish();
-    const msgDemoWrapped = Any.fromPartial({
+
+    const messageBytes = MsgCancelCreateObject.encode(message).finish();
+    const msgWrapped = Any.fromPartial({
       typeUrl: this.txType,
       value: messageBytes,
     });
 
     const txBody = TxBody.fromPartial({
-      messages: [msgDemoWrapped],
+      messages: [msgWrapped],
     });
 
     return TxBody.encode(txBody).finish();
@@ -116,17 +106,17 @@ export class DelBucketTx extends BaseTx {
   public getAuthInfoBytes({
     sequence,
     pubKey,
-    denom,
     gasLimit,
+    denom,
     gasPrice,
-  }: Pick<IBaseMsg & IDeleteBucketMsg, 'denom' | 'sequence' | 'gasLimit' | 'gasPrice'> & {
+  }: Pick<IBaseMsg & ICancelCreateObjectMsg, 'denom' | 'sequence' | 'gasLimit' | 'gasPrice'> & {
     pubKey: BaseAccount['pubKey'];
   }) {
     if (!pubKey) throw new Error('pubKey is required');
 
     const feeAmount: Coin[] = [
       {
-        amount: String(BigInt(gasLimit) * BigInt(gasPrice)),
+        amount: String(BigInt(gasPrice) * BigInt(gasLimit)),
         denom,
       },
     ];

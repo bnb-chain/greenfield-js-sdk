@@ -1,5 +1,7 @@
-import { redundancyTypeToJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { MsgCreateObject } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import {
+  redundancyTypeToJSON,
+  visibilityTypeToJSON,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 
 export const TYPE_URL = '/bnbchain.greenfield.storage.MsgCreateObject';
 
@@ -26,8 +28,8 @@ export const TYPES = {
       type: 'uint64',
     },
     {
-      name: 'is_public',
-      type: 'bool',
+      name: 'visibility',
+      type: 'string',
     },
     {
       name: 'content_type',
@@ -69,10 +71,10 @@ export interface ICreateObjectMsg {
   expectSecondarySpAddresses: string[];
   expiredHeight: string;
   from: string;
-  isPublic: boolean;
+  visibility: number;
   objectName: string;
   payloadSize: string;
-  redundancyType: string;
+  redundancyType: number;
   sig: string;
 }
 
@@ -82,25 +84,21 @@ export const newMsgCreateObject = ({
   expectChecksums,
   expiredHeight,
   from,
-  isPublic,
+  visibility,
   objectName,
   payloadSize,
   sig,
   expectSecondarySpAddresses,
   redundancyType,
 }: ICreateObjectMsg) => {
-  const message = MsgCreateObject.fromJSON({
-    expectSecondarySpAddresses,
-    redundancyType,
-  });
-
   return {
     type: TYPE_URL,
     bucket_name: bucketName,
     content_type: contentType,
     creator: from,
     expect_checksums: expectChecksums,
-    is_public: isPublic,
+    visibility:
+      visibility === undefined ? visibilityTypeToJSON(0) : visibilityTypeToJSON(visibility),
     object_name: objectName,
     payload_size: payloadSize,
     primary_sp_approval: {
@@ -108,6 +106,7 @@ export const newMsgCreateObject = ({
       sig: sig,
     },
     expect_secondary_sp_addresses: expectSecondarySpAddresses,
-    redundancy_type: redundancyTypeToJSON(message.redundancyType),
+    redundancy_type:
+      redundancyType === undefined ? redundancyTypeToJSON(0) : redundancyTypeToJSON(redundancyType),
   };
 };
