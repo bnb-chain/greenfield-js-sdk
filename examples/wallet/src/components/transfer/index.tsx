@@ -1,13 +1,7 @@
 import { GRPC_URL } from '@/config';
-import {
-  makeCosmsPubKey,
-  recoverPk,
-  getAccount,
-  IRawTxInfo,
-  ISignature712,
-  TransferTx,
-} from '@bnb-chain/greenfield-chain-js-sdk';
+import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
 import { getGasFeeBySimulate } from '@/utils/simulate';
+import { getAccount, IRawTxInfo, ISignature712, TransferTx } from '@bnb-chain/greenfield-chain-sdk';
 import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
@@ -31,6 +25,8 @@ export const Transfer = () => {
     hex: '',
   });
   // transfer end
+
+  const [gasPrice, setGasPrice] = useState('');
 
   return (
     <div>
@@ -66,6 +62,8 @@ export const Transfer = () => {
         onClick={async () => {
           if (!address) return;
 
+          const { sequence } = await getAccount(GRPC_URL!, address!);
+
           const bodyBytes = tTx.getSimulateBytes({
             from: address,
             to: transferInfo.to,
@@ -73,10 +71,22 @@ export const Transfer = () => {
             denom: 'BNB',
           });
 
+          const authInfoBytes = tTx.getAuthInfoBytes({
+            sequence: sequence + '',
+            denom: 'BNB',
+            gasLimit: 0,
+            gasPrice: '0',
+            pubKey: makeCosmsPubKey(ZERO_PUBKEY),
+          });
+
           console.log(address, bodyBytes);
-          const simulateTxInfo = await tTx.simulateTx(address, bodyBytes);
+          const simulateTxInfo = await tTx.simulateTx(bodyBytes, authInfoBytes);
 
           console.log('transfer simulate', simulateTxInfo);
+
+          const gasPri = simulateTxInfo.gasInfo?.minGasPrice.replaceAll('BNB', '');
+          console.log('gasPri', gasPri);
+          setGasPrice(gasPri!);
           const gasFee = getGasFeeBySimulate(simulateTxInfo);
           setTransferGasFee(gasFee);
         }}
@@ -100,6 +110,7 @@ export const Transfer = () => {
             accountNumber: accountNumber + '',
             gasLimit: parseInt(transferInfo.gasLimit),
             denom: 'BNB',
+            gasPrice,
           });
 
           setTransferSignInfo(signInfo);
@@ -129,6 +140,7 @@ export const Transfer = () => {
             amount: ethers.utils.parseEther(transferInfo.amount).toString(),
             gasLimit: parseInt(transferInfo.gasLimit),
             denom: 'BNB',
+            gasPrice,
           });
 
           setTransferTxSignInfo(rawTxInfo);

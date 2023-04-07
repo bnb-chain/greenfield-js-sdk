@@ -1,6 +1,5 @@
 import { useIsMounted } from '@/hooks/useIsMounted';
 import Link from 'next/link';
-import { useEffect } from 'react';
 
 export default function Home() {
   const isMounted = useIsMounted();

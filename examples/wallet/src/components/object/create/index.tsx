@@ -1,13 +1,8 @@
 import { GRPC_URL } from '@/config';
 import { decodeFromHex } from '@/utils/encoding';
-import {
-  makeCosmsPubKey,
-  recoverPk,
-  CreateObjectTx,
-  getAccount,
-  ISignature712,
-} from '@bnb-chain/greenfield-chain-js-sdk';
+import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
 import { getGasFeeBySimulate } from '@/utils/simulate';
+import { CreateObjectTx, getAccount, ISignature712 } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
 
@@ -18,7 +13,7 @@ interface IApprovalCreateObject {
     content_type: string;
     creator: string;
     expect_checksums: string[];
-    is_public: boolean;
+    visibility: number;
     object_name: string;
     payload_size: string;
     primary_sp_approval: {
@@ -40,6 +35,7 @@ export const CreateObject = () => {
   });
   const [gasLimit, setGasLimit] = useState(0);
   const [textarea, setTextArea] = useState('');
+  const [gasPrice, setGasPrice] = useState('');
   const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateObject | null>(null);
 
   return (
@@ -79,23 +75,36 @@ export const CreateObject = () => {
       <button
         onClick={async () => {
           if (!xGnfdSignedMsg || !address) return;
+
+          const { sequence } = await getAccount(GRPC_URL!, address!);
+
           const simulateBytes = createObjectTx.getSimulateBytes({
             objectName: xGnfdSignedMsg.value.object_name,
             contentType: xGnfdSignedMsg.value.content_type,
             from: xGnfdSignedMsg.value.creator,
             bucketName: xGnfdSignedMsg.value.bucket_name,
-            denom: 'BNB',
             expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
             sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            isPublic: xGnfdSignedMsg.value.is_public,
+            visibility: xGnfdSignedMsg.value.visibility,
             payloadSize: xGnfdSignedMsg.value.payload_size,
             expectChecksums: xGnfdSignedMsg.value.expect_checksums,
             redundancyType: xGnfdSignedMsg.value.redundancy_type,
             expectSecondarySpAddresses: xGnfdSignedMsg.value.expect_secondary_sp_addresses,
           });
 
-          const simulateGas = await createObjectTx.simulateTx(address, simulateBytes);
+          const authInfoBytes = createObjectTx.getAuthInfoBytes({
+            sequence: sequence + '',
+            denom: 'BNB',
+            gasLimit: 0,
+            gasPrice: '0',
+            pubKey: makeCosmsPubKey(ZERO_PUBKEY),
+          });
+
+          const simulateGas = await createObjectTx.simulateTx(simulateBytes, authInfoBytes);
           console.log('simulateGas', simulateGas);
+
+          const gasPri = simulateGas.gasInfo?.minGasPrice.replaceAll('BNB', '');
+          setGasPrice(gasPri!);
 
           console.log('gas fee', getGasFeeBySimulate(simulateGas));
           setGasLimit(simulateGas.gasInfo?.gasUsed.toNumber() || 0);
@@ -122,12 +131,13 @@ export const CreateObject = () => {
             expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
             from: xGnfdSignedMsg.value.creator,
             gasLimit,
-            isPublic: xGnfdSignedMsg.value.is_public,
+            visibility: xGnfdSignedMsg.value.visibility,
             objectName: xGnfdSignedMsg.value.object_name,
             payloadSize: xGnfdSignedMsg.value.payload_size,
             redundancyType: xGnfdSignedMsg.value.redundancy_type,
             sequence: sequence + '',
             sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
+            gasPrice,
           });
 
           console.log('create object 712 sign', sign);
@@ -163,13 +173,14 @@ export const CreateObject = () => {
             sign: signInfo.signature,
             expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
             sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            isPublic: xGnfdSignedMsg.value.is_public,
+            visibility: xGnfdSignedMsg.value.visibility,
             contentType: xGnfdSignedMsg.value.content_type,
             expectChecksums: xGnfdSignedMsg.value.expect_checksums,
             objectName: xGnfdSignedMsg.value.object_name,
             payloadSize: xGnfdSignedMsg.value.payload_size,
             redundancyType: xGnfdSignedMsg.value.redundancy_type,
             expectSecondarySpAddresses: xGnfdSignedMsg.value.expect_secondary_sp_addresses,
+            gasPrice,
           });
 
           console.log('rawBytes', rawBytes);

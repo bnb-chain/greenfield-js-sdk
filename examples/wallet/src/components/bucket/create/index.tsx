@@ -1,29 +1,24 @@
 import { GRPC_URL } from '@/config';
 import { decodeFromHex } from '@/utils/encoding';
-import {
-  makeCosmsPubKey,
-  recoverPk,
-  CreateBucketTx,
-  getAccount,
-  ISignature712,
-} from '@bnb-chain/greenfield-chain-js-sdk';
+import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
 import { getGasFeeBySimulate } from '@/utils/simulate';
+import { CreateBucketTx, getAccount, ISignature712 } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
-
-const READ_QUOTA = 0;
 
 interface IApprovalCreateBucket {
   type: string;
   value: {
     bucket_name: string;
     creator: string;
-    is_public: boolean;
+    visibility: string;
     primary_sp_address: string;
     primary_sp_approval: {
       expired_height: string;
       sig: string;
     };
+    charged_read_quota: number;
+    redundancy_type: string;
   };
 }
 
@@ -38,6 +33,7 @@ export const CreateBucket = () => {
   const [gasLimit, setGasLimit] = useState(0);
   const [textarea, setTextArea] = useState('');
   const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateBucket | null>(null);
+  const [gasPrice, setGasPrice] = useState('');
 
   return (
     <>
@@ -76,6 +72,8 @@ export const CreateBucket = () => {
         onClick={async () => {
           if (!xGnfdSignedMsg || !address) return;
 
+          const { sequence } = await getAccount(GRPC_URL!, address!);
+
           const simulateBytes = createBucketTx.getSimulateBytes({
             from: xGnfdSignedMsg.value.creator,
             bucketName: xGnfdSignedMsg.value.bucket_name,
@@ -83,12 +81,25 @@ export const CreateBucket = () => {
             primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
             expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
             sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            readQuota: READ_QUOTA,
-            isPublic: xGnfdSignedMsg.value.is_public,
+            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota,
+            visibility: xGnfdSignedMsg.value.visibility,
+            paymentAddress: '',
           });
 
-          const simulateGas = await createBucketTx.simulateTx(address, simulateBytes);
+          const authInfoBytes = createBucketTx.getAuthInfoBytes({
+            sequence: sequence + '',
+            denom: 'BNB',
+            gasLimit: 0,
+            gasPrice: '0',
+            pubKey: makeCosmsPubKey(ZERO_PUBKEY),
+          });
+
+          const simulateGas = await createBucketTx.simulateTx(simulateBytes, authInfoBytes);
           console.log('simulateGas', simulateGas, getGasFeeBySimulate(simulateGas));
+
+          const gasPri = simulateGas.gasInfo?.minGasPrice.replaceAll('BNB', '');
+          setGasPrice(gasPri!);
+
           setGasLimit(simulateGas.gasInfo?.gasUsed.toNumber() || 0);
         }}
       >
@@ -110,11 +121,13 @@ export const CreateBucket = () => {
             accountNumber: accountNumber + '',
             denom: 'BNB',
             gasLimit,
+            gasPrice,
             primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
             expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
             sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            readQuota: READ_QUOTA,
-            isPublic: xGnfdSignedMsg.value.is_public,
+            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota ?? 0,
+            visibility: xGnfdSignedMsg.value.visibility,
+            paymentAddress: '',
           });
 
           console.log('712 sign', sign);
@@ -144,6 +157,7 @@ export const CreateBucket = () => {
             denom: 'BNB',
             from: address,
             gasLimit,
+            gasPrice,
             primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
             pubKey,
             sequence: sequence + '',
@@ -151,8 +165,9 @@ export const CreateBucket = () => {
             sign: signInfo.signature,
             expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
             sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            isPublic: xGnfdSignedMsg.value.is_public,
-            readQuota: READ_QUOTA,
+            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota,
+            visibility: xGnfdSignedMsg.value.visibility,
+            paymentAddress: '',
           });
 
           console.log('rawBytes', rawBytes.hex);
