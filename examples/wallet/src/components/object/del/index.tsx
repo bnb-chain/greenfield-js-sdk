@@ -3,11 +3,11 @@ import {
   DelObjectTx,
   getAccount,
   ISignature712,
-  makeCosmsPubKey,
-  recoverPk,
-} from '@bnb-chain/greenfield-chain-js-sdk';
+  ZERO_PUBKEY,
+} from '@bnb-chain/greenfield-chain-sdk';
 import { GRPC_URL } from '@/config';
 import { useAccount, useNetwork } from 'wagmi';
+import { makeCosmsPubKey, recoverPk } from '@bnb-chain/greenfield-chain-sdk';
 
 const GAS_LIMIT = 100000;
 
@@ -20,6 +20,7 @@ export const DeleteObject = () => {
     messageHash: Uint8Array.from([]),
     signature: '',
   });
+  const [gasPrice, setGasPrice] = useState('');
 
   const delObjTx = new DelObjectTx(GRPC_URL, String(chain?.id)!);
 
@@ -44,6 +45,7 @@ export const DeleteObject = () => {
         <button
           onClick={async () => {
             if (!address) return;
+            const { sequence } = await getAccount(GRPC_URL!, address!);
 
             const simulateBytes = delObjTx.getSimulateBytes({
               bucketName,
@@ -51,8 +53,19 @@ export const DeleteObject = () => {
               from: address,
             });
 
-            const gasfee = await delObjTx.simulateTx(address, simulateBytes);
+            const authInfoBytes = delObjTx.getAuthInfoBytes({
+              sequence: sequence + '',
+              denom: 'BNB',
+              gasLimit: 0,
+              gasPrice: '0',
+              pubKey: makeCosmsPubKey(ZERO_PUBKEY),
+            });
+
+            const gasfee = await delObjTx.simulateTx(simulateBytes, authInfoBytes);
             console.log('gasfee', gasfee);
+
+            const gasPri = gasfee.gasInfo?.minGasPrice.replaceAll('BNB', '');
+            setGasPrice(gasPri!);
           }}
         >
           0. simulate
@@ -72,6 +85,7 @@ export const DeleteObject = () => {
               gasLimit: GAS_LIMIT,
               objectName,
               denom: 'BNB',
+              gasPrice,
             });
 
             console.log('delete object 712 sign', sign);
@@ -102,6 +116,8 @@ export const DeleteObject = () => {
               pubKey,
               sign: signInfo.signature,
               objectName,
+              denom: 'BNB',
+              gasPrice,
             });
 
             console.log('delete object rawBytes', rawBytes);

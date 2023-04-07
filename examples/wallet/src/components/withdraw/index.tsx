@@ -1,13 +1,12 @@
 import { GRPC_URL } from '@/config';
+import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
+import { getGasFeeBySimulate, getRelayFeeBySimulate } from '@/utils/simulate';
 import {
-  makeCosmsPubKey,
-  recoverPk,
   getAccount,
   IRawTxInfo,
   ISignature712,
   TransferOutTx,
-} from '@bnb-chain/greenfield-chain-js-sdk';
-import { getGasFeeBySimulate, getRelayFeeBySimulate } from '@/utils/simulate';
+} from '@bnb-chain/greenfield-chain-sdk';
 import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
@@ -32,6 +31,7 @@ export const Withdraw = () => {
     bytes: Uint8Array.from([]),
     hex: '',
   });
+  const [gasPrice, setGasPrice] = useState('');
 
   return (
     <div>
@@ -76,13 +76,24 @@ export const Withdraw = () => {
         onClick={async () => {
           if (!address) return;
 
+          const { sequence } = await getAccount(GRPC_URL!, address!);
+
           const bodyBytes = toutTx.getSimulateBytes({
             from: address,
             to: transferoutInfo.to,
             amount: ethers.utils.parseEther(transferoutInfo.amount).toString(),
             denom: 'BNB',
           });
-          const simulateTxInfo = await toutTx.simulateTx(address, bodyBytes);
+
+          const authInfoBytes = toutTx.getAuthInfoBytes({
+            sequence: sequence + '',
+            denom: 'BNB',
+            gasLimit: 0,
+            gasPrice: '0',
+            pubKey: makeCosmsPubKey(ZERO_PUBKEY),
+          });
+
+          const simulateTxInfo = await toutTx.simulateTx(bodyBytes, authInfoBytes);
           const relayFeeInfo = await toutTx.simulateRelayFee();
           console.log('transferout simuluate relayFee', relayFeeInfo);
           console.log('transferout simulate gasFee', simulateTxInfo);
@@ -91,6 +102,9 @@ export const Withdraw = () => {
           const relayFee = getRelayFeeBySimulate(relayFeeInfo);
           setTransferOutGasFee(gasFee);
           setTransferOutRelayFee(relayFee.toString());
+
+          const gasPri = simulateTxInfo.gasInfo?.minGasPrice.replaceAll('BNB', '');
+          setGasPrice(gasPri!);
         }}
       >
         simulate
@@ -114,6 +128,7 @@ export const Withdraw = () => {
             accountNumber: accountNumber + '',
             denom: transferoutInfo.denom,
             gasLimit: parseInt(transferoutInfo.gasLimit),
+            gasPrice,
           });
 
           setTransferoutSignInfo(signInfo);
@@ -144,6 +159,7 @@ export const Withdraw = () => {
             amount: ethers.utils.parseEther(transferoutInfo.amount).toString(),
             denom: transferoutInfo.denom,
             gasLimit: parseInt(transferoutInfo.gasLimit),
+            gasPrice,
           });
 
           setTransferoutTxSignInfo(rawTxInfo);

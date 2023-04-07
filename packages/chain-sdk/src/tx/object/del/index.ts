@@ -1,11 +1,3 @@
-import { createEIP712, generateFee, generateMessage, generateTypes } from '@/messages';
-import {
-  IDeleteObjectMsg,
-  newMsgDeleteObject,
-  TYPES,
-} from '@/messages/greenfield/storage/deleteObject';
-import { sign712Tx } from '@/sign';
-import { IRawTxInfo } from '@/tx';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coin';
 import { TxBody, TxRaw } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
@@ -13,6 +5,14 @@ import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
 import { MsgDeleteObject } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { bufferToHex } from '@ethereumjs/util';
+import { createEIP712, generateFee, generateMessage, generateTypes } from '../../../messages';
+import {
+  IDeleteObjectMsg,
+  newMsgDeleteObject,
+  TYPES,
+} from '../../../messages/greenfield/storage/deleteObject';
+import { sign712Tx } from '../../../sign';
+import { IRawTxInfo } from '../../../tx';
 import { BaseTx, IBaseMsg } from '../../baseTx';
 
 export class DelObjectTx extends BaseTx {
@@ -36,8 +36,15 @@ export class DelObjectTx extends BaseTx {
     accountNumber,
     gasLimit,
     denom,
+    gasPrice,
   }: IBaseMsg & IDeleteObjectMsg) {
-    const fee = generateFee(String(gasLimit * 1e9), denom, String(gasLimit), from, '');
+    const fee = generateFee(
+      String(BigInt(gasLimit) * BigInt(gasPrice)),
+      denom,
+      String(gasLimit),
+      from,
+      '',
+    );
     const msg = newMsgDeleteObject({
       bucketName,
       from,
@@ -60,6 +67,7 @@ export class DelObjectTx extends BaseTx {
     pubKey,
     objectName,
     denom,
+    gasPrice,
   }: IBaseMsg &
     IDeleteObjectMsg & {
       sign: string;
@@ -71,7 +79,7 @@ export class DelObjectTx extends BaseTx {
       bucketName,
       objectName,
     });
-    const authInfoBytes = this.getAuthInfoBytes({ denom, sequence, pubKey, from, gasLimit });
+    const authInfoBytes = this.getAuthInfoBytes({ denom, sequence, pubKey, gasLimit, gasPrice });
     const signtureFromWallet = this.getSignture(sign);
 
     const txRaw = TxRaw.fromPartial({
@@ -111,25 +119,25 @@ export class DelObjectTx extends BaseTx {
     return TxBody.encode(txBody).finish();
   }
 
-  private getAuthInfoBytes({
+  public getAuthInfoBytes({
     sequence,
     pubKey,
-    from,
     gasLimit,
     denom,
-  }: Pick<IBaseMsg & IDeleteObjectMsg, 'denom' | 'sequence' | 'from' | 'gasLimit'> & {
+    gasPrice,
+  }: Pick<IBaseMsg & IDeleteObjectMsg, 'denom' | 'sequence' | 'gasLimit' | 'gasPrice'> & {
     pubKey: BaseAccount['pubKey'];
   }) {
     if (!pubKey) throw new Error('pubKey is required');
 
     const feeAmount: Coin[] = [
       {
-        amount: String(1e9 * gasLimit),
+        amount: String(BigInt(gasLimit) * BigInt(gasPrice)),
         denom,
       },
     ];
     const feeGranter = undefined;
-    const feePayer = from;
+    const feePayer = undefined;
     const authInfoBytes = makeAuthInfoBytes(
       [{ pubkey: pubKey, sequence: Number(sequence) }],
       feeAmount,
