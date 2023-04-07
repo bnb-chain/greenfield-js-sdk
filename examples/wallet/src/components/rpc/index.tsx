@@ -1,7 +1,7 @@
-import { getBalance } from '@bnb-chain/greenfield-chain-js-sdk';
-import { getSpStoragePriceByTime, getStorageProviders } from '@/client';
-import { useAccount } from 'wagmi';
+import { getStorageProviders } from '@/client';
 import { GRPC_URL } from '@/config';
+import { getBalance } from '@bnb-chain/greenfield-chain-sdk';
+import { useAccount } from 'wagmi';
 
 export const RpcComponent = () => {
   const { address } = useAccount();

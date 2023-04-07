@@ -1,6 +1,3 @@
-import { makeRpcClient } from '@/client';
-import { createEIP712, generateFee, generateMessage, generateTypes } from '@/messages';
-import { newMsgTransferOut, TYPES } from '@/messages/greenfield/bridge/transferOut';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coin';
 import { TxBody, TxRaw } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
@@ -12,6 +9,9 @@ import {
 import { MsgTransferOut } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/tx';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { bufferToHex } from '@ethereumjs/util';
+import { makeRpcClient } from '../../client';
+import { createEIP712, generateFee, generateMessage, generateTypes } from '../../messages';
+import { newMsgTransferOut, TYPES } from '../../messages/greenfield/bridge/transferOut';
 import { sign712Tx } from '../../sign/signTx';
 import { BaseTx, IBaseMsg, IRawTxInfo, ISendMsg } from '../baseTx';
 
@@ -37,13 +37,17 @@ export class TransferOutTx extends BaseTx {
     amount,
     denom,
     gasLimit,
-  }: Pick<ISendMsg & IBaseMsg, 'sequence' | 'from' | 'to' | 'amount' | 'denom' | 'gasLimit'> & {
+    gasPrice,
+  }: Pick<
+    ISendMsg & IBaseMsg,
+    'sequence' | 'from' | 'to' | 'amount' | 'denom' | 'gasLimit' | 'gasPrice'
+  > & {
     sign: string;
   } & {
     pubKey: BaseAccount['pubKey'];
   }): Promise<IRawTxInfo> {
     const bodyBytes = this.getSimulateBytes({ from, to, amount, denom });
-    const authInfoBytes = this.getAuthInfoBytes({ denom, sequence, pubKey, from, gasLimit });
+    const authInfoBytes = this.getAuthInfoBytes({ denom, sequence, pubKey, gasLimit, gasPrice });
     const signtureFromWallet = this.getSignture(sign);
 
     const txRaw = TxRaw.fromPartial({
@@ -89,25 +93,25 @@ export class TransferOutTx extends BaseTx {
     return TxBody.encode(txBody).finish();
   }
 
-  private getAuthInfoBytes({
+  public getAuthInfoBytes({
     sequence,
     pubKey,
-    from,
     gasLimit,
     denom,
-  }: Pick<ISendMsg & IBaseMsg, 'denom' | 'sequence' | 'from' | 'gasLimit'> & {
+    gasPrice,
+  }: Pick<ISendMsg & IBaseMsg, 'denom' | 'sequence' | 'gasLimit' | 'gasPrice'> & {
     pubKey: BaseAccount['pubKey'];
   }) {
     if (!pubKey) throw new Error('pubKey is required');
 
     const feeAmount: Coin[] = [
       {
-        amount: String(1e9 * gasLimit),
+        amount: String(BigInt(gasLimit) * BigInt(gasPrice)),
         denom,
       },
     ];
     const feeGranter = undefined;
-    const feePayer = from;
+    const feePayer = undefined;
     const authInfoBytes = makeAuthInfoBytes(
       [{ pubkey: pubKey, sequence: Number(sequence) }],
       feeAmount,
@@ -128,8 +132,15 @@ export class TransferOutTx extends BaseTx {
     amount,
     denom,
     gasLimit,
+    gasPrice,
   }: ISendMsg & IBaseMsg) {
-    const fee = generateFee(String(gasLimit * 1e9), denom, String(gasLimit), from, '');
+    const fee = generateFee(
+      String(BigInt(gasLimit) * BigInt(gasPrice)),
+      denom,
+      String(gasLimit),
+      from,
+      '',
+    );
     const msg = newMsgTransferOut(amount, denom, from, to);
 
     const types = generateTypes(TYPES);

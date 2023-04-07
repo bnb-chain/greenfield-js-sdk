@@ -1,18 +1,20 @@
-import { createEIP712, generateFee, generateMessage, generateTypes } from '@/messages';
-import {
-  ICreateBucketMsg,
-  newMsgCreateBucket,
-  TYPES,
-} from '@/messages/greenfield/storage/createBucket';
-import { IRawTxInfo } from '@/tx';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coin';
 import { TxBody, TxRaw } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { MsgCreateBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import { bytesFromBase64, Long } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { bufferToHex } from '@ethereumjs/util';
+import { createEIP712, generateFee, generateMessage, generateTypes } from '../../../messages';
+import {
+  ICreateBucketMsg,
+  newMsgCreateBucket,
+  TYPES,
+} from '../../../messages/greenfield/storage/createBucket';
 import { sign712Tx } from '../../../sign';
+import { IRawTxInfo } from '../../../tx';
 import { BaseTx, IBaseMsg } from '../../baseTx';
 
 export class CreateBucketTx extends BaseTx {
@@ -36,20 +38,29 @@ export class CreateBucketTx extends BaseTx {
     denom,
     accountNumber,
     expiredHeight,
-    readQuota,
+    chargedReadQuota,
     sig,
-    isPublic,
+    visibility,
     gasLimit,
+    gasPrice,
+    paymentAddress,
   }: IBaseMsg & ICreateBucketMsg) {
-    const fee = generateFee(String(gasLimit * 1e9), denom, String(gasLimit), from, '');
+    const fee = generateFee(
+      String(BigInt(gasLimit) * BigInt(gasPrice)),
+      denom,
+      String(gasLimit),
+      from,
+      '',
+    );
+
     const msg = newMsgCreateBucket({
       bucketName,
       from,
       expiredHeight,
-      isPublic,
-      paymentAddress: '',
+      visibility,
+      paymentAddress,
       primarySpAddress,
-      readQuota,
+      chargedReadQuota,
       sig,
     });
 
@@ -68,11 +79,13 @@ export class CreateBucketTx extends BaseTx {
     denom,
     expiredHeight,
     sig,
-    isPublic,
+    visibility,
     gasLimit,
     sign,
     pubKey,
-    readQuota,
+    chargedReadQuota,
+    gasPrice,
+    paymentAddress,
   }: IBaseMsg &
     ICreateBucketMsg & {
       sign: string;
@@ -86,10 +99,11 @@ export class CreateBucketTx extends BaseTx {
       bucketName,
       expiredHeight,
       sig,
-      isPublic,
-      readQuota,
+      visibility,
+      chargedReadQuota,
+      paymentAddress,
     });
-    const authInfoBytes = this.getAuthInfoBytes({ sequence, pubKey, denom, gasLimit });
+    const authInfoBytes = this.getAuthInfoBytes({ sequence, pubKey, denom, gasLimit, gasPrice });
     const signtureFromWallet = this.getSignture(sign);
 
     const txRaw = TxRaw.fromPartial({
@@ -106,19 +120,23 @@ export class CreateBucketTx extends BaseTx {
     };
   }
 
-  private getAuthInfoBytes({
+  public getAuthInfoBytes({
     sequence,
     pubKey,
     denom,
     gasLimit,
-  }: Pick<IBaseMsg & ICreateBucketMsg, 'sequence' | 'denom' | 'gasLimit'> & {
+    gasPrice,
+  }: Pick<IBaseMsg & ICreateBucketMsg, 'sequence' | 'denom' | 'gasLimit' | 'gasPrice'> & {
     pubKey: BaseAccount['pubKey'];
   }) {
     if (!pubKey) throw new Error('pubKey is required');
 
+    const bigGasPrice = BigInt(gasPrice);
+    const bigGasLimit = BigInt(gasLimit);
+
     const feeAmount: Coin[] = [
       {
-        amount: String(1e9 * gasLimit),
+        amount: String(bigGasPrice * bigGasLimit),
         denom,
       },
     ];
@@ -142,8 +160,9 @@ export class CreateBucketTx extends BaseTx {
     primarySpAddress,
     expiredHeight,
     sig,
-    isPublic,
-    readQuota,
+    visibility,
+    chargedReadQuota,
+    paymentAddress,
   }: Pick<
     IBaseMsg & ICreateBucketMsg,
     | 'from'
@@ -152,23 +171,25 @@ export class CreateBucketTx extends BaseTx {
     | 'primarySpAddress'
     | 'sig'
     | 'expiredHeight'
-    | 'isPublic'
-    | 'readQuota'
+    | 'visibility'
+    | 'chargedReadQuota'
+    | 'paymentAddress'
   >) {
-    const payload = {
-      bucketName,
-      creator: from,
-      isPublic,
-      primarySpAddress,
-      readQuota,
-      primarySpApproval: {
-        expiredHeight,
-        sig,
-      },
+    const message = MsgCreateBucket.fromPartial({});
+    message.bucketName = bucketName;
+    message.chargedReadQuota = chargedReadQuota
+      ? Long.fromNumber(0)
+      : Long.fromNumber(chargedReadQuota);
+    message.creator = from;
+    message.visibility = visibilityTypeFromJSON(visibility);
+    message.paymentAddress = paymentAddress;
+    message.primarySpAddress = primarySpAddress;
+    message.primarySpApproval = {
+      expiredHeight: Long.fromString(expiredHeight),
+      sig: bytesFromBase64(sig),
     };
-    const message = MsgCreateBucket.fromJSON(payload);
-    const messageBytes = MsgCreateBucket.encode(message).finish();
 
+    const messageBytes = MsgCreateBucket.encode(message).finish();
     const msgWrapped = Any.fromPartial({
       typeUrl: this.txType,
       value: messageBytes,

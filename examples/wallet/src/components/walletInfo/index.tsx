@@ -15,7 +15,7 @@ export const WalletInfo = () => {
     connector: metaMaskWalletConnector,
   });
   const { disconnect } = useDisconnect();
-  const { chain, chains } = useNetwork();
+  const { chain } = useNetwork();
   const { switchNetwork: switchToGreenField } = useSwitchNetwork({
     chainId: GREEN_CHAIN_ID,
   });

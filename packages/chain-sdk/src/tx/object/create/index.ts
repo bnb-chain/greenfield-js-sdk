@@ -1,18 +1,23 @@
-import { createEIP712, generateFee, generateMessage, generateTypes } from '@/messages';
-import {
-  ICreateObjectMsg,
-  newMsgCreateObject,
-  TYPES,
-} from '@/messages/greenfield/storage/createObject';
-import { sign712Tx } from '@/sign';
-import { IRawTxInfo } from '@/tx';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coin';
 import { TxBody, TxRaw } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import {
+  redundancyTypeFromJSON,
+  visibilityTypeFromJSON,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { MsgCreateObject } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import { bytesFromBase64, Long } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { bufferToHex } from '@ethereumjs/util';
+import { createEIP712, generateFee, generateMessage, generateTypes } from '../../../messages';
+import {
+  ICreateObjectMsg,
+  newMsgCreateObject,
+  TYPES,
+} from '../../../messages/greenfield/storage/createObject';
+import { sign712Tx } from '../../../sign';
+import { IRawTxInfo } from '../../../tx';
 import { BaseTx, IBaseMsg } from '../../baseTx';
 
 export class CreateObjectTx extends BaseTx {
@@ -39,26 +44,33 @@ export class CreateObjectTx extends BaseTx {
       expiredHeight,
       from,
       gasLimit,
-      isPublic,
       objectName,
       payloadSize,
       redundancyType,
       sequence,
       sig,
+      visibility,
+      gasPrice,
     } = params;
-    const fee = generateFee(String(gasLimit * 1e9), denom, String(gasLimit), from, '');
+    const fee = generateFee(
+      String(BigInt(gasLimit) * BigInt(gasPrice)),
+      denom,
+      String(gasLimit),
+      from,
+      '',
+    );
     const msg = newMsgCreateObject({
       bucketName,
       contentType,
       expectChecksums,
+      expectSecondarySpAddresses,
       expiredHeight,
       from,
-      isPublic,
       objectName,
       payloadSize,
-      sig,
-      expectSecondarySpAddresses,
       redundancyType,
+      sig,
+      visibility,
     });
     const types = generateTypes(TYPES);
     const messages = generateMessage(accountNumber, sequence, this.chainId, '', fee, msg, '0');
@@ -69,21 +81,22 @@ export class CreateObjectTx extends BaseTx {
 
   public async getRawTxInfo({
     bucketName,
-    from,
-    sequence,
-    expiredHeight,
-    sig,
-    isPublic,
-    gasLimit,
-    sign,
-    pubKey,
     contentType,
+    denom,
     expectChecksums,
+    expectSecondarySpAddresses,
+    expiredHeight,
+    from,
+    gasLimit,
     objectName,
     payloadSize,
+    pubKey,
     redundancyType,
-    expectSecondarySpAddresses,
-    denom,
+    sequence,
+    sig,
+    sign,
+    visibility,
+    gasPrice,
   }: IBaseMsg &
     ICreateObjectMsg & {
       sign: string;
@@ -95,7 +108,7 @@ export class CreateObjectTx extends BaseTx {
       bucketName,
       expiredHeight,
       sig,
-      isPublic,
+      visibility,
       contentType,
       expectChecksums,
       objectName,
@@ -103,7 +116,7 @@ export class CreateObjectTx extends BaseTx {
       expectSecondarySpAddresses,
       redundancyType,
     });
-    const authInfoBytes = this.getAuthInfoBytes({ denom, sequence, pubKey, from, gasLimit });
+    const authInfoBytes = this.getAuthInfoBytes({ denom, sequence, pubKey, gasLimit, gasPrice });
     const signtureFromWallet = this.getSignture(sign);
 
     const txRaw = TxRaw.fromPartial({
@@ -126,7 +139,7 @@ export class CreateObjectTx extends BaseTx {
       bucketName,
       objectName,
       contentType,
-      isPublic,
+      visibility,
       payloadSize,
       expiredHeight,
       sig,
@@ -135,21 +148,26 @@ export class CreateObjectTx extends BaseTx {
       redundancyType,
     } = params;
 
-    const message = MsgCreateObject.fromJSON({
-      creator: from,
+    const message = MsgCreateObject.fromPartial({
       bucketName,
       objectName,
       contentType,
-      isPublic,
       payloadSize,
-      primarySpApproval: {
-        expiredHeight,
-        sig,
-      },
-      expectChecksums,
+      creator: from,
       expectSecondarySpAddresses,
-      redundancyType,
     });
+
+    message.visibility =
+      visibility === undefined ? visibilityTypeFromJSON(0) : visibilityTypeFromJSON(visibility);
+    message.redundancyType =
+      redundancyType === undefined
+        ? redundancyTypeFromJSON(0)
+        : redundancyTypeFromJSON(redundancyType);
+    message.primarySpApproval = {
+      expiredHeight: Long.fromString(expiredHeight),
+      sig: bytesFromBase64(sig),
+    };
+    message.expectChecksums = expectChecksums.map((e: string) => bytesFromBase64(e));
 
     const messageBytes = MsgCreateObject.encode(message).finish();
     const msgWrapped = Any.fromPartial({
@@ -164,19 +182,20 @@ export class CreateObjectTx extends BaseTx {
     return TxBody.encode(txBody).finish();
   }
 
-  private getAuthInfoBytes({
+  public getAuthInfoBytes({
     sequence,
     pubKey,
     gasLimit,
     denom,
-  }: Pick<IBaseMsg & ICreateObjectMsg, 'denom' | 'sequence' | 'from' | 'gasLimit'> & {
+    gasPrice,
+  }: Pick<IBaseMsg & ICreateObjectMsg, 'denom' | 'sequence' | 'gasLimit' | 'gasPrice'> & {
     pubKey: BaseAccount['pubKey'];
   }) {
     if (!pubKey) throw new Error('pubKey is required');
 
     const feeAmount: Coin[] = [
       {
-        amount: String(1e9 * gasLimit),
+        amount: String(BigInt(gasLimit) * BigInt(gasPrice)),
         denom,
       },
     ];

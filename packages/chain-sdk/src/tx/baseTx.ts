@@ -2,16 +2,17 @@ import {
   ServiceClientImpl,
   SimulateRequest,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
-import { AuthInfo, Fee, Tx, TxBody } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
+import { AuthInfo, Tx, TxBody } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
 import { StargateClient } from '@cosmjs/stargate';
 import { toBuffer } from '@ethereumjs/util';
-import { getAccount, makeRpcClient } from '../client';
+import { makeRpcClient } from '../client';
 
 export interface IBaseMsg {
   sequence: string;
   denom: string;
   accountNumber: string;
   gasLimit: number;
+  gasPrice: string;
 }
 
 export interface ISendMsg {
@@ -51,21 +52,12 @@ export class BaseTx {
     return Uint8Array.from(toBuffer(sign));
   }
 
-  public async simulateTx(address: string, txBodyBytes: Uint8Array) {
+  public async simulateTx(txBodyBytes: Uint8Array, authInfoBytes: Uint8Array) {
     const rpcClient = await makeRpcClient(this.rpcUrl);
-    const { sequence } = await getAccount(this.rpcUrl, address);
     const rpc = new ServiceClientImpl(rpcClient);
 
     const tx = Tx.fromPartial({
-      authInfo: AuthInfo.fromPartial({
-        fee: Fee.fromPartial({}),
-        signerInfos: [
-          {
-            sequence,
-            modeInfo: { single: { mode: 712 } },
-          },
-        ],
-      }),
+      authInfo: AuthInfo.decode(authInfoBytes),
       body: TxBody.decode(txBodyBytes),
       signatures: [Uint8Array.from([])],
     });
