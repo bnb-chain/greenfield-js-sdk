@@ -1,4 +1,4 @@
-# GreenField JS SDK
+# Greenfield JS SDK
 
 A Greenfield JS SDK is an easy-to-use tool designed to help developers build decentralized applications (DApps) on the Greenfield blockchain using JavaScript. It provides a simple and straightforward starting point for developers to create DApps with the latest technology and best practices, making Dapp development more efficient. This SDK includes features and tools to make interacting with the Greenfield blockchain easy, such as libraries for common functionality, testing tools, and documentation. With a Greenfield JS SDK, developers can create scalable, maintainable, and efficient DApps for a variety of use cases.
 
