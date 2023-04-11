@@ -1,12 +1,9 @@
-# GNFD JS SDK Example
+# GNFD JS SDK Examples
 
 ## Getting Started
 
 ```bash
-# DEV ENV
-> cp .env.simple .env.development.local
-
-# QA ENV
+# TESTNET ENV
 > cp .env.simple .env.test.local
 ```
 
