@@ -44,7 +44,7 @@ Query chain data by Tendermint RPC client:
   };
   ```
 
-More [Examples](../examples/wallet/src/client/index.ts)
+More [Examples](../../examples/wallet/src/client/index.ts)
 
 ## Transaction
 
@@ -98,7 +98,7 @@ const rawTxInfo = await tTx.getRawTxInfo({
 await tTx.broadcastTx(rawTxInfo.bytes);
 ```
 
-More [Examples](../examples/wallet/src/components/):
+More [Examples](../../examples/wallet/src/components/):
 
 * CreateBucket
 * DeleteBucket
