@@ -1,18 +1,15 @@
 # GreenField JS SDK
 
-## Install
+A Greenfield JS SDK is an easy-to-use tool designed to help developers build decentralized applications (DApps) on the Greenfield blockchain using JavaScript. It provides a simple and straightforward starting point for developers to create DApps with the latest technology and best practices, making Dapp development more efficient. This SDK includes features and tools to make interacting with the Greenfield blockchain easy, such as libraries for common functionality, testing tools, and documentation. With a Greenfield JS SDK, developers can create scalable, maintainable, and efficient DApps for a variety of use cases.
 
-```bash
-> npm install @bnb-chain/greenfield-chain-sdk
-```
 
 ## Documentation
 
-greenfield-sdk is a library that consists of pakcages, a so called monorepo.
+You can find some package documentation below:
 
 | Package | Description | Doc |
 | --- | --- | --- |
-| [@bnb-chain/greenfield-chain-sdk](packages/chain-sdk) | A client library for Greenfield Chain | [Doc](docs/CHAIN.md) |
+| [@bnb-chain/greenfield-chain-sdk](packages/chain-sdk) | A client library for Greenfield Chain | [Doc](packages/chain-sdk/README.md) |
 
 ## Supported JS environments
 
