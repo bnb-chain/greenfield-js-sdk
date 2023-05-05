@@ -29,8 +29,15 @@ export class CancelCreateObjectTx extends BaseTx {
   }
 
   public async signTx(params: IBaseMsg & ICancelCreateObjectMsg) {
-    const { accountNumber, bucketName, denom, gasLimit, objectName, sequence, from } = params;
-    const fee = generateFee(String(gasLimit * 1e9), denom, String(gasLimit), from, '');
+    const { accountNumber, bucketName, denom, gasLimit, gasPrice, objectName, sequence, from } =
+      params;
+    const fee = generateFee(
+      String(BigInt(gasLimit) * BigInt(gasPrice)),
+      denom,
+      String(gasLimit),
+      from,
+      '',
+    );
     const msg = newMsgCancelCreateObject({
       bucketName,
       objectName,

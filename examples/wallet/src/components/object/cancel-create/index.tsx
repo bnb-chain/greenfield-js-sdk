@@ -10,11 +10,10 @@ import {
 import { GRPC_URL } from '@/config';
 import { useAccount, useNetwork } from 'wagmi';
 
-const GAS_LIMIT = 1000000;
-
 export const CancelCreateObject = () => {
   const { address } = useAccount();
   const { chain } = useNetwork();
+  const [gasLimit, setGasLimit] = useState(0);
   const [bucketName, setBucketName] = useState('');
   const [objectName, setObjectName] = useState('');
   const [signInfo, setSignInfo] = useState<ISignature712>({
@@ -69,6 +68,8 @@ export const CancelCreateObject = () => {
 
             const gasPri = gasfee.gasInfo?.minGasPrice.replaceAll('BNB', '');
             setGasPrice(gasPri!);
+
+            setGasLimit(gasfee.gasInfo?.gasUsed.toNumber() || 0);
           }}
         >
           0. simulate
@@ -85,7 +86,7 @@ export const CancelCreateObject = () => {
               bucketName,
               from: address,
               sequence: sequence + '',
-              gasLimit: GAS_LIMIT,
+              gasLimit,
               objectName,
               denom: 'BNB',
               gasPrice,
@@ -115,7 +116,7 @@ export const CancelCreateObject = () => {
               bucketName,
               from: address,
               sequence: sequence + '',
-              gasLimit: GAS_LIMIT,
+              gasLimit,
               pubKey,
               sign: signInfo.signature,
               objectName,
