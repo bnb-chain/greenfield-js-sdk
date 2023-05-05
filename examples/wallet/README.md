@@ -2,33 +2,41 @@
 
 ## Getting Started
 
+### Prepare Config 
+
 ```bash
-# TESTNET ENV
+# TESTNET qa ENV 
+> cd example/wallet
+# DEV ENV
+> cp .env.simple .env.development.local
+# QA ENV
 > cp .env.simple .env.test.local
 ```
 
-## Install
-
-First, build SDK srouce:
-
+### Install
+First, build SDK source:
 ```bash
-# root dir
+> cd packages/chain-sdk
 > pnpm run build
 ```
 
+Second, build source
 ```bash
-# example/wallet
+> cd example/wallet
 > pnpm install
 ```
 
-## Dev
+### Run Demo 
+running different environment. choose one according to your `.env` config file
 
 ```bash
-# dev ENV
+# dev ENV for .env.development.local
 > npm run dev
 ```
 
 ```bash
-# qa env
+# qa ENV for .env.test.local
 > npm run dev:qa
 ```
+
+then visit [http://localhost:3000/wallet](http://localhost:3000/wallet)
