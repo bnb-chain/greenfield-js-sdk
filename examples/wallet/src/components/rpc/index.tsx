@@ -1,6 +1,6 @@
 import { getStorageProviders } from '@/client';
 import { GRPC_URL } from '@/config';
-import { getBalance } from '@bnb-chain/greenfield-chain-sdk';
+import { ChainClient, getBalance, getBlock } from '@bnb-chain/greenfield-chain-sdk';
 import { useAccount } from 'wagmi';
 
 export const RpcComponent = () => {
@@ -29,6 +29,15 @@ export const RpcComponent = () => {
         }}
       >
         get balance
+      </button>
+
+      <button
+        onClick={async () => {
+          const client22 = ChainClient.create();
+          // client22.sayHi();
+        }}
+      >
+        get block
       </button>
     </>
   );

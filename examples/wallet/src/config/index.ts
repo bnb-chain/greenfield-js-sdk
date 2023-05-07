@@ -65,7 +65,7 @@ const trustWalletConnector = new InjectedConnector({
   options: {
     name: 'GN',
     shimDisconnect: true,
-    getProvider: () => (typeof window !== 'undefined' ? window.ethereum : undefined),
+    getProvider: () => (typeof window !== 'undefined' ? (window as any).trustwallet : undefined),
   },
 });
 
