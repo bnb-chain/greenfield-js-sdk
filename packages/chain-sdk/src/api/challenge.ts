@@ -1,15 +1,15 @@
-import { Account } from './account';
-import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
-import { ITxOption } from './basic';
-import { MsgSubmitSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgSubmitSDKTypeEIP712';
-import { MsgAttestSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgAttestSDKTypeEIP712';
-import { DeliverTxResponse } from '@cosmjs/stargate';
 import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
+import { MsgAttestSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgAttestSDKTypeEIP712';
+import { MsgSubmitSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgSubmitSDKTypeEIP712';
 import {
   QueryClientImpl as ChallengeQueryClientImpl,
   QueryInturnAttestationSubmitterResponse,
   QueryLatestAttestedChallengesResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
+import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
+import { DeliverTxResponse } from '@cosmjs/stargate';
+import { Account } from './account';
+import { ITxOption } from './basic';
 
 export interface IChallenge {
   /**
