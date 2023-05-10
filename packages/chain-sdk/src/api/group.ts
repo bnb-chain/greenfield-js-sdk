@@ -1,4 +1,4 @@
-import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
+import { ISimulateGasFee } from '@/utils/units';
 import { MsgCreateGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgCreateGroupSDKTypeEIP712';
 import { MsgDeleteGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteGroupSDKTypeEIP712';
 import { MsgLeaveGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgLeaveGroupSDKTypeEIP712';
@@ -27,7 +27,7 @@ export interface IGroup {
   createGroup(
     msg: MsgCreateGroup,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * send DeleteGroup txn to greenfield chain and return txn hash
@@ -35,7 +35,7 @@ export interface IGroup {
   deleteGroup(
     msg: MsgDeleteGroup,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * support adding or removing members from the group and return the txn hash
@@ -43,7 +43,7 @@ export interface IGroup {
   updateGroupMember(
     msg: MsgUpdateGroupMember,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * make the member leave the specific group
@@ -52,7 +52,7 @@ export interface IGroup {
     address: string,
     msg: MsgLeaveGroup,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * query the groupInfo on chain, return the group info if exists

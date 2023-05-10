@@ -1,3 +1,4 @@
+import { ISimulateGasFee, getGasFeeBySimulate } from '@/utils/units';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
   GetBlockByHeightResponse,
@@ -10,7 +11,6 @@ import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coi
 import {
   ServiceClientImpl,
   SimulateRequest,
-  SimulateResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
 import {
   AuthInfo,
@@ -32,12 +32,12 @@ import {
 import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
 import { toBuffer } from '@ethereumjs/util';
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
+import Long from 'long';
 import makeClientWithExtension, { makeRpcClient } from '../client';
 import { ZERO_PUBKEY } from '../constants';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../messages';
 import { makeCosmsPubKey, recoverPk } from '../sign';
 import { typeWrapper } from '../tx/utils';
-import Long from 'long';
 
 export interface ITxOption {
   denom: string;
@@ -85,13 +85,13 @@ export interface IBasic {
 
   /**
    * simulates a transaction containing the provided messages on the chain.
-    The function returns a pointer to a SimulateResponse
+    The function returns a pointer to a ISimulateGasFee
    */
   simulateRawTx(
     txBodyBytes: Uint8Array,
     accountInfo: BaseAccount,
     txOption: Pick<ITxOption, 'denom'>,
-  ): Promise<SimulateResponse>;
+  ): Promise<ISimulateGasFee>;
 
   /**
    * broadcasts a transaction containing the provided messages to the chain.
@@ -178,7 +178,8 @@ export class Basic implements IBasic {
       txBytes: Tx.encode(tx).finish(),
     });
 
-    return rpc.Simulate(request);
+    const res = await rpc.Simulate(request);
+    return getGasFeeBySimulate(res, txOption.denom);
   }
 
   public async broadcastRawTx(txRawBytes: Uint8Array) {

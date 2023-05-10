@@ -1,4 +1,3 @@
-import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
 import { MsgDepositSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgDepositSDKTypeEIP712';
 import { MsgDisableRefundSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgDisableRefundSDKTypeEIP712';
 import { MsgWithdrawSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgWithdrawSDKTypeEIP712';
@@ -14,6 +13,7 @@ import {
 import { DeliverTxResponse } from '@cosmjs/stargate';
 import { Account } from './account';
 import { ITxOption } from './basic';
+import { ISimulateGasFee } from '@/utils/units';
 
 export interface IPayment {
   /**
@@ -24,12 +24,12 @@ export interface IPayment {
   /**
    * deposits BNB to a stream account.
    */
-  deposit(msg: MsgDeposit, txOption: ITxOption): Promise<DeliverTxResponse | SimulateResponse>;
+  deposit(msg: MsgDeposit, txOption: ITxOption): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * withdraws BNB from a stream account.
    */
-  withdraw(msg: MsgWithdraw, txOption: ITxOption): Promise<DeliverTxResponse | SimulateResponse>;
+  withdraw(msg: MsgWithdraw, txOption: ITxOption): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * disables refund for a stream account.
@@ -37,7 +37,7 @@ export interface IPayment {
   disableRefund(
     msg: MsgDisableRefund,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 }
 
 export class Payment extends Account implements IPayment {

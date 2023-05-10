@@ -37,12 +37,13 @@
     ]
   },
   "dependencies": {
-    "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.6",
+    "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.7",
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
     "@cosmjs/tendermint-rpc": "^0.29.5",
     "@ethereumjs/util": "^8.0.5",
     "@ethersproject/signing-key": "^5.7.0",
+    "@ethersproject/units": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
     "long": "^5.2.1"
   },

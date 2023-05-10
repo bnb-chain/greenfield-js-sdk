@@ -1,3 +1,4 @@
+import { ISimulateGasFee } from '@/utils/units';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
   QueryClientImpl as AuthQueryClientImpl,
@@ -10,7 +11,6 @@ import {
   QueryBalanceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
-import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
 import { MsgMultiSendSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/bank/v1beta1/MsgMultiSendSDKTypeEIP712';
 import { MsgSendSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/bank/v1beta1/MsgSendSDKTypeEIP712';
 import { MsgCreatePaymentAccountSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgCreatePaymentAccountSDKTypeEIP712';
@@ -54,12 +54,12 @@ export interface IAccount {
   createPaymentAccount(
     msg: MsgCreatePaymentAccount,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * Transfer function
    */
-  transfer(msg: MsgSend, txOption: ITxOption): Promise<DeliverTxResponse | SimulateResponse>;
+  transfer(msg: MsgSend, txOption: ITxOption): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * makes transfers from an account to multiple accounts with respect amounts
@@ -68,7 +68,7 @@ export interface IAccount {
     address: string,
     msg: MsgMultiSend,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 }
 
 export class Account extends Basic implements IAccount {
@@ -76,7 +76,7 @@ export class Account extends Basic implements IAccount {
     address: string,
     msg: MsgMultiSend,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse> {
+  ): Promise<DeliverTxResponse | ISimulateGasFee> {
     const typeUrl = '/cosmos.bank.v1beta1.MsgMultiSend';
     const msgBytes = MsgMultiSend.encode(msg).finish();
     const accountInfo = await this.getAccount(address);
@@ -109,7 +109,7 @@ export class Account extends Basic implements IAccount {
   public async createPaymentAccount(
     msg: MsgCreatePaymentAccount,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse> {
+  ): Promise<DeliverTxResponse | ISimulateGasFee> {
     const typeUrl = '/bnbchain.greenfield.payment.MsgCreatePaymentAccount';
     const msgBytes = MsgCreatePaymentAccount.encode(msg).finish();
     const accountInfo = await this.getAccount(msg.creator);

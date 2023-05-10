@@ -71,15 +71,11 @@ export const newMsgCreateBucket = ({
   chargedReadQuota,
   sig,
 }: ICreateBucketMsg) => {
-  const message = MsgCreateBucket.fromJSON({
-    visibility,
-  });
-
   return {
     type: TYPE_URL,
     bucket_name: bucketName,
     creator: from,
-    visibility: visibilityTypeToJSON(message.visibility),
+    visibility,
     payment_address: paymentAddress,
     primary_sp_address: primarySpAddress,
     primary_sp_approval: {

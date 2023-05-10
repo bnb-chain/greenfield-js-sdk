@@ -1,15 +1,14 @@
+import { MsgUpdateSpStoragePriceSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/sp/MsgUpdateSpStoragePriceSDKTypeEIP712';
 import { QueryClientImpl as SpQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
+import { MsgUpdateSpStoragePrice } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/tx';
 import {
   SecondarySpStorePrice,
   SpStoragePrice,
-  Status,
   StorageProvider,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import Long from 'long';
-import { MsgUpdateSpStoragePrice } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/tx';
 import { Account } from './account';
 import { ITxOption } from './basic';
-import { MsgUpdateSpStoragePriceSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/sp/MsgUpdateSpStoragePriceSDKTypeEIP712';
 
 export interface ISp {
   /**

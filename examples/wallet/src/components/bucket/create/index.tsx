@@ -39,7 +39,7 @@ export const CreateBucket = () => {
   });
   const [gasLimit, setGasLimit] = useState(0);
   const [textarea, setTextArea] = useState('');
-  const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateBucket | null>(null);
+  const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateBucket['value'] | null>(null);
   const [gasPrice, setGasPrice] = useState('');
 
   return (
@@ -48,23 +48,42 @@ export const CreateBucket = () => {
 
       <button
         onClick={async () => {
-          await client.bucket.getCreateBucketApproval();
-          // const approval = await client.bucket.getCreateBucketApproval({
-          //   bucketName: '',
-          //   creator: '',
-          //   paymentAddress: '',
-          //   primarySpAddress: '',
-          //   visibility: StorageEnums.VisibilityType.UNRECOGNIZED,
-          //   primarySpApproval: {
-          //     expiredHeight: Long.fromNumber(0),
-          //     sig: Uint8Array.from([]),
-          //   },
-          //   chargedReadQuota: Long.fromNumber(11),
-          // });
-          // console.log('approval', approval);
+          if (!address) return;
+
+          const sps = await client.sp.getStorageProviders();
+          const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
+          const selectIndex = 0;
+          const secondarySpAddresses = [
+            ...finalSps.slice(0, selectIndex),
+            ...finalSps.slice(selectIndex + 1),
+          ].map((item) => item.operatorAddress);
+
+          const res = await client.bucket.createBucket(
+            {
+              bucketName: 'buckettttestname',
+              creator: address,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              chargedReadQuota: '0',
+              spInfo: {
+                endpoint: finalSps[selectIndex].endpoint,
+                primarySpAddress: finalSps[selectIndex]?.operatorAddress,
+                sealAddress: finalSps[selectIndex].sealAddress,
+                secondarySpAddresses,
+              },
+            },
+            {
+              simulate: false,
+              denom: 'BNB',
+              gasLimit: 210000,
+              gasPrice: '5000000000',
+              payer: address,
+              granter: '',
+            },
+          );
+          console.log('res', res);
         }}
       >
-        test
+        create bucket
       </button>
 
       <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
@@ -104,14 +123,14 @@ export const CreateBucket = () => {
           const { sequence } = await getAccount(GRPC_URL!, address!);
 
           const simulateBytes = createBucketTx.getSimulateBytes({
-            from: xGnfdSignedMsg.value.creator,
-            bucketName: xGnfdSignedMsg.value.bucket_name,
+            from: xGnfdSignedMsg.creator,
+            bucketName: xGnfdSignedMsg.bucket_name,
             denom: 'BNB',
-            primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota,
-            visibility: xGnfdSignedMsg.value.visibility,
+            primarySpAddress: xGnfdSignedMsg.primary_sp_address,
+            expiredHeight: xGnfdSignedMsg.primary_sp_approval.expired_height,
+            sig: xGnfdSignedMsg.primary_sp_approval.sig,
+            chargedReadQuota: xGnfdSignedMsg.charged_read_quota,
+            visibility: xGnfdSignedMsg.visibility,
             paymentAddress: '',
           });
 
@@ -138,24 +157,24 @@ export const CreateBucket = () => {
       <button
         onClick={async () => {
           if (!xGnfdSignedMsg) return;
-          if (address !== xGnfdSignedMsg.value.creator) {
+          if (address !== xGnfdSignedMsg.creator) {
             alert('account is not creator');
           }
 
           const { sequence, accountNumber } = await getAccount(GRPC_URL!, address!);
           const sign = await createBucketTx.signTx({
-            from: xGnfdSignedMsg.value.creator,
-            bucketName: xGnfdSignedMsg.value.bucket_name,
+            from: xGnfdSignedMsg.creator,
+            bucketName: xGnfdSignedMsg.bucket_name,
             sequence: sequence + '',
             accountNumber: accountNumber + '',
             denom: 'BNB',
             gasLimit,
             gasPrice,
-            primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota ?? 0,
-            visibility: xGnfdSignedMsg.value.visibility,
+            primarySpAddress: xGnfdSignedMsg.primary_sp_address,
+            expiredHeight: xGnfdSignedMsg.primary_sp_approval.expired_height,
+            sig: xGnfdSignedMsg.primary_sp_approval.sig,
+            chargedReadQuota: xGnfdSignedMsg.charged_read_quota ?? 0,
+            visibility: xGnfdSignedMsg.visibility,
             paymentAddress: '',
           });
 
@@ -169,7 +188,7 @@ export const CreateBucket = () => {
       <button
         onClick={async () => {
           if (!address || !xGnfdSignedMsg) return;
-          if (address !== xGnfdSignedMsg.value.creator) {
+          if (address !== xGnfdSignedMsg.creator) {
             alert('account is not creator');
           }
 
@@ -182,20 +201,20 @@ export const CreateBucket = () => {
           const pubKey = makeCosmsPubKey(pk);
 
           const rawBytes = await createBucketTx.getRawTxInfo({
-            bucketName: xGnfdSignedMsg.value.bucket_name,
+            bucketName: xGnfdSignedMsg.bucket_name,
             denom: 'BNB',
             from: address,
             gasLimit,
             gasPrice,
-            primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
+            primarySpAddress: xGnfdSignedMsg.primary_sp_address,
             pubKey,
             sequence: sequence + '',
             accountNumber: accountNumber + '',
             sign: signInfo.signature,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota,
-            visibility: xGnfdSignedMsg.value.visibility,
+            expiredHeight: xGnfdSignedMsg.primary_sp_approval.expired_height,
+            sig: xGnfdSignedMsg.primary_sp_approval.sig,
+            chargedReadQuota: xGnfdSignedMsg.charged_read_quota,
+            visibility: xGnfdSignedMsg.visibility,
             paymentAddress: '',
           });
 

@@ -1,4 +1,3 @@
-import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
 import { MsgAttestSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgAttestSDKTypeEIP712';
 import { MsgSubmitSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgSubmitSDKTypeEIP712';
 import {
@@ -10,6 +9,7 @@ import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfi
 import { DeliverTxResponse } from '@cosmjs/stargate';
 import { Account } from './account';
 import { ITxOption } from './basic';
+import { ISimulateGasFee } from '@/utils/units';
 
 export interface IChallenge {
   /**
@@ -24,7 +24,7 @@ export interface IChallenge {
     address: string,
     msg: MsgSubmit,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   /**
    * Attest handles user's request for attesting a challenge.
@@ -36,7 +36,7 @@ export interface IChallenge {
     address: string,
     msg: MsgAttest,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | SimulateResponse>;
+  ): Promise<DeliverTxResponse | ISimulateGasFee>;
 
   latestAttestedChallenges(): Promise<QueryLatestAttestedChallengesResponse>;
 

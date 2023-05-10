@@ -1,3 +1,4 @@
+import { ISimulateGasFee } from '@/utils/units';
 import {
   QueryClientImpl as CrosschainQueryClientImpl,
   QueryCrossChainPackageResponse,
@@ -9,7 +10,6 @@ import {
   QueryInturnRelayerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
 import { MsgClaim } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/tx';
-import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
 import { MsgClaimSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/oracle/v1/MsgClaimSDKTypeEIP712';
 import { MsgTransferOutSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/bridge/MsgTransferOutSDKTypeEIP712';
 import { MsgMirrorBucketSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorBucketSDKTypeEIP712';
@@ -33,12 +33,12 @@ export interface ICrossChain {
   transferOut(
     msg: MsgTransferOut,
     txOption: ITxOption,
-  ): Promise<SimulateResponse | DeliverTxResponse>;
+  ): Promise<ISimulateGasFee | DeliverTxResponse>;
 
   /**
    * cross-chain packages from BSC to Greenfield, used by relayers which run by validators
    */
-  claims(msg: MsgClaim, txOption: ITxOption): Promise<SimulateResponse | DeliverTxResponse>;
+  claims(msg: MsgClaim, txOption: ITxOption): Promise<ISimulateGasFee | DeliverTxResponse>;
 
   /**
    * gets the next send sequence for a channel
@@ -66,7 +66,7 @@ export interface ICrossChain {
   mirrorGroup(
     msg: MsgMirrorGroup,
     txOption: ITxOption,
-  ): Promise<SimulateResponse | DeliverTxResponse>;
+  ): Promise<ISimulateGasFee | DeliverTxResponse>;
 
   /**
    * mirrors the bucket to BSC as NFT
@@ -74,7 +74,7 @@ export interface ICrossChain {
   mirrorBucket(
     msg: MsgMirrorBucket,
     txOption: ITxOption,
-  ): Promise<SimulateResponse | DeliverTxResponse>;
+  ): Promise<ISimulateGasFee | DeliverTxResponse>;
 
   /**
    * mirrors the object to BSC as NFT
@@ -82,7 +82,7 @@ export interface ICrossChain {
   mirrorObject(
     msg: MsgMirrorObject,
     txOption: ITxOption,
-  ): Promise<SimulateResponse | DeliverTxResponse>;
+  ): Promise<ISimulateGasFee | DeliverTxResponse>;
 }
 
 export class CrossChain extends Account implements ICrossChain {
