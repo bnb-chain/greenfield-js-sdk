@@ -146,7 +146,7 @@ export class TransferTx extends BaseTx {
     gasLimit,
     denom,
     gasPrice,
-  }: Pick<ITransferTxInfo & IBaseMsg, 'denom' | 'sequence' | 'gasLimit' | 'gasPrice'> & {
+  }: Pick<IBaseMsg, 'denom' | 'sequence' | 'gasLimit' | 'gasPrice'> & {
     pubKey: BaseAccount['pubKey'];
   }) {
     if (!pubKey) throw new Error('pubKey is required');

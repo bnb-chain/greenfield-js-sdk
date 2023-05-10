@@ -1,10 +1,17 @@
 import { GRPC_URL } from '@/config';
 import { decodeFromHex } from '@/utils/encoding';
-import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
+import {
+  Long,
+  makeCosmsPubKey,
+  recoverPk,
+  StorageEnums,
+  ZERO_PUBKEY,
+} from '@bnb-chain/greenfield-chain-sdk';
 import { getGasFeeBySimulate } from '@/utils/simulate';
 import { CreateBucketTx, getAccount, ISignature712 } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
+import { client } from '@/client';
 
 interface IApprovalCreateBucket {
   type: string;
@@ -38,6 +45,28 @@ export const CreateBucket = () => {
   return (
     <>
       <h4>Create Bucket</h4>
+
+      <button
+        onClick={async () => {
+          await client.bucket.getCreateBucketApproval();
+          // const approval = await client.bucket.getCreateBucketApproval({
+          //   bucketName: '',
+          //   creator: '',
+          //   paymentAddress: '',
+          //   primarySpAddress: '',
+          //   visibility: StorageEnums.VisibilityType.UNRECOGNIZED,
+          //   primarySpApproval: {
+          //     expiredHeight: Long.fromNumber(0),
+          //     sig: Uint8Array.from([]),
+          //   },
+          //   chargedReadQuota: Long.fromNumber(11),
+          // });
+          // console.log('approval', approval);
+        }}
+      >
+        test
+      </button>
+
       <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
         <textarea
           value={textarea}

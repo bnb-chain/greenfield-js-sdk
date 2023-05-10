@@ -1,6 +1,6 @@
-import { getStorageProviders } from '@/client';
+import { client, getStorageProviders } from '@/client';
 import { GRPC_URL } from '@/config';
-import { ChainClient, getBalance, getBlock } from '@bnb-chain/greenfield-chain-sdk';
+import { getBalance } from '@bnb-chain/greenfield-chain-sdk';
 import { useAccount } from 'wagmi';
 
 export const RpcComponent = () => {
@@ -33,11 +33,33 @@ export const RpcComponent = () => {
 
       <button
         onClick={async () => {
-          const client22 = ChainClient.create();
-          // client22.sayHi();
+          if (!address) return;
+
+          const res = await client.account.transfer(
+            {
+              fromAddress: address,
+              toAddress: '0x0000000000000000000000000000000000000001',
+              amount: [
+                {
+                  denom: 'BNB',
+                  amount: '10000000000000000',
+                },
+              ],
+            },
+            {
+              simulate: false,
+              denom: 'BNB',
+              gasLimit: 210000,
+              gasPrice: '5000000000',
+              payer: address,
+              granter: '',
+            },
+          );
+
+          console.log('res', res);
         }}
       >
-        get block
+        transfer
       </button>
     </>
   );

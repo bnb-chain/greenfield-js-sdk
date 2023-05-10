@@ -16,7 +16,7 @@ export interface ISp {
    * return the storage provider info on chain
 	  isInService indicates if only display the sp with STATUS_IN_SERVICE status
    */
-  listStorageProviders(isInService: boolean): Promise<(StorageProvider | undefined)[]>;
+  getStorageProviders(): Promise<StorageProvider[]>;
 
   /**
    * return the sp info with the sp chain address
@@ -39,14 +39,15 @@ export interface ISp {
 }
 
 export class Sp extends Account implements ISp {
-  public async listStorageProviders(isInService: boolean) {
+  public async getStorageProviders() {
     const rpcClient = await this.getRpcClient();
     const rpc = new SpQueryClientImpl(rpcClient);
     const res = await rpc.StorageProviders();
-    return res.sps.map((sp) => {
-      if (isInService && sp.status !== Status.STATUS_IN_SERVICE) return;
-      return sp;
-    });
+    return res.sps;
+    // return res.sps.map((sp) => {
+    //   if (isInService && sp.status !== Status.STATUS_IN_SERVICE) return;
+    //   return sp;
+    // });
   }
 
   public async getStorageProviderInfo(spAddress: string) {

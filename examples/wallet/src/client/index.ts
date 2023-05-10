@@ -1,8 +1,10 @@
-import { GRPC_URL } from '@/config';
-import { makeRpcClient } from '@bnb-chain/greenfield-chain-sdk';
+import { GREEN_CHAIN_ID, GRPC_URL } from '@/config';
+import { ChainClient, makeRpcClient } from '@bnb-chain/greenfield-chain-sdk';
 import Long from 'long';
 import { QueryClientImpl as spQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import { QueryClientImpl as storageQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
+
+export const client = ChainClient.create(GRPC_URL, String(GREEN_CHAIN_ID));
 
 export const getSpStoragePriceByTime = async () => {
   const rpcClient = await makeRpcClient(GRPC_URL);

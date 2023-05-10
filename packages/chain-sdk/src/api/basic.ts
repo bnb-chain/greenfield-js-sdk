@@ -101,7 +101,7 @@ export interface IBasic {
 }
 
 export class Basic implements IBasic {
-  constructor(private readonly rpcUrl: string, protected readonly chainId: string) {}
+  constructor(protected readonly rpcUrl: string, protected readonly chainId: string) {}
 
   public async getNodeInfo() {
     const rpcClient = await this.getRpcClient();

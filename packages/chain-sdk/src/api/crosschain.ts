@@ -26,7 +26,7 @@ import Long from 'long';
 import { Account } from './account';
 import { ITxOption } from './basic';
 
-interface ICrossChain {
+export interface ICrossChain {
   /**
    * makes a transfer from Greenfield to BSC
    */
