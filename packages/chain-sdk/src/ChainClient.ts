@@ -1,4 +1,5 @@
 import { Account, IAccount } from './api/account';
+import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { Basic, IBasic } from './api/basic';
 import { Bucket, IBucket } from './api/bucket';
 import { Challenge, IChallenge } from './api/challenge';

@@ -231,8 +231,8 @@ export class Basic implements IBasic {
 
   protected async getRawTxBytes(
     typeUrl: string,
-    msgSDKTypeEIP712: object,
-    msgSDKType: object,
+    msgEIP712Structor: object,
+    msgEIP712: object,
     bodyBytes: Uint8Array,
     accountInfo: BaseAccount,
     txOption: Omit<ITxOption, 'simulate'>,
@@ -240,11 +240,11 @@ export class Basic implements IBasic {
     const { denom, gasLimit, gasPrice } = txOption;
     const eip712 = this.getEIP712Struct(
       typeUrl,
-      msgSDKTypeEIP712,
+      msgEIP712Structor,
       accountInfo.accountNumber + '',
       accountInfo.sequence + '',
       this.chainId,
-      msgSDKType,
+      msgEIP712,
       txOption,
     );
 

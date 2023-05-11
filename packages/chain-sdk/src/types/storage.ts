@@ -1,8 +1,7 @@
 import {
-  Principal,
-  PrincipalType,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
-import { VisibilityType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
+  RedundancyType,
+  VisibilityType,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 
 export interface IGetCreateBucketApproval {
   bucketName: string;
@@ -88,4 +87,44 @@ export interface IQuotaProps {
   readQuota: number;
   freeQuota: number;
   consumedQuota: number;
+}
+
+export interface IGetCreateObjectApproval {
+  bucketName: string;
+  objectName: string;
+  creator: string;
+  visibility?: keyof typeof VisibilityType;
+  file: File;
+  redundancyType?: keyof typeof RedundancyType;
+  expectSecondarySpAddresses: string[];
+  // endpoint?: string;
+  spInfo: ISpInfo;
+  duration?: number;
+  // hashResult?: any;
+}
+
+export interface ICreateObjectMsgType {
+  creator: string;
+  bucket_name: string;
+  object_name: string;
+  payload_size: string;
+  visibility: keyof typeof VisibilityType;
+  content_type: string;
+  primary_sp_approval: {
+    expired_height: string;
+    sig: string;
+  };
+  expect_checksums: string[];
+  expect_secondary_sp_addresses: string[];
+  redundancy_type: keyof typeof RedundancyType;
+  // charged_read_quota: string;
+}
+
+export interface IPutObjectPropsType {
+  bucketName: string;
+  objectName: string;
+  txnHash: string;
+  body: Blob;
+  endpoint?: string;
+  duration?: number;
 }

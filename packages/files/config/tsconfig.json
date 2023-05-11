@@ -1,0 +1,31 @@
+{
+  "baseUrl": ".",
+  "lib": [
+    "dom",
+    "esnext",
+    "es6"
+  ],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationDir": "../dist/types",
+    "outDir": "../dist",
+    "emitDeclarationOnly": false,
+    "allowUmdGlobalAccess": true,
+    "allowJs": true
+  },
+  "include": [
+    "../src",
+    "../typing/*.d.ts"
+  ],
+  "exclude": [
+    "../node_modules",
+    "../src/files-handle-wasm",
+    "../wasm"
+  ]
+}

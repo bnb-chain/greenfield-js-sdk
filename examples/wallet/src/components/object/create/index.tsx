@@ -1,28 +1,32 @@
+import { client } from '@/client';
 import { GRPC_URL } from '@/config';
 import { decodeFromHex } from '@/utils/encoding';
-import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
 import { getGasFeeBySimulate } from '@/utils/simulate';
-import { CreateObjectTx, getAccount, ISignature712 } from '@bnb-chain/greenfield-chain-sdk';
-import { useState } from 'react';
+import {
+  CreateObjectTx,
+  getAccount,
+  ISignature712,
+  makeCosmsPubKey,
+  recoverPk,
+  ZERO_PUBKEY,
+} from '@bnb-chain/greenfield-chain-sdk';
+import { ChangeEvent, useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
 
 interface IApprovalCreateObject {
-  type: string;
-  value: {
-    bucket_name: string;
-    content_type: string;
-    creator: string;
-    expect_checksums: string[];
-    visibility: number;
-    object_name: string;
-    payload_size: string;
-    primary_sp_approval: {
-      expired_height: string;
-      sig: string;
-    };
-    expect_secondary_sp_addresses: string[];
-    redundancy_type: number;
+  bucket_name: string;
+  content_type: string;
+  creator: string;
+  expect_checksums: string[];
+  visibility: number;
+  object_name: string;
+  payload_size: string;
+  primary_sp_approval: {
+    expired_height: string;
+    sig: string;
   };
+  expect_secondary_sp_addresses: string[];
+  redundancy_type: number;
 }
 
 export const CreateObject = () => {
@@ -36,11 +40,79 @@ export const CreateObject = () => {
   const [gasLimit, setGasLimit] = useState(0);
   const [textarea, setTextArea] = useState('');
   const [gasPrice, setGasPrice] = useState('');
+  const [file, setFile] = useState<File>();
   const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateObject | null>(null);
 
   return (
     <div>
       <h4>Create Object</h4>
+
+      <input
+        type="file"
+        placeholder="select a file"
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+          if (e.target.files) {
+            setFile(e.target.files[0]);
+          }
+        }}
+      />
+
+      <button
+        onClick={async () => {
+          if (!address || !file) {
+            alert('Please select a file and address');
+            return;
+          }
+
+          // select sp info
+          const sps = await client.sp.getStorageProviders();
+          const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
+          const selectIndex = 0;
+          const secondarySpAddresses = [
+            ...finalSps.slice(0, selectIndex),
+            ...finalSps.slice(selectIndex + 1),
+          ].map((item) => item.operatorAddress);
+          const spInfo = {
+            endpoint: finalSps[selectIndex].endpoint,
+            primarySpAddress: finalSps[selectIndex]?.operatorAddress,
+            sealAddress: finalSps[selectIndex].sealAddress,
+            secondarySpAddresses,
+          };
+
+          const res = await client.object.createObject(
+            {
+              bucketName: 'buckettttestname',
+              objectName: 'obj2ccecttttestname',
+              spInfo,
+              file,
+              creator: address,
+              expectSecondarySpAddresses: [],
+            },
+            {
+              simulate: false,
+              denom: 'BNB',
+              gasLimit: 210000,
+              gasPrice: '5000000000',
+              payer: address,
+              granter: '',
+            },
+          );
+
+          console.log('res', res);
+
+          const uploadRes = await client.object.uploadObject({
+            bucketName: 'buckettttestname',
+            objectName: 'objecttttestname',
+            body: file,
+            txnHash: res.transactionHash,
+            endpoint: spInfo.endpoint,
+          });
+          console.log('uploadRes', uploadRes);
+        }}
+      >
+        create
+      </button>
+
       <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
         <textarea
           value={textarea}
@@ -79,17 +151,17 @@ export const CreateObject = () => {
           const { sequence } = await getAccount(GRPC_URL!, address!);
 
           const simulateBytes = createObjectTx.getSimulateBytes({
-            objectName: xGnfdSignedMsg.value.object_name,
-            contentType: xGnfdSignedMsg.value.content_type,
-            from: xGnfdSignedMsg.value.creator,
-            bucketName: xGnfdSignedMsg.value.bucket_name,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            visibility: xGnfdSignedMsg.value.visibility,
-            payloadSize: xGnfdSignedMsg.value.payload_size,
-            expectChecksums: xGnfdSignedMsg.value.expect_checksums,
-            redundancyType: xGnfdSignedMsg.value.redundancy_type,
-            expectSecondarySpAddresses: xGnfdSignedMsg.value.expect_secondary_sp_addresses,
+            objectName: xGnfdSignedMsg.object_name,
+            contentType: xGnfdSignedMsg.content_type,
+            from: xGnfdSignedMsg.creator,
+            bucketName: xGnfdSignedMsg.bucket_name,
+            expiredHeight: xGnfdSignedMsg.primary_sp_approval.expired_height,
+            sig: xGnfdSignedMsg.primary_sp_approval.sig,
+            visibility: xGnfdSignedMsg.visibility,
+            payloadSize: xGnfdSignedMsg.payload_size,
+            expectChecksums: xGnfdSignedMsg.expect_checksums,
+            redundancyType: xGnfdSignedMsg.redundancy_type,
+            expectSecondarySpAddresses: xGnfdSignedMsg.expect_secondary_sp_addresses,
           });
 
           const authInfoBytes = createObjectTx.getAuthInfoBytes({
@@ -116,27 +188,28 @@ export const CreateObject = () => {
       <button
         onClick={async () => {
           if (!xGnfdSignedMsg) return;
-          if (address !== xGnfdSignedMsg.value.creator) {
+          if (address !== xGnfdSignedMsg.creator) {
             alert('account is not creator');
           }
 
           const { sequence, accountNumber } = await getAccount(GRPC_URL!, address!);
+
           const sign = await createObjectTx.signTx({
             accountNumber: accountNumber + '',
-            bucketName: xGnfdSignedMsg.value.bucket_name,
-            contentType: xGnfdSignedMsg.value.content_type,
+            bucketName: xGnfdSignedMsg.bucket_name,
+            contentType: xGnfdSignedMsg.content_type,
             denom: 'BNB',
-            expectChecksums: xGnfdSignedMsg.value.expect_checksums,
-            expectSecondarySpAddresses: xGnfdSignedMsg.value.expect_secondary_sp_addresses,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            from: xGnfdSignedMsg.value.creator,
+            expectChecksums: xGnfdSignedMsg.expect_checksums,
+            expectSecondarySpAddresses: xGnfdSignedMsg.expect_secondary_sp_addresses,
+            expiredHeight: xGnfdSignedMsg.primary_sp_approval.expired_height,
+            from: xGnfdSignedMsg.creator,
             gasLimit,
-            visibility: xGnfdSignedMsg.value.visibility,
-            objectName: xGnfdSignedMsg.value.object_name,
-            payloadSize: xGnfdSignedMsg.value.payload_size,
-            redundancyType: xGnfdSignedMsg.value.redundancy_type,
+            visibility: xGnfdSignedMsg.visibility,
+            objectName: xGnfdSignedMsg.object_name,
+            payloadSize: xGnfdSignedMsg.payload_size,
+            redundancyType: xGnfdSignedMsg.redundancy_type,
             sequence: sequence + '',
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
+            sig: xGnfdSignedMsg.primary_sp_approval.sig,
             gasPrice,
           });
 
@@ -150,7 +223,7 @@ export const CreateObject = () => {
       <button
         onClick={async () => {
           if (!address || !xGnfdSignedMsg) return;
-          if (address !== xGnfdSignedMsg.value.creator) {
+          if (address !== xGnfdSignedMsg.creator) {
             alert('account is not creator');
           }
 
@@ -163,7 +236,7 @@ export const CreateObject = () => {
           const pubKey = makeCosmsPubKey(pk);
 
           const rawBytes = await createObjectTx.getRawTxInfo({
-            bucketName: xGnfdSignedMsg.value.bucket_name,
+            bucketName: xGnfdSignedMsg.bucket_name,
             denom: 'BNB',
             from: address,
             gasLimit,
@@ -171,15 +244,15 @@ export const CreateObject = () => {
             sequence: sequence + '',
             accountNumber: accountNumber + '',
             sign: signInfo.signature,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            visibility: xGnfdSignedMsg.value.visibility,
-            contentType: xGnfdSignedMsg.value.content_type,
-            expectChecksums: xGnfdSignedMsg.value.expect_checksums,
-            objectName: xGnfdSignedMsg.value.object_name,
-            payloadSize: xGnfdSignedMsg.value.payload_size,
-            redundancyType: xGnfdSignedMsg.value.redundancy_type,
-            expectSecondarySpAddresses: xGnfdSignedMsg.value.expect_secondary_sp_addresses,
+            expiredHeight: xGnfdSignedMsg.primary_sp_approval.expired_height,
+            sig: xGnfdSignedMsg.primary_sp_approval.sig,
+            visibility: xGnfdSignedMsg.visibility,
+            contentType: xGnfdSignedMsg.content_type,
+            expectChecksums: xGnfdSignedMsg.expect_checksums,
+            objectName: xGnfdSignedMsg.object_name,
+            payloadSize: xGnfdSignedMsg.payload_size,
+            redundancyType: xGnfdSignedMsg.redundancy_type,
+            expectSecondarySpAddresses: xGnfdSignedMsg.expect_secondary_sp_addresses,
             gasPrice,
           });
 

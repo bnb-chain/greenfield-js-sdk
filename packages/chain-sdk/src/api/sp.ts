@@ -25,7 +25,7 @@ export interface ISp {
   /**
    * returns the storage price for a particular storage provider, including update time, read price, store price and .etc.
    */
-  getStoragePrice(spAddress: string): Promise<SpStoragePrice | undefined>;
+  getStoragePriceByTime(spAddress: string): Promise<SpStoragePrice | undefined>;
 
   /**
    * returns the secondary storage price, including update time and store price
@@ -58,7 +58,7 @@ export class Sp extends Account implements ISp {
     return res.storageProvider;
   }
 
-  public async getStoragePrice(spAddress: string) {
+  public async getStoragePriceByTime(spAddress: string) {
     const rpcClient = await this.getRpcClient();
     const rpc = new SpQueryClientImpl(rpcClient);
     const res = await rpc.QueryGetSpStoragePriceByTime({

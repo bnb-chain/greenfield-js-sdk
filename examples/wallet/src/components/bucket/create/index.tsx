@@ -57,6 +57,12 @@ export const CreateBucket = () => {
             ...finalSps.slice(0, selectIndex),
             ...finalSps.slice(selectIndex + 1),
           ].map((item) => item.operatorAddress);
+          const spInfo = {
+            endpoint: finalSps[selectIndex].endpoint,
+            primarySpAddress: finalSps[selectIndex]?.operatorAddress,
+            sealAddress: finalSps[selectIndex].sealAddress,
+            secondarySpAddresses,
+          };
 
           const res = await client.bucket.createBucket(
             {
@@ -64,12 +70,7 @@ export const CreateBucket = () => {
               creator: address,
               visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
               chargedReadQuota: '0',
-              spInfo: {
-                endpoint: finalSps[selectIndex].endpoint,
-                primarySpAddress: finalSps[selectIndex]?.operatorAddress,
-                sealAddress: finalSps[selectIndex].sealAddress,
-                secondarySpAddresses,
-              },
+              spInfo,
             },
             {
               simulate: false,

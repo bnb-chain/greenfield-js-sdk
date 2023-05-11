@@ -217,7 +217,7 @@ export class Bucket extends Account implements IBucket {
     const sig = signedMsg.primary_sp_approval.sig;
     const expiredHeight = signedMsg.primary_sp_approval.expired_height;
 
-    const msg = {
+    const msg: MsgCreateBucket = {
       bucketName: signedMsg.bucket_name,
       creator: signedMsg.creator,
       visibility: visibilityTypeFromJSON(signedMsg.visibility),
