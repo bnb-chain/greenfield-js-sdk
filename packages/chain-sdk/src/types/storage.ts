@@ -1,3 +1,7 @@
+import {
+  Principal,
+  PrincipalType,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { VisibilityType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 
 export interface IGetCreateBucketApproval {
