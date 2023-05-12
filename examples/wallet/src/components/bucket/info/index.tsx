@@ -1,7 +1,9 @@
-import { client } from '@/client';
+import { client, selectSp } from '@/client';
 import { useState } from 'react';
+import { useAccount } from 'wagmi';
 
 export const BucketInfo = () => {
+  const { address } = useAccount();
   const [bucketName, setBucketName] = useState('');
   const [bucketId, setBucketId] = useState('');
 
@@ -34,6 +36,29 @@ export const BucketInfo = () => {
         >
           get bucket info by id
         </button>
+      </div>
+
+      <div style={{ marginTop: 15 }} />
+
+      <div>
+        get bucket by address:
+        <div>
+          <button
+            onClick={async () => {
+              if (!address) return;
+
+              const spInfo = await selectSp();
+
+              const res = await client.bucket.getUserBuckets({
+                address,
+                endpoint: spInfo.endpoint,
+              });
+              console.log(res);
+            }}
+          >
+            get buckets
+          </button>
+        </div>
       </div>
     </div>
   );

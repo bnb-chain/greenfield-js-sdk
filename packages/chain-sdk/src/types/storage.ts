@@ -44,7 +44,7 @@ export interface ICreateBucketMsgType {
 export interface getUserBucketsPropsType {
   address: string;
   duration?: number;
-  endpoint?: string;
+  endpoint: string;
 }
 
 export type BucketProps = {
@@ -139,7 +139,7 @@ export interface IGetObjectPropsType {
 export interface IListObjectsByBucketNamePropsType {
   bucketName: string;
   duration?: number;
-  endpoint?: string;
+  endpoint: string;
   protocol?: string;
 }
 

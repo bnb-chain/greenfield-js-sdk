@@ -1,41 +1,6 @@
-import { client } from '@/client';
-import { GRPC_URL } from '@/config';
-import { CreateObjectTx, ISignature712, ISpInfo } from '@bnb-chain/greenfield-chain-sdk';
+import { client, selectSp } from '@/client';
 import { ChangeEvent, useState } from 'react';
-import { useAccount, useNetwork } from 'wagmi';
-
-interface IApprovalCreateObject {
-  bucket_name: string;
-  content_type: string;
-  creator: string;
-  expect_checksums: string[];
-  visibility: number;
-  object_name: string;
-  payload_size: string;
-  primary_sp_approval: {
-    expired_height: string;
-    sig: string;
-  };
-  expect_secondary_sp_addresses: string[];
-  redundancy_type: number;
-}
-
-const selectSp = async () => {
-  const sps = await client.sp.getStorageProviders();
-  const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
-  const selectIndex = 0;
-  const secondarySpAddresses = [
-    ...finalSps.slice(0, selectIndex),
-    ...finalSps.slice(selectIndex + 1),
-  ].map((item) => item.operatorAddress);
-  const selectSpInfo = {
-    endpoint: finalSps[selectIndex].endpoint,
-    primarySpAddress: finalSps[selectIndex]?.operatorAddress,
-    sealAddress: finalSps[selectIndex].sealAddress,
-    secondarySpAddresses,
-  };
-  return selectSpInfo;
-};
+import { useAccount } from 'wagmi';
 
 export const CreateObject = () => {
   const { address } = useAccount();

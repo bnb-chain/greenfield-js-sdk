@@ -1,4 +1,4 @@
-import { client } from '@/client';
+import { client, selectSp } from '@/client';
 import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -18,23 +18,6 @@ interface IApprovalCreateBucket {
     redundancy_type: string;
   };
 }
-
-const selectSp = async () => {
-  const sps = await client.sp.getStorageProviders();
-  const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
-  const selectIndex = 0;
-  const secondarySpAddresses = [
-    ...finalSps.slice(0, selectIndex),
-    ...finalSps.slice(selectIndex + 1),
-  ].map((item) => item.operatorAddress);
-  const spInfo = {
-    endpoint: finalSps[selectIndex].endpoint,
-    primarySpAddress: finalSps[selectIndex]?.operatorAddress,
-    sealAddress: finalSps[selectIndex].sealAddress,
-    secondarySpAddresses,
-  };
-  return spInfo;
-};
 
 export const CreateBucket = () => {
   const { address } = useAccount();

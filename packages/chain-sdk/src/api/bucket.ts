@@ -6,7 +6,7 @@ import {
   IObjectResultType,
   IQuotaProps,
   getUserBucketsPropsType,
-} from '@/types/storage';
+} from '../types/storage';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE, fetchWithTimeout } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
