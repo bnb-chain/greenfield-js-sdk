@@ -4,6 +4,7 @@ import { MsgWithdrawSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip
 import {
   QueryClientImpl as PaymentQueryClientImpl,
   QueryGetStreamRecordResponse,
+  QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import {
   MsgDeposit,
@@ -38,6 +39,8 @@ export interface IPayment {
     msg: MsgDisableRefund,
     txOption: ITxOption,
   ): Promise<DeliverTxResponse | ISimulateGasFee>;
+
+  params(): Promise<QueryParamsResponse>;
 }
 
 export class Payment extends Account implements IPayment {
@@ -47,6 +50,12 @@ export class Payment extends Account implements IPayment {
     return await rpc.StreamRecord({
       account,
     });
+  }
+
+  public async params() {
+    const rpcClient = await this.getRpcClient();
+    const rpc = new PaymentQueryClientImpl(rpcClient);
+    return await rpc.Params();
   }
 
   public async deposit(msg: MsgDeposit, txOption: ITxOption) {
