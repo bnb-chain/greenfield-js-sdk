@@ -128,3 +128,44 @@ export interface IPutObjectPropsType {
   endpoint?: string;
   duration?: number;
 }
+
+export interface IGetObjectPropsType {
+  bucketName: string;
+  objectName: string;
+  endpoint?: string;
+  duration?: number;
+}
+
+export interface IListObjectsByBucketNamePropsType {
+  bucketName: string;
+  duration?: number;
+  endpoint?: string;
+  protocol?: string;
+}
+
+export interface IObjectProps {
+  object_info: {
+    owner: string;
+    bucket_name: string;
+    object_name: string;
+    id: string;
+    payload_size: string;
+    visibility: number;
+    content_type: string;
+    create_at: string;
+    object_status: string;
+    redundancy_type: string;
+    source_type: string;
+    checksums: Array<string>;
+    secondary_sp_addresses: Array<string>;
+  };
+  locked_balance: string;
+  removed: boolean;
+  update_at: string;
+  delete_at: string;
+  delete_reason: string;
+  operator: string;
+  create_tx_hash: string;
+  update_tx_hash: string;
+  seal_tx_hash: string;
+}

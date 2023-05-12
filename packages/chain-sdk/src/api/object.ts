@@ -1,19 +1,5 @@
-import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
-import {
-  ICreateObjectMsgType,
-  IGetCreateObjectApproval,
-  IObjectResultType,
-  IPutObjectPropsType,
-  ISimulateGasFee,
-  Long,
-  decodeObjectFromHexString,
-  encodeObjectToHexString,
-  generateUrlByBucketName,
-  isValidBucketName,
-  isValidObjectName,
-  isValidUrl,
-} from '..';
-import { Account } from './account';
+import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/cancelCreateObject';
+import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/createObject';
 import {
   METHOD_GET,
   METHOD_PUT,
@@ -21,21 +7,43 @@ import {
   NORMAL_ERROR_CODE,
   fetchWithTimeout,
 } from '@/utils/http';
-import { ITxOption } from './basic';
+import { MsgDeleteObjectSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteObjectSDKTypeEIP712';
+import {
+  redundancyTypeFromJSON,
+  visibilityTypeFromJSON,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
+import {
+  QueryHeadObjectResponse,
+  QueryClientImpl as StorageQueryClientImpl,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCancelCreateObject,
   MsgCreateObject,
   MsgDeleteObject,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import {
-  redundancyTypeFromJSON,
-  visibilityTypeFromJSON,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { DeliverTxResponse } from '@cosmjs/stargate';
-import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/createObject';
-import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/cancelCreateObject';
-import { MsgDeleteObjectSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteObjectSDKTypeEIP712';
+import {
+  ICreateObjectMsgType,
+  IGetCreateObjectApproval,
+  IGetObjectPropsType,
+  IListObjectsByBucketNamePropsType,
+  IObjectProps,
+  IObjectResultType,
+  IPutObjectPropsType,
+  Long,
+} from '../types';
+import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
+import {
+  generateUrlByBucketName,
+  isValidBucketName,
+  isValidObjectName,
+  isValidUrl,
+} from '../utils/s3';
+import { ISimulateGasFee } from '../utils/units';
+import { Account } from './account';
+import { ITxOption } from './basic';
 
 export interface IObject {
   getCreateObjectApproval(
@@ -56,6 +64,23 @@ export interface IObject {
 
   deleteObject(
     msg: MsgDeleteObject,
+    txOption: ITxOption,
+  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+
+  headObject(bucketName: string, objectName: string): Promise<QueryHeadObjectResponse>;
+
+  headObjectById(objectId: string): Promise<QueryHeadObjectResponse>;
+
+  getObject(configParam: IGetObjectPropsType): Promise<IObjectResultType<Blob>>;
+
+  downloadFile(configParam: IGetObjectPropsType): Promise<void>;
+
+  listObjects(
+    configParam: IListObjectsByBucketNamePropsType,
+  ): Promise<IObjectResultType<Array<IObjectProps>>>;
+
+  createFolder(
+    getApprovalParams: IGetCreateObjectApproval,
     txOption: ITxOption,
   ): Promise<ISimulateGasFee | DeliverTxResponse>;
 }
@@ -329,5 +354,155 @@ export class Object extends Account implements IObject {
     );
 
     return await this.broadcastRawTx(rawTxBytes);
+  }
+
+  public async headObject(bucketName: string, objectName: string) {
+    const rpcClient = await this.getRpcClient();
+    const rpc = new StorageQueryClientImpl(rpcClient);
+
+    return rpc.HeadObject({
+      bucketName,
+      objectName,
+    });
+  }
+
+  public async headObjectById(objectId: string) {
+    const rpcClient = await this.getRpcClient();
+    const rpc = new StorageQueryClientImpl(rpcClient);
+
+    return rpc.HeadObjectById({
+      objectId,
+    });
+  }
+
+  public async getObject(configParam: IGetObjectPropsType) {
+    try {
+      const { bucketName, objectName, endpoint, duration = 30000 } = configParam;
+      // todo generate real signature
+      const signature = MOCK_SIGNATURE;
+      if (!isValidUrl(endpoint)) {
+        throw new Error('Invalid endpoint');
+      }
+      if (!isValidBucketName(bucketName)) {
+        throw new Error('Error bucket name');
+      }
+      if (!isValidObjectName(objectName)) {
+        throw new Error('Error object name');
+      }
+      const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
+      const headers = new Headers({
+        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
+      });
+
+      const result = await fetchWithTimeout(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        duration,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        return { code: -1, message: 'Get object error.', statusCode: status };
+      }
+      const resultContentType = result.headers.get('Content-Type');
+      // Will receive xml when get object met error
+      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
+        const xmlText = await result.text();
+        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
+        return {
+          code: -1,
+          xml,
+          message: 'Get object error.',
+          statusCode: status,
+        };
+      }
+      const fileBlob = await result.blob();
+      return {
+        code: 0,
+        body: fileBlob,
+        message: 'Get object success.',
+        statusCode: status,
+      };
+    } catch (error: any) {
+      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+    }
+  }
+
+  public async downloadFile(configParam: IGetObjectPropsType): Promise<void> {
+    try {
+      const { objectName } = configParam;
+      const getObjectResult = await this.getObject(configParam);
+
+      if (getObjectResult.code !== 0) {
+        throw new Error(getObjectResult.message);
+      }
+
+      const file = getObjectResult?.body;
+      if (file) {
+        // const {file} = getObjectResult;
+        const fileURL = URL.createObjectURL(file);
+        // create <a> tag dynamically
+        const fileLink = document.createElement('a');
+        fileLink.href = fileURL;
+        // it forces the name of the downloaded file
+        fileLink.download = objectName as string;
+        // triggers the click event
+        fileLink.click();
+      }
+      return;
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  }
+
+  public async listObjects(configParam: IListObjectsByBucketNamePropsType) {
+    try {
+      const { bucketName, endpoint, duration = 30000 } = configParam;
+      if (!isValidBucketName(bucketName)) {
+        throw new Error('Error bucket name');
+      }
+      if (!isValidUrl(endpoint)) {
+        throw new Error('Invalid endpoint');
+      }
+      const url = generateUrlByBucketName(endpoint, bucketName);
+      const signature = MOCK_SIGNATURE;
+      const headers = new Headers({
+        // todo place the correct authorization string
+        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
+      });
+      const result = await fetchWithTimeout(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        duration,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        return { code: -1, message: 'List object error.', statusCode: status };
+      }
+      const { objects } = await result.json();
+      return {
+        code: 0,
+        message: 'List object success.',
+        statusCode: status,
+        body: objects,
+      };
+    } catch (error: any) {
+      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+    }
+  }
+
+  public async createFolder(getApprovalParams: IGetCreateObjectApproval, txOption: ITxOption) {
+    if (!getApprovalParams.objectName.endsWith('/')) {
+      throw new Error(
+        'failed to create folder. Folder names must end with a forward slash (/) character',
+      );
+    }
+
+    return this.createObject(getApprovalParams, txOption);
   }
 }

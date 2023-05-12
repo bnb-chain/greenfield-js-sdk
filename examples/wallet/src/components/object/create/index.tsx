@@ -6,6 +6,7 @@ import {
   CreateObjectTx,
   getAccount,
   ISignature712,
+  ISpInfo,
   makeCosmsPubKey,
   recoverPk,
   ZERO_PUBKEY,
@@ -42,6 +43,7 @@ export const CreateObject = () => {
   const [gasPrice, setGasPrice] = useState('');
   const [file, setFile] = useState<File>();
   const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateObject | null>(null);
+  const [spInfo, setSpInfo] = useState<ISpInfo | null>(null);
 
   return (
     <div>
@@ -59,11 +61,6 @@ export const CreateObject = () => {
 
       <button
         onClick={async () => {
-          if (!address || !file) {
-            alert('Please select a file and address');
-            return;
-          }
-
           // select sp info
           const sps = await client.sp.getStorageProviders();
           const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
@@ -72,17 +69,34 @@ export const CreateObject = () => {
             ...finalSps.slice(0, selectIndex),
             ...finalSps.slice(selectIndex + 1),
           ].map((item) => item.operatorAddress);
-          const spInfo = {
+          const selectSpInfo = {
             endpoint: finalSps[selectIndex].endpoint,
             primarySpAddress: finalSps[selectIndex]?.operatorAddress,
             sealAddress: finalSps[selectIndex].sealAddress,
             secondarySpAddresses,
           };
 
+          setSpInfo(selectSpInfo);
+        }}
+      >
+        select sp
+      </button>
+
+      <button
+        onClick={async () => {
+          if (!address || !file) {
+            alert('Please select a file and address');
+            return;
+          }
+          if (!spInfo) {
+            alert('Please select a sp info');
+            return;
+          }
+
           const res = await client.object.createObject(
             {
               bucketName: 'buckettttestname',
-              objectName: 'obj2ccecttttestname',
+              objectName: 'obj2ccec22ttttestname',
               spInfo,
               file,
               creator: address,
@@ -102,7 +116,7 @@ export const CreateObject = () => {
 
           const uploadRes = await client.object.uploadObject({
             bucketName: 'buckettttestname',
-            objectName: 'objecttttestname',
+            objectName: 'obj2ccec22ttttestname',
             body: file,
             txnHash: res.transactionHash,
             endpoint: spInfo.endpoint,
@@ -111,6 +125,32 @@ export const CreateObject = () => {
         }}
       >
         create
+      </button>
+
+      <button
+        onClick={async () => {
+          const res = await client.object.downloadFile({
+            bucketName: 'buckettttestname',
+            objectName: 'obj2ccec22ttttestname',
+            endpoint: spInfo?.endpoint,
+          });
+          console.log('res', res);
+        }}
+      >
+        get object
+      </button>
+
+      <button
+        onClick={async () => {
+          const res = await client.object.listObjects({
+            bucketName: 'buckettttestname',
+            endpoint: spInfo?.endpoint,
+          });
+
+          console.log('res', res);
+        }}
+      >
+        get object list
       </button>
 
       <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
