@@ -2,11 +2,23 @@
 
 ## Documentation
 
-[greenfield-sdk](packages/greenfield-sdk/) is a library that consists of pakcages, a so called monorepo.
+[greenfield-chain-sdk](./packages/chain-sdk/) is a library that consists of pakcages, a so called monorepo.
 
-| Package | Description | Doc |
-| --- | --- | --- |
-| [@bnb-chain/greenfield-chain-sdk](packages/chain-sdk) | A client library for Greenfield Chain | [DOC](packages/chain-sdk/README.md) |
+| Package | Description |
+| --- | --- |
+| [@bnb-chain/greenfield-chain-sdk](./packages/chain-sdk) | A client library for Greenfield Chain |
+| [@bnb-chain/greenfiled-file-handle](./packages/files) | WASM module that handle file, such as `checksums` |
+
+## Examples
+
+[Examples](./examples)
+
+* tx
+  * [transfer](./examples/wallet/src/components/transfer/index.tsx)
+  * [withdraw](./examples/wallet/src/components/withdraw/index.tsx)
+  * [bucket](./examples/wallet/src/components/bucket/index.tsx)
+  * [object](./examples/wallet/src/components/object/index.tsx)
+* [query](./examples/wallet/src/components/withdraw/query.tsx)
 
 ## Supported JS environments
 
