@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfiled-file-handle",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha.0",
   "description": "greenfield js chain sdk",
   "main": "./dist/esm/index.js",
   "module": "./dist/esm/index.js",
