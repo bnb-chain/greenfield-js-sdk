@@ -1,4 +1,4 @@
-import { RpcComponent } from '@/components/rpc';
+import { QueryComponent } from '@/components/query';
 import { WalletInfo } from '@/components/walletInfo';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { useAccount } from 'wagmi';
@@ -17,9 +17,9 @@ export default function Rpc() {
 
       {isConnected && (
         <>
-          <h2>RPC</h2>
+          <h2>Query</h2>
 
-          <RpcComponent />
+          <QueryComponent />
         </>
       )}
     </div>

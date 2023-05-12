@@ -1,6 +1,6 @@
 export const TYPE_URL = '/bnbchain.greenfield.storage.MsgDeleteBucket';
 
-export const TYPES = {
+export const MsgDeleteBucketSDKTypeEIP712 = {
   Msg: [
     {
       name: 'type',

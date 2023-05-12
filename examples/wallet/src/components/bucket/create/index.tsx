@@ -1,10 +1,7 @@
-import { GRPC_URL } from '@/config';
-import { decodeFromHex } from '@/utils/encoding';
-import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
-import { getGasFeeBySimulate } from '@/utils/simulate';
-import { CreateBucketTx, getAccount, ISignature712 } from '@bnb-chain/greenfield-chain-sdk';
+import { client, selectSp } from '@/client';
+import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 interface IApprovalCreateBucket {
   type: string;
@@ -24,162 +21,88 @@ interface IApprovalCreateBucket {
 
 export const CreateBucket = () => {
   const { address } = useAccount();
-  const { chain } = useNetwork();
-  const createBucketTx = new CreateBucketTx(GRPC_URL!, String(chain?.id)!);
-  const [signInfo, setSignInfo] = useState<ISignature712>({
-    messageHash: Uint8Array.from([]),
-    signature: '',
+  const [createBucketInfo, setCreateBucketInfo] = useState<{
+    bucketName: string;
+  }>({
+    bucketName: '',
   });
-  const [gasLimit, setGasLimit] = useState(0);
-  const [textarea, setTextArea] = useState('');
-  const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateBucket | null>(null);
-  const [gasPrice, setGasPrice] = useState('');
+  const [simulateInfo, setSimulateInfo] = useState<ISimulateGasFee | null>(null);
 
   return (
     <>
       <h4>Create Bucket</h4>
-      <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-        <textarea
-          value={textarea}
-          rows={14}
-          placeholder="signed msg from Storage SDK"
-          onChange={(e) => {
-            setTextArea(e.target.value);
-
-            try {
-              const storageSignedMsg = decodeFromHex(e.target.value);
-              const json = JSON.parse(storageSignedMsg) as IApprovalCreateBucket;
-
-              console.log('storageSignedMsg', json);
-              setXGnfdSignedMsg(json);
-            } catch (err) {
-              setXGnfdSignedMsg(null);
-            }
-          }}
-        ></textarea>
-        <div> {'=>'} </div>
-        <div>
-          <textarea
-            placeholder="decode signed msg"
-            rows={14}
-            cols={30}
-            disabled
-            value={JSON.stringify(xGnfdSignedMsg, null, 2)}
-          ></textarea>
-        </div>
-      </div>
-      <button
-        onClick={async () => {
-          if (!xGnfdSignedMsg || !address) return;
-
-          const { sequence } = await getAccount(GRPC_URL!, address!);
-
-          const simulateBytes = createBucketTx.getSimulateBytes({
-            from: xGnfdSignedMsg.value.creator,
-            bucketName: xGnfdSignedMsg.value.bucket_name,
-            denom: 'BNB',
-            primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota,
-            visibility: xGnfdSignedMsg.value.visibility,
-            paymentAddress: '',
-          });
-
-          const authInfoBytes = createBucketTx.getAuthInfoBytes({
-            sequence: sequence + '',
-            denom: 'BNB',
-            gasLimit: 0,
-            gasPrice: '0',
-            pubKey: makeCosmsPubKey(ZERO_PUBKEY),
-          });
-
-          const simulateGas = await createBucketTx.simulateTx(simulateBytes, authInfoBytes);
-          console.log('simulateGas', simulateGas, getGasFeeBySimulate(simulateGas));
-
-          const gasPri = simulateGas.gasInfo?.minGasPrice.replaceAll('BNB', '');
-          setGasPrice(gasPri!);
-
-          setGasLimit(simulateGas.gasInfo?.gasUsed.toNumber() || 0);
+      bucket name :
+      <input
+        value={createBucketInfo.bucketName}
+        placeholder="bucket name"
+        onChange={(e) => {
+          setCreateBucketInfo({ ...createBucketInfo, bucketName: e.target.value });
         }}
-      >
-        0. simulate
-      </button>
+      />
       <br />
       <button
         onClick={async () => {
-          if (!xGnfdSignedMsg) return;
-          if (address !== xGnfdSignedMsg.value.creator) {
-            alert('account is not creator');
-          }
+          if (!address) return;
 
-          const { sequence, accountNumber } = await getAccount(GRPC_URL!, address!);
-          const sign = await createBucketTx.signTx({
-            from: xGnfdSignedMsg.value.creator,
-            bucketName: xGnfdSignedMsg.value.bucket_name,
-            sequence: sequence + '',
-            accountNumber: accountNumber + '',
-            denom: 'BNB',
-            gasLimit,
-            gasPrice,
-            primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota ?? 0,
-            visibility: xGnfdSignedMsg.value.visibility,
-            paymentAddress: '',
-          });
-
-          console.log('712 sign', sign);
-          setSignInfo(sign);
+          const spInfo = await selectSp();
+          const res = await client.bucket.createBucket(
+            {
+              bucketName: createBucketInfo.bucketName,
+              creator: address,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              chargedReadQuota: '0',
+              spInfo,
+            },
+            {
+              simulate: true,
+              denom: 'BNB',
+              gasLimit: 210000,
+              gasPrice: '5000000000',
+              payer: address,
+              granter: '',
+            },
+          );
+          setSimulateInfo(res);
+          console.log('res', res);
         }}
       >
-        1. sign 712
+        simulate
       </button>
+      <br />
+      gasFee: {simulateInfo?.gasFee}
       <br />
       <button
         onClick={async () => {
-          if (!address || !xGnfdSignedMsg) return;
-          if (address !== xGnfdSignedMsg.value.creator) {
-            alert('account is not creator');
+          if (!address) {
+            return;
           }
 
-          const { sequence, accountNumber } = await getAccount(GRPC_URL, address);
-
-          const pk = recoverPk({
-            signature: signInfo.signature,
-            messageHash: signInfo.messageHash,
-          });
-          const pubKey = makeCosmsPubKey(pk);
-
-          const rawBytes = await createBucketTx.getRawTxInfo({
-            bucketName: xGnfdSignedMsg.value.bucket_name,
-            denom: 'BNB',
-            from: address,
-            gasLimit,
-            gasPrice,
-            primarySpAddress: xGnfdSignedMsg.value.primary_sp_address,
-            pubKey,
-            sequence: sequence + '',
-            accountNumber: accountNumber + '',
-            sign: signInfo.signature,
-            expiredHeight: xGnfdSignedMsg.value.primary_sp_approval.expired_height,
-            sig: xGnfdSignedMsg.value.primary_sp_approval.sig,
-            chargedReadQuota: xGnfdSignedMsg.value.charged_read_quota,
-            visibility: xGnfdSignedMsg.value.visibility,
-            paymentAddress: '',
-          });
-
-          console.log('rawBytes', rawBytes.hex);
-
-          const txRes = await createBucketTx.broadcastTx(rawBytes.bytes);
-          console.log('txRes', txRes);
-          if (txRes.code === 0) {
+          const spInfo = await selectSp();
+          const res = await client.bucket.createBucket(
+            {
+              bucketName: createBucketInfo.bucketName,
+              creator: address,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              chargedReadQuota: '0',
+              spInfo,
+            },
+            {
+              simulate: false,
+              denom: 'BNB',
+              gasLimit: Number(simulateInfo?.gasLimit),
+              gasPrice: simulateInfo?.gasPrice || '5000000000',
+              payer: address,
+              granter: '',
+            },
+          );
+          setSimulateInfo(res);
+          console.log('res', res);
+          if (res.code === 0) {
             alert('success');
           }
         }}
       >
-        2. broadcast tx
+        broadcast
       </button>
     </>
   );

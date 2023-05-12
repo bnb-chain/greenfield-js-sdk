@@ -1,6 +1,7 @@
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coin';
 import { TxBody, TxRaw } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
+import { MsgTransferOutSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/bridge/MsgTransferOutSDKTypeEIP712';
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
 import {
   QueryClientImpl,
@@ -9,11 +10,13 @@ import {
 import { MsgTransferOut } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/tx';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { bufferToHex } from '@ethereumjs/util';
-import { makeRpcClient } from '../../client';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../../messages';
-import { newMsgTransferOut, TYPES } from '../../messages/greenfield/bridge/transferOut';
 import { sign712Tx } from '../../sign/signTx';
 import { BaseTx, IBaseMsg, IRawTxInfo, ISendMsg } from '../baseTx';
+import { typeWrapper } from '../utils';
+import { makeRpcClient } from '@/api/basic';
+
+export const TYPE_URL = '/bnbchain.greenfield.bridge.MsgTransferOut';
 
 export class TransferOutTx extends BaseTx {
   readonly rpcUrl: string;
@@ -21,11 +24,11 @@ export class TransferOutTx extends BaseTx {
   readonly txType: string;
 
   constructor(rpcUrl: string, chainId: string) {
-    super(rpcUrl, chainId, '/bnbchain.greenfield.bridge.MsgTransferOut');
+    super(rpcUrl, chainId, TYPE_URL);
 
     this.rpcUrl = rpcUrl;
     this.chainId = chainId;
-    this.txType = '/bnbchain.greenfield.bridge.MsgTransferOut';
+    this.txType = TYPE_URL;
   }
 
   public async getRawTxInfo({
@@ -141,10 +144,28 @@ export class TransferOutTx extends BaseTx {
       from,
       '',
     );
-    const msg = newMsgTransferOut(amount, denom, from, to);
+    // const msg = newMsgTransferOut(amount, denom, from, to);
+    const msg = MsgTransferOut.fromSDK({
+      from,
+      to,
+      amount: {
+        amount,
+        denom,
+      },
+    });
 
-    const types = generateTypes(TYPES);
-    const messages = generateMessage(accountNumber, sequence, this.chainId, '', fee, msg, '0');
+    const wrappedMsg = typeWrapper(TYPE_URL, msg);
+
+    const types = generateTypes(MsgTransferOutSDKTypeEIP712);
+    const messages = generateMessage(
+      accountNumber,
+      sequence,
+      this.chainId,
+      '',
+      fee,
+      wrappedMsg,
+      '0',
+    );
     const eip712 = createEIP712(types, this.chainId, messages);
     return await sign712Tx(from, JSON.stringify(eip712));
   }

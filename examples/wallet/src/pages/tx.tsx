@@ -7,7 +7,7 @@ import { Withdraw } from '@/components/withdraw';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { useAccount } from 'wagmi';
 
-export default function Wallet() {
+export default function Tx() {
   const isMounted = useIsMounted();
   const { isConnected } = useAccount();
 

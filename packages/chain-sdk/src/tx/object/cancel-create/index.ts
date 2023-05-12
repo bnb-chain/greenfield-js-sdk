@@ -9,7 +9,7 @@ import { createEIP712, generateFee, generateMessage, generateTypes } from '../..
 import {
   ICancelCreateObjectMsg,
   newMsgCancelCreateObject,
-  TYPES,
+  MsgCancelCreateObjectSDKTypeEIP712,
 } from '../../../messages/greenfield/storage/cancelCreateObject';
 import { sign712Tx } from '../../../sign';
 import { IRawTxInfo } from '../../../tx';
@@ -43,7 +43,7 @@ export class CancelCreateObjectTx extends BaseTx {
       objectName,
       from,
     });
-    const types = generateTypes(TYPES);
+    const types = generateTypes(MsgCancelCreateObjectSDKTypeEIP712);
     const messages = generateMessage(accountNumber, sequence, this.chainId, '', fee, msg, '0');
     const eip712 = createEIP712(types, this.chainId, messages);
 

@@ -1,6 +1,6 @@
 export const TYPE_URL = '/bnbchain.greenfield.bridge.MsgTransferOut';
 
-export const TYPES = {
+export const MsgTransferOutSDKTypeEIP712 = {
   Msg: [
     {
       name: 'type',

@@ -1,4 +1,6 @@
-# GNFD JS SDK Example
+# GreenField JS SDK Example
+
+Use [React](https://react.dev/) and [Next.js](https://nextjs.org/)
 
 ## Getting Started
 
@@ -10,21 +12,17 @@
 > cp .env.simple .env.test.local
 ```
 
-## Install
+## Install and Build
 
-First, build SDK srouce:
+First, build SDK srouce code:
 
 ```bash
 # root dir
-> pnpm run build
+> pnpm run install
+> pnpm run -r build 
 ```
 
-```bash
-# example/wallet
-> pnpm install
-```
-
-## Dev
+## Start
 
 ```bash
 # dev ENV

@@ -1,5 +1,4 @@
-import { getObjectInfo } from '@/client';
-import { GRPC_URL } from '@/config';
+import { client, selectSp } from '@/client';
 import { useState } from 'react';
 
 export const ObjectInfo = () => {
@@ -20,12 +19,32 @@ export const ObjectInfo = () => {
         </div>
         <button
           onClick={async () => {
-            const objInfo = await getObjectInfo(GRPC_URL, bucketName, objectName);
+            const objInfo = await client.object.headObject(bucketName, objectName);
             console.log(objInfo);
           }}
         >
           get obj info
         </button>
+
+        <br />
+
+        <div>
+          get object by bucket name
+          <br />
+          <button
+            onClick={async () => {
+              const spInfo = await selectSp();
+
+              const res = await client.object.listObjects({
+                bucketName,
+                endpoint: spInfo.endpoint,
+              });
+              console.log('res', res);
+            }}
+          >
+            list objects
+          </button>
+        </div>
       </div>
     </div>
   );

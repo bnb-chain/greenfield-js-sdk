@@ -1,19 +1,28 @@
-import { BSC_CHAIN_ID, GREEN_CHAIN_ID, metaMaskWalletConnector } from '@/config';
+import {
+  BSC_CHAIN_ID,
+  GREEN_CHAIN_ID,
+  metaMaskWalletConnector,
+  trustWalletConnector,
+} from '@/config';
 import {
   useAccount,
   useBalance,
   useConnect,
   useDisconnect,
   useNetwork,
+  useProvider,
   useSwitchNetwork,
 } from 'wagmi';
 
 export const WalletInfo = () => {
   const { address, connector, isConnected } = useAccount();
-  const { connect } = useConnect({
-    // connector: trustWalletConnector,
+  const { connect: metaMaskConnect } = useConnect({
     connector: metaMaskWalletConnector,
   });
+  const { connect: trustWalletConnect } = useConnect({
+    connector: trustWalletConnector,
+  });
+
   const { disconnect } = useDisconnect();
   const { chain } = useNetwork();
   const { switchNetwork: switchToGreenField } = useSwitchNetwork({
@@ -30,7 +39,12 @@ export const WalletInfo = () => {
   });
 
   if (!isConnected) {
-    return <button onClick={() => connect()}>Connect Wallet</button>;
+    return (
+      <>
+        <button onClick={() => metaMaskConnect()}>Connect MetaMask</button>
+        <button onClick={() => trustWalletConnect()}>Connect trustWallet</button>
+      </>
+    );
   }
 
   return (

@@ -1,37 +1,21 @@
-import { GRPC_URL } from '@/config';
-import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
-import { getGasFeeBySimulate, getRelayFeeBySimulate } from '@/utils/simulate';
-import {
-  getAccount,
-  IRawTxInfo,
-  ISignature712,
-  TransferOutTx,
-} from '@bnb-chain/greenfield-chain-sdk';
-import { ethers } from 'ethers';
+import { client } from '@/client';
+import { getRelayFeeBySimulate } from '@/utils/simulate';
+import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 export const Withdraw = () => {
   const { address } = useAccount();
-  const { chain } = useNetwork();
-  const toutTx = new TransferOutTx(GRPC_URL, String(chain?.id)!);
+
   const [transferoutInfo, setTransferoutInfo] = useState({
     to: '0x0000000000000000000000000000000000000001',
     denom: 'BNB',
     amount: '1',
     gasLimit: '210000',
   });
-  const [transferoutSignInfo, setTransferoutSignInfo] = useState<ISignature712>({
-    messageHash: Uint8Array.from([]),
-    signature: '',
-  });
-  const [transferOutGasFee, setTransferOutGasFee] = useState('');
+
+  const [simulateInfo, setSimulateInfo] = useState<ISimulateGasFee | null>(null);
   const [transferOutRelayFee, setTransferOutRelayFee] = useState('');
-  const [transferoutTxSignInfo, setTransferoutTxSignInfo] = useState<IRawTxInfo>({
-    bytes: Uint8Array.from([]),
-    hex: '',
-  });
-  const [gasPrice, setGasPrice] = useState('');
 
   return (
     <div>
@@ -75,36 +59,31 @@ export const Withdraw = () => {
       <button
         onClick={async () => {
           if (!address) return;
-
-          const { sequence } = await getAccount(GRPC_URL!, address!);
-
-          const bodyBytes = toutTx.getSimulateBytes({
-            from: address,
-            to: transferoutInfo.to,
-            amount: ethers.utils.parseEther(transferoutInfo.amount).toString(),
-            denom: 'BNB',
-          });
-
-          const authInfoBytes = toutTx.getAuthInfoBytes({
-            sequence: sequence + '',
-            denom: 'BNB',
-            gasLimit: 0,
-            gasPrice: '0',
-            pubKey: makeCosmsPubKey(ZERO_PUBKEY),
-          });
-
-          const simulateTxInfo = await toutTx.simulateTx(bodyBytes, authInfoBytes);
-          const relayFeeInfo = await toutTx.simulateRelayFee();
+          const simulateGasFee = await client.crosschain.transferOut(
+            {
+              from: address,
+              to: transferoutInfo.to,
+              amount: {
+                amount: transferoutInfo.amount,
+                denom: 'BNB',
+              },
+            },
+            {
+              simulate: true,
+              denom: 'BNB',
+              gasLimit: Number(transferoutInfo.gasLimit),
+              gasPrice: '5000000000',
+              payer: address,
+              granter: '',
+            },
+          );
+          const relayFeeInfo = await client.crosschain.getParams();
           console.log('transferout simuluate relayFee', relayFeeInfo);
-          console.log('transferout simulate gasFee', simulateTxInfo);
+          console.log('transferout simulate gasFee', simulateGasFee);
 
-          const gasFee = getGasFeeBySimulate(simulateTxInfo);
           const relayFee = getRelayFeeBySimulate(relayFeeInfo);
-          setTransferOutGasFee(gasFee);
           setTransferOutRelayFee(relayFee.toString());
-
-          const gasPri = simulateTxInfo.gasInfo?.minGasPrice.replaceAll('BNB', '');
-          setGasPrice(gasPri!);
+          setSimulateInfo(simulateGasFee);
         }}
       >
         simulate
@@ -112,77 +91,37 @@ export const Withdraw = () => {
       <br />
       relay fee: {transferOutRelayFee}
       <br />
-      gas fee: {transferOutGasFee}
+      gas fee: {simulateInfo?.gasFee}
+      <br />
       <br />
       <button
         onClick={async () => {
-          if (!address) return;
-          const account = await getAccount(GRPC_URL, address);
-          const { accountNumber, sequence } = account;
-
-          const signInfo = await toutTx.signTx({
-            from: address,
-            to: transferoutInfo.to,
-            amount: ethers.utils.parseEther(transferoutInfo.amount).toString(),
-            sequence: sequence + '',
-            accountNumber: accountNumber + '',
-            denom: transferoutInfo.denom,
-            gasLimit: parseInt(transferoutInfo.gasLimit),
-            gasPrice,
-          });
-
-          setTransferoutSignInfo(signInfo);
-        }}
-      >
-        1. sign transferout data(EIP-712) by wallet
-      </button>
-      <p>transferoutSignInfo: {transferoutSignInfo.signature}</p>
-      <button
-        onClick={async () => {
-          if (!address) return;
-          const account = await getAccount(GRPC_URL, address);
-          const { sequence } = account;
-
-          if (!transferoutSignInfo) alert('wallet sign errors');
-
-          const pk = recoverPk({
-            signature: transferoutSignInfo.signature,
-            messageHash: transferoutSignInfo.messageHash,
-          });
-          const pubKey = makeCosmsPubKey(pk);
-          const rawTxInfo = await toutTx.getRawTxInfo({
-            sign: transferoutSignInfo.signature,
-            pubKey,
-            sequence: String(sequence),
-            from: address,
-            to: transferoutInfo.to,
-            amount: ethers.utils.parseEther(transferoutInfo.amount).toString(),
-            denom: transferoutInfo.denom,
-            gasLimit: parseInt(transferoutInfo.gasLimit),
-            gasPrice,
-          });
-
-          setTransferoutTxSignInfo(rawTxInfo);
-        }}
-      >
-        2. get TX bytes
-      </button>
-      <p>
-        transferOutTxSignInfo:
-        <textarea disabled value={transferoutTxSignInfo.hex}></textarea>
-      </p>
-      <button
-        onClick={async () => {
-          const res = await toutTx.broadcastTx(transferoutTxSignInfo.bytes);
-
-          console.log('tx res', res);
+          if (!address || !simulateInfo) return;
+          const res = await client.crosschain.transferOut(
+            {
+              from: address,
+              to: transferoutInfo.to,
+              amount: {
+                amount: transferoutInfo.amount,
+                denom: 'BNB',
+              },
+            },
+            {
+              simulate: false,
+              denom: 'BNB',
+              gasLimit: Number(simulateInfo.gasLimit),
+              gasPrice: simulateInfo.gasPrice,
+              payer: address,
+              granter: '',
+            },
+          );
 
           if (res.code === 0) {
             alert('broadcast success');
           }
         }}
       >
-        3. broadcast TX
+        broadcast
       </button>
     </div>
   );
