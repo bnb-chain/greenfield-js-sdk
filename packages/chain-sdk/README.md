@@ -1,3 +1,30 @@
+## Install
+
+```bash
+> npm install @bnb-chain/greenfield-chain-sdk@alpha
+```
+
+[Examples](../../examples)
+
+
+
+## Create Client
+
+```js
+import {Client} from '@bnb-chain/greenfield-chain-sdk'
+Client.create()
+```
+
+## Basic API
+
+### simulateRawTx
+
+### broadcastRawTx
+
+### getAccount
+
+
+
 ## Bucket API
 
 ### select sp

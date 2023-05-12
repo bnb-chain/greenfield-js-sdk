@@ -169,3 +169,9 @@ export interface IObjectProps {
   update_tx_hash: string;
   seal_tx_hash: string;
 }
+
+export interface IGetObjectStaus {
+  bucketName: string;
+  objectName: string;
+  endpoint: string;
+}

@@ -1,5 +1,4 @@
-import { getObjectInfo } from '@/client';
-import { GRPC_URL } from '@/config';
+import { client } from '@/client';
 import { useState } from 'react';
 
 export const ObjectInfo = () => {
@@ -20,7 +19,7 @@ export const ObjectInfo = () => {
         </div>
         <button
           onClick={async () => {
-            const objInfo = await getObjectInfo(GRPC_URL, bucketName, objectName);
+            const objInfo = await client.object.headObject(bucketName, objectName);
             console.log(objInfo);
           }}
         >

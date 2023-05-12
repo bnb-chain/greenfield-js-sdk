@@ -1,28 +1,13 @@
+import { client } from '@/client';
+import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
-import {
-  DelObjectTx,
-  getAccount,
-  ISignature712,
-  ZERO_PUBKEY,
-} from '@bnb-chain/greenfield-chain-sdk';
-import { GRPC_URL } from '@/config';
-import { useAccount, useNetwork } from 'wagmi';
-import { makeCosmsPubKey, recoverPk } from '@bnb-chain/greenfield-chain-sdk';
-
-const GAS_LIMIT = 100000;
+import { useAccount } from 'wagmi';
 
 export const DeleteObject = () => {
   const { address } = useAccount();
-  const { chain } = useNetwork();
   const [bucketName, setBucketName] = useState('');
   const [objectName, setObjectName] = useState('');
-  const [signInfo, setSignInfo] = useState<ISignature712>({
-    messageHash: Uint8Array.from([]),
-    signature: '',
-  });
-  const [gasPrice, setGasPrice] = useState('');
-
-  const delObjTx = new DelObjectTx(GRPC_URL, String(chain?.id)!);
+  const [simulateInfo, setSimulateInfo] = useState<ISimulateGasFee | null>(null);
 
   return (
     <>
@@ -45,93 +30,60 @@ export const DeleteObject = () => {
         <button
           onClick={async () => {
             if (!address) return;
-            const { sequence } = await getAccount(GRPC_URL!, address!);
 
-            const simulateBytes = delObjTx.getSimulateBytes({
-              bucketName,
-              objectName,
-              from: address,
-            });
+            const res = await client.object.deleteObject(
+              {
+                bucketName,
+                objectName,
+                operator: address,
+              },
+              {
+                simulate: true,
+                denom: 'BNB',
+                gasLimit: 210000,
+                gasPrice: '5000000000',
+                payer: address,
+                granter: '',
+              },
+            );
 
-            const authInfoBytes = delObjTx.getAuthInfoBytes({
-              sequence: sequence + '',
-              denom: 'BNB',
-              gasLimit: 0,
-              gasPrice: '0',
-              pubKey: makeCosmsPubKey(ZERO_PUBKEY),
-            });
-
-            const gasfee = await delObjTx.simulateTx(simulateBytes, authInfoBytes);
-            console.log('gasfee', gasfee);
-
-            const gasPri = gasfee.gasInfo?.minGasPrice.replaceAll('BNB', '');
-            setGasPrice(gasPri!);
+            console.log('res', res);
+            setSimulateInfo(res);
           }}
         >
-          0. simulate
+          simulate
         </button>
+        <br />
+        gasFee: {simulateInfo?.gasFee}
         <br />
         <button
           onClick={async () => {
             if (!address) return;
 
-            const { sequence, accountNumber } = await getAccount(GRPC_URL!, address!);
+            const res = await client.object.deleteObject(
+              {
+                bucketName,
+                objectName,
+                operator: address,
+              },
+              {
+                simulate: false,
+                denom: 'BNB',
+                gasLimit: Number(simulateInfo?.gasLimit),
+                gasPrice: simulateInfo?.gasPrice || '5000000000',
+                payer: address,
+                granter: '',
+              },
+            );
 
-            const sign = await delObjTx.signTx({
-              accountNumber: accountNumber + '',
-              bucketName,
-              from: address,
-              sequence: sequence + '',
-              gasLimit: GAS_LIMIT,
-              objectName,
-              denom: 'BNB',
-              gasPrice,
-            });
+            console.log('res', res);
 
-            console.log('delete object 712 sign', sign);
-            setSignInfo(sign);
-          }}
-        >
-          1. sign 712
-        </button>
-        <br />
-        <button
-          onClick={async () => {
-            if (!address) return;
-
-            const { sequence, accountNumber } = await getAccount(GRPC_URL, address);
-
-            const pk = recoverPk({
-              signature: signInfo.signature,
-              messageHash: signInfo.messageHash,
-            });
-            const pubKey = makeCosmsPubKey(pk);
-
-            const rawBytes = await delObjTx.getRawTxInfo({
-              accountNumber: accountNumber + '',
-              bucketName,
-              from: address,
-              sequence: sequence + '',
-              gasLimit: GAS_LIMIT,
-              pubKey,
-              sign: signInfo.signature,
-              objectName,
-              denom: 'BNB',
-              gasPrice,
-            });
-
-            console.log('delete object rawBytes', rawBytes);
-
-            const txRes = await delObjTx.broadcastTx(rawBytes.bytes);
-
-            console.log(txRes);
-
-            if (txRes.code === 0) {
-              alert('delete object success');
+            if (res.code === 0) {
+              alert('success');
             }
           }}
         >
-          2. broadcast tx
+          broadcast
         </button>
       </div>
     </>

@@ -12,7 +12,6 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
 import { MsgMultiSendSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/bank/v1beta1/MsgMultiSendSDKTypeEIP712';
-import { MsgSendSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/bank/v1beta1/MsgSendSDKTypeEIP712';
 import { MsgCreatePaymentAccountSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgCreatePaymentAccountSDKTypeEIP712';
 import {
   QueryClientImpl as PaymentQueryClientImpl,
@@ -23,6 +22,7 @@ import {
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { DeliverTxResponse } from '@cosmjs/stargate';
 import { Basic, ITxOption } from './basic';
+import { MsgSendSDKTypeEIP712 } from '@/messages/bank/send';
 
 export interface IAccount {
   /**

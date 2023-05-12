@@ -11,7 +11,6 @@ import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/enco
 import { METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE, fetchWithTimeout } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import { ISimulateGasFee } from '@/utils/units';
-import { MsgCreateBucketSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgCreateBucketSDKTypeEIP712';
 import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
@@ -26,7 +25,6 @@ import {
   MsgPutPolicy,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { MsgDeleteBucketSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteBucketSDKTypeEIP712';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { DeliverTxResponse } from '@cosmjs/stargate';
 import Long from 'long';
@@ -35,6 +33,8 @@ import { MsgPutPolicySDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/ei
 import { Account } from './account';
 import { ITxOption } from './basic';
 import { MsgDeletePolicySDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeletePolicySDKTypeEIP712';
+import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/deleteBucket';
+import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/createBucket';
 
 export interface IBucket {
   /**

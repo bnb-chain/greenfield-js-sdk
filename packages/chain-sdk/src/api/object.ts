@@ -7,7 +7,6 @@ import {
   NORMAL_ERROR_CODE,
   fetchWithTimeout,
 } from '@/utils/http';
-import { MsgDeleteObjectSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteObjectSDKTypeEIP712';
 import {
   redundancyTypeFromJSON,
   visibilityTypeFromJSON,
@@ -28,6 +27,7 @@ import {
   ICreateObjectMsgType,
   IGetCreateObjectApproval,
   IGetObjectPropsType,
+  IGetObjectStaus,
   IListObjectsByBucketNamePropsType,
   IObjectProps,
   IObjectResultType,
@@ -44,6 +44,8 @@ import {
 import { ISimulateGasFee } from '../utils/units';
 import { Account } from './account';
 import { ITxOption } from './basic';
+import { Bucket, IBucket } from './bucket';
+import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/deleteObject';
 
 export interface IObject {
   getCreateObjectApproval(
@@ -86,6 +88,10 @@ export interface IObject {
 }
 
 export class Object extends Account implements IObject {
+  constructor(rpcUrl: string, chainId: string, private bucket: IBucket) {
+    super(rpcUrl, chainId);
+  }
+
   public async getCreateObjectApproval({
     bucketName,
     creator,
@@ -505,4 +511,17 @@ export class Object extends Account implements IObject {
 
     return this.createObject(getApprovalParams, txOption);
   }
+
+  // private async getObjectStatusFromSP(params: IGetObjectStaus) {
+  //   const {bucketInfo} = await this.bucket.headBucket(params.bucketName);
+  //   const primarySpAddress = bucketInfo?.primarySpAddress
+
+  //   // const url = params.endpoint + '/greenfield/admin/v1/get-approval?upload-progress=';
+  //   // const unSignedMessageInHex = encodeObjectToHexString(msg);
+  //   // const headers = new Headers({
+  //   //   // TODO: replace when offchain release
+  //   //   Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${MOCK_SIGNATURE}`,
+  //   //   'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+  //   // });
+  // }
 }

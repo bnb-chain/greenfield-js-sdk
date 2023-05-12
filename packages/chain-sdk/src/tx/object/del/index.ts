@@ -9,7 +9,7 @@ import { createEIP712, generateFee, generateMessage, generateTypes } from '../..
 import {
   IDeleteObjectMsg,
   newMsgDeleteObject,
-  TYPES,
+  MsgDeleteObjectSDKTypeEIP712,
 } from '../../../messages/greenfield/storage/deleteObject';
 import { sign712Tx } from '../../../sign';
 import { IRawTxInfo } from '../../../tx';
@@ -51,7 +51,7 @@ export class DelObjectTx extends BaseTx {
       objectName,
     });
 
-    const types = generateTypes(TYPES);
+    const types = generateTypes(MsgDeleteObjectSDKTypeEIP712);
     const messages = generateMessage(accountNumber, sequence, this.chainId, '', fee, msg, '0');
     const eip712 = createEIP712(types, this.chainId, messages);
 

@@ -20,14 +20,14 @@ export default function Home() {
         }}
       >
         <li>
-          <Link href="/wallet" color="#900" style={{ fontSize: 30 }}>
-            wallet demo
+          <Link href="/tx" color="#900" style={{ fontSize: 30 }}>
+            Tx
           </Link>
         </li>
 
         <li>
-          <Link href="/rpc" color="#900" style={{ fontSize: 30 }}>
-            rpc demo
+          <Link href="/query" color="#900" style={{ fontSize: 30 }}>
+            Query
           </Link>
         </li>
       </div>

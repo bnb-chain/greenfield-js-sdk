@@ -1,32 +1,16 @@
-import { GRPC_URL } from '@/config';
-import { makeCosmsPubKey, recoverPk, ZERO_PUBKEY } from '@bnb-chain/greenfield-chain-sdk';
-import { getGasFeeBySimulate } from '@/utils/simulate';
-import { getAccount, IRawTxInfo, ISignature712, TransferTx } from '@bnb-chain/greenfield-chain-sdk';
-import { ethers } from 'ethers';
+import { client } from '@/client';
+import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 export const Transfer = () => {
   const { address } = useAccount();
-  const { chain } = useNetwork();
-  const tTx = new TransferTx(GRPC_URL!, String(chain?.id)!);
   const [transferInfo, setTransferInfo] = useState({
     to: '0x0000000000000000000000000000000000000001',
     amount: '1',
     gasLimit: '210000',
   });
-  const [transferSignInfo, setTransferSignInfo] = useState<ISignature712>({
-    messageHash: Uint8Array.from([]),
-    signature: '',
-  });
-  const [transferGasFee, setTransferGasFee] = useState('');
-  const [transferTxSignInfo, setTransferTxSignInfo] = useState<IRawTxInfo>({
-    bytes: Uint8Array.from([]),
-    hex: '',
-  });
-  // transfer end
-
-  const [gasPrice, setGasPrice] = useState('');
+  const [simulateInfo, setSimulateInfo] = useState<ISimulateGasFee | null>(null);
 
   return (
     <div>
@@ -62,106 +46,66 @@ export const Transfer = () => {
         onClick={async () => {
           if (!address) return;
 
-          const { sequence } = await getAccount(GRPC_URL!, address!);
+          const res = await client.account.transfer(
+            {
+              fromAddress: address,
+              toAddress: transferInfo.to,
+              amount: [
+                {
+                  denom: 'BNB',
+                  amount: transferInfo.amount,
+                },
+              ],
+            },
+            {
+              simulate: true,
+              denom: 'BNB',
+              gasLimit: Number(transferInfo.gasLimit),
+              gasPrice: '5000000000',
+              payer: address,
+              granter: '',
+            },
+          );
 
-          const bodyBytes = tTx.getSimulateBytes({
-            from: address,
-            to: transferInfo.to,
-            amount: ethers.utils.parseEther(transferInfo.amount).toString(),
-            denom: 'BNB',
-          });
-
-          const authInfoBytes = tTx.getAuthInfoBytes({
-            sequence: sequence + '',
-            denom: 'BNB',
-            gasLimit: 0,
-            gasPrice: '0',
-            pubKey: makeCosmsPubKey(ZERO_PUBKEY),
-          });
-
-          console.log(address, bodyBytes);
-          const simulateTxInfo = await tTx.simulateTx(bodyBytes, authInfoBytes);
-
-          console.log('transfer simulate', simulateTxInfo);
-
-          const gasPri = simulateTxInfo.gasInfo?.minGasPrice.replaceAll('BNB', '');
-          console.log('gasPri', gasPri);
-          setGasPrice(gasPri!);
-          const gasFee = getGasFeeBySimulate(simulateTxInfo);
-          setTransferGasFee(gasFee);
+          console.log('res', res);
+          setSimulateInfo(res);
         }}
       >
         simulate
       </button>
-      gas fee: {transferGasFee}
+      {simulateInfo?.gasFee}
       <br />
       <button
         onClick={async () => {
-          if (!address) return;
+          if (!address || !simulateInfo) return;
 
-          const account = await getAccount(GRPC_URL!, address);
-          const { accountNumber, sequence } = account;
+          const res = await client.account.transfer(
+            {
+              fromAddress: address,
+              toAddress: transferInfo.to,
+              amount: [
+                {
+                  denom: 'BNB',
+                  amount: transferInfo.amount,
+                },
+              ],
+            },
+            {
+              simulate: false,
+              denom: 'BNB',
+              gasLimit: Number(simulateInfo.gasLimit),
+              gasPrice: simulateInfo.gasPrice,
+              payer: address,
+              granter: '',
+            },
+          );
 
-          const signInfo = await tTx.signTx({
-            from: address,
-            to: transferInfo.to,
-            amount: ethers.utils.parseEther(transferInfo.amount).toString(),
-            sequence: sequence + '',
-            accountNumber: accountNumber + '',
-            gasLimit: parseInt(transferInfo.gasLimit),
-            denom: 'BNB',
-            gasPrice,
-          });
-
-          setTransferSignInfo(signInfo);
-        }}
-      >
-        1. sign transfer data(EIP-712) by wallet
-      </button>
-      <p>transferSignInfo: {transferSignInfo.signature}</p>
-      <button
-        onClick={async () => {
-          if (!address) return;
-          const account = await getAccount(GRPC_URL!, address);
-          const { sequence } = account;
-
-          const pk = recoverPk({
-            signature: transferSignInfo.signature,
-            messageHash: transferSignInfo.messageHash,
-          });
-          const pubKey = makeCosmsPubKey(pk);
-
-          const rawTxInfo = await tTx.getRawTxInfo({
-            sign: transferSignInfo.signature,
-            pubKey,
-            sequence: String(sequence),
-            from: address,
-            to: transferInfo.to,
-            amount: ethers.utils.parseEther(transferInfo.amount).toString(),
-            gasLimit: parseInt(transferInfo.gasLimit),
-            denom: 'BNB',
-            gasPrice,
-          });
-
-          setTransferTxSignInfo(rawTxInfo);
-        }}
-      >
-        2. get TX bytes
-      </button>
-      <p>
-        transferTxSignInfo:
-        <textarea disabled value={transferTxSignInfo.hex}></textarea>
-      </p>
-      <button
-        onClick={async () => {
-          const res = await tTx.broadcastTx(transferTxSignInfo.bytes);
           if (res.code === 0) {
-            alert('broadcast success');
-            console.log('tx res', res);
+            alert('transfer success!!');
           }
         }}
       >
-        3. broadcast TX
+        broadcast
       </button>
     </div>
   );

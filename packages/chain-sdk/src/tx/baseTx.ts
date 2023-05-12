@@ -1,3 +1,4 @@
+import { makeRpcClient } from '@/api/basic';
 import {
   ServiceClientImpl,
   SimulateRequest,
@@ -5,7 +6,6 @@ import {
 import { AuthInfo, Tx, TxBody } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
 import { StargateClient } from '@cosmjs/stargate';
 import { toBuffer } from '@ethereumjs/util';
-import { makeRpcClient } from '../client';
 
 export interface IBaseMsg {
   sequence: string;

@@ -8,7 +8,7 @@ import { bufferToHex } from '@ethereumjs/util';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../../../messages';
 import {
   newMsgDeleteBucket,
-  TYPES,
+  MsgDeleteBucketSDKTypeEIP712,
   TYPE_URL,
   type IDeleteBucketMsg,
 } from '../../../messages/greenfield/storage/deleteBucket';
@@ -50,7 +50,7 @@ export class DelBucketTx extends BaseTx {
       from,
     });
 
-    const types = generateTypes(TYPES);
+    const types = generateTypes(MsgDeleteBucketSDKTypeEIP712);
     const messages = generateMessage(accountNumber, sequence, this.chainId, '', fee, msg, '0');
     const eip712 = createEIP712(types, this.chainId, messages);
     return await sign712Tx(from, JSON.stringify(eip712));

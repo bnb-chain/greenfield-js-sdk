@@ -6,7 +6,7 @@
 
 | Package | Description | Doc |
 | --- | --- | --- |
-| [@bnb-chain/greenfield-chain-sdk](packages/chain-sdk) | A client library for Greenfield Chain | [DOC](docs/CHAIN.md) |
+| [@bnb-chain/greenfield-chain-sdk](packages/chain-sdk) | A client library for Greenfield Chain | [DOC](packages/chain-sdk/README.md) |
 
 ## Supported JS environments
 

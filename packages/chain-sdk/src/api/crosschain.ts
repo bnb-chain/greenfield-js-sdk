@@ -1,5 +1,11 @@
 import { ISimulateGasFee } from '@/utils/units';
 import {
+  QueryClientImpl as BridgeQueryClientImpl,
+  QueryParamsResponse,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
+
+import { MsgTransferOutSDKTypeEIP712 } from '@/messages/greenfield/bridge/transferOut';
+import {
   QueryClientImpl as CrosschainQueryClientImpl,
   QueryCrossChainPackageResponse,
   QueryReceiveSequenceResponse,
@@ -11,7 +17,6 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
 import { MsgClaim } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/tx';
 import { MsgClaimSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/oracle/v1/MsgClaimSDKTypeEIP712';
-import { MsgTransferOutSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/bridge/MsgTransferOutSDKTypeEIP712';
 import { MsgMirrorBucketSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorBucketSDKTypeEIP712';
 import { MsgMirrorGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorGroupSDKTypeEIP712';
 import { MsgMirrorObjectSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorObjectSDKTypeEIP712';
@@ -83,6 +88,8 @@ export interface ICrossChain {
     msg: MsgMirrorObject,
     txOption: ITxOption,
   ): Promise<ISimulateGasFee | DeliverTxResponse>;
+
+  getParams(): Promise<QueryParamsResponse>;
 }
 
 export class CrossChain extends Account implements ICrossChain {
@@ -265,5 +272,11 @@ export class CrossChain extends Account implements ICrossChain {
     );
 
     return await this.broadcastRawTx(rawTxBytes);
+  }
+
+  async getParams() {
+    const rpcClient = await this.getRpcClient();
+    const rpc = new BridgeQueryClientImpl(rpcClient);
+    return rpc.Params();
   }
 }

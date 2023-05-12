@@ -9,9 +9,9 @@ export const ObjectComponent = () => {
       <h2>Object</h2>
       <CreateObject />
 
-      <div style={{ marginTop: 10 }} />
+      {/* <div style={{ marginTop: 10 }} />
 
-      <CancelCreateObject />
+      <CancelCreateObject /> */}
 
       <div style={{ marginTop: 10 }} />
 

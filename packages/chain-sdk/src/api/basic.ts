@@ -20,24 +20,66 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
-import {
-  AuthExtension,
-  BankExtension,
-  DeliverTxResponse,
-  ProtobufRpcClient,
-  QueryClient,
-  StargateClient,
-  TxExtension,
-} from '@cosmjs/stargate';
-import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
+import { DeliverTxResponse, ProtobufRpcClient, StargateClient } from '@cosmjs/stargate';
 import { toBuffer } from '@ethereumjs/util';
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 import Long from 'long';
-import makeClientWithExtension, { makeRpcClient } from '../client';
 import { ZERO_PUBKEY } from '../constants';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../messages';
 import { makeCosmsPubKey, recoverPk } from '../sign';
 import { typeWrapper } from '../tx/utils';
+
+import {
+  AuthExtension,
+  BankExtension,
+  QueryClient,
+  TxExtension,
+  createProtobufRpcClient,
+  setupAuthExtension,
+  setupAuthzExtension,
+  setupBankExtension,
+  setupDistributionExtension,
+  setupFeegrantExtension,
+  setupGovExtension,
+  setupIbcExtension,
+  setupMintExtension,
+  setupSlashingExtension,
+  setupStakingExtension,
+  setupTxExtension,
+} from '@cosmjs/stargate';
+import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
+import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
+
+export const makeClientWithExtension = async (
+  rpcUrl: string,
+): Promise<
+  [QueryClient & BankExtension & TxExtension & AuthExtension & AuthzExtension, Tendermint34Client]
+> => {
+  const tmClient = await Tendermint34Client.connect(rpcUrl);
+  return [
+    QueryClient.withExtensions(
+      tmClient,
+      setupAuthExtension,
+      setupAuthzExtension,
+      setupBankExtension,
+      setupDistributionExtension,
+      setupFeegrantExtension,
+      setupGovExtension,
+      setupIbcExtension,
+      setupMintExtension,
+      setupSlashingExtension,
+      setupStakingExtension,
+      setupTxExtension,
+    ),
+    tmClient,
+  ];
+};
+
+export const makeRpcClient = async (rpcUrl: string) => {
+  const [, tmClient] = await makeClientWithExtension(rpcUrl);
+  const rpc = createProtobufRpcClient(new QueryClient(tmClient));
+  return rpc;
+};
 
 export interface ITxOption {
   denom: string;

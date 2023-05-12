@@ -11,7 +11,7 @@ import { createEIP712, generateFee, generateMessage, generateTypes } from '../..
 import {
   ICreateBucketMsg,
   newMsgCreateBucket,
-  TYPES,
+  MsgCreateBucketSDKTypeEIP712,
 } from '../../../messages/greenfield/storage/createBucket';
 import { sign712Tx } from '../../../sign';
 import { IRawTxInfo } from '../../../tx';
@@ -64,7 +64,7 @@ export class CreateBucketTx extends BaseTx {
       sig,
     });
 
-    const types = generateTypes(TYPES);
+    const types = generateTypes(MsgCreateBucketSDKTypeEIP712);
     const messages = generateMessage(accountNumber, sequence, this.chainId, '', fee, msg, '0');
     const eip712 = createEIP712(types, this.chainId, messages);
 

@@ -10,11 +10,11 @@ import {
 import { MsgTransferOut } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/tx';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { bufferToHex } from '@ethereumjs/util';
-import { makeRpcClient } from '../../client';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../../messages';
 import { sign712Tx } from '../../sign/signTx';
 import { BaseTx, IBaseMsg, IRawTxInfo, ISendMsg } from '../baseTx';
 import { typeWrapper } from '../utils';
+import { makeRpcClient } from '@/api/basic';
 
 export const TYPE_URL = '/bnbchain.greenfield.bridge.MsgTransferOut';
 
