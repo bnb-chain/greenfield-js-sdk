@@ -1,11 +1,6 @@
+import { ISimulateGasFee } from '@/api/basic';
 import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
 import { formatEther } from '@ethersproject/units';
-
-export interface ISimulateGasFee {
-  gasLimit: bigint;
-  gasPrice: string;
-  gasFee: string;
-}
 
 export const getGasFeeBySimulate = (
   simulateTxInfo: SimulateResponse,

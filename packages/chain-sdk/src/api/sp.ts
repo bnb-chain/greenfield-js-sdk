@@ -8,7 +8,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import Long from 'long';
 import { Account } from './account';
-import { ITxOption } from './basic';
+import { ITxOption } from '..';
 
 export interface ISp {
   /**
@@ -43,10 +43,6 @@ export class Sp extends Account implements ISp {
     const rpc = new SpQueryClientImpl(rpcClient);
     const res = await rpc.StorageProviders();
     return res.sps;
-    // return res.sps.map((sp) => {
-    //   if (isInService && sp.status !== Status.STATUS_IN_SERVICE) return;
-    //   return sp;
-    // });
   }
 
   public async getStorageProviderInfo(spAddress: string) {

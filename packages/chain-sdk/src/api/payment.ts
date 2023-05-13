@@ -11,10 +11,8 @@ import {
   MsgDisableRefund,
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { DeliverTxResponse } from '@cosmjs/stargate';
+import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 import { Account } from './account';
-import { ITxOption } from './basic';
-import { ISimulateGasFee } from '@/utils/units';
 
 export interface IPayment {
   /**
@@ -25,20 +23,23 @@ export interface IPayment {
   /**
    * deposits BNB to a stream account.
    */
-  deposit(msg: MsgDeposit, txOption: ITxOption): Promise<DeliverTxResponse | ISimulateGasFee>;
+  deposit<T extends ITxOption>(msg: MsgDeposit, txOption: T): Promise<SimulateOrBroad<T>>;
+  deposit(msg: MsgDeposit, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * withdraws BNB from a stream account.
    */
-  withdraw(msg: MsgWithdraw, txOption: ITxOption): Promise<DeliverTxResponse | ISimulateGasFee>;
+  withdraw<T extends ITxOption>(msg: MsgWithdraw, txOption: T): Promise<SimulateOrBroad<T>>;
+  withdraw(msg: MsgWithdraw, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * disables refund for a stream account.
    */
-  disableRefund(
+  disableRefund<T extends ITxOption>(
     msg: MsgDisableRefund,
-    txOption: ITxOption,
-  ): Promise<DeliverTxResponse | ISimulateGasFee>;
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
+  disableRefund(msg: MsgDisableRefund, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   params(): Promise<QueryParamsResponse>;
 }

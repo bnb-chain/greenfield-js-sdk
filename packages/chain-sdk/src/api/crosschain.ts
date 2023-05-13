@@ -1,4 +1,3 @@
-import { ISimulateGasFee } from '@/utils/units';
 import {
   QueryClientImpl as BridgeQueryClientImpl,
   QueryParamsResponse,
@@ -26,24 +25,22 @@ import {
   MsgMirrorGroup,
   MsgMirrorObject,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { DeliverTxResponse } from '@cosmjs/stargate';
 import Long from 'long';
+import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 import { Account } from './account';
-import { ITxOption } from './basic';
 
 export interface ICrossChain {
   /**
    * makes a transfer from Greenfield to BSC
    */
-  transferOut(
-    msg: MsgTransferOut,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  transferOut<T extends ITxOption>(msg: MsgTransferOut, txOption: T): Promise<SimulateOrBroad<T>>;
+  transferOut(msg: MsgTransferOut, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * cross-chain packages from BSC to Greenfield, used by relayers which run by validators
    */
-  claims(msg: MsgClaim, txOption: ITxOption): Promise<ISimulateGasFee | DeliverTxResponse>;
+  claims<T extends ITxOption>(msg: MsgClaim, txOption: T): Promise<SimulateOrBroad<T>>;
+  claims(msg: MsgClaim, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * gets the next send sequence for a channel
@@ -68,26 +65,20 @@ export interface ICrossChain {
   /**
    * mirrors the group to BSC as NFT
    */
-  mirrorGroup(
-    msg: MsgMirrorGroup,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  mirrorGroup<T extends ITxOption>(msg: MsgMirrorGroup, txOption: T): Promise<SimulateOrBroad<T>>;
+  mirrorGroup(msg: MsgMirrorGroup, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * mirrors the bucket to BSC as NFT
    */
-  mirrorBucket(
-    msg: MsgMirrorBucket,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  mirrorBucket<T extends ITxOption>(msg: MsgMirrorBucket, txOption: T): Promise<SimulateOrBroad<T>>;
+  mirrorBucket(msg: MsgMirrorBucket, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * mirrors the object to BSC as NFT
    */
-  mirrorObject(
-    msg: MsgMirrorObject,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  mirrorObject<T extends ITxOption>(msg: MsgMirrorObject, txOption: T): Promise<SimulateOrBroad<T>>;
+  mirrorObject(msg: MsgMirrorObject, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   getParams(): Promise<QueryParamsResponse>;
 }

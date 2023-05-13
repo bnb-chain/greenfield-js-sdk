@@ -1,4 +1,3 @@
-import { ISimulateGasFee } from '@/utils/units';
 import { MsgCreateGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgCreateGroupSDKTypeEIP712';
 import { MsgDeleteGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteGroupSDKTypeEIP712';
 import { MsgLeaveGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgLeaveGroupSDKTypeEIP712';
@@ -16,43 +15,47 @@ import {
   MsgLeaveGroup,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { DeliverTxResponse } from '@cosmjs/stargate';
+import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 import { Account } from './account';
-import { ITxOption } from './basic';
 
 export interface IGroup {
   /**
    * create a new group on greenfield chain the group members can be initialized  or not
    */
-  createGroup(
-    msg: MsgCreateGroup,
-    txOption: ITxOption,
-  ): Promise<DeliverTxResponse | ISimulateGasFee>;
+  createGroup<T extends ITxOption>(msg: MsgCreateGroup, txOption: T): Promise<SimulateOrBroad<T>>;
+  createGroup(msg: MsgCreateGroup, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * send DeleteGroup txn to greenfield chain and return txn hash
    */
-  deleteGroup(
-    msg: MsgDeleteGroup,
-    txOption: ITxOption,
-  ): Promise<DeliverTxResponse | ISimulateGasFee>;
+  deleteGroup<T extends ITxOption>(msg: MsgDeleteGroup, txOption: T): Promise<SimulateOrBroad<T>>;
+  deleteGroup(msg: MsgDeleteGroup, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   /**
    * support adding or removing members from the group and return the txn hash
    */
+  updateGroupMember<T extends ITxOption>(
+    msg: MsgUpdateGroupMember,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   updateGroupMember(
     msg: MsgUpdateGroupMember,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | ISimulateGasFee>;
+  ): Promise<SimulateOrBroadResponse>;
 
   /**
    * make the member leave the specific group
    */
+  leaveGroup<T extends ITxOption>(
+    address: string,
+    msg: MsgLeaveGroup,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   leaveGroup(
     address: string,
     msg: MsgLeaveGroup,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | ISimulateGasFee>;
+  ): Promise<SimulateOrBroadResponse>;
 
   /**
    * query the groupInfo on chain, return the group info if exists
