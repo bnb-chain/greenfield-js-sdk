@@ -12,14 +12,10 @@ You can find some package documentation below:
 
 ## Examples
 
-[Examples](./examples)
+Support use in browser and node.js
 
-* tx
-  * [transfer](./examples/wallet/src/components/transfer/index.tsx)
-  * [withdraw](./examples/wallet/src/components/withdraw/index.tsx)
-  * [bucket](./examples/wallet/src/components/bucket/index.tsx)
-  * [object](./examples/wallet/src/components/object/index.tsx)
-* [query](./examples/wallet/src/components/withdraw/query.tsx)
+* [nextjs](./examples/nextjs/README.md)
+* [Nodejs](./examples/nodejs/)
 
 ## Supported JS environments
 
