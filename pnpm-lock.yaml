@@ -141,7 +141,7 @@ importers:
       typescript: ^4.9.5
     dependencies:
       '@bnb-chain/greenfield-cosmos-types': 0.4.0-alpha.7
-      '@bnb-chain/greenfiled-file-handle': link:../files
+      '@bnb-chain/greenfiled-file-handle': link:../file-handle
       '@cosmjs/proto-signing': 0.29.5
       '@cosmjs/stargate': 0.29.5
       '@cosmjs/tendermint-rpc': 0.29.5
@@ -160,7 +160,7 @@ importers:
       tslib: 2.5.0
       typescript: 4.9.5
 
-  packages/files:
+  packages/file-handle:
     specifiers:
       '@rollup/plugin-wasm': ^6.1.2
       rollup: ^2.79.1
