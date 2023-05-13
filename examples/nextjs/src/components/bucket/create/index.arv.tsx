@@ -1,32 +1,28 @@
+import { client } from '@/client';
 import { GRPC_URL } from '@/config';
 import { decodeFromHex } from '@/utils/encoding';
+import { getGasFeeBySimulate } from '@/utils/simulate';
 import {
-  Long,
+  CreateBucketTx,
+  ISignature712,
   makeCosmsPubKey,
   recoverPk,
-  StorageEnums,
   ZERO_PUBKEY,
 } from '@bnb-chain/greenfield-chain-sdk';
-import { getGasFeeBySimulate } from '@/utils/simulate';
-import { CreateBucketTx, ISignature712 } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
-import { client } from '@/client';
 
 interface IApprovalCreateBucket {
-  type: string;
-  value: {
-    bucket_name: string;
-    creator: string;
-    visibility: string;
-    primary_sp_address: string;
-    primary_sp_approval: {
-      expired_height: string;
-      sig: string;
-    };
-    charged_read_quota: number;
-    redundancy_type: string;
+  bucket_name: string;
+  creator: string;
+  visibility: string;
+  primary_sp_address: string;
+  primary_sp_approval: {
+    expired_height: string;
+    sig: string;
   };
+  charged_read_quota: number;
+  redundancy_type: string;
 }
 
 export const CreateBucket = () => {
@@ -39,7 +35,7 @@ export const CreateBucket = () => {
   });
   const [gasLimit, setGasLimit] = useState(0);
   const [textarea, setTextArea] = useState('');
-  const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateBucket['value'] | null>(null);
+  const [xGnfdSignedMsg, setXGnfdSignedMsg] = useState<IApprovalCreateBucket | null>(null);
   const [gasPrice, setGasPrice] = useState('');
 
   return (
