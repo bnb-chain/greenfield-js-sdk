@@ -1,3 +1,5 @@
+# Greenfield Chain JS SDK
+
 ## Install
 
 ```bash
