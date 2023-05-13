@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.1.0-alpha.4
+
+### Patch Changes
+
+- [#31](https://github.com/bnb-chain/greenfield-js-sdk/pull/31)
+  [`9b6b781`](https://github.com/bnb-chain/greenfield-js-sdk/commit/9b6b7817501e56b1a2ceb46b60016fc7c35a12ff)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix broadcast and simulate type
+
 ## 0.1.0-alpha.3
 
 ### Patch Changes
