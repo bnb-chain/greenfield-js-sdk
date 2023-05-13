@@ -2,7 +2,8 @@
   "name": "@bnb-chain/greenfield-chain-sdk",
   "version": "0.1.0-alpha.1",
   "description": "greenfield js chain sdk",
-  "main": "./dist/esm/index.js",
+  "type": "commonjs",
+  "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
   "exports": {
