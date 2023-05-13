@@ -7,15 +7,15 @@ You can find some package documentation below:
 
 | Package | Description |
 | --- | --- |
-| [@bnb-chain/greenfield-chain-sdk](./packages/chain-sdk) | A client library for Greenfield Chain |
-| [@bnb-chain/greenfiled-file-handle](./packages/files) | WASM module that handle file, such as `checksums` |
+| [@bnb-chain/greenfield-chain-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain |
+| [@bnb-chain/greenfiled-file-handle](./packages/file-handle/README.md) | WASM module that handle file, such as `checksums` |
 
 ## Examples
 
 Support use in browser and node.js
 
 * [nextjs](./examples/nextjs/README.md)
-* [Nodejs](./examples/nodejs/)
+* [Nodejs](./examples/nodejs/README.md)
 
 ## Supported JS environments
 
