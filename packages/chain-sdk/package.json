@@ -1,8 +1,8 @@
 {
   "name": "@bnb-chain/greenfield-chain-sdk",
+  "private": "true",
   "version": "0.1.0-alpha.1",
   "description": "greenfield js chain sdk",
-  "type": "commonjs",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
@@ -17,6 +17,10 @@
         "default": "./dist/cjs/index.js"
       }
     }
+  },
+  "browser": {
+    "./dist/cjs/index.js": "./dist/cjs/index.js",
+    "./dist/esm/index.js": "./dist/esm/index.js"
   },
   "scripts": {
     "predev": "rimraf ./dist",
