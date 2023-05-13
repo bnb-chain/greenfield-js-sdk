@@ -65,7 +65,6 @@ export const DeleteBucket = () => {
               granter: '',
             },
           );
-          setSimulateInfo(res);
           console.log('res', res);
 
           if (res.code === 0) {
