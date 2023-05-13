@@ -1,16 +1,11 @@
-import {
-  BucketProps,
-  GetObjectPropsType,
-  ICreateBucketMsgType,
-  IGetCreateBucketApproval,
-  IObjectResultType,
-  IQuotaProps,
-  getUserBucketsPropsType,
-} from '../types/storage';
+import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/createBucket';
+import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/deleteBucket';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE, fetchWithTimeout } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
-import { ISimulateGasFee } from '@/utils/units';
+import { MsgDeletePolicySDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeletePolicySDKTypeEIP712';
+import { MsgPutPolicySDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgPutPolicySDKTypeEIP712';
+import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgUpdateBucketInfoSDKTypeEIP712';
 import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
@@ -26,15 +21,18 @@ import {
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
-import { DeliverTxResponse } from '@cosmjs/stargate';
 import Long from 'long';
-import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgUpdateBucketInfoSDKTypeEIP712';
-import { MsgPutPolicySDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgPutPolicySDKTypeEIP712';
+import {
+  BucketProps,
+  GetObjectPropsType,
+  ICreateBucketMsgType,
+  IGetCreateBucketApproval,
+  IObjectResultType,
+  IQuotaProps,
+  getUserBucketsPropsType,
+} from '../types/storage';
 import { Account } from './account';
-import { ITxOption } from './basic';
-import { MsgDeletePolicySDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeletePolicySDKTypeEIP712';
-import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/deleteBucket';
-import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/createBucket';
+import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 
 export interface IBucket {
   /**
@@ -45,10 +43,14 @@ export interface IBucket {
   /**
    * get approval of creating bucket and send createBucket txn to greenfield chain
    */
+  createBucket<T extends ITxOption>(
+    params: IGetCreateBucketApproval,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   createBucket(
     params: IGetCreateBucketApproval,
     txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  ): Promise<SimulateOrBroadResponse>;
 
   /**
    * query the bucketInfo on chain, return the bucket info if exists
@@ -78,25 +80,23 @@ export interface IBucket {
    */
   getBucketReadQuota(configParam: GetObjectPropsType): Promise<IObjectResultType<IQuotaProps>>;
 
-  deleteBucket(
-    msg: MsgDeleteBucket,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  deleteBucket<T extends ITxOption>(msg: MsgDeleteBucket, txOption: T): Promise<SimulateOrBroad<T>>;
+  deleteBucket(msg: MsgDeleteBucket, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
-  updateBucketInfo(
+  updateBucketInfo<T extends ITxOption>(
     msg: MsgUpdateBucketInfo,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
+  updateBucketInfo(msg: MsgUpdateBucketInfo, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
-  putBucketPolicy(
-    msg: MsgPutPolicy,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  putBucketPolicy<T extends ITxOption>(msg: MsgPutPolicy, txOption: T): Promise<SimulateOrBroad<T>>;
+  putBucketPolicy(msg: MsgPutPolicy, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
-  deleteBucketPolicy(
+  deleteBucketPolicy<T extends ITxOption>(
     msg: MsgDeletePolicy,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
+  deleteBucketPolicy(msg: MsgDeletePolicy, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 }
 
 export class Bucket extends Account implements IBucket {

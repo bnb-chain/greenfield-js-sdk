@@ -6,10 +6,8 @@ import {
   QueryLatestAttestedChallengesResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
-import { DeliverTxResponse } from '@cosmjs/stargate';
 import { Account } from './account';
-import { ITxOption } from './basic';
-import { ISimulateGasFee } from '@/utils/units';
+import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 
 export interface IChallenge {
   /**
@@ -20,11 +18,16 @@ export interface IChallenge {
   /**
    * challenges the service provider data integrity, used by off-chain service greenfield-challenger.
    */
+  submitChallenge<T extends ITxOption>(
+    address: string,
+    msg: MsgSubmit,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   submitChallenge(
     address: string,
     msg: MsgSubmit,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | ISimulateGasFee>;
+  ): Promise<SimulateOrBroadResponse>;
 
   /**
    * Attest handles user's request for attesting a challenge.
@@ -32,11 +35,16 @@ export interface IChallenge {
      If the challenge is valid, the related storage provider will be slashed.
      For heartbeat attestation, the challenge is invalid and the storage provider will not be slashed.
    */
+  attestChallenge<T extends ITxOption>(
+    address: string,
+    msg: MsgAttest,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   attestChallenge(
     address: string,
     msg: MsgAttest,
     txOption: ITxOption,
-  ): Promise<DeliverTxResponse | ISimulateGasFee>;
+  ): Promise<SimulateOrBroadResponse>;
 
   latestAttestedChallenges(): Promise<QueryLatestAttestedChallengesResponse>;
 

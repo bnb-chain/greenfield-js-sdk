@@ -3,22 +3,6 @@ import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
-interface IApprovalCreateBucket {
-  type: string;
-  value: {
-    bucket_name: string;
-    creator: string;
-    visibility: string;
-    primary_sp_address: string;
-    primary_sp_approval: {
-      expired_height: string;
-      sig: string;
-    };
-    charged_read_quota: number;
-    redundancy_type: string;
-  };
-}
-
 export const CreateBucket = () => {
   const { address } = useAccount();
   const [createBucketInfo, setCreateBucketInfo] = useState<{
@@ -95,7 +79,7 @@ export const CreateBucket = () => {
               granter: '',
             },
           );
-          setSimulateInfo(res);
+
           console.log('res', res);
           if (res.code === 0) {
             alert('success');

@@ -1,5 +1,5 @@
-import { TOKEN_HUB_CONTRACT_ADDRESS, CROSS_CHAIN_CONTRACT_ADDRESS } from '@/config';
-import { TOKENHUB_ABI, CROSS_CHAIN_ABI } from '@/constants/abi';
+import { CROSS_CHAIN_CONTRACT_ADDRESS, TOKEN_HUB_CONTRACT_ADDRESS } from '@/config';
+import { CROSS_CHAIN_ABI, TOKENHUB_ABI } from '@/constants/abi';
 import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useAccount, useProvider, useSigner } from 'wagmi';

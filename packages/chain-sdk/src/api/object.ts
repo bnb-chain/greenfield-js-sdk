@@ -32,7 +32,10 @@ import {
   IObjectProps,
   IObjectResultType,
   IPutObjectPropsType,
+  ITxOption,
   Long,
+  SimulateOrBroad,
+  SimulateOrBroadResponse,
 } from '../types';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
@@ -41,9 +44,7 @@ import {
   isValidObjectName,
   isValidUrl,
 } from '../utils/s3';
-import { ISimulateGasFee } from '../utils/units';
 import { Account } from './account';
-import { ITxOption } from './basic';
 import { Bucket, IBucket } from './bucket';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/deleteObject';
 
@@ -52,22 +53,28 @@ export interface IObject {
     getApprovalParams: IGetCreateObjectApproval,
   ): Promise<IObjectResultType<string>>;
 
+  createObject<T extends ITxOption>(
+    getApprovalParams: IGetCreateObjectApproval,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   createObject(
     getApprovalParams: IGetCreateObjectApproval,
     txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  ): Promise<SimulateOrBroadResponse>;
 
   uploadObject(configParam: IPutObjectPropsType): Promise<IObjectResultType<null>>;
 
+  cancelCreateObject<T extends ITxOption>(
+    msg: MsgCancelCreateObject,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   cancelCreateObject(
     msg: MsgCancelCreateObject,
     txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  ): Promise<SimulateOrBroadResponse>;
 
-  deleteObject(
-    msg: MsgDeleteObject,
-    txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  deleteObject<T extends ITxOption>(msg: MsgDeleteObject, txOption: T): Promise<SimulateOrBroad<T>>;
+  deleteObject(msg: MsgDeleteObject, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
 
   headObject(bucketName: string, objectName: string): Promise<QueryHeadObjectResponse>;
 
@@ -81,10 +88,14 @@ export interface IObject {
     configParam: IListObjectsByBucketNamePropsType,
   ): Promise<IObjectResultType<Array<IObjectProps>>>;
 
+  createFolder<T extends ITxOption>(
+    getApprovalParams: IGetCreateObjectApproval,
+    txOption: T,
+  ): Promise<SimulateOrBroad<T>>;
   createFolder(
     getApprovalParams: IGetCreateObjectApproval,
     txOption: ITxOption,
-  ): Promise<ISimulateGasFee | DeliverTxResponse>;
+  ): Promise<SimulateOrBroadResponse>;
 }
 
 export class Object extends Account implements IObject {

@@ -1,4 +1,4 @@
-import { ISimulateGasFee, getGasFeeBySimulate } from '@/utils/units';
+import { getGasFeeBySimulate } from '@/utils/units';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
   GetBlockByHeightResponse,
@@ -49,6 +49,7 @@ import {
 } from '@cosmjs/stargate';
 import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
 import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
+import { ISimulateGasFee, ITxOption } from '..';
 
 export const makeClientWithExtension = async (
   rpcUrl: string,
@@ -80,15 +81,6 @@ export const makeRpcClient = async (rpcUrl: string) => {
   const rpc = createProtobufRpcClient(new QueryClient(tmClient));
   return rpc;
 };
-
-export interface ITxOption {
-  denom: string;
-  gasLimit: number;
-  gasPrice: string;
-  payer: string;
-  granter: string;
-  simulate: boolean;
-}
 
 export interface IBasic {
   /**
