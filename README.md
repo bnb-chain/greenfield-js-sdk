@@ -24,15 +24,15 @@ Support use in browser and node.js
 
 ## Contribution
 
-Look at [CONTRIBUTING](./CONTRIBUTING.md) specifically
+Look over [CONTRIBUTING](./CONTRIBUTING.md)
 
 
 ## Disclaimer
 
-Look at [DISCLAIMER](./DISCLAIMER.md)
+Look over [DISCLAIMER](./DISCLAIMER.md)
 
 ## License
 
 The library is licensed under the
 [GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html),
-also included in our repository in the `LICENSE` file.
+also included in our repository in the [LICENSE](./LICENSE) file.

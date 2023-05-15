@@ -6,7 +6,7 @@ prepare your contribution.
 
 ## Setup the Project
 
-The following steps will get you up and running to contribute to Chakra UI:
+The following steps will get you up and running to contribute to Greenfield JS SDK:
 
 1. Fork the repo (click the <kbd>Fork</kbd> button at the top right of
    [this page](https://github.com/bnb-chain/greenfield-js-sdk))
@@ -15,7 +15,7 @@ The following steps will get you up and running to contribute to Chakra UI:
 
 ```sh
 git clone https://github.com/<your_github_username>/greenfield-js-sdk.git
-cd chakra-ui
+cd greenfield-js-sdk
 ```
 
 3. Setup all the dependencies and packages by running `pnpm install`. This
