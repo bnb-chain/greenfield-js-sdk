@@ -1,5 +1,23 @@
 # @bnb-chain/greenfiled-file-handle
 
+## 0.1.0
+
+### Minor Changes
+
+- [#33](https://github.com/bnb-chain/greenfield-js-sdk/pull/33)
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5)
+  Thanks [@rrr523](https://github.com/rrr523)! - New Client
+
+### Patch Changes
+
+- [#33](https://github.com/bnb-chain/greenfield-js-sdk/pull/33)
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5)
+  Thanks [@rrr523](https://github.com/rrr523)! - support commonjs export
+
+- [#33](https://github.com/bnb-chain/greenfield-js-sdk/pull/33)
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5)
+  Thanks [@rrr523](https://github.com/rrr523)! - Query support nodejs and browser
+
 ## 0.1.0-alpha.1
 
 ### Patch Changes

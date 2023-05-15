@@ -1,5 +1,22 @@
 # @demo/wallet
 
+## 0.0.2
+
+### Patch Changes
+
+- [#33](https://github.com/bnb-chain/greenfield-js-sdk/pull/33)
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5)
+  Thanks [@rrr523](https://github.com/rrr523)! - Query support nodejs and browser
+
+- Updated dependencies
+  [[`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5),
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5),
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5),
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5),
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5),
+  [`b8c0ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b8c0ba0f7a5ebae8e1c682bc9c6c0959d5ede8c5)]:
+  - @bnb-chain/greenfield-chain-sdk@0.1.0
+
 ## 0.0.2-alpha.4
 
 ### Patch Changes
