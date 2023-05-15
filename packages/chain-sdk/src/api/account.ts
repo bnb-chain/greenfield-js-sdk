@@ -23,41 +23,6 @@ import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/gree
 import { Basic } from './basic';
 import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 
-type A = {
-  type: 'foo';
-  value: string;
-};
-type B = {
-  type: 'bar';
-  value: number;
-};
-
-type ReqA = {
-  simulate: true;
-  value: string;
-};
-
-type ReqB = {
-  simulate: false;
-  value: number;
-};
-
-type Op = {
-  xx: boolean;
-};
-
-// 重载
-function test<T extends Op>(x: T): T['xx'] extends true ? string : number;
-
-function test(x: Op) {
-  if (x.xx) {
-    return 'xx';
-  }
-  return 111;
-}
-
-const a = test({ xx: false });
-
 export interface IAccount {
   /**
    * retrieves account information for a given address.
