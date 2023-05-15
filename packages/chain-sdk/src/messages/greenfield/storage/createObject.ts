@@ -5,7 +5,7 @@ import {
 
 export const TYPE_URL = '/bnbchain.greenfield.storage.MsgCreateObject';
 
-export const TYPES = {
+export const MsgCreateObjectSDKTypeEIP712 = {
   Msg: [
     {
       name: 'type',

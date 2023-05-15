@@ -1,0 +1,77 @@
+import {
+  BSC_CHAIN_ID,
+  GREEN_CHAIN_ID,
+  metaMaskWalletConnector,
+  trustWalletConnector,
+} from '@/config';
+import {
+  useAccount,
+  useBalance,
+  useConnect,
+  useDisconnect,
+  useNetwork,
+  useProvider,
+  useSwitchNetwork,
+} from 'wagmi';
+
+export const WalletInfo = () => {
+  const { address, connector, isConnected } = useAccount();
+  const { connect: metaMaskConnect } = useConnect({
+    connector: metaMaskWalletConnector,
+  });
+  const { connect: trustWalletConnect } = useConnect({
+    connector: trustWalletConnector,
+  });
+
+  const { disconnect } = useDisconnect();
+  const { chain } = useNetwork();
+  const { switchNetwork: switchToGreenField } = useSwitchNetwork({
+    chainId: GREEN_CHAIN_ID,
+  });
+
+  const { switchNetwork: switchToBSC } = useSwitchNetwork({
+    chainId: BSC_CHAIN_ID,
+  });
+
+  const balance = useBalance({
+    address,
+    watch: true,
+  });
+
+  if (!isConnected) {
+    return (
+      <>
+        <button onClick={() => metaMaskConnect()}>Connect MetaMask</button>
+        <button onClick={() => trustWalletConnect()}>Connect trustWallet</button>
+      </>
+    );
+  }
+
+  return (
+    <div>
+      <div>
+        <h2>address : {address}</h2>
+        <h2>connector: {connector?.name} </h2>
+        <button onClick={() => disconnect()}>Disconnect</button>
+      </div>
+
+      <h2>change chain chainId {chain?.id}</h2>
+      <h3>balance: {balance.data?.formatted}</h3>
+      <button
+        onClick={() => {
+          switchToGreenField?.(GREEN_CHAIN_ID);
+        }}
+      >
+        switch to green field
+      </button>
+      <br />
+      <button
+        onClick={() => {
+          switchToBSC?.(BSC_CHAIN_ID);
+        }}
+      >
+        switch to bsc
+      </button>
+    </div>
+  );
+};

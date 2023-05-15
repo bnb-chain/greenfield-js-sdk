@@ -1,9 +1,6 @@
-import { MsgCreateBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { visibilityTypeToJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-
 export const TYPE_URL = '/bnbchain.greenfield.storage.MsgCreateBucket';
 
-export const TYPES = {
+export const MsgCreateBucketSDKTypeEIP712 = {
   Msg: [
     {
       name: 'type',
@@ -71,15 +68,11 @@ export const newMsgCreateBucket = ({
   chargedReadQuota,
   sig,
 }: ICreateBucketMsg) => {
-  const message = MsgCreateBucket.fromJSON({
-    visibility,
-  });
-
   return {
     type: TYPE_URL,
     bucket_name: bucketName,
     creator: from,
-    visibility: visibilityTypeToJSON(message.visibility),
+    visibility,
     payment_address: paymentAddress,
     primary_sp_address: primarySpAddress,
     primary_sp_approval: {

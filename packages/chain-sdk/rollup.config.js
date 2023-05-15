@@ -1,11 +1,12 @@
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import typescript from '@rollup/plugin-typescript';
-import json from '@rollup/plugin-json';
 import alias from '@rollup/plugin-alias';
-import builtins from 'rollup-plugin-node-builtins';
+import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 import path from 'path';
+import builtins from 'rollup-plugin-node-builtins';
 
+import autoExternal from 'rollup-plugin-auto-external';
 import pkg from './package.json';
 const pathResolve = (p) => path.resolve(__dirname, p);
 
@@ -41,6 +42,37 @@ export default async () => {
         typescript({
           tsconfig: './config/tsconfig-esm.json',
           declarationDir: './dist/esm',
+        }),
+        alias({
+          entries: {
+            '@': pathResolve('src'),
+          },
+        }),
+      ],
+    },
+    {
+      input: './src/index.ts',
+      output: {
+        dir: './dist/cjs',
+        format: 'cjs',
+      },
+      external: resolveExternal(),
+      context: 'window',
+      treeshake: true,
+      plugins: [
+        json({
+          include: ['src/**'],
+        }),
+        autoExternal(),
+        resolve({
+          browser: false,
+        }),
+        commonjs({
+          defaultIsModuleExports: false,
+        }),
+        typescript({
+          tsconfig: './config/tsconfig-cjs.json',
+          declarationDir: './dist/cjs/types',
         }),
         alias({
           entries: {
