@@ -1,0 +1,19 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "@demo/wallet": "0.0.1",
+    "@bnb-chain/greenfield-chain-sdk": "0.0.1",
+    "@bnb-chain/greenfiled-file-handle": "0.0.1",
+    "@demo/nodejs": "0.0.1"
+  },
+  "changesets": [
+    "eleven-mayflies-fry",
+    "great-walls-hide",
+    "large-crabs-cheat",
+    "light-islands-smile",
+    "thirty-islands-jam",
+    "thirty-yaks-appear",
+    "yellow-lobsters-divide"
+  ]
+}

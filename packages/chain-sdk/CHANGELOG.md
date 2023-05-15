@@ -1,6 +1,39 @@
 # @bnb-chain/greenfield-chain-sdk
 
-## 0.1.0
+## 0.1.0-alpha.4
+
+### Patch Changes
+
+- [#31](https://github.com/bnb-chain/greenfield-js-sdk/pull/31)
+  [`9b6b781`](https://github.com/bnb-chain/greenfield-js-sdk/commit/9b6b7817501e56b1a2ceb46b60016fc7c35a12ff)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix broadcast and simulate type
+
+## 0.1.0-alpha.3
+
+### Patch Changes
+
+- [#28](https://github.com/bnb-chain/greenfield-js-sdk/pull/28)
+  [`884b824`](https://github.com/bnb-chain/greenfield-js-sdk/commit/884b8243c75544cee079b49ccb27b227be554b01)
+  Thanks [@ybgbob](https://github.com/ybgbob)! - support commonjs export
+
+- [#28](https://github.com/bnb-chain/greenfield-js-sdk/pull/28)
+  [`884b824`](https://github.com/bnb-chain/greenfield-js-sdk/commit/884b8243c75544cee079b49ccb27b227be554b01)
+  Thanks [@ybgbob](https://github.com/ybgbob)! - Query support nodejs and browser
+
+- Updated dependencies
+  [[`884b824`](https://github.com/bnb-chain/greenfield-js-sdk/commit/884b8243c75544cee079b49ccb27b227be554b01),
+  [`884b824`](https://github.com/bnb-chain/greenfield-js-sdk/commit/884b8243c75544cee079b49ccb27b227be554b01)]:
+  - @bnb-chain/greenfiled-file-handle@0.1.0-alpha.1
+
+## 0.1.0-alpha.2
+
+### Patch Changes
+
+- [#25](https://github.com/bnb-chain/greenfield-js-sdk/pull/25)
+  [`4a22580`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4a2258023162cda74dd5c5c792063c61ad3af39a)
+  Thanks [@rrr523](https://github.com/rrr523)! - commonjs
+
+## 0.1.0-alpha.1
 
 ### Minor Changes
 
