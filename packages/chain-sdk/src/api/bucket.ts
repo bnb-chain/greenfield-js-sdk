@@ -1,5 +1,11 @@
-import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/createBucket';
-import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/deleteBucket';
+import {
+  MsgCreateBucketSDKTypeEIP712,
+  MsgCreateBucketTypeUrl,
+} from '@/messages/greenfield/storage/createBucket';
+import {
+  MsgDeleteBucketSDKTypeEIP712,
+  MsgDeleteBucketTypeUrl,
+} from '@/messages/greenfield/storage/deleteBucket';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE, fetchWithTimeout } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
@@ -100,28 +106,6 @@ export interface IBucket {
 }
 
 export class Bucket extends Account implements IBucket {
-  // private sp: ISp = new Sp(this.rpcUrl, this.chainId);
-  /* private async getRandomSpInfo(): Promise<ISpInfo> {
-    const spList = await this.sp.getStorageProviders();
-    if (!spList || spList.length === 0) {
-      return {} as ISpInfo;
-    }
-
-    const randomIndex = Math.floor(Math.random() * spList.length);
-    const selectSp = spList[randomIndex];
-    const secondarySpAddresses = spList
-      .filter((_, index) => index !== randomIndex)
-      .map((sp) => sp.operatorAddress);
-    const { endpoint, operatorAddress, sealAddress } = selectSp;
-
-    return {
-      endpoint,
-      primarySpAddress: operatorAddress,
-      sealAddress,
-      secondarySpAddresses,
-    };
-  } */
-
   public async getCreateBucketApproval({
     bucketName,
     creator,
@@ -232,7 +216,7 @@ export class Bucket extends Account implements IBucket {
       paymentAddress: '',
     };
 
-    const typeUrl = '/bnbchain.greenfield.storage.MsgCreateBucket';
+    const typeUrl = MsgCreateBucketTypeUrl;
     const msgBytes = MsgCreateBucket.encode(msg).finish();
     const accountInfo = await this.getAccount(msg.creator);
     const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
@@ -271,7 +255,7 @@ export class Bucket extends Account implements IBucket {
   }
 
   public async deleteBucket(msg: MsgDeleteBucket, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgDeleteBucket';
+    const typeUrl = MsgDeleteBucketTypeUrl;
     const msgBytes = MsgDeleteBucket.encode(msg).finish();
     const accountInfo = await this.getAccount(msg.operator);
     const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);

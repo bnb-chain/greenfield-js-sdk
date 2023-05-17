@@ -1,3 +1,4 @@
+import { client } from '@/client';
 import {
   BSC_CHAIN_ID,
   GREEN_CHAIN_ID,

@@ -1,4 +1,4 @@
-export const TYPE_URL = '/bnbchain.greenfield.storage.MsgCreateBucket';
+export const MsgCreateBucketTypeUrl = '/greenfield.storage.MsgCreateBucket';
 
 export const MsgCreateBucketSDKTypeEIP712 = {
   Msg: [
@@ -69,7 +69,7 @@ export const newMsgCreateBucket = ({
   sig,
 }: ICreateBucketMsg) => {
   return {
-    type: TYPE_URL,
+    type: MsgCreateBucketTypeUrl,
     bucket_name: bucketName,
     creator: from,
     visibility,

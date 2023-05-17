@@ -26,7 +26,7 @@
     "dev": "rollup -cw",
     "prebuild": "rimraf ./dist",
     "build": "rollup -c",
-    "test": "TS_NODE_PROJECT=./config/tsconfig-test.json node --es-module-specifier-resolution=node --loader ts-node/esm --nolazy ../../node_modules/mocha/lib/cli/cli.js --timeout 9999999 --color 'test/*.test.ts'",
+    "test": "jest",
     "lint": "prettier --write './src/*.{ts,tsx,js,jsx}' && eslint ./src/ --ext .js,.jsx,.ts,.tsx --fix"
   },
   "keywords": [],
@@ -53,11 +53,11 @@
     ]
   },
   "dependencies": {
-    "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.8",
+    "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.9",
     "@bnb-chain/greenfiled-file-handle": "workspace:*",
-    "@cosmjs/proto-signing": "^0.29.5",
-    "@cosmjs/stargate": "^0.29.5",
-    "@cosmjs/tendermint-rpc": "^0.29.5",
+    "@cosmjs/proto-signing": "^0.30.1",
+    "@cosmjs/stargate": "^0.30.1",
+    "@cosmjs/tendermint-rpc": "^0.30.1",
     "@ethereumjs/util": "^8.0.5",
     "@ethersproject/signing-key": "^5.7.0",
     "@ethersproject/units": "^5.7.0",

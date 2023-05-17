@@ -1,5 +1,15 @@
-import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/cancelCreateObject';
-import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/createObject';
+import {
+  MsgCancelCreateObjectSDKTypeEIP712,
+  MsgCancelCreateObjectTypeUrl,
+} from '@/messages/greenfield/storage/cancelCreateObject';
+import {
+  MsgCreateObjectSDKTypeEIP712,
+  MsgCreateObjectTypeUrl,
+} from '@/messages/greenfield/storage/createObject';
+import {
+  MsgDeleteObjectSDKTypeEIP712,
+  MsgDeleteObjectTypeUrl,
+} from '@/messages/greenfield/storage/deleteObject';
 import {
   METHOD_GET,
   METHOD_PUT,
@@ -22,12 +32,10 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
-import { DeliverTxResponse } from '@cosmjs/stargate';
 import {
   ICreateObjectMsgType,
   IGetCreateObjectApproval,
   IGetObjectPropsType,
-  IGetObjectStaus,
   IListObjectsByBucketNamePropsType,
   IObjectProps,
   IObjectResultType,
@@ -45,8 +53,6 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Account } from './account';
-import { Bucket, IBucket } from './bucket';
-import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/deleteObject';
 
 export interface IObject {
   getCreateObjectApproval(
@@ -99,7 +105,7 @@ export interface IObject {
 }
 
 export class Object extends Account implements IObject {
-  constructor(rpcUrl: string, chainId: string, private bucket: IBucket) {
+  constructor(rpcUrl: string, chainId: string) {
     super(rpcUrl, chainId);
   }
 
@@ -224,7 +230,7 @@ export class Object extends Account implements IObject {
       },
     };
 
-    const typeUrl = '/bnbchain.greenfield.storage.MsgCreateObject';
+    const typeUrl = MsgCreateObjectTypeUrl;
     const msgBytes = MsgCreateObject.encode(msg).finish();
     const accountInfo = await this.getAccount(msg.creator);
     const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
@@ -314,7 +320,7 @@ export class Object extends Account implements IObject {
   }
 
   public async cancelCreateObject(msg: MsgCancelCreateObject, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgCancelCreateObject';
+    const typeUrl = MsgCancelCreateObjectTypeUrl;
     const msgBytes = MsgCancelCreateObject.encode(msg).finish();
     const accountInfo = await this.getAccount(msg.operator);
     const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
@@ -344,7 +350,7 @@ export class Object extends Account implements IObject {
   }
 
   public async deleteObject(msg: MsgDeleteObject, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgDeleteObject';
+    const typeUrl = MsgDeleteObjectTypeUrl;
     const msgBytes = MsgDeleteObject.encode(msg).finish();
     const accountInfo = await this.getAccount(msg.operator);
     const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);

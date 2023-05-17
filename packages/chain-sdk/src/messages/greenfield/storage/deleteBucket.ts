@@ -1,4 +1,4 @@
-export const TYPE_URL = '/bnbchain.greenfield.storage.MsgDeleteBucket';
+export const MsgDeleteBucketTypeUrl = '/greenfield.storage.MsgDeleteBucket';
 
 export const MsgDeleteBucketSDKTypeEIP712 = {
   Msg: [
@@ -24,7 +24,7 @@ export interface IDeleteBucketMsg {
 
 export const newMsgDeleteBucket = ({ bucketName, from }: IDeleteBucketMsg) => {
   return {
-    type: TYPE_URL,
+    type: MsgDeleteBucketTypeUrl,
     bucket_name: bucketName,
     operator: from,
   };

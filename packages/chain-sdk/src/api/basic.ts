@@ -48,15 +48,15 @@ import {
   setupTxExtension,
 } from '@cosmjs/stargate';
 import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
-import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
+import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { ISimulateGasFee, ITxOption } from '..';
 
 export const makeClientWithExtension = async (
   rpcUrl: string,
 ): Promise<
-  [QueryClient & BankExtension & TxExtension & AuthExtension & AuthzExtension, Tendermint34Client]
+  [QueryClient & BankExtension & TxExtension & AuthExtension & AuthzExtension, Tendermint37Client]
 > => {
-  const tmClient = await Tendermint34Client.connect(rpcUrl);
+  const tmClient = await Tendermint37Client.connect(rpcUrl);
   return [
     QueryClient.withExtensions(
       tmClient,
@@ -217,8 +217,10 @@ export class Basic implements IBasic {
   }
 
   public async broadcastRawTx(txRawBytes: Uint8Array) {
-    const client = await StargateClient.connect(this.rpcUrl);
+    const tmClient = await Tendermint37Client.connect(this.rpcUrl);
+    // const client = await StargateClient.connect(this.rpcUrl);
 
+    const client = await StargateClient.create(tmClient);
     return await client.broadcastTx(txRawBytes);
   }
 

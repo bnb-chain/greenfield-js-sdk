@@ -20,8 +20,8 @@ import {
   QueryGetPaymentAccountsByOwnerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { Basic } from './basic';
 import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
+import { Basic } from './basic';
 
 export interface IAccount {
   /**

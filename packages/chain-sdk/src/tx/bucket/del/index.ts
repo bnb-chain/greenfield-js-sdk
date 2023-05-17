@@ -9,7 +9,7 @@ import { createEIP712, generateFee, generateMessage, generateTypes } from '../..
 import {
   newMsgDeleteBucket,
   MsgDeleteBucketSDKTypeEIP712,
-  TYPE_URL,
+  MsgDeleteBucketTypeUrl,
   type IDeleteBucketMsg,
 } from '../../../messages/greenfield/storage/deleteBucket';
 import { sign712Tx } from '../../../sign';
@@ -22,11 +22,11 @@ export class DelBucketTx extends BaseTx {
   public readonly txType: string;
 
   constructor(rpcUrl: string, chainId: string) {
-    super(rpcUrl, chainId, TYPE_URL);
+    super(rpcUrl, chainId, MsgDeleteBucketTypeUrl);
 
     this.rpcUrl = rpcUrl;
     this.chainId = chainId;
-    this.txType = TYPE_URL;
+    this.txType = MsgDeleteBucketTypeUrl;
   }
 
   public async signTx({

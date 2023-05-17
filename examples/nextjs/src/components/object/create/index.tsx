@@ -62,7 +62,7 @@ export const CreateObject = () => {
               simulate: false,
               denom: 'BNB',
               gasLimit: 210000,
-              gasPrice: '5000000000',
+              gasPrice: '50000000000',
               payer: address,
               granter: '',
             },

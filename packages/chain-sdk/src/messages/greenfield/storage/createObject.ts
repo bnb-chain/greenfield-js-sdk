@@ -3,7 +3,7 @@ import {
   visibilityTypeToJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 
-export const TYPE_URL = '/bnbchain.greenfield.storage.MsgCreateObject';
+export const MsgCreateObjectTypeUrl = '/greenfield.storage.MsgCreateObject';
 
 export const MsgCreateObjectSDKTypeEIP712 = {
   Msg: [
@@ -92,7 +92,7 @@ export const newMsgCreateObject = ({
   redundancyType,
 }: ICreateObjectMsg) => {
   return {
-    type: TYPE_URL,
+    type: MsgCreateObjectTypeUrl,
     bucket_name: bucketName,
     content_type: contentType,
     creator: from,

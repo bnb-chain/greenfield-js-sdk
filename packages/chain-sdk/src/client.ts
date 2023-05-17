@@ -18,7 +18,7 @@ export class Client {
     const crosschain = new CrossChain(rpcUrl, chainId);
     const distribution = new Distribution(rpcUrl, chainId);
     const group = new Group(rpcUrl, chainId);
-    const object = new Object(rpcUrl, chainId, bucket);
+    const object = new Object(rpcUrl, chainId);
     const payment = new Payment(rpcUrl, chainId);
     const sp = new Sp(rpcUrl, chainId);
 

@@ -3,7 +3,10 @@ import {
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
 
-import { MsgTransferOutSDKTypeEIP712 } from '@/messages/greenfield/bridge/transferOut';
+import {
+  MsgTransferOutSDKTypeEIP712,
+  MsgTransferOutTypeUrl,
+} from '@/messages/greenfield/bridge/transferOut';
 import {
   QueryClientImpl as CrosschainQueryClientImpl,
   QueryCrossChainPackageResponse,
@@ -85,7 +88,7 @@ export interface ICrossChain {
 
 export class CrossChain extends Account implements ICrossChain {
   public async transferOut(msg: MsgTransferOut, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.bridge.MsgTransferOut';
+    const typeUrl = MsgTransferOutTypeUrl;
     const msgBytes = MsgTransferOut.encode(msg).finish();
     const accountInfo = await this.getAccount(msg.from);
     const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
