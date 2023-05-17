@@ -26,7 +26,7 @@ export const makeCosmsPubKey = (pk: string) => {
   });
 
   return {
-    typeUrl: '/ethermint.crypto.v1.ethsecp256k1.PubKey',
+    typeUrl: '/cosmos.crypto.eth.ethsecp256k1.PubKey',
     value: PubKey.encode(pubKey).finish(),
   };
 };
