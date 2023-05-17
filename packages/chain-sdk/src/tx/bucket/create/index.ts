@@ -12,7 +12,7 @@ import {
   ICreateBucketMsg,
   newMsgCreateBucket,
   MsgCreateBucketSDKTypeEIP712,
-} from '../../../messages/greenfield/storage/createBucket';
+} from '../../../messages/greenfield/storage/MsgCreateBucket';
 import { sign712Tx } from '../../../sign';
 import { IRawTxInfo } from '../../../tx';
 import { BaseTx, IBaseMsg } from '../../baseTx';

@@ -15,7 +15,7 @@ import {
   ICreateObjectMsg,
   newMsgCreateObject,
   MsgCreateObjectSDKTypeEIP712,
-} from '../../../messages/greenfield/storage/createObject';
+} from '../../../messages/greenfield/storage/MsgCreateObject';
 import { sign712Tx } from '../../../sign';
 import { IRawTxInfo } from '../../../tx';
 import { BaseTx, IBaseMsg } from '../../baseTx';

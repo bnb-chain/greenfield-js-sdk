@@ -10,7 +10,7 @@ import {
   ICancelCreateObjectMsg,
   newMsgCancelCreateObject,
   MsgCancelCreateObjectSDKTypeEIP712,
-} from '../../../messages/greenfield/storage/cancelCreateObject';
+} from '../../../messages/greenfield/storage/MsgCancelCreateObject';
 import { sign712Tx } from '../../../sign';
 import { IRawTxInfo } from '../../../tx';
 import { BaseTx, IBaseMsg } from '../../baseTx';

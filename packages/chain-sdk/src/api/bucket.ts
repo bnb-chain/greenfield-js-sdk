@@ -1,11 +1,11 @@
 import {
   MsgCreateBucketSDKTypeEIP712,
   MsgCreateBucketTypeUrl,
-} from '@/messages/greenfield/storage/createBucket';
+} from '@/messages/greenfield/storage/MsgCreateBucket';
 import {
   MsgDeleteBucketSDKTypeEIP712,
   MsgDeleteBucketTypeUrl,
-} from '@/messages/greenfield/storage/deleteBucket';
+} from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE, fetchWithTimeout } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
@@ -255,33 +255,14 @@ export class Bucket extends Account implements IBucket {
   }
 
   public async deleteBucket(msg: MsgDeleteBucket, txOption: ITxOption) {
-    const typeUrl = MsgDeleteBucketTypeUrl;
-    const msgBytes = MsgDeleteBucket.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+    return this.boradcastOrSimulate(
+      MsgDeleteBucketTypeUrl,
+      msg.operator,
       MsgDeleteBucketSDKTypeEIP712,
       MsgDeleteBucket.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgDeleteBucket.encode(msg).finish(),
+      txOption,
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async headBucket(bucketName: string) {

@@ -7,11 +7,11 @@ import { Account } from './account';
 import {
   MsgGrantAllowanceSDKTypeEIP712,
   MsgGrantAllowanceTypeUrl,
-} from '@/messages/feegrant/grantAllowance';
+} from '@/messages/feegrant/MsgGrantAllowance';
 import {
   MsgRevokeAllowanceSDKTypeEIP712,
   MsgRevokeAllowanceTypeUrl,
-} from '@/messages/feegrant/revokeAllowance';
+} from '@/messages/feegrant/MsgRevokeAllowance';
 import {
   QueryClientImpl as FeeGrantQueryClientImpl,
   QueryAllowanceRequest,

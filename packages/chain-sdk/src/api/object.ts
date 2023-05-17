@@ -1,15 +1,15 @@
 import {
   MsgCancelCreateObjectSDKTypeEIP712,
   MsgCancelCreateObjectTypeUrl,
-} from '@/messages/greenfield/storage/cancelCreateObject';
+} from '@/messages/greenfield/storage/MsgCancelCreateObject';
 import {
   MsgCreateObjectSDKTypeEIP712,
   MsgCreateObjectTypeUrl,
-} from '@/messages/greenfield/storage/createObject';
+} from '@/messages/greenfield/storage/MsgCreateObject';
 import {
   MsgDeleteObjectSDKTypeEIP712,
   MsgDeleteObjectTypeUrl,
-} from '@/messages/greenfield/storage/deleteObject';
+} from '@/messages/greenfield/storage/MsgDeleteObject';
 import {
   METHOD_GET,
   METHOD_PUT,
@@ -320,63 +320,25 @@ export class Object extends Account implements IObject {
   }
 
   public async cancelCreateObject(msg: MsgCancelCreateObject, txOption: ITxOption) {
-    const typeUrl = MsgCancelCreateObjectTypeUrl;
-    const msgBytes = MsgCancelCreateObject.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+    return this.boradcastOrSimulate(
+      MsgCancelCreateObjectTypeUrl,
+      msg.operator,
       MsgCancelCreateObjectSDKTypeEIP712,
       MsgCancelCreateObject.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgCancelCreateObject.encode(msg).finish(),
+      txOption,
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async deleteObject(msg: MsgDeleteObject, txOption: ITxOption) {
-    const typeUrl = MsgDeleteObjectTypeUrl;
-    const msgBytes = MsgDeleteObject.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+    return this.boradcastOrSimulate(
+      MsgDeleteObjectTypeUrl,
+      msg.operator,
       MsgDeleteObjectSDKTypeEIP712,
       MsgDeleteObject.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgDeleteObject.encode(msg).finish(),
+      txOption,
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async headObject(bucketName: string, objectName: string) {

@@ -6,7 +6,7 @@ import {
 import {
   MsgTransferOutSDKTypeEIP712,
   MsgTransferOutTypeUrl,
-} from '@/messages/greenfield/bridge/transferOut';
+} from '@/messages/greenfield/bridge/MsgTransferOut';
 import {
   QueryClientImpl as CrosschainQueryClientImpl,
   QueryCrossChainPackageResponse,
@@ -88,33 +88,14 @@ export interface ICrossChain {
 
 export class CrossChain extends Account implements ICrossChain {
   public async transferOut(msg: MsgTransferOut, txOption: ITxOption) {
-    const typeUrl = MsgTransferOutTypeUrl;
-    const msgBytes = MsgTransferOut.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.from);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+    return this.boradcastOrSimulate(
+      MsgTransferOutTypeUrl,
+      msg.from,
       MsgTransferOutSDKTypeEIP712,
       MsgTransferOut.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgTransferOut.encode(msg).finish(),
+      txOption,
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async claims(msg: MsgClaim, txOption: ITxOption) {

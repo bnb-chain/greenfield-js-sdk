@@ -1,4 +1,8 @@
-import { MsgSendSDKTypeEIP712, MsgSendTypeUrl } from '@/messages/bank/send';
+import { MsgSendSDKTypeEIP712, MsgSendTypeUrl } from '@/messages/bank/MsgSend';
+import {
+  MsgCreatePaymentAccountSDKTypeEIP712,
+  MsgCreatePaymentAccountTypeUrl,
+} from '@/messages/greenfield/payment/MsgCreatePaymentAccount';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
   QueryClientImpl as AuthQueryClientImpl,
@@ -11,8 +15,6 @@ import {
   QueryBalanceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
-import { MsgMultiSendSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/bank/v1beta1/MsgMultiSendSDKTypeEIP712';
-import { MsgCreatePaymentAccountSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgCreatePaymentAccountSDKTypeEIP712';
 import {
   QueryClientImpl as PaymentQueryClientImpl,
   QueryGetPaymentAccountRequest,
@@ -22,6 +24,7 @@ import {
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 import { Basic } from './basic';
+import { MsgMultiSendSDKTypeEIP712, MsgMultiSendTypeUrl } from '@/messages/bank/MsgMultiSend';
 
 export interface IAccount {
   /**
@@ -82,63 +85,25 @@ export interface IAccount {
 
 export class Account extends Basic implements IAccount {
   public async multiTransfer(address: string, msg: MsgMultiSend, txOption: ITxOption) {
-    const typeUrl = '/cosmos.bank.v1beta1.MsgMultiSend';
-    const msgBytes = MsgMultiSend.encode(msg).finish();
-    const accountInfo = await this.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+    return this.boradcastOrSimulate(
+      MsgMultiSendTypeUrl,
+      address,
       MsgMultiSendSDKTypeEIP712,
       MsgMultiSend.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgMultiSend.encode(msg).finish(),
+      txOption,
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async createPaymentAccount(msg: MsgCreatePaymentAccount, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.payment.MsgCreatePaymentAccount';
-    const msgBytes = MsgCreatePaymentAccount.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+    return this.boradcastOrSimulate(
+      MsgCreatePaymentAccountTypeUrl,
+      msg.creator,
       MsgCreatePaymentAccountSDKTypeEIP712,
       MsgCreatePaymentAccount.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgCreatePaymentAccount.encode(msg).finish(),
+      txOption,
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async getPaymentAccountsByOwner(owner: string) {
@@ -187,9 +152,25 @@ export class Account extends Basic implements IAccount {
   }
 
   public async transfer(msg: MsgSend, txOption: ITxOption) {
-    const typeUrl = MsgSendTypeUrl;
-    const msgBytes = MsgSend.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.fromAddress);
+    return this.boradcastOrSimulate(
+      MsgSendTypeUrl,
+      msg.fromAddress,
+      MsgSendSDKTypeEIP712,
+      MsgSend.toSDK(msg),
+      MsgSend.encode(msg).finish(),
+      txOption,
+    );
+  }
+
+  protected async boradcastOrSimulate(
+    typeUrl: string,
+    address: string,
+    MsgSDKTypeEIP712: object,
+    MsgSDK: object,
+    msgBytes: Uint8Array,
+    txOption: ITxOption,
+  ) {
+    const accountInfo = await this.getAccount(address);
     const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
 
     if (txOption.simulate) {
@@ -200,8 +181,8 @@ export class Account extends Basic implements IAccount {
 
     const rawTxBytes = await this.getRawTxBytes(
       typeUrl,
-      MsgSendSDKTypeEIP712,
-      MsgSend.toSDK(msg),
+      MsgSDKTypeEIP712,
+      MsgSDK,
       bodyBytes,
       accountInfo,
       {

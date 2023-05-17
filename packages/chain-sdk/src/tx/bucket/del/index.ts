@@ -11,7 +11,7 @@ import {
   MsgDeleteBucketSDKTypeEIP712,
   MsgDeleteBucketTypeUrl,
   type IDeleteBucketMsg,
-} from '../../../messages/greenfield/storage/deleteBucket';
+} from '../../../messages/greenfield/storage/MsgDeleteBucket';
 import { sign712Tx } from '../../../sign';
 import { type IRawTxInfo } from '../../../tx';
 import { BaseTx, type IBaseMsg } from '../../baseTx';

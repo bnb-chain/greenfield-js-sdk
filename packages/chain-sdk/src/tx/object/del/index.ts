@@ -10,7 +10,7 @@ import {
   IDeleteObjectMsg,
   newMsgDeleteObject,
   MsgDeleteObjectSDKTypeEIP712,
-} from '../../../messages/greenfield/storage/deleteObject';
+} from '../../../messages/greenfield/storage/MsgDeleteObject';
 import { sign712Tx } from '../../../sign';
 import { IRawTxInfo } from '../../../tx';
 import { BaseTx, IBaseMsg } from '../../baseTx';
