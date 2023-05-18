@@ -1,7 +1,7 @@
-import { MsgCreateGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgCreateGroupSDKTypeEIP712';
-import { MsgDeleteGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteGroupSDKTypeEIP712';
-import { MsgLeaveGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgLeaveGroupSDKTypeEIP712';
-import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgUpdateGroupMemberSDKTypeEIP712';
+import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateGroup';
+import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
+import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
+import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
 import {
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,

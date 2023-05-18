@@ -1,13 +1,13 @@
-import { MsgAttestSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgAttestSDKTypeEIP712';
-import { MsgSubmitSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/challenge/MsgSubmitSDKTypeEIP712';
+import { MsgAttestSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgAttest';
+import { MsgSubmitSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgSubmit';
 import {
   QueryClientImpl as ChallengeQueryClientImpl,
   QueryInturnAttestationSubmitterResponse,
   QueryLatestAttestedChallengesResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
-import { Account } from './account';
 import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
+import { Account } from './account';
 
 export interface IChallenge {
   /**

@@ -1,6 +1,6 @@
-import { MsgDepositSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgDepositSDKTypeEIP712';
-import { MsgDisableRefundSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgDisableRefundSDKTypeEIP712';
-import { MsgWithdrawSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgWithdrawSDKTypeEIP712';
+import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
+import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
+import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
   QueryClientImpl as PaymentQueryClientImpl,
   QueryGetStreamRecordResponse,

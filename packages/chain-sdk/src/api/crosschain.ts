@@ -1,12 +1,11 @@
-import {
-  QueryClientImpl as BridgeQueryClientImpl,
-  QueryParamsResponse,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
-
+import { MsgClaimSDKTypeEIP712 } from '@/messages/cosmos/oracle/MsgClaim';
 import {
   MsgTransferOutSDKTypeEIP712,
   MsgTransferOutTypeUrl,
 } from '@/messages/greenfield/bridge/MsgTransferOut';
+import { MsgMirrorBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorBucket';
+import { MsgMirrorGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorGroup';
+import { MsgMirrorObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorObject';
 import {
   QueryClientImpl as CrosschainQueryClientImpl,
   QueryCrossChainPackageResponse,
@@ -18,10 +17,10 @@ import {
   QueryInturnRelayerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
 import { MsgClaim } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/tx';
-import { MsgClaimSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/oracle/v1/MsgClaimSDKTypeEIP712';
-import { MsgMirrorBucketSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorBucketSDKTypeEIP712';
-import { MsgMirrorGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorGroupSDKTypeEIP712';
-import { MsgMirrorObjectSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorObjectSDKTypeEIP712';
+import {
+  QueryClientImpl as BridgeQueryClientImpl,
+  QueryParamsResponse,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
 import { MsgTransferOut } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/tx';
 import {
   MsgMirrorBucket,

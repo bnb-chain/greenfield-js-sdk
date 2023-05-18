@@ -104,7 +104,7 @@ export interface IObject {
   ): Promise<SimulateOrBroadResponse>;
 }
 
-export class Object extends Account implements IObject {
+export class Objectt extends Account implements IObject {
   constructor(rpcUrl: string, chainId: string) {
     super(rpcUrl, chainId);
   }
