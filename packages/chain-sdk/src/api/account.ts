@@ -191,6 +191,7 @@ export class Account extends Basic implements IAccount {
         gasPrice: txOption.gasPrice,
         payer: accountInfo.address,
         granter: '',
+        privateKey: txOption.privateKey,
       },
     );
 

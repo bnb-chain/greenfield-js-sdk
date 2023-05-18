@@ -29,6 +29,7 @@ import { createEIP712, generateFee, generateMessage, generateTypes } from '../me
 import { makeCosmsPubKey, recoverPk } from '../sign';
 import { typeWrapper } from '../tx/utils';
 
+import { getPubKeyByPriKey, signEIP712Data } from '@/keymanage';
 import {
   AuthExtension,
   BankExtension,
@@ -273,7 +274,7 @@ export class Basic implements IBasic {
     accountInfo: BaseAccount,
     txOption: Omit<ITxOption, 'simulate'>,
   ): Promise<Uint8Array> {
-    const { denom, gasLimit, gasPrice } = txOption;
+    const { denom, gasLimit, gasPrice, privateKey } = txOption;
     const eip712 = this.getEIP712Struct(
       typeUrl,
       msgEIP712Structor,
@@ -284,7 +285,25 @@ export class Basic implements IBasic {
       txOption,
     );
 
-    const { signature, pubKey } = await this.signTx(accountInfo.address, JSON.stringify(eip712));
+    let signature,
+      pubKey = undefined;
+
+    if (privateKey) {
+      pubKey = getPubKeyByPriKey(privateKey);
+      signature = signEIP712Data(
+        this.chainId,
+        accountInfo.accountNumber + '',
+        accountInfo.sequence + '',
+        typeUrl,
+        msgEIP712Structor,
+        msgEIP712,
+        txOption,
+      );
+    } else {
+      const signTxRes = await this.signTx(accountInfo.address, JSON.stringify(eip712));
+      signature = signTxRes.signature;
+      pubKey = signTxRes.pubKey;
+    }
 
     const authInfoBytes = this.getAuthInfoBytes({
       denom,

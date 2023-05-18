@@ -11,6 +11,10 @@ export interface ITxOption {
   gasPrice: string;
   payer: string;
   granter: string;
+  /**
+   * 0x prefix suffix
+   */
+  privateKey?: string;
   simulate: boolean;
 }
 export type SimulateOrBroadResponse = ISimulateGasFee | DeliverTxResponse;
