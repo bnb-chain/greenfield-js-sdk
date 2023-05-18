@@ -5,7 +5,7 @@ import { Challenge, IChallenge } from './api/challenge';
 import { CrossChain, ICrossChain } from './api/crosschain';
 import { Distribution, IDistribution } from './api/distribution';
 import { Group, IGroup } from './api/group';
-import { IObject, Object } from './api/object';
+import { IObject, Objectt } from './api/objectt';
 import { IPayment, Payment } from './api/payment';
 import { ISp, Sp } from './api/sp';
 
@@ -18,7 +18,7 @@ export class Client {
     const crosschain = new CrossChain(rpcUrl, chainId);
     const distribution = new Distribution(rpcUrl, chainId);
     const group = new Group(rpcUrl, chainId);
-    const object = new Object(rpcUrl, chainId);
+    const object = new Objectt(rpcUrl, chainId);
     const payment = new Payment(rpcUrl, chainId);
     const sp = new Sp(rpcUrl, chainId);
 
