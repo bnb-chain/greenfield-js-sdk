@@ -3,5 +3,14 @@ export interface ISignature712 {
   messageHash: Uint8Array;
 }
 
+export type signTypedDataCallbackResult = {
+  signature: string;
+  messageHash: Uint8Array;
+  pubKey: {
+    typeUrl: string;
+    value: Uint8Array;
+  };
+};
+
 export { sign712Tx } from './signTx';
-export { makeCosmsPubKey, recoverPk } from './pubKey';
+export { eip712Hash, makeCosmsPubKey, recoverPk } from './pubKey';

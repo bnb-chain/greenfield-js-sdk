@@ -2,6 +2,7 @@ import { PubKey } from '@bnb-chain/greenfield-cosmos-types/cosmos/crypto/secp256
 import { toBuffer } from '@ethereumjs/util';
 import { computePublicKey, recoverPublicKey } from '@ethersproject/signing-key';
 import { ISignature712 } from '.';
+import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 
 /**
  * recover public key from signature
@@ -29,4 +30,8 @@ export const makeCosmsPubKey = (pk: string) => {
     typeUrl: '/cosmos.crypto.eth.ethsecp256k1.PubKey',
     value: PubKey.encode(pubKey).finish(),
   };
+};
+
+export const eip712Hash = (message: string) => {
+  return TypedDataUtils.eip712Hash(JSON.parse(message), SignTypedDataVersion.V4);
 };
