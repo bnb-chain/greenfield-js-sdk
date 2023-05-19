@@ -1,5 +1,10 @@
 import { client } from '@/client';
-import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
+import {
+  ISimulateGasFee,
+  eip712Hash,
+  makeCosmsPubKey,
+  recoverPk,
+} from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -97,6 +102,27 @@ export const Transfer = () => {
               gasPrice: simulateInfo.gasPrice,
               payer: address,
               granter: '',
+              // signTypedDataCallback: async (addr: string, message: string) => {
+              //   // use trust wallet
+              //   const signature = await (window as any).trustwallet?.request({
+              //     method: 'eth_signTypedData_v4',
+              //     params: [addr, message],
+              //   });
+
+              //   const messageHash = eip712Hash(message);
+
+              //   const pk = recoverPk({
+              //     signature,
+              //     messageHash,
+              //   });
+              //   const pubKey = makeCosmsPubKey(pk);
+
+              //   return {
+              //     signature,
+              //     messageHash,
+              //     pubKey,
+              //   };
+              // },
             },
           );
 

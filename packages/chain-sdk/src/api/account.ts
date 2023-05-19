@@ -192,6 +192,7 @@ export class Account extends Basic implements IAccount {
         payer: accountInfo.address,
         granter: '',
         privateKey: txOption.privateKey,
+        signTypedDataCallback: txOption.signTypedDataCallback,
       },
     );
 

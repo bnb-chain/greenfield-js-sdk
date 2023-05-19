@@ -51,6 +51,7 @@ import {
 import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { ISimulateGasFee, ITxOption } from '..';
+import { defaultSignTypedData } from '@/sign/signTx';
 
 export const makeClientWithExtension = async (
   rpcUrl: string,
@@ -274,7 +275,13 @@ export class Basic implements IBasic {
     accountInfo: BaseAccount,
     txOption: Omit<ITxOption, 'simulate'>,
   ): Promise<Uint8Array> {
-    const { denom, gasLimit, gasPrice, privateKey } = txOption;
+    const {
+      denom,
+      gasLimit,
+      gasPrice,
+      privateKey,
+      signTypedDataCallback = defaultSignTypedData,
+    } = txOption;
     const eip712 = this.getEIP712Struct(
       typeUrl,
       msgEIP712Structor,
@@ -300,7 +307,8 @@ export class Basic implements IBasic {
         txOption,
       );
     } else {
-      const signTxRes = await this.signTx(accountInfo.address, JSON.stringify(eip712));
+      const signTxRes = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
+
       signature = signTxRes.signature;
       pubKey = signTxRes.pubKey;
     }
@@ -357,29 +365,5 @@ export class Basic implements IBasic {
     const wrapperMsg = typeWrapper(typeUrl, msg);
     const messages = generateMessage(accountNumber, sequence, chainId, '', fee, wrapperMsg, '0');
     return createEIP712(wrapperTypes, chainId, messages);
-  }
-
-  protected async signTx(addr: string, message: string) {
-    // TODO: provider
-
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const signature = await (window as any).ethereum?.request({
-      method: 'eth_signTypedData_v4',
-      params: [addr, message],
-    });
-
-    const messageHash = TypedDataUtils.eip712Hash(JSON.parse(message), SignTypedDataVersion.V4);
-
-    const pk = recoverPk({
-      signature,
-      messageHash,
-    });
-    const pubKey = makeCosmsPubKey(pk);
-
-    return {
-      signature,
-      messageHash,
-      pubKey,
-    };
   }
 }
