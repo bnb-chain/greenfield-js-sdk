@@ -7,7 +7,6 @@ import {
   StorageProvider,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import Long from 'long';
-import { ITxOption } from '..';
 import { Account } from './account';
 
 export interface ISp {
@@ -73,37 +72,13 @@ export class Sp extends Account implements ISp {
     return res.secondarySpStorePrice;
   }
 
-  public async updateSpStoragePrice(
-    address: string,
-    msg: MsgUpdateSpStoragePrice,
-    txOption: ITxOption,
-  ) {
-    const typeUrl = '/bnbchain.greenfield.sp.MsgUpdateSpStoragePrice';
-    const msgBytes = MsgUpdateSpStoragePrice.encode(msg).finish();
-    const accountInfo = await this.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async updateSpStoragePrice(address: string, msg: MsgUpdateSpStoragePrice) {
+    return await this.tx(
+      '/greenfield.sp.MsgUpdateSpStoragePrice',
+      address,
       MsgUpdateSpStoragePriceSDKTypeEIP712,
       MsgUpdateSpStoragePrice.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgUpdateSpStoragePrice.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 }

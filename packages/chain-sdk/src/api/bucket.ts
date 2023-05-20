@@ -28,7 +28,6 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import Long from 'long';
-import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
 import {
   BucketProps,
   GetObjectPropsType,
@@ -39,6 +38,7 @@ import {
   getUserBucketsPropsType,
 } from '../types/storage';
 import { Account } from './account';
+import { TxResponse } from '..';
 
 export interface IBucket {
   /**
@@ -49,14 +49,7 @@ export interface IBucket {
   /**
    * get approval of creating bucket and send createBucket txn to greenfield chain
    */
-  createBucket<T extends ITxOption>(
-    params: IGetCreateBucketApproval,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  createBucket(
-    params: IGetCreateBucketApproval,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  createBucket(params: IGetCreateBucketApproval): Promise<TxResponse>;
 
   /**
    * query the bucketInfo on chain, return the bucket info if exists
@@ -86,23 +79,13 @@ export interface IBucket {
    */
   getBucketReadQuota(configParam: GetObjectPropsType): Promise<IObjectResultType<IQuotaProps>>;
 
-  deleteBucket<T extends ITxOption>(msg: MsgDeleteBucket, txOption: T): Promise<SimulateOrBroad<T>>;
-  deleteBucket(msg: MsgDeleteBucket, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
 
-  updateBucketInfo<T extends ITxOption>(
-    msg: MsgUpdateBucketInfo,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  updateBucketInfo(msg: MsgUpdateBucketInfo, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  updateBucketInfo(msg: MsgUpdateBucketInfo): Promise<TxResponse>;
 
-  putBucketPolicy<T extends ITxOption>(msg: MsgPutPolicy, txOption: T): Promise<SimulateOrBroad<T>>;
-  putBucketPolicy(msg: MsgPutPolicy, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  putBucketPolicy(msg: MsgPutPolicy): Promise<TxResponse>;
 
-  deleteBucketPolicy<T extends ITxOption>(
-    msg: MsgDeletePolicy,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  deleteBucketPolicy(msg: MsgDeletePolicy, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  deleteBucketPolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
 }
 
 export class Bucket extends Account implements IBucket {
@@ -192,14 +175,30 @@ export class Bucket extends Account implements IBucket {
     }
   }
 
-  public async createBucket(params: IGetCreateBucketApproval, txOption: ITxOption) {
+  private async createBucketTx(msg: MsgCreateBucket, signedMsg: ICreateBucketMsgType) {
+    return await this.tx(
+      MsgCreateBucketTypeUrl,
+      msg.creator,
+      MsgCreateBucketSDKTypeEIP712,
+      {
+        ...signedMsg,
+        type: MsgCreateBucketTypeUrl,
+        charged_read_quota: signedMsg.charged_read_quota,
+        visibility: signedMsg.visibility,
+        primary_sp_approval: {
+          expired_height: signedMsg.primary_sp_approval.expired_height,
+          sig: signedMsg.primary_sp_approval.sig,
+        },
+      },
+      MsgCreateBucket.encode(msg).finish(),
+    );
+  }
+
+  public async createBucket(params: IGetCreateBucketApproval) {
     const { signedMsg } = await this.getCreateBucketApproval(params);
     if (!signedMsg) {
       throw new Error('Get create bucket approval error');
     }
-
-    const sig = signedMsg.primary_sp_approval.sig;
-    const expiredHeight = signedMsg.primary_sp_approval.expired_height;
 
     const msg: MsgCreateBucket = {
       bucketName: signedMsg.bucket_name,
@@ -207,8 +206,8 @@ export class Bucket extends Account implements IBucket {
       visibility: visibilityTypeFromJSON(signedMsg.visibility),
       primarySpAddress: signedMsg.primary_sp_address,
       primarySpApproval: {
-        expiredHeight: Long.fromString(expiredHeight),
-        sig: bytesFromBase64(sig),
+        expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
+        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
       },
       chargedReadQuota: signedMsg.charged_read_quota
         ? Long.fromString('0')
@@ -216,52 +215,16 @@ export class Bucket extends Account implements IBucket {
       paymentAddress: '',
     };
 
-    const typeUrl = MsgCreateBucketTypeUrl;
-    const msgBytes = MsgCreateBucket.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
-      MsgCreateBucketSDKTypeEIP712,
-      {
-        ...signedMsg,
-        type: typeUrl,
-        charged_read_quota: signedMsg.charged_read_quota,
-        visibility: signedMsg.visibility,
-        primary_sp_approval: {
-          expired_height: expiredHeight,
-          sig,
-        },
-      },
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
-    );
-
-    return await this.broadcastRawTx(rawTxBytes);
+    return await this.createBucketTx(msg, signedMsg);
   }
 
-  public async deleteBucket(msg: MsgDeleteBucket, txOption: ITxOption) {
-    return this.boradcastOrSimulate(
+  public async deleteBucket(msg: MsgDeleteBucket) {
+    return await this.tx(
       MsgDeleteBucketTypeUrl,
       msg.operator,
       MsgDeleteBucketSDKTypeEIP712,
       MsgDeleteBucket.toSDK(msg),
       MsgDeleteBucket.encode(msg).finish(),
-      txOption,
     );
   }
 
@@ -403,93 +366,35 @@ export class Bucket extends Account implements IBucket {
     }
   }
 
-  public async updateBucketInfo(msg: MsgUpdateBucketInfo, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgUpdateBucketInfo';
-    const msgBytes = MsgUpdateBucketInfo.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async updateBucketInfo(msg: MsgUpdateBucketInfo) {
+    return await this.tx(
+      '/greenfield.storage.MsgUpdateBucketInfo',
+      msg.operator,
       MsgUpdateBucketInfoSDKTypeEIP712,
       MsgUpdateBucketInfo.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgUpdateBucketInfo.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async putBucketPolicy(msg: MsgPutPolicy, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgPutPolicy';
-    const msgBytes = MsgPutPolicy.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async putBucketPolicy(msg: MsgPutPolicy) {
+    return await this.tx(
+      '/greenfield.storage.MsgPutPolicy',
+      msg.operator,
       MsgPutPolicySDKTypeEIP712,
       MsgPutPolicy.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgPutPolicy.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async deleteBucketPolicy(msg: MsgDeletePolicy, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgDeletePolicy';
-    const msgBytes = MsgDeletePolicy.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
+  public async deleteBucketPolicy(msg: MsgDeletePolicy) {
+    const typeUrl = '/greenfield.storage.MsgDeletePolicy';
 
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
+    return await this.tx(
       typeUrl,
+      msg.operator,
       MsgDeletePolicySDKTypeEIP712,
       MsgDeletePolicy.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgDeletePolicy.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 }

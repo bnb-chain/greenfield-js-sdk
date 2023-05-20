@@ -40,10 +40,8 @@ import {
   IObjectProps,
   IObjectResultType,
   IPutObjectPropsType,
-  ITxOption,
   Long,
-  SimulateOrBroad,
-  SimulateOrBroadResponse,
+  TxResponse,
 } from '../types';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
@@ -59,28 +57,13 @@ export interface IObject {
     getApprovalParams: IGetCreateObjectApproval,
   ): Promise<IObjectResultType<string>>;
 
-  createObject<T extends ITxOption>(
-    getApprovalParams: IGetCreateObjectApproval,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  createObject(
-    getApprovalParams: IGetCreateObjectApproval,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  createObject(getApprovalParams: IGetCreateObjectApproval): Promise<TxResponse>;
 
   uploadObject(configParam: IPutObjectPropsType): Promise<IObjectResultType<null>>;
 
-  cancelCreateObject<T extends ITxOption>(
-    msg: MsgCancelCreateObject,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  cancelCreateObject(
-    msg: MsgCancelCreateObject,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
-  deleteObject<T extends ITxOption>(msg: MsgDeleteObject, txOption: T): Promise<SimulateOrBroad<T>>;
-  deleteObject(msg: MsgDeleteObject, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  deleteObject(msg: MsgDeleteObject): Promise<TxResponse>;
 
   headObject(bucketName: string, objectName: string): Promise<QueryHeadObjectResponse>;
 
@@ -94,14 +77,7 @@ export interface IObject {
     configParam: IListObjectsByBucketNamePropsType,
   ): Promise<IObjectResultType<Array<IObjectProps>>>;
 
-  createFolder<T extends ITxOption>(
-    getApprovalParams: IGetCreateObjectApproval,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  createFolder(
-    getApprovalParams: IGetCreateObjectApproval,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  createFolder(getApprovalParams: IGetCreateObjectApproval): Promise<TxResponse>;
 }
 
 export class Objectt extends Account implements IObject {
@@ -206,7 +182,32 @@ export class Objectt extends Account implements IObject {
     }
   }
 
-  public async createObject(getApprovalParams: IGetCreateObjectApproval, txOption: ITxOption) {
+  private async createObjectTx(msg: MsgCreateObject, signedMsg: ICreateObjectMsgType) {
+    const typeUrl = MsgCreateObjectTypeUrl;
+    const msgBytes = MsgCreateObject.encode(msg).finish();
+    const accountInfo = await this.getAccount(msg.creator);
+    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
+
+    return await this.tx(
+      MsgCreateObjectTypeUrl,
+      msg.creator,
+      MsgCreateObjectSDKTypeEIP712,
+      {
+        ...signedMsg,
+        type: typeUrl,
+        visibility: signedMsg.visibility,
+        primary_sp_approval: {
+          expired_height: signedMsg.primary_sp_approval.expired_height,
+          sig: signedMsg.primary_sp_approval.sig,
+        },
+        redundancy_type: signedMsg.redundancy_type,
+        payload_size: signedMsg.payload_size,
+      },
+      MsgCreateObject.encode(msg).finish(),
+    );
+  }
+
+  public async createObject(getApprovalParams: IGetCreateObjectApproval) {
     const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams);
     if (!signedMsg) {
       throw new Error('Get create object approval error');
@@ -230,43 +231,7 @@ export class Objectt extends Account implements IObject {
       },
     };
 
-    const typeUrl = MsgCreateObjectTypeUrl;
-    const msgBytes = MsgCreateObject.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
-      MsgCreateObjectSDKTypeEIP712,
-      {
-        ...signedMsg,
-        type: typeUrl,
-        visibility: signedMsg.visibility,
-        primary_sp_approval: {
-          expired_height: signedMsg.primary_sp_approval.expired_height,
-          sig: signedMsg.primary_sp_approval.sig,
-        },
-        redundancy_type: signedMsg.redundancy_type,
-        payload_size: signedMsg.payload_size,
-      },
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
-    );
-
-    return await this.broadcastRawTx(rawTxBytes);
+    return await this.createObjectTx(msg, signedMsg);
   }
 
   public async uploadObject(configParam: IPutObjectPropsType): Promise<IObjectResultType<null>> {
@@ -319,25 +284,23 @@ export class Objectt extends Account implements IObject {
     }
   }
 
-  public async cancelCreateObject(msg: MsgCancelCreateObject, txOption: ITxOption) {
-    return this.boradcastOrSimulate(
+  public async cancelCreateObject(msg: MsgCancelCreateObject) {
+    return await this.tx(
       MsgCancelCreateObjectTypeUrl,
       msg.operator,
       MsgCancelCreateObjectSDKTypeEIP712,
       MsgCancelCreateObject.toSDK(msg),
       MsgCancelCreateObject.encode(msg).finish(),
-      txOption,
     );
   }
 
-  public async deleteObject(msg: MsgDeleteObject, txOption: ITxOption) {
-    return this.boradcastOrSimulate(
+  public async deleteObject(msg: MsgDeleteObject) {
+    return await this.tx(
       MsgDeleteObjectTypeUrl,
       msg.operator,
       MsgDeleteObjectSDKTypeEIP712,
       MsgDeleteObject.toSDK(msg),
       MsgDeleteObject.encode(msg).finish(),
-      txOption,
     );
   }
 
@@ -481,14 +444,14 @@ export class Objectt extends Account implements IObject {
     }
   }
 
-  public async createFolder(getApprovalParams: IGetCreateObjectApproval, txOption: ITxOption) {
+  public async createFolder(getApprovalParams: IGetCreateObjectApproval) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
       );
     }
 
-    return this.createObject(getApprovalParams, txOption);
+    return this.createObject(getApprovalParams);
   }
 
   // private async getObjectStatusFromSP(params: IGetObjectStaus) {

@@ -50,7 +50,7 @@ import {
 } from '@cosmjs/stargate';
 import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { ISimulateGasFee, ITxOption } from '..';
+import { BroadcastOptions, ISimulateGasFee, SimulateOptions } from '..';
 
 export const makeClientWithExtension = async (
   rpcUrl: string,
@@ -125,7 +125,7 @@ export interface IBasic {
   simulateRawTx(
     txBodyBytes: Uint8Array,
     accountInfo: BaseAccount,
-    txOption: Pick<ITxOption, 'denom'>,
+    txOption: SimulateOptions,
   ): Promise<ISimulateGasFee>;
 
   /**
@@ -190,12 +190,12 @@ export class Basic implements IBasic {
   public async simulateRawTx(
     txBodyBytes: Uint8Array,
     accountInfo: BaseAccount,
-    txOption: Pick<ITxOption, 'denom'>,
+    options: SimulateOptions,
   ) {
     const rpcClient = await this.getRpcClient();
     const rpc = new ServiceClientImpl(rpcClient);
 
-    const { denom } = txOption;
+    const { denom } = options;
     const authInfoBytes = this.getAuthInfoBytes({
       sequence: accountInfo.sequence + '',
       denom,
@@ -214,7 +214,7 @@ export class Basic implements IBasic {
     });
 
     const res = await rpc.Simulate(request);
-    return getGasFeeBySimulate(res, txOption.denom);
+    return getGasFeeBySimulate(res, denom);
   }
 
   public async broadcastRawTx(txRawBytes: Uint8Array) {
@@ -238,7 +238,7 @@ export class Basic implements IBasic {
   }
 
   private getAuthInfoBytes(
-    params: Pick<ITxOption, 'denom' | 'gasLimit' | 'gasPrice'> & {
+    params: Pick<BroadcastOptions, 'denom' | 'gasLimit' | 'gasPrice'> & {
       pubKey: BaseAccount['pubKey'];
       sequence: string;
     },
@@ -272,7 +272,7 @@ export class Basic implements IBasic {
     msgEIP712: object,
     bodyBytes: Uint8Array,
     accountInfo: BaseAccount,
-    txOption: Omit<ITxOption, 'simulate'>,
+    txOption: BroadcastOptions,
   ): Promise<Uint8Array> {
     const {
       denom,
@@ -352,7 +352,7 @@ export class Basic implements IBasic {
     sequence: string,
     chainId: string,
     msg: object,
-    txOption: Omit<ITxOption, 'simulate'>,
+    txOption: BroadcastOptions,
   ) {
     const { gasLimit, gasPrice, denom, payer } = txOption;
 

@@ -1,9 +1,3 @@
-import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
-import {
-  MsgGrantAllowance,
-  MsgRevokeAllowance,
-} from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
-import { Account } from './account';
 import {
   MsgGrantAllowanceSDKTypeEIP712,
   MsgGrantAllowanceTypeUrl,
@@ -19,19 +13,17 @@ import {
   QueryAllowancesRequest,
   QueryAllowancesResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/query';
+import {
+  MsgGrantAllowance,
+  MsgRevokeAllowance,
+} from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
+import { TxResponse } from '..';
+import { Account } from './account';
 
 export interface IFeeGrant {
-  grantAllowance<T extends ITxOption>(
-    msg: MsgGrantAllowance,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  grantAllowance(msg: MsgGrantAllowance, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  grantAllowance(msg: MsgGrantAllowance): Promise<TxResponse>;
 
-  revokeAllowance<T extends ITxOption>(
-    msg: MsgRevokeAllowance,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  revokeAllowance(msg: MsgRevokeAllowance, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  revokeAllowance(msg: MsgRevokeAllowance): Promise<TxResponse>;
 
   getAllowence(request: QueryAllowanceRequest): Promise<QueryAllowanceResponse>;
 
@@ -39,64 +31,24 @@ export interface IFeeGrant {
 }
 
 export class FeeGrant extends Account implements IFeeGrant {
-  public async grantAllowance(msg: MsgGrantAllowance, txOption: ITxOption) {
-    const typeUrl = MsgGrantAllowanceTypeUrl;
-    const msgBytes = MsgGrantAllowance.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.granter);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async grantAllowance(msg: MsgGrantAllowance) {
+    return await this.tx(
+      MsgGrantAllowanceTypeUrl,
+      msg.granter,
       MsgGrantAllowanceSDKTypeEIP712,
       MsgGrantAllowance.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgGrantAllowance.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async revokeAllowance(msg: MsgRevokeAllowance, txOption: ITxOption) {
-    const typeUrl = MsgRevokeAllowanceTypeUrl;
-    const msgBytes = MsgRevokeAllowance.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.granter);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async revokeAllowance(msg: MsgRevokeAllowance) {
+    return await this.tx(
+      MsgRevokeAllowanceTypeUrl,
+      msg.granter,
       MsgRevokeAllowanceSDKTypeEIP712,
       MsgRevokeAllowance.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgRevokeAllowance.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async getAllowence(request: QueryAllowanceRequest) {

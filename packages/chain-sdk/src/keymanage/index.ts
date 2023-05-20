@@ -3,7 +3,7 @@ import { typeWrapper } from '@/tx/utils';
 import { bufferToHex, toBuffer } from '@ethereumjs/util';
 import { SignTypedDataVersion, signTypedData } from '@metamask/eth-sig-util';
 import { publicKeyCreate } from 'ethereum-cryptography/secp256k1-compat';
-import { ITxOption, makeCosmsPubKey } from '..';
+import { BroadcastOptions, makeCosmsPubKey } from '..';
 
 /**
  * @priKey 0x prefix
@@ -23,7 +23,7 @@ export const createEIP712Data = (
   typeUrl: string,
   MsgSDKTypeEIP712: object,
   MsgSDK: object,
-  txOption: Omit<ITxOption, 'simulate'>,
+  txOption: BroadcastOptions,
 ) => {
   const { gasLimit, gasPrice, denom, payer } = txOption;
   const fee = generateFee(
@@ -46,7 +46,7 @@ export const signEIP712Data = (
   typeUrl: string,
   MsgSDKTypeEIP712: object,
   MsgSDK: object,
-  txOption: Omit<ITxOption, 'simulate'>,
+  txOption: BroadcastOptions,
 ) => {
   const data = createEIP712Data(
     chainId,

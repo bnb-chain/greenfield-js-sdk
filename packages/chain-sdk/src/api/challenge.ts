@@ -6,7 +6,7 @@ import {
   QueryLatestAttestedChallengesResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
-import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
+import { TxResponse } from '..';
 import { Account } from './account';
 
 export interface IChallenge {
@@ -18,16 +18,7 @@ export interface IChallenge {
   /**
    * challenges the service provider data integrity, used by off-chain service greenfield-challenger.
    */
-  submitChallenge<T extends ITxOption>(
-    address: string,
-    msg: MsgSubmit,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  submitChallenge(
-    address: string,
-    msg: MsgSubmit,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  submitChallenge(address: string, msg: MsgSubmit): Promise<TxResponse>;
 
   /**
    * Attest handles user's request for attesting a challenge.
@@ -35,16 +26,7 @@ export interface IChallenge {
      If the challenge is valid, the related storage provider will be slashed.
      For heartbeat attestation, the challenge is invalid and the storage provider will not be slashed.
    */
-  attestChallenge<T extends ITxOption>(
-    address: string,
-    msg: MsgAttest,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  attestChallenge(
-    address: string,
-    msg: MsgAttest,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  attestChallenge(address: string, msg: MsgAttest): Promise<TxResponse>;
 
   latestAttestedChallenges(): Promise<QueryLatestAttestedChallengesResponse>;
 
@@ -52,64 +34,24 @@ export interface IChallenge {
 }
 
 export class Challenge extends Account implements IChallenge {
-  public async submitChallenge(address: string, msg: MsgSubmit, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.challenge.MsgSubmit';
-    const msgBytes = MsgSubmit.encode(msg).finish();
-    const accountInfo = await this.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async submitChallenge(address: string, msg: MsgSubmit) {
+    return await this.tx(
+      '/greenfield.challenge.MsgSubmit',
+      address,
       MsgSubmitSDKTypeEIP712,
       MsgSubmit.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgSubmit.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async attestChallenge(address: string, msg: MsgAttest, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.challenge.MsgAttest';
-    const msgBytes = MsgAttest.encode(msg).finish();
-    const accountInfo = await this.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async attestChallenge(address: string, msg: MsgAttest) {
+    return await this.tx(
+      '/greenfield.challenge.MsgAttest',
+      address,
       MsgAttestSDKTypeEIP712,
       MsgAttest.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgAttest.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async latestAttestedChallenges() {
