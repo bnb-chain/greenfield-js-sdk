@@ -22,14 +22,14 @@ import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, ProtobufRpcClient, StargateClient } from '@cosmjs/stargate';
 import { toBuffer } from '@ethereumjs/util';
-import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 import Long from 'long';
 import { ZERO_PUBKEY } from '../constants';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../messages';
-import { makeCosmsPubKey, recoverPk } from '../sign';
+import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 import { typeWrapper } from '../tx/utils';
 
 import { getPubKeyByPriKey, signEIP712Data } from '@/keymanage';
+import { defaultSignTypedData } from '@/sign/signTx';
 import {
   AuthExtension,
   BankExtension,
@@ -51,7 +51,6 @@ import {
 import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { ISimulateGasFee, ITxOption } from '..';
-import { defaultSignTypedData } from '@/sign/signTx';
 
 export const makeClientWithExtension = async (
   rpcUrl: string,
@@ -307,10 +306,13 @@ export class Basic implements IBasic {
         txOption,
       );
     } else {
-      const signTxRes = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
-
-      signature = signTxRes.signature;
-      pubKey = signTxRes.pubKey;
+      signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
+      const messageHash = eip712Hash(JSON.stringify(eip712));
+      const pk = recoverPk({
+        signature,
+        messageHash,
+      });
+      pubKey = makeCosmsPubKey(pk);
     }
 
     const authInfoBytes = this.getAuthInfoBytes({

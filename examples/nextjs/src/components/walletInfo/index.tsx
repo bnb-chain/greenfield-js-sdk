@@ -5,8 +5,6 @@ import {
   metaMaskWalletConnector,
   trustWalletConnector,
 } from '@/config';
-import { createWalletClient, custom } from 'viem';
-import { mainnet } from 'viem/chains';
 import {
   useAccount,
   useBalance,
@@ -14,12 +12,10 @@ import {
   useDisconnect,
   useNetwork,
   useSwitchNetwork,
-  useWalletClient,
 } from 'wagmi';
 
 export const WalletInfo = () => {
   const { address, connector, isConnected } = useAccount();
-  const { data: walletClient } = useWalletClient();
   const { connect: metaMaskConnect } = useConnect({
     connector: metaMaskWalletConnector,
   });

@@ -1,4 +1,3 @@
-import { signTypedDataCallbackResult } from '@/sign';
 import { DeliverTxResponse } from '@cosmjs/stargate';
 
 export interface ISimulateGasFee {
@@ -19,7 +18,7 @@ export interface ITxOption {
   /**
    * wallet extension sign data by EIP712
    */
-  signTypedDataCallback?: (addr: string, eip712: string) => Promise<signTypedDataCallbackResult>;
+  signTypedDataCallback?: (addr: string, eip712: string) => Promise<string>;
   simulate: boolean;
 }
 export type SimulateOrBroadResponse = ISimulateGasFee | DeliverTxResponse;

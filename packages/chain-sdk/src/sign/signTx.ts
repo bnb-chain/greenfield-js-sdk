@@ -1,5 +1,4 @@
-import { TypedDataUtils, SignTypedDataVersion } from '@metamask/eth-sig-util';
-import { ISignature712, makeCosmsPubKey, recoverPk } from '.';
+import { ISignature712 } from '.';
 import { eip712Hash } from './pubKey';
 
 /**
@@ -27,18 +26,5 @@ export const defaultSignTypedData = async (addr: string, message: string) => {
     method: 'eth_signTypedData_v4',
     params: [addr, message],
   });
-
-  const messageHash = eip712Hash(message);
-
-  const pk = recoverPk({
-    signature,
-    messageHash,
-  });
-  const pubKey = makeCosmsPubKey(pk);
-
-  return {
-    signature,
-    messageHash,
-    pubKey,
-  };
+  return signature;
 };

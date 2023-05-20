@@ -1,15 +1,10 @@
 import { client } from '@/client';
-import {
-  ISimulateGasFee,
-  eip712Hash,
-  makeCosmsPubKey,
-  recoverPk,
-} from '@bnb-chain/greenfield-chain-sdk';
+import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 export const Transfer = () => {
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const [transferInfo, setTransferInfo] = useState({
     to: '0x0000000000000000000000000000000000000001',
     amount: '1',
@@ -102,27 +97,13 @@ export const Transfer = () => {
               gasPrice: simulateInfo.gasPrice,
               payer: address,
               granter: '',
-              // signTypedDataCallback: async (addr: string, message: string) => {
-              //   // use trust wallet
-              //   const signature = await (window as any).trustwallet?.request({
-              //     method: 'eth_signTypedData_v4',
-              //     params: [addr, message],
-              //   });
-
-              //   const messageHash = eip712Hash(message);
-
-              //   const pk = recoverPk({
-              //     signature,
-              //     messageHash,
-              //   });
-              //   const pubKey = makeCosmsPubKey(pk);
-
-              //   return {
-              //     signature,
-              //     messageHash,
-              //     pubKey,
-              //   };
-              // },
+              signTypedDataCallback: async (addr: string, message: string) => {
+                const provider = await connector?.getProvider();
+                return await provider?.request({
+                  method: 'eth_signTypedData_v4',
+                  params: [addr, message],
+                });
+              },
             },
           );
 
