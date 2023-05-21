@@ -25,7 +25,7 @@ export type TxOptions = {
 };
 
 export type SimulateOptions = {
-  denom?: string;
+  denom: string;
 };
 
 export type BroadcastOptions = TxOptions & SimulateOptions & Partial<SignOptions>;

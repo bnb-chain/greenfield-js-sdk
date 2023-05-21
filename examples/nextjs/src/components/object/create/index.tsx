@@ -49,24 +49,22 @@ export const CreateObject = () => {
           }
 
           const spInfo = await selectSp();
-          const res = await client.object.createObject(
-            {
-              bucketName: createObjectInfo.bucketName,
-              objectName: createObjectInfo.objectName,
-              spInfo,
-              file,
-              creator: address,
-              expectSecondarySpAddresses: [],
-            },
-            {
-              simulate: false,
-              denom: 'BNB',
-              gasLimit: 210000,
-              gasPrice: '50000000000',
-              payer: address,
-              granter: '',
-            },
-          );
+          const createObjectTx = await client.object.createObject({
+            bucketName: createObjectInfo.bucketName,
+            objectName: createObjectInfo.objectName,
+            spInfo,
+            file,
+            creator: address,
+            expectSecondarySpAddresses: [],
+          });
+
+          const res = await createObjectTx.broadcast({
+            denom: 'BNB',
+            gasLimit: 210000,
+            gasPrice: '50000000000',
+            payer: address,
+            granter: '',
+          });
 
           console.log('res', res);
 
