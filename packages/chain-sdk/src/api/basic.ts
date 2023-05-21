@@ -23,7 +23,7 @@ import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, ProtobufRpcClient, StargateClient } from '@cosmjs/stargate';
 import { toBuffer } from '@ethereumjs/util';
 import Long from 'long';
-import { ZERO_PUBKEY } from '../constants';
+import { DEFAULT_DENOM, ZERO_PUBKEY } from '../constants';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../messages';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 import { typeWrapper } from '../tx/utils';
@@ -243,7 +243,7 @@ export class Basic implements IBasic {
       sequence: string;
     },
   ) {
-    const { pubKey, denom, sequence, gasLimit, gasPrice } = params;
+    const { pubKey, denom = DEFAULT_DENOM, sequence, gasLimit, gasPrice } = params;
     if (!pubKey) throw new Error('pubKey is required');
 
     const feeAmount: Coin[] = [
@@ -354,7 +354,7 @@ export class Basic implements IBasic {
     msg: object,
     txOption: BroadcastOptions,
   ) {
-    const { gasLimit, gasPrice, denom, payer } = txOption;
+    const { gasLimit, gasPrice, denom = DEFAULT_DENOM, payer } = txOption;
 
     const fee = generateFee(
       String(BigInt(gasLimit) * BigInt(gasPrice)),
