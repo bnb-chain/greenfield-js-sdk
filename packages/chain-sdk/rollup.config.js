@@ -2,6 +2,7 @@ import alias from '@rollup/plugin-alias';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import typescript from '@rollup/plugin-typescript';
 import path from 'path';
 import builtins from 'rollup-plugin-node-builtins';
@@ -57,15 +58,13 @@ export default async () => {
         format: 'cjs',
       },
       external: resolveExternal(),
-      context: 'window',
-      treeshake: true,
       plugins: [
         json({
           include: ['src/**'],
         }),
         autoExternal(),
-        resolve({
-          browser: false,
+        nodePolyfills({
+          include: 'node_modules/**',
         }),
         commonjs({
           defaultIsModuleExports: false,

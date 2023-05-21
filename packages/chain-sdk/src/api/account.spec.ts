@@ -52,8 +52,8 @@ describe('accountQuery', () => {
   // });
 });
 
-describe('accountTx', () => {
-  describe('transfer', async () => {
-    // ...
-  });
-});
+// describe('accountTx', () => {
+//   describe('transfer', async () => {
+//     // ...
+//   });
+// });
