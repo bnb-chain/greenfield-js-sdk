@@ -6,25 +6,24 @@ import {
 } from '@/messages/greenfield/payment/MsgCreatePaymentAccount';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
-  QueryClientImpl as AuthQueryClientImpl,
   QueryModuleAccountByNameResponse,
   QueryModuleAccountsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/query';
 import {
-  QueryClientImpl as BankQueryClientImpl,
   QueryBalanceRequest,
   QueryBalanceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
 import {
-  QueryClientImpl as PaymentQueryClientImpl,
   QueryGetPaymentAccountRequest,
   QueryGetPaymentAccountResponse,
   QueryGetPaymentAccountsByOwnerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { BroadcastOptions, SimulateOptions, TxResponse } from '..';
+import { TxResponse } from '..';
 import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
+import { autoInjectable, container, delay, inject, injectable, singleton } from 'tsyringe';
 
 export interface IAccount {
   /**
@@ -66,9 +65,14 @@ export interface IAccount {
   multiTransfer(address: string, msg: MsgMultiSend): Promise<TxResponse>;
 }
 
-export class Account extends Basic implements IAccount {
+@singleton()
+export class Account implements IAccount {
+  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+
+  private queryClient = container.resolve(RpcQueryClient);
+
   public async multiTransfer(address: string, msg: MsgMultiSend) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgMultiSendTypeUrl,
       address,
       MsgMultiSendSDKTypeEIP712,
@@ -78,7 +82,7 @@ export class Account extends Basic implements IAccount {
   }
 
   public async createPaymentAccount(msg: MsgCreatePaymentAccount) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgCreatePaymentAccountTypeUrl,
       msg.creator,
       MsgCreatePaymentAccountSDKTypeEIP712,
@@ -88,44 +92,38 @@ export class Account extends Basic implements IAccount {
   }
 
   public async getPaymentAccountsByOwner(owner: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
-
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.GetPaymentAccountsByOwner({
       owner,
     });
   }
 
   public async getModuleAccountByName(name: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new AuthQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getAuthQueryClient();
     return rpc.ModuleAccountByName({
       name,
     });
   }
 
   public async getModuleAccounts() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new AuthQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getAuthQueryClient();
     return await rpc.ModuleAccounts();
   }
 
   public async getPaymentAccount(
     request: QueryGetPaymentAccountRequest,
   ): Promise<QueryGetPaymentAccountResponse> {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.PaymentAccount(request);
   }
 
   public async getAccountBalance(request: QueryBalanceRequest): Promise<QueryBalanceResponse> {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new BankQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getBankQueryClient();
     return await rpc.Balance(request);
   }
 
   public async getAccount(address: string): Promise<BaseAccount> {
-    const client = await this.getQueryClient();
+    const client = await this.queryClient.getQueryClient();
     const account = await client.auth.account(address);
     if (!account) return BaseAccount.fromJSON({});
 
@@ -133,41 +131,12 @@ export class Account extends Basic implements IAccount {
   }
 
   public async transfer(msg: MsgSend) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgSendTypeUrl,
       msg.fromAddress,
       MsgSendSDKTypeEIP712,
       MsgSend.toSDK(msg),
       MsgSend.encode(msg).finish(),
     );
-  }
-
-  protected async tx(
-    typeUrl: string,
-    address: string,
-    MsgSDKTypeEIP712: object,
-    MsgSDK: object,
-    msgBytes: Uint8Array,
-  ) {
-    const accountInfo = await this.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    return {
-      simulate: async (opts: SimulateOptions) => {
-        return await this.simulateRawTx(bodyBytes, accountInfo, opts);
-      },
-      broadcast: async (opts: BroadcastOptions) => {
-        const rawTxBytes = await this.getRawTxBytes(
-          typeUrl,
-          MsgSDKTypeEIP712,
-          MsgSDK,
-          bodyBytes,
-          accountInfo,
-          opts,
-        );
-
-        return await this.broadcastRawTx(rawTxBytes);
-      },
-    };
   }
 }

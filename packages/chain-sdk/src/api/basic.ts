@@ -1,3 +1,5 @@
+import { getPubKeyByPriKey, signEIP712Data } from '@/keymanage';
+import { defaultSignTypedData } from '@/sign/signTx';
 import { getGasFeeBySimulate } from '@/utils/units';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
@@ -20,68 +22,18 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
-import { DeliverTxResponse, ProtobufRpcClient, StargateClient } from '@cosmjs/stargate';
+import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
+import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { toBuffer } from '@ethereumjs/util';
 import Long from 'long';
+import { BroadcastOptions, ISimulateGasFee, SimulateOptions } from '..';
 import { DEFAULT_DENOM, ZERO_PUBKEY } from '../constants';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../messages';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 import { typeWrapper } from '../tx/utils';
-
-import { getPubKeyByPriKey, signEIP712Data } from '@/keymanage';
-import { defaultSignTypedData } from '@/sign/signTx';
-import {
-  AuthExtension,
-  BankExtension,
-  QueryClient,
-  TxExtension,
-  createProtobufRpcClient,
-  setupAuthExtension,
-  setupAuthzExtension,
-  setupBankExtension,
-  setupDistributionExtension,
-  setupFeegrantExtension,
-  setupGovExtension,
-  setupIbcExtension,
-  setupMintExtension,
-  setupSlashingExtension,
-  setupStakingExtension,
-  setupTxExtension,
-} from '@cosmjs/stargate';
-import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
-import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { BroadcastOptions, ISimulateGasFee, SimulateOptions } from '..';
-
-export const makeClientWithExtension = async (
-  rpcUrl: string,
-): Promise<
-  [QueryClient & BankExtension & TxExtension & AuthExtension & AuthzExtension, Tendermint37Client]
-> => {
-  const tmClient = await Tendermint37Client.connect(rpcUrl);
-  return [
-    QueryClient.withExtensions(
-      tmClient,
-      setupAuthExtension,
-      setupAuthzExtension,
-      setupBankExtension,
-      setupDistributionExtension,
-      setupFeegrantExtension,
-      setupGovExtension,
-      setupIbcExtension,
-      setupMintExtension,
-      setupSlashingExtension,
-      setupStakingExtension,
-      setupTxExtension,
-    ),
-    tmClient,
-  ];
-};
-
-export const makeRpcClient = async (rpcUrl: string) => {
-  const [, tmClient] = await makeClientWithExtension(rpcUrl);
-  const rpc = createProtobufRpcClient(new QueryClient(tmClient));
-  return rpc;
-};
+import { RpcQueryClient } from './queryclient';
+import { Account } from './account';
+import { autoInjectable, container, delay, inject, injectable, singleton } from 'tsyringe';
 
 export interface IBasic {
   /**
@@ -135,17 +87,26 @@ export interface IBasic {
   broadcastRawTx(txRawBytes: Uint8Array): Promise<DeliverTxResponse>;
 }
 
+@singleton()
 export class Basic implements IBasic {
-  constructor(protected readonly rpcUrl: string, protected readonly chainId: string) {}
+  private rpcUrl: string;
+  private chainId: string;
+  constructor(@inject('RPC_URL') rpcUrl: string, @inject('CHAIN_ID') chainId: string) {
+    this.rpcUrl = rpcUrl;
+    this.chainId = chainId;
+  }
+
+  private account: Account = container.resolve(Account);
+  private rpcQueryClient = container.resolve(RpcQueryClient);
 
   public async getNodeInfo() {
-    const rpcClient = await this.getRpcClient();
+    const rpcClient = await this.rpcQueryClient.getRpcClient();
     const rpc = new tdServiceClientImpl(rpcClient);
     return await rpc.GetNodeInfo();
   }
 
   public async getLatestBlock(): Promise<GetLatestBlockResponse> {
-    const rpcClient = await this.getRpcClient();
+    const rpcClient = await this.rpcQueryClient.getRpcClient();
     const rpc = new tdServiceClientImpl(rpcClient);
     return await rpc.GetLatestBlock();
   }
@@ -158,14 +119,14 @@ export class Basic implements IBasic {
   }
 
   public async getSyncing(): Promise<boolean> {
-    const rpcClient = await this.getRpcClient();
+    const rpcClient = await this.rpcQueryClient.getRpcClient();
     const rpc = new tdServiceClientImpl(rpcClient);
     const syncing = await rpc.GetSyncing();
     return syncing.syncing;
   }
 
   public async getBlockByHeight(height: number): Promise<GetBlockByHeightResponse> {
-    const rpcClient = await this.getRpcClient();
+    const rpcClient = await this.rpcQueryClient.getRpcClient();
     const rpc = new tdServiceClientImpl(rpcClient);
     return await rpc.GetBlockByHeight({
       height: Long.fromInt(height),
@@ -173,18 +134,39 @@ export class Basic implements IBasic {
   }
 
   public async GetLatestValidatorSet(request: GetLatestValidatorSetRequest): Promise<number> {
-    const rpcClient = await this.getRpcClient();
+    const rpcClient = await this.rpcQueryClient.getRpcClient();
     const rpc = new tdServiceClientImpl(rpcClient);
     const validatorSet = await rpc.GetLatestValidatorSet(request);
     return validatorSet.blockHeight.toNumber();
   }
 
-  private rpcClient: ProtobufRpcClient | null = null;
-  protected async getRpcClient() {
-    if (!this.rpcClient) {
-      this.rpcClient = await makeRpcClient(this.rpcUrl);
-    }
-    return this.rpcClient;
+  public async tx(
+    typeUrl: string,
+    address: string,
+    MsgSDKTypeEIP712: object,
+    MsgSDK: object,
+    msgBytes: Uint8Array,
+  ) {
+    const accountInfo = await this.account.getAccount(address);
+    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
+
+    return {
+      simulate: async (opts: SimulateOptions) => {
+        return await this.simulateRawTx(bodyBytes, accountInfo, opts);
+      },
+      broadcast: async (opts: BroadcastOptions) => {
+        const rawTxBytes = await this.getRawTxBytes(
+          typeUrl,
+          MsgSDKTypeEIP712,
+          MsgSDK,
+          bodyBytes,
+          accountInfo,
+          opts,
+        );
+
+        return await this.broadcastRawTx(rawTxBytes);
+      },
+    };
   }
 
   public async simulateRawTx(
@@ -192,7 +174,7 @@ export class Basic implements IBasic {
     accountInfo: BaseAccount,
     options: SimulateOptions,
   ) {
-    const rpcClient = await this.getRpcClient();
+    const rpcClient = await this.rpcQueryClient.getRpcClient();
     const rpc = new ServiceClientImpl(rpcClient);
 
     const { denom } = options;
@@ -219,22 +201,9 @@ export class Basic implements IBasic {
 
   public async broadcastRawTx(txRawBytes: Uint8Array) {
     const tmClient = await Tendermint37Client.connect(this.rpcUrl);
-    // const client = await StargateClient.connect(this.rpcUrl);
 
     const client = await StargateClient.create(tmClient);
     return await client.broadcastTx(txRawBytes);
-  }
-
-  private queryClient:
-    | (QueryClient & BankExtension & TxExtension & AuthExtension & AuthzExtension)
-    | null = null;
-
-  protected async getQueryClient() {
-    if (!this.queryClient) {
-      const [client] = await makeClientWithExtension(this.rpcUrl);
-      this.queryClient = client;
-    }
-    return this.queryClient;
   }
 
   private getAuthInfoBytes(

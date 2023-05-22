@@ -67,7 +67,7 @@ export default async () => {
           include: 'node_modules/**',
         }),
         commonjs({
-          defaultIsModuleExports: false,
+          ignoreDynamicRequires: true,
         }),
         typescript({
           tsconfig: './config/tsconfig-cjs.json',

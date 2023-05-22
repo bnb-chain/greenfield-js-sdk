@@ -10,12 +10,11 @@ import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgD
 import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE, fetchWithTimeout } from '@/utils/http';
+import { fetchWithTimeout, METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
-  QueryClientImpl as BucketQueryClientImpl,
   QueryHeadBucketResponse,
   QueryVerifyPermissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
@@ -28,17 +27,19 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import Long from 'long';
+import { container, delay, inject, singleton } from 'tsyringe';
+import { TxResponse } from '..';
 import {
   BucketProps,
   GetObjectPropsType,
+  getUserBucketsPropsType,
   ICreateBucketMsgType,
   IGetCreateBucketApproval,
   IObjectResultType,
   IQuotaProps,
-  getUserBucketsPropsType,
 } from '../types/storage';
-import { Account } from './account';
-import { TxResponse } from '..';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IBucket {
   /**
@@ -88,7 +89,12 @@ export interface IBucket {
   deleteBucketPolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
 }
 
-export class Bucket extends Account implements IBucket {
+@singleton()
+export class Bucket implements IBucket {
+  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+
+  private queryClient = container.resolve(RpcQueryClient);
+
   public async getCreateBucketApproval({
     bucketName,
     creator,
@@ -176,7 +182,7 @@ export class Bucket extends Account implements IBucket {
   }
 
   private async createBucketTx(msg: MsgCreateBucket, signedMsg: ICreateBucketMsgType) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgCreateBucketTypeUrl,
       msg.creator,
       MsgCreateBucketSDKTypeEIP712,
@@ -219,7 +225,7 @@ export class Bucket extends Account implements IBucket {
   }
 
   public async deleteBucket(msg: MsgDeleteBucket) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgDeleteBucketTypeUrl,
       msg.operator,
       MsgDeleteBucketSDKTypeEIP712,
@@ -229,24 +235,21 @@ export class Bucket extends Account implements IBucket {
   }
 
   public async headBucket(bucketName: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new BucketQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getBucketQueryClient();
     return await rpc.HeadBucket({
       bucketName,
     });
   }
 
   public async headBucketById(bucketId: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new BucketQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getBucketQueryClient();
     return await rpc.HeadBucketById({
       bucketId,
     });
   }
 
   public async getVerifyPermission(bucketName: string, operator: string, actionType: ActionType) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new BucketQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getBucketQueryClient();
     return rpc.VerifyPermission({
       bucketName,
       operator,
@@ -367,7 +370,7 @@ export class Bucket extends Account implements IBucket {
   }
 
   public async updateBucketInfo(msg: MsgUpdateBucketInfo) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgUpdateBucketInfo',
       msg.operator,
       MsgUpdateBucketInfoSDKTypeEIP712,
@@ -377,7 +380,7 @@ export class Bucket extends Account implements IBucket {
   }
 
   public async putBucketPolicy(msg: MsgPutPolicy) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgPutPolicy',
       msg.operator,
       MsgPutPolicySDKTypeEIP712,
@@ -389,7 +392,7 @@ export class Bucket extends Account implements IBucket {
   public async deleteBucketPolicy(msg: MsgDeletePolicy) {
     const typeUrl = '/greenfield.storage.MsgDeletePolicy';
 
-    return await this.tx(
+    return await this.basic.tx(
       typeUrl,
       msg.operator,
       MsgDeletePolicySDKTypeEIP712,

@@ -1,4 +1,4 @@
-import { makeRpcClient } from '@/api/basic';
+import { makeRpcClient } from '@/api/queryclient';
 import {
   ServiceClientImpl,
   SimulateRequest,

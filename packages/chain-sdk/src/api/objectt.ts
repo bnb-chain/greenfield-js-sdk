@@ -32,6 +32,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
+import { container, singleton } from 'tsyringe';
 import {
   ICreateObjectMsgType,
   IGetCreateObjectApproval,
@@ -51,6 +52,8 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Account } from './account';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IObject {
   getCreateObjectApproval(
@@ -80,10 +83,10 @@ export interface IObject {
   createFolder(getApprovalParams: IGetCreateObjectApproval): Promise<TxResponse>;
 }
 
-export class Objectt extends Account implements IObject {
-  constructor(rpcUrl: string, chainId: string) {
-    super(rpcUrl, chainId);
-  }
+@singleton()
+export class Objectt implements IObject {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async getCreateObjectApproval({
     bucketName,
@@ -183,18 +186,13 @@ export class Objectt extends Account implements IObject {
   }
 
   private async createObjectTx(msg: MsgCreateObject, signedMsg: ICreateObjectMsgType) {
-    const typeUrl = MsgCreateObjectTypeUrl;
-    const msgBytes = MsgCreateObject.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    return await this.tx(
+    return await this.basic.tx(
       MsgCreateObjectTypeUrl,
       msg.creator,
       MsgCreateObjectSDKTypeEIP712,
       {
         ...signedMsg,
-        type: typeUrl,
+        type: MsgCreateObjectTypeUrl,
         visibility: signedMsg.visibility,
         primary_sp_approval: {
           expired_height: signedMsg.primary_sp_approval.expired_height,
@@ -285,7 +283,7 @@ export class Objectt extends Account implements IObject {
   }
 
   public async cancelCreateObject(msg: MsgCancelCreateObject) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgCancelCreateObjectTypeUrl,
       msg.operator,
       MsgCancelCreateObjectSDKTypeEIP712,
@@ -295,7 +293,7 @@ export class Objectt extends Account implements IObject {
   }
 
   public async deleteObject(msg: MsgDeleteObject) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgDeleteObjectTypeUrl,
       msg.operator,
       MsgDeleteObjectSDKTypeEIP712,
@@ -305,8 +303,7 @@ export class Objectt extends Account implements IObject {
   }
 
   public async headObject(bucketName: string, objectName: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
 
     return rpc.HeadObject({
       bucketName,
@@ -315,8 +312,7 @@ export class Objectt extends Account implements IObject {
   }
 
   public async headObjectById(objectId: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
 
     return rpc.HeadObjectById({
       objectId,

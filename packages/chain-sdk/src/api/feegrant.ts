@@ -7,7 +7,6 @@ import {
   MsgRevokeAllowanceTypeUrl,
 } from '@/messages/feegrant/MsgRevokeAllowance';
 import {
-  QueryClientImpl as FeeGrantQueryClientImpl,
   QueryAllowanceRequest,
   QueryAllowanceResponse,
   QueryAllowancesRequest,
@@ -17,8 +16,10 @@ import {
   MsgGrantAllowance,
   MsgRevokeAllowance,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
+import { container, singleton } from 'tsyringe';
 import { TxResponse } from '..';
-import { Account } from './account';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IFeeGrant {
   grantAllowance(msg: MsgGrantAllowance): Promise<TxResponse>;
@@ -30,9 +31,13 @@ export interface IFeeGrant {
   getAllowences(request: QueryAllowancesRequest): Promise<QueryAllowancesResponse>;
 }
 
-export class FeeGrant extends Account implements IFeeGrant {
+@singleton()
+export class FeeGrant implements IFeeGrant {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+
   public async grantAllowance(msg: MsgGrantAllowance) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgGrantAllowanceTypeUrl,
       msg.granter,
       MsgGrantAllowanceSDKTypeEIP712,
@@ -42,7 +47,7 @@ export class FeeGrant extends Account implements IFeeGrant {
   }
 
   public async revokeAllowance(msg: MsgRevokeAllowance) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgRevokeAllowanceTypeUrl,
       msg.granter,
       MsgRevokeAllowanceSDKTypeEIP712,
@@ -52,14 +57,12 @@ export class FeeGrant extends Account implements IFeeGrant {
   }
 
   public async getAllowence(request: QueryAllowanceRequest) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new FeeGrantQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getFeeGrantQueryClient();
     return await rpc.Allowance(request);
   }
 
   public async getAllowences(request: QueryAllowancesRequest) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new FeeGrantQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getFeeGrantQueryClient();
     return await rpc.Allowances(request);
   }
 }

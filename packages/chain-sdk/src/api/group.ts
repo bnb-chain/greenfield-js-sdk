@@ -7,7 +7,6 @@ import {
   QueryHeadGroupResponse,
   QueryPolicyForGroupRequest,
   QueryPolicyForGroupResponse,
-  QueryClientImpl as StorageQueryClientImpl,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCreateGroup,
@@ -15,8 +14,10 @@ import {
   MsgLeaveGroup,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import { container, singleton } from 'tsyringe';
 import { TxResponse } from '..';
-import { Account } from './account';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IGroup {
   /**
@@ -60,9 +61,13 @@ export interface IGroup {
   getPolicyOfGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 }
 
-export class Group extends Account implements IGroup {
+@singleton()
+export class Group implements IGroup {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+
   public async createGroup(msg: MsgCreateGroup) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgCreateGroup',
       msg.creator,
       MsgCreateGroupSDKTypeEIP712,
@@ -72,7 +77,7 @@ export class Group extends Account implements IGroup {
   }
 
   public async deleteGroup(msg: MsgDeleteGroup) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgCreateGroup',
       msg.operator,
       MsgDeleteGroupSDKTypeEIP712,
@@ -90,7 +95,7 @@ export class Group extends Account implements IGroup {
       throw new Error('no update member');
     }
 
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgUpdateGroupMember',
       msg.operator,
       MsgUpdateGroupMemberSDKTypeEIP712,
@@ -100,7 +105,7 @@ export class Group extends Account implements IGroup {
   }
 
   public async leaveGroup(address: string, msg: MsgLeaveGroup) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgLeaveGroup',
       address,
       MsgLeaveGroupSDKTypeEIP712,
@@ -110,8 +115,7 @@ export class Group extends Account implements IGroup {
   }
 
   public async headGroup(groupName: string, groupOwner: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.HeadGroup({
       groupName,
       groupOwner,
@@ -119,8 +123,7 @@ export class Group extends Account implements IGroup {
   }
 
   public async headGroupMember(groupName: string, groupOwner: string, member: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.HeadGroupMember({
       groupName,
       groupOwner,
@@ -129,8 +132,7 @@ export class Group extends Account implements IGroup {
   }
 
   public async getPolicyOfGroup(request: QueryPolicyForGroupRequest) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.QueryPolicyForGroup(request);
   }
 }

@@ -7,20 +7,13 @@ import { MsgMirrorBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgM
 import { MsgMirrorGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorGroup';
 import { MsgMirrorObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorObject';
 import {
-  QueryClientImpl as CrosschainQueryClientImpl,
   QueryCrossChainPackageResponse,
   QueryReceiveSequenceResponse,
   QuerySendSequenceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/crosschain/v1/query';
-import {
-  QueryClientImpl as OracleQueryClientImpl,
-  QueryInturnRelayerResponse,
-} from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
+import { QueryInturnRelayerResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
 import { MsgClaim } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/tx';
-import {
-  QueryClientImpl as BridgeQueryClientImpl,
-  QueryParamsResponse,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
+import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
 import { MsgTransferOut } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/tx';
 import {
   MsgMirrorBucket,
@@ -28,8 +21,10 @@ import {
   MsgMirrorObject,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import Long from 'long';
+import { container, singleton } from 'tsyringe';
 import { TxResponse } from '..';
-import { Account } from './account';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface ICrossChain {
   /**
@@ -80,9 +75,13 @@ export interface ICrossChain {
   getParams(): Promise<QueryParamsResponse>;
 }
 
-export class CrossChain extends Account implements ICrossChain {
+@singleton()
+export class CrossChain implements ICrossChain {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+
   public async transferOut(msg: MsgTransferOut) {
-    return await this.tx(
+    return await this.basic.tx(
       MsgTransferOutTypeUrl,
       msg.from,
       MsgTransferOutSDKTypeEIP712,
@@ -92,7 +91,7 @@ export class CrossChain extends Account implements ICrossChain {
   }
 
   public async claims(msg: MsgClaim) {
-    return await this.tx(
+    return await this.basic.tx(
       '/cosmos.oracle.v1.MsgClaim',
       msg.fromAddress,
       MsgClaimSDKTypeEIP712,
@@ -102,30 +101,26 @@ export class CrossChain extends Account implements ICrossChain {
   }
 
   public async getChannelSendSequence(channelId: number) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new CrosschainQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getCrosschainQueryClient();
     return await rpc.SendSequence({
       channelId,
     });
   }
 
   public async getChannelReceiveSequence(channelId: number) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new CrosschainQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getCrosschainQueryClient();
     return await rpc.ReceiveSequence({
       channelId,
     });
   }
 
   public async getInturnRelayer() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new OracleQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getOracleQueryClient();
     return await rpc.InturnRelayer();
   }
 
   public async getCrosschainPackage(channelId: number, sequence: number) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new CrosschainQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getCrosschainQueryClient();
     return await rpc.CrossChainPackage({
       channelId,
       sequence: Long.fromNumber(sequence),
@@ -133,7 +128,7 @@ export class CrossChain extends Account implements ICrossChain {
   }
 
   public async mirrorGroup(msg: MsgMirrorGroup) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgMirrorGroup',
       msg.operator,
       MsgMirrorGroupSDKTypeEIP712,
@@ -143,7 +138,7 @@ export class CrossChain extends Account implements ICrossChain {
   }
 
   public async mirrorBucket(msg: MsgMirrorBucket) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgMirrorBucket',
       msg.operator,
       MsgMirrorBucketSDKTypeEIP712,
@@ -153,7 +148,7 @@ export class CrossChain extends Account implements ICrossChain {
   }
 
   public async mirrorObject(msg: MsgMirrorObject) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.storage.MsgMirrorObject',
       msg.operator,
       MsgMirrorObjectSDKTypeEIP712,
@@ -163,8 +158,7 @@ export class CrossChain extends Account implements ICrossChain {
   }
 
   async getParams() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new BridgeQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getBridgeQueryClient();
     return rpc.Params();
   }
 }

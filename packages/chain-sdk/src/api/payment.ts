@@ -2,7 +2,6 @@ import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposi
 import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
 import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
-  QueryClientImpl as PaymentQueryClientImpl,
   QueryGetStreamRecordResponse,
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
@@ -11,8 +10,10 @@ import {
   MsgDisableRefund,
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
+import { container, singleton } from 'tsyringe';
 import { TxResponse } from '..';
-import { Account } from './account';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IPayment {
   /**
@@ -38,23 +39,25 @@ export interface IPayment {
   params(): Promise<QueryParamsResponse>;
 }
 
-export class Payment extends Account implements IPayment {
+@singleton()
+export class Payment implements IPayment {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+
   public async getStreamRecord(account: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.StreamRecord({
       account,
     });
   }
 
   public async params() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.Params();
   }
 
   public async deposit(msg: MsgDeposit) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.payment.MsgDeposit',
       msg.creator,
       MsgDepositSDKTypeEIP712,
@@ -64,7 +67,7 @@ export class Payment extends Account implements IPayment {
   }
 
   public async withdraw(msg: MsgWithdraw) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.payment.MsgWithdraw',
       msg.creator,
       MsgWithdrawSDKTypeEIP712,
@@ -74,7 +77,7 @@ export class Payment extends Account implements IPayment {
   }
 
   public async disableRefund(msg: MsgDisableRefund) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.payment.MsgDisableRefund',
       msg.addr,
       MsgDisableRefundSDKTypeEIP712,

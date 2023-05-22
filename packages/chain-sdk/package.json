@@ -63,7 +63,9 @@
     "@ethersproject/units": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
     "ethereum-cryptography": "^2.0.0",
-    "long": "^5.2.1"
+    "long": "^5.2.1",
+    "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.7.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",

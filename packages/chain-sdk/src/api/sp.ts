@@ -1,5 +1,5 @@
 import { MsgUpdateSpStoragePriceSDKTypeEIP712 } from '@/messages/greenfield/sp/MsgUpdateSpStoragePrice';
-import { QueryClientImpl as SpQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
+
 import { MsgUpdateSpStoragePrice } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/tx';
 import {
   SecondarySpStorePrice,
@@ -7,7 +7,9 @@ import {
   StorageProvider,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import Long from 'long';
-import { Account } from './account';
+import { container, delay, inject, singleton } from 'tsyringe';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface ISp {
   /**
@@ -36,17 +38,19 @@ export interface ISp {
    */
 }
 
-export class Sp extends Account implements ISp {
+@singleton()
+export class Sp implements ISp {
+  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  private queryClient = container.resolve(RpcQueryClient);
+
   public async getStorageProviders() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new SpQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getSpQueryClient();
     const res = await rpc.StorageProviders();
     return res.sps;
   }
 
   public async getStorageProviderInfo(spAddress: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new SpQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getSpQueryClient();
     const res = await rpc.StorageProvider({
       spAddress,
     });
@@ -54,8 +58,7 @@ export class Sp extends Account implements ISp {
   }
 
   public async getStoragePriceByTime(spAddress: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new SpQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getSpQueryClient();
     const res = await rpc.QueryGetSpStoragePriceByTime({
       timestamp: Long.fromNumber(0),
       spAddr: spAddress,
@@ -64,8 +67,7 @@ export class Sp extends Account implements ISp {
   }
 
   public async getSecondarySpStorePrice() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new SpQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getSpQueryClient();
     const res = await rpc.QueryGetSecondarySpStorePriceByTime({
       timestamp: Long.fromNumber(0),
     });
@@ -73,7 +75,7 @@ export class Sp extends Account implements ISp {
   }
 
   public async updateSpStoragePrice(address: string, msg: MsgUpdateSpStoragePrice) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.sp.MsgUpdateSpStoragePrice',
       address,
       MsgUpdateSpStoragePriceSDKTypeEIP712,

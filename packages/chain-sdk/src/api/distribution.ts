@@ -1,12 +1,13 @@
 import {
-  MsgClientImpl,
   MsgFundCommunityPoolResponse,
   MsgSetWithdrawAddressResponse,
   MsgWithdrawDelegatorRewardResponse,
   MsgWithdrawValidatorCommissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/distribution/v1beta1/tx';
 import { Coin } from '@cosmjs/proto-signing';
-import { Account } from './account';
+import { container } from 'tsyringe';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 export interface IDistribution {
   /**
    * sets the withdrawal address for a delegator address
@@ -40,10 +41,12 @@ export interface IDistribution {
   ): Promise<MsgFundCommunityPoolResponse>;
 }
 
-export class Distribution extends Account implements IDistribution {
+export class Distribution implements IDistribution {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+
   public async setWithdrawAddress(withdrawAddress: string, delegatorAddress: string) {
-    const rpcCient = await this.getRpcClient();
-    const rpc = new MsgClientImpl(rpcCient);
+    const rpc = await this.queryClient.getMsgClient();
     return await rpc.SetWithdrawAddress({
       withdrawAddress,
       delegatorAddress,
@@ -51,16 +54,14 @@ export class Distribution extends Account implements IDistribution {
   }
 
   public async withdrawValidatorCommission(validatorAddress: string) {
-    const rpcCient = await this.getRpcClient();
-    const rpc = new MsgClientImpl(rpcCient);
+    const rpc = await this.queryClient.getMsgClient();
     return rpc.WithdrawValidatorCommission({
       validatorAddress,
     });
   }
 
   public async withdrawDelegatorReward(validatorAddress: string, delegatorAddress: string) {
-    const rpcCient = await this.getRpcClient();
-    const rpc = new MsgClientImpl(rpcCient);
+    const rpc = await this.queryClient.getMsgClient();
     return rpc.WithdrawDelegatorReward({
       delegatorAddress,
       validatorAddress,
@@ -68,8 +69,7 @@ export class Distribution extends Account implements IDistribution {
   }
 
   public async fundCommunityPoolundComm(amount: Coin[], depositor: string) {
-    const rpcCient = await this.getRpcClient();
-    const rpc = new MsgClientImpl(rpcCient);
+    const rpc = await this.queryClient.getMsgClient();
     return rpc.FundCommunityPool({
       amount,
       depositor,

@@ -1,13 +1,14 @@
 import { MsgAttestSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgAttest';
 import { MsgSubmitSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgSubmit';
 import {
-  QueryClientImpl as ChallengeQueryClientImpl,
   QueryInturnAttestationSubmitterResponse,
   QueryLatestAttestedChallengesResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
+import { container, delay, inject, singleton } from 'tsyringe';
 import { TxResponse } from '..';
-import { Account } from './account';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IChallenge {
   /**
@@ -33,9 +34,13 @@ export interface IChallenge {
   inturnAttestationSubmitter(): Promise<QueryInturnAttestationSubmitterResponse>;
 }
 
-export class Challenge extends Account implements IChallenge {
+@singleton()
+export class Challenge implements IChallenge {
+  private queryClient = container.resolve(RpcQueryClient);
+  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+
   public async submitChallenge(address: string, msg: MsgSubmit) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.challenge.MsgSubmit',
       address,
       MsgSubmitSDKTypeEIP712,
@@ -45,7 +50,7 @@ export class Challenge extends Account implements IChallenge {
   }
 
   public async attestChallenge(address: string, msg: MsgAttest) {
-    return await this.tx(
+    return await this.basic.tx(
       '/greenfield.challenge.MsgAttest',
       address,
       MsgAttestSDKTypeEIP712,
@@ -55,14 +60,12 @@ export class Challenge extends Account implements IChallenge {
   }
 
   public async latestAttestedChallenges() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new ChallengeQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getChallengeQueryClient();
     return await rpc.LatestAttestedChallenges();
   }
 
   public async inturnAttestationSubmitter() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new ChallengeQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getChallengeQueryClient();
     return await rpc.InturnAttestationSubmitter();
   }
 }

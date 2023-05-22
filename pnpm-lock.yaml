@@ -143,6 +143,7 @@ importers:
       ethereum-cryptography: ^2.0.0
       jest: ^29.5.0
       long: ^5.2.1
+      reflect-metadata: ^0.1.13
       rollup: ^2.79.1
       rollup-plugin-auto-external: ^2.0.0
       rollup-plugin-node-builtins: ^2.1.2
@@ -151,6 +152,7 @@ importers:
       ts-jest: ^29.1.0
       ts-node: ^10.9.1
       tslib: ^2.5.0
+      tsyringe: ^4.7.0
       typescript: ^4.9.5
     dependencies:
       '@bnb-chain/greenfield-cosmos-types': 0.4.0-alpha.9
@@ -164,6 +166,8 @@ importers:
       '@metamask/eth-sig-util': 5.0.2
       ethereum-cryptography: 2.0.0
       long: 5.2.1
+      reflect-metadata: 0.1.13
+      tsyringe: 4.7.0
     devDependencies:
       '@jest/globals': 29.5.0
       '@types/jest': 29.5.1
@@ -9859,6 +9863,10 @@ packages:
       strip-indent: 3.0.0
     dev: true
 
+  /reflect-metadata/0.1.13:
+    resolution: {integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==}
+    dev: false
+
   /regenerate-unicode-properties/10.1.0:
     resolution: {integrity: sha512-d1VudCLoIGitcU/hEg2QqvyGZQmdC0Lf8BqdOMXGFSvJP4bNV1+XqbPQeHHLD51Jh4QJJ225dlIFvY4Ly6MXmQ==}
     engines: {node: '>=4'}
@@ -10804,6 +10812,13 @@ packages:
     dependencies:
       tslib: 1.14.1
       typescript: 4.9.5
+
+  /tsyringe/4.7.0:
+    resolution: {integrity: sha512-ncFDM1jTLsok4ejMvSW5jN1VGPQD48y2tfAR0pdptWRKYX4bkbqPt92k7KJ5RFJ1KV36JEs/+TMh7I6OUgj74g==}
+    engines: {node: '>= 6.0.0'}
+    dependencies:
+      tslib: 1.14.1
+    dev: false
 
   /tty-table/4.2.1:
     resolution: {integrity: sha512-xz0uKo+KakCQ+Dxj1D/tKn2FSyreSYWzdkL/BYhgN6oMW808g8QRMuh1atAV9fjTPbWBjfbkKQpI/5rEcnAc7g==}
