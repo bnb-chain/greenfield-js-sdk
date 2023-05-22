@@ -8,11 +8,15 @@
     "@demo/nodejs": "0.0.1"
   },
   "changesets": [
+    "beige-tables-carry",
     "dull-dodos-prove",
+    "early-parents-divide",
     "eleven-mayflies-fry",
     "great-walls-hide",
     "large-crabs-cheat",
     "light-islands-smile",
+    "ninety-meals-impress",
+    "rude-tips-rush",
     "thirty-yaks-appear",
     "yellow-lobsters-divide"
   ]
