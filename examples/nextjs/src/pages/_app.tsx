@@ -1,23 +1,24 @@
+import {
+  coinbaseWalletConnector,
+  metaMaskWalletConnector,
+  publicClient,
+  trustWalletConnector,
+  webSocketPublicClient,
+} from '@/config';
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
-import { createClient, WagmiConfig } from 'wagmi';
-import {
-  metaMaskWalletConnector,
-  provider,
-  trustWalletConnector,
-  webSocketProvider,
-} from '@/config';
+import { createConfig, WagmiConfig } from 'wagmi';
 
-const wagmiClient = createClient({
+const wagmiConfig = createConfig({
   autoConnect: true,
-  provider,
-  webSocketProvider,
-  connectors: [metaMaskWalletConnector, trustWalletConnector],
+  connectors: [metaMaskWalletConnector, trustWalletConnector, coinbaseWalletConnector],
+  webSocketPublicClient,
+  publicClient,
 });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <WagmiConfig client={wagmiClient}>
+    <WagmiConfig config={wagmiConfig}>
       <Component {...pageProps} />
     </WagmiConfig>
   );

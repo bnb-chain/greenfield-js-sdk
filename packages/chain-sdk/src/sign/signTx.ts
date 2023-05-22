@@ -1,5 +1,5 @@
-import { TypedDataUtils, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { ISignature712 } from '.';
+import { eip712Hash } from './pubKey';
 
 /**
  * @addr wallet address
@@ -13,10 +13,18 @@ export const sign712Tx = async (addr: string, message: string): Promise<ISignatu
     params: [addr, message],
   });
 
-  const messageHash = TypedDataUtils.eip712Hash(JSON.parse(message), SignTypedDataVersion.V4);
+  const messageHash = eip712Hash(message);
 
   return {
     signature,
     messageHash,
   };
+};
+
+export const defaultSignTypedData = async (addr: string, message: string) => {
+  const signature = await (window as any).ethereum?.request({
+    method: 'eth_signTypedData_v4',
+    params: [addr, message],
+  });
+  return signature;
 };

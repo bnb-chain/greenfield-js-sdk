@@ -1532,4 +1532,4 @@ export const CROSS_CHAIN_ABI = [
     stateMutability: 'pure',
     type: 'function',
   },
-];
+] as const;

@@ -2,6 +2,7 @@ import { Chain, configureChains } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { publicProvider } from 'wagmi/providers/public';
 import * as env from './env';
 
@@ -55,10 +56,17 @@ const bscChain: Chain = {
   // testnet: true,
 };
 
-const { chains, provider, webSocketProvider } = configureChains(
+const { chains, publicClient, webSocketPublicClient } = configureChains(
   [mainnet, greenFieldChain, bscChain],
   [publicProvider()],
 );
+
+const coinbaseWalletConnector = new CoinbaseWalletConnector({
+  chains,
+  options: {
+    appName: 'wagmi',
+  },
+});
 
 const trustWalletConnector = new InjectedConnector({
   chains,
@@ -71,4 +79,11 @@ const trustWalletConnector = new InjectedConnector({
 
 const metaMaskWalletConnector = new MetaMaskConnector({ chains });
 
-export { provider, webSocketProvider, chains, metaMaskWalletConnector, trustWalletConnector };
+export {
+  publicClient,
+  webSocketPublicClient,
+  chains,
+  metaMaskWalletConnector,
+  coinbaseWalletConnector,
+  trustWalletConnector,
+};

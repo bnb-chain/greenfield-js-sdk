@@ -1,6 +1,7 @@
 import {
   BSC_CHAIN_ID,
   GREEN_CHAIN_ID,
+  coinbaseWalletConnector,
   metaMaskWalletConnector,
   trustWalletConnector,
 } from '@/config';
@@ -10,7 +11,6 @@ import {
   useConnect,
   useDisconnect,
   useNetwork,
-  useProvider,
   useSwitchNetwork,
 } from 'wagmi';
 
@@ -21,6 +21,9 @@ export const WalletInfo = () => {
   });
   const { connect: trustWalletConnect } = useConnect({
     connector: trustWalletConnector,
+  });
+  const { connect: coinbaseWalletConnect } = useConnect({
+    connector: coinbaseWalletConnector,
   });
 
   const { disconnect } = useDisconnect();
@@ -43,6 +46,7 @@ export const WalletInfo = () => {
       <>
         <button onClick={() => metaMaskConnect()}>Connect MetaMask</button>
         <button onClick={() => trustWalletConnect()}>Connect trustWallet</button>
+        <button onClick={() => coinbaseWalletConnect()}>Connect coinbase wallet</button>
       </>
     );
   }

@@ -1,4 +1,3 @@
-import { CancelCreateObject } from './cancel-create';
 import { CreateObject } from './create';
 import { DeleteObject } from './del';
 import { ObjectInfo } from './info';

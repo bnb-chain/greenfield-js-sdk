@@ -1,5 +1,4 @@
 import { client, selectSp } from '@/client';
-import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -10,7 +9,6 @@ export const CreateBucket = () => {
   }>({
     bucketName: '',
   });
-  const [simulateInfo, setSimulateInfo] = useState<ISimulateGasFee | null>(null);
 
   return (
     <>
@@ -29,65 +27,36 @@ export const CreateBucket = () => {
           if (!address) return;
 
           const spInfo = await selectSp();
-          const res = await client.bucket.createBucket(
-            {
-              bucketName: createBucketInfo.bucketName,
-              creator: address,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              chargedReadQuota: '0',
-              spInfo,
-            },
-            {
-              simulate: true,
-              denom: 'BNB',
-              gasLimit: 210000,
-              gasPrice: '5000000000',
-              payer: address,
-              granter: '',
-            },
-          );
-          setSimulateInfo(res);
-          console.log('res', res);
-        }}
-      >
-        simulate
-      </button>
-      <br />
-      gasFee: {simulateInfo?.gasFee}
-      <br />
-      <button
-        onClick={async () => {
-          if (!address) {
-            return;
-          }
+          const createBucketTx = await client.bucket.createBucket({
+            bucketName: createBucketInfo.bucketName,
+            creator: address,
+            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+            chargedReadQuota: '0',
+            spInfo,
+          });
 
-          const spInfo = await selectSp();
-          const res = await client.bucket.createBucket(
-            {
-              bucketName: createBucketInfo.bucketName,
-              creator: address,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              chargedReadQuota: '0',
-              spInfo,
-            },
-            {
-              simulate: false,
-              denom: 'BNB',
-              gasLimit: Number(simulateInfo?.gasLimit),
-              gasPrice: simulateInfo?.gasPrice || '5000000000',
-              payer: address,
-              granter: '',
-            },
-          );
+          const simulateInfo = await createBucketTx.simulate({
+            denom: 'BNB',
+          });
 
-          console.log('res', res);
+          console.log('simulateInfo', simulateInfo);
+
+          const res = await createBucketTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
+            payer: address,
+            granter: '',
+          });
+
           if (res.code === 0) {
             alert('success');
           }
         }}
       >
-        broadcast
+        broadcast with simulate
       </button>
+      <br />
     </>
   );
 };

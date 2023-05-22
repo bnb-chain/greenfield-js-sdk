@@ -1,27 +1,29 @@
-import { MsgSendSDKTypeEIP712, MsgSendTypeUrl } from '@/messages/bank/send';
+import { MsgMultiSendSDKTypeEIP712, MsgMultiSendTypeUrl } from '@/messages/bank/MsgMultiSend';
+import { MsgSendSDKTypeEIP712, MsgSendTypeUrl } from '@/messages/bank/MsgSend';
+import {
+  MsgCreatePaymentAccountSDKTypeEIP712,
+  MsgCreatePaymentAccountTypeUrl,
+} from '@/messages/greenfield/payment/MsgCreatePaymentAccount';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
-  QueryClientImpl as AuthQueryClientImpl,
   QueryModuleAccountByNameResponse,
   QueryModuleAccountsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/query';
 import {
-  QueryClientImpl as BankQueryClientImpl,
   QueryBalanceRequest,
   QueryBalanceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
-import { MsgMultiSendSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/bank/v1beta1/MsgMultiSendSDKTypeEIP712';
-import { MsgCreatePaymentAccountSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgCreatePaymentAccountSDKTypeEIP712';
 import {
-  QueryClientImpl as PaymentQueryClientImpl,
   QueryGetPaymentAccountRequest,
   QueryGetPaymentAccountResponse,
   QueryGetPaymentAccountsByOwnerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
+import { TxResponse } from '..';
 import { Basic } from './basic';
-import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
+import { RpcQueryClient } from './queryclient';
+import { autoInjectable, container, delay, inject, injectable, singleton } from 'tsyringe';
 
 export interface IAccount {
   /**
@@ -50,169 +52,91 @@ export interface IAccount {
    */
   getPaymentAccountsByOwner(owner: string): Promise<QueryGetPaymentAccountsByOwnerResponse>;
 
-  createPaymentAccount<T extends ITxOption>(
-    msg: MsgCreatePaymentAccount,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  createPaymentAccount(
-    msg: MsgCreatePaymentAccount,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  createPaymentAccount(msg: MsgCreatePaymentAccount): Promise<TxResponse>;
 
   /**
    * Transfer function
    */
-  transfer<T extends ITxOption>(msg: MsgSend, txOption: T): Promise<SimulateOrBroad<T>>;
-  transfer(msg: MsgSend, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  transfer(msg: MsgSend): Promise<TxResponse>;
 
   /**
    * makes transfers from an account to multiple accounts with respect amounts
    */
-  multiTransfer<T extends ITxOption>(
-    address: string,
-    msg: MsgMultiSend,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  multiTransfer(
-    address: string,
-    msg: MsgMultiSend,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  multiTransfer(address: string, msg: MsgMultiSend): Promise<TxResponse>;
 }
 
-export class Account extends Basic implements IAccount {
-  public async multiTransfer(address: string, msg: MsgMultiSend, txOption: ITxOption) {
-    const typeUrl = '/cosmos.bank.v1beta1.MsgMultiSend';
-    const msgBytes = MsgMultiSend.encode(msg).finish();
-    const accountInfo = await this.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
+@singleton()
+export class Account implements IAccount {
+  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
 
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
+  private queryClient = container.resolve(RpcQueryClient);
 
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async multiTransfer(address: string, msg: MsgMultiSend) {
+    return await this.basic.tx(
+      MsgMultiSendTypeUrl,
+      address,
       MsgMultiSendSDKTypeEIP712,
       MsgMultiSend.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgMultiSend.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async createPaymentAccount(msg: MsgCreatePaymentAccount, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.payment.MsgCreatePaymentAccount';
-    const msgBytes = MsgCreatePaymentAccount.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async createPaymentAccount(msg: MsgCreatePaymentAccount) {
+    return await this.basic.tx(
+      MsgCreatePaymentAccountTypeUrl,
+      msg.creator,
       MsgCreatePaymentAccountSDKTypeEIP712,
       MsgCreatePaymentAccount.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgCreatePaymentAccount.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async getPaymentAccountsByOwner(owner: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
-
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.GetPaymentAccountsByOwner({
       owner,
     });
   }
 
   public async getModuleAccountByName(name: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new AuthQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getAuthQueryClient();
     return rpc.ModuleAccountByName({
       name,
     });
   }
 
   public async getModuleAccounts() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new AuthQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getAuthQueryClient();
     return await rpc.ModuleAccounts();
   }
 
   public async getPaymentAccount(
     request: QueryGetPaymentAccountRequest,
   ): Promise<QueryGetPaymentAccountResponse> {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.PaymentAccount(request);
   }
 
   public async getAccountBalance(request: QueryBalanceRequest): Promise<QueryBalanceResponse> {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new BankQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getBankQueryClient();
     return await rpc.Balance(request);
   }
 
   public async getAccount(address: string): Promise<BaseAccount> {
-    const client = await this.getQueryClient();
+    const client = await this.queryClient.getQueryClient();
     const account = await client.auth.account(address);
     if (!account) return BaseAccount.fromJSON({});
 
     return BaseAccount.toJSON(BaseAccount.decode(account.value)) as BaseAccount;
   }
 
-  public async transfer(msg: MsgSend, txOption: ITxOption) {
-    const typeUrl = MsgSendTypeUrl;
-    const msgBytes = MsgSend.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.fromAddress);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async transfer(msg: MsgSend) {
+    return await this.basic.tx(
+      MsgSendTypeUrl,
+      msg.fromAddress,
       MsgSendSDKTypeEIP712,
       MsgSend.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgSend.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 }

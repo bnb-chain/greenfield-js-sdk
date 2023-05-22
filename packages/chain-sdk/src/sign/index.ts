@@ -4,4 +4,4 @@ export interface ISignature712 {
 }
 
 export { sign712Tx } from './signTx';
-export { makeCosmsPubKey, recoverPk } from './pubKey';
+export { eip712Hash, makeCosmsPubKey, recoverPk } from './pubKey';

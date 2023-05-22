@@ -1,12 +1,10 @@
 import { client } from '@/client';
-import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 export const DeleteBucket = () => {
   const { address } = useAccount();
   const [bucketName, setBucketName] = useState('');
-  const [simulateInfo, setSimulateInfo] = useState<ISimulateGasFee | null>(null);
 
   return (
     <>
@@ -20,51 +18,30 @@ export const DeleteBucket = () => {
         />
         <br />
       </div>
-      <button
-        onClick={async () => {
-          if (!address) return;
-
-          const res = await client.bucket.deleteBucket(
-            {
-              bucketName: bucketName,
-              operator: address,
-            },
-            {
-              simulate: true,
-              denom: 'BNB',
-              gasLimit: 210000,
-              gasPrice: '5000000000',
-              payer: address,
-              granter: '',
-            },
-          );
-          setSimulateInfo(res);
-          console.log('res', res);
-        }}
-      >
-        simulate
-      </button>
-      <br />
-      gasFee {simulateInfo?.gasFee}
       <br />
       <button
         onClick={async () => {
           if (!address) return;
 
-          const res = await client.bucket.deleteBucket(
-            {
-              bucketName: bucketName,
-              operator: address,
-            },
-            {
-              simulate: false,
-              denom: 'BNB',
-              gasLimit: 210000,
-              gasPrice: '5000000000',
-              payer: address,
-              granter: '',
-            },
-          );
+          const deleteBucketTx = await client.bucket.deleteBucket({
+            bucketName: bucketName,
+            operator: address,
+          });
+
+          const simulateInfo = await deleteBucketTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log('simulateInfo', simulateInfo);
+
+          const res = await deleteBucketTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
+            payer: address,
+            granter: '',
+          });
+
           console.log('res', res);
 
           if (res.code === 0) {
@@ -72,7 +49,7 @@ export const DeleteBucket = () => {
           }
         }}
       >
-        broadcast
+        broadcast with simulate
       </button>
     </>
   );

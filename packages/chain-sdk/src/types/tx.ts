@@ -5,15 +5,32 @@ export interface ISimulateGasFee {
   gasPrice: string;
   gasFee: string;
 }
-export interface ITxOption {
-  denom: string;
+
+export type SignOptions = {
+  /**
+   * 0x prefix suffix
+   */
+  privateKey: string;
+  /**
+   * wallet extension sign data by EIP712
+   */
+  signTypedDataCallback: (addr: string, eip712: string) => Promise<string>;
+};
+
+export type TxOptions = {
   gasLimit: number;
   gasPrice: string;
   payer: string;
   granter: string;
-  simulate: boolean;
-}
-export type SimulateOrBroadResponse = ISimulateGasFee | DeliverTxResponse;
-export type SimulateOrBroad<T extends ITxOption> = T['simulate'] extends true
-  ? ISimulateGasFee
-  : DeliverTxResponse;
+};
+
+export type SimulateOptions = {
+  denom: string;
+};
+
+export type BroadcastOptions = TxOptions & SimulateOptions & Partial<SignOptions>;
+
+export type TxResponse = {
+  simulate: (opts: Readonly<SimulateOptions>) => Promise<ISimulateGasFee>;
+  broadcast: (opts: Readonly<BroadcastOptions>) => Promise<DeliverTxResponse>;
+};
