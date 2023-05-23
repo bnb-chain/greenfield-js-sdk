@@ -1,5 +1,61 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.1.0
+
+### Minor Changes
+
+- [#38](https://github.com/bnb-chain/greenfield-js-sdk/pull/38)
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255)
+  Thanks [@rrr523](https://github.com/rrr523)! - New Client
+
+### Patch Changes
+
+- [#44](https://github.com/bnb-chain/greenfield-js-sdk/pull/44)
+  [`d355962`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d35596231b881094e9088ab03fe39d9908a9abc3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: feegrant
+
+- [#44](https://github.com/bnb-chain/greenfield-js-sdk/pull/44)
+  [`d355962`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d35596231b881094e9088ab03fe39d9908a9abc3)
+  Thanks [@rrr523](https://github.com/rrr523)! - Update Types
+
+- [#44](https://github.com/bnb-chain/greenfield-js-sdk/pull/44)
+  [`d355962`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d35596231b881094e9088ab03fe39d9908a9abc3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Change Tx API
+
+- [#38](https://github.com/bnb-chain/greenfield-js-sdk/pull/38)
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255)
+  Thanks [@rrr523](https://github.com/rrr523)! - support commonjs export
+
+- [#38](https://github.com/bnb-chain/greenfield-js-sdk/pull/38)
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255)
+  Thanks [@rrr523](https://github.com/rrr523)! - Query support nodejs and browser
+
+- [#38](https://github.com/bnb-chain/greenfield-js-sdk/pull/38)
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255)
+  Thanks [@rrr523](https://github.com/rrr523)! - cancel create object gas fee
+
+- [#44](https://github.com/bnb-chain/greenfield-js-sdk/pull/44)
+  [`d355962`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d35596231b881094e9088ab03fe39d9908a9abc3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support dynamic provider
+
+- [#44](https://github.com/bnb-chain/greenfield-js-sdk/pull/44)
+  [`d355962`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d35596231b881094e9088ab03fe39d9908a9abc3)
+  Thanks [@rrr523](https://github.com/rrr523)! - Upgrade Cosmos SDK
+
+- [#38](https://github.com/bnb-chain/greenfield-js-sdk/pull/38)
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255)
+  Thanks [@rrr523](https://github.com/rrr523)! - commonjs
+
+- [#38](https://github.com/bnb-chain/greenfield-js-sdk/pull/38)
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix broadcast and simulate type
+
+- Updated dependencies
+  [[`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255),
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255),
+  [`cee97f8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cee97f8e373175392da33943863b81555f6d2255)]:
+  - @bnb-chain/greenfiled-file-handle@0.2.0
+
 ## 0.1.0-alpha.6
 
 ### Patch Changes
