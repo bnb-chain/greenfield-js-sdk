@@ -20,10 +20,10 @@ import {
   QueryGetPaymentAccountsByOwnerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
+import { container, delay, inject, singleton } from 'tsyringe';
 import { TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
-import { autoInjectable, container, delay, inject, injectable, singleton } from 'tsyringe';
 
 export interface IAccount {
   /**
