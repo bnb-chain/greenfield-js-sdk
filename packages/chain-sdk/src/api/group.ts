@@ -1,13 +1,12 @@
-import { MsgCreateGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgCreateGroupSDKTypeEIP712';
-import { MsgDeleteGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgDeleteGroupSDKTypeEIP712';
-import { MsgLeaveGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgLeaveGroupSDKTypeEIP712';
-import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgUpdateGroupMemberSDKTypeEIP712';
+import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateGroup';
+import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
+import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
+import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
 import {
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
   QueryPolicyForGroupRequest,
   QueryPolicyForGroupResponse,
-  QueryClientImpl as StorageQueryClientImpl,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCreateGroup,
@@ -15,47 +14,31 @@ import {
   MsgLeaveGroup,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
-import { Account } from './account';
+import { container, singleton } from 'tsyringe';
+import { TxResponse } from '..';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IGroup {
   /**
    * create a new group on greenfield chain the group members can be initialized  or not
    */
-  createGroup<T extends ITxOption>(msg: MsgCreateGroup, txOption: T): Promise<SimulateOrBroad<T>>;
-  createGroup(msg: MsgCreateGroup, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  createGroup(msg: MsgCreateGroup): Promise<TxResponse>;
 
   /**
    * send DeleteGroup txn to greenfield chain and return txn hash
    */
-  deleteGroup<T extends ITxOption>(msg: MsgDeleteGroup, txOption: T): Promise<SimulateOrBroad<T>>;
-  deleteGroup(msg: MsgDeleteGroup, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  deleteGroup(msg: MsgDeleteGroup): Promise<TxResponse>;
 
   /**
    * support adding or removing members from the group and return the txn hash
    */
-  updateGroupMember<T extends ITxOption>(
-    msg: MsgUpdateGroupMember,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  updateGroupMember(
-    msg: MsgUpdateGroupMember,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  updateGroupMember(msg: MsgUpdateGroupMember): Promise<TxResponse>;
 
   /**
    * make the member leave the specific group
    */
-  leaveGroup<T extends ITxOption>(
-    address: string,
-    msg: MsgLeaveGroup,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  leaveGroup(
-    address: string,
-    msg: MsgLeaveGroup,
-    txOption: ITxOption,
-  ): Promise<SimulateOrBroadResponse>;
+  leaveGroup(address: string, msg: MsgLeaveGroup): Promise<TxResponse>;
 
   /**
    * query the groupInfo on chain, return the group info if exists
@@ -78,68 +61,32 @@ export interface IGroup {
   getPolicyOfGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 }
 
-export class Group extends Account implements IGroup {
-  public async createGroup(msg: MsgCreateGroup, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgCreateGroup';
-    const msgBytes = MsgCreateGroup.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
+@singleton()
+export class Group implements IGroup {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async createGroup(msg: MsgCreateGroup) {
+    return await this.basic.tx(
+      '/greenfield.storage.MsgCreateGroup',
+      msg.creator,
       MsgCreateGroupSDKTypeEIP712,
       MsgCreateGroup.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgCreateGroup.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async deleteGroup(msg: MsgDeleteGroup, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgDeleteGroup';
-    const msgBytes = MsgDeleteGroup.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async deleteGroup(msg: MsgDeleteGroup) {
+    return await this.basic.tx(
+      '/greenfield.storage.MsgCreateGroup',
+      msg.operator,
       MsgDeleteGroupSDKTypeEIP712,
       MsgDeleteGroup.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgDeleteGroup.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async updateGroupMember(msg: MsgUpdateGroupMember, txOption: ITxOption) {
+  public async updateGroupMember(msg: MsgUpdateGroupMember) {
     if (msg.groupName === '') {
       throw new Error('group name is empty');
     }
@@ -148,68 +95,27 @@ export class Group extends Account implements IGroup {
       throw new Error('no update member');
     }
 
-    const typeUrl = '/bnbchain.greenfield.storage.MsgUpdateGroupMember';
-    const msgBytes = MsgUpdateGroupMember.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+    return await this.basic.tx(
+      '/greenfield.storage.MsgUpdateGroupMember',
+      msg.operator,
       MsgUpdateGroupMemberSDKTypeEIP712,
       MsgUpdateGroupMember.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgUpdateGroupMember.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async leaveGroup(address: string, msg: MsgLeaveGroup, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgLeaveGroup';
-    const msgBytes = MsgLeaveGroup.encode(msg).finish();
-    const accountInfo = await this.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async leaveGroup(address: string, msg: MsgLeaveGroup) {
+    return await this.basic.tx(
+      '/greenfield.storage.MsgLeaveGroup',
+      address,
       MsgLeaveGroupSDKTypeEIP712,
       MsgLeaveGroup.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgLeaveGroup.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async headGroup(groupName: string, groupOwner: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.HeadGroup({
       groupName,
       groupOwner,
@@ -217,8 +123,7 @@ export class Group extends Account implements IGroup {
   }
 
   public async headGroupMember(groupName: string, groupOwner: string, member: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.HeadGroupMember({
       groupName,
       groupOwner,
@@ -227,8 +132,7 @@ export class Group extends Account implements IGroup {
   }
 
   public async getPolicyOfGroup(request: QueryPolicyForGroupRequest) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new StorageQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.QueryPolicyForGroup(request);
   }
 }

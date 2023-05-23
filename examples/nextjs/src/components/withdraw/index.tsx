@@ -1,6 +1,7 @@
 import { client } from '@/client';
 import { getRelayFeeBySimulate } from '@/utils/simulate';
 import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
+import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -9,7 +10,6 @@ export const Withdraw = () => {
 
   const [transferoutInfo, setTransferoutInfo] = useState({
     to: '0x0000000000000000000000000000000000000001',
-    denom: 'BNB',
     amount: '1',
     gasLimit: '210000',
   });
@@ -47,36 +47,22 @@ export const Withdraw = () => {
         }}
       />
       <br />
-      denom:
-      <input
-        placeholder="BNB"
-        value={transferoutInfo.denom}
-        onChange={(e) => {
-          setTransferoutInfo({ ...transferoutInfo, denom: e.target.value });
-        }}
-      />
-      <br />
       <button
         onClick={async () => {
           if (!address) return;
-          const simulateGasFee = await client.crosschain.transferOut(
-            {
-              from: address,
-              to: transferoutInfo.to,
-              amount: {
-                amount: transferoutInfo.amount,
-                denom: 'BNB',
-              },
-            },
-            {
-              simulate: true,
+          const transferOutTx = await client.crosschain.transferOut({
+            from: address,
+            to: transferoutInfo.to,
+            amount: {
+              amount: ethers.utils.parseEther(transferoutInfo.amount).toString(),
               denom: 'BNB',
-              gasLimit: Number(transferoutInfo.gasLimit),
-              gasPrice: '5000000000',
-              payer: address,
-              granter: '',
             },
-          );
+          });
+
+          const simulateGasFee = await transferOutTx.simulate({
+            denom: 'BNB',
+          });
+
           const relayFeeInfo = await client.crosschain.getParams();
           console.log('transferout simuluate relayFee', relayFeeInfo);
           console.log('transferout simulate gasFee', simulateGasFee);
@@ -84,45 +70,26 @@ export const Withdraw = () => {
           const relayFee = getRelayFeeBySimulate(relayFeeInfo);
           setTransferOutRelayFee(relayFee.toString());
           setSimulateInfo(simulateGasFee);
+
+          const res = await transferOutTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateGasFee.gasLimit),
+            gasPrice: simulateGasFee.gasPrice,
+            payer: address,
+            granter: '',
+          });
+          if (res.code === 0) {
+            alert('broadcast success');
+          }
         }}
       >
-        simulate
+        broadcast with simulate
       </button>
       <br />
       relay fee: {transferOutRelayFee}
       <br />
       gas fee: {simulateInfo?.gasFee}
       <br />
-      <br />
-      <button
-        onClick={async () => {
-          if (!address || !simulateInfo) return;
-          const res = await client.crosschain.transferOut(
-            {
-              from: address,
-              to: transferoutInfo.to,
-              amount: {
-                amount: transferoutInfo.amount,
-                denom: 'BNB',
-              },
-            },
-            {
-              simulate: false,
-              denom: 'BNB',
-              gasLimit: Number(simulateInfo.gasLimit),
-              gasPrice: simulateInfo.gasPrice,
-              payer: address,
-              granter: '',
-            },
-          );
-
-          if (res.code === 0) {
-            alert('broadcast success');
-          }
-        }}
-      >
-        broadcast
-      </button>
     </div>
   );
 };

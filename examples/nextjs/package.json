@@ -1,6 +1,6 @@
 {
   "name": "@demo/wallet",
-  "version": "0.0.2-alpha.4",
+  "version": "0.0.2-alpha.6",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev",
@@ -33,7 +33,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "^4.7.4",
-    "wagmi": "^0.11.5"
+    "viem": "^0.3.31",
+    "wagmi": "^1.0.5"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

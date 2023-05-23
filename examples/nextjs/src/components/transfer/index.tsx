@@ -1,19 +1,29 @@
 import { client } from '@/client';
-import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
+import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 export const Transfer = () => {
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const [transferInfo, setTransferInfo] = useState({
     to: '0x0000000000000000000000000000000000000001',
     amount: '1',
     gasLimit: '210000',
   });
-  const [simulateInfo, setSimulateInfo] = useState<ISimulateGasFee | null>(null);
 
   return (
     <div>
+      <button
+        onClick={async () => {
+          const account = await client.account.getAccount(
+            '0x1C893441AB6c1A75E01887087ea508bE8e07AAae',
+          );
+
+          console.log(account);
+        }}
+      >
+        click
+      </button>
       <h2>Transfer</h2>
       to :
       <input
@@ -46,66 +56,44 @@ export const Transfer = () => {
         onClick={async () => {
           if (!address) return;
 
-          const res = await client.account.transfer(
-            {
-              fromAddress: address,
-              toAddress: transferInfo.to,
-              amount: [
-                {
-                  denom: 'BNB',
-                  amount: transferInfo.amount,
-                },
-              ],
-            },
-            {
-              simulate: true,
-              denom: 'BNB',
-              gasLimit: Number(transferInfo.gasLimit),
-              gasPrice: '5000000000',
-              payer: address,
-              granter: '',
-            },
-          );
+          const transferTx = await client.account.transfer({
+            fromAddress: address,
+            toAddress: transferInfo.to,
+            amount: [
+              {
+                denom: 'BNB',
+                amount: ethers.utils.parseEther(transferInfo.amount).toString(),
+              },
+            ],
+          });
 
-          console.log('res', res);
-          setSimulateInfo(res);
-        }}
-      >
-        simulate
-      </button>
-      {simulateInfo?.gasFee}
-      <br />
-      <button
-        onClick={async () => {
-          if (!address || !simulateInfo) return;
+          const simulateInfo = await transferTx.simulate({
+            denom: 'BNB',
+          });
 
-          const res = await client.account.transfer(
-            {
-              fromAddress: address,
-              toAddress: transferInfo.to,
-              amount: [
-                {
-                  denom: 'BNB',
-                  amount: transferInfo.amount,
-                },
-              ],
+          console.log('simulateInfo', simulateInfo);
+
+          const res = await transferTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo.gasLimit),
+            gasPrice: simulateInfo.gasPrice,
+            payer: address,
+            granter: '',
+            signTypedDataCallback: async (addr: string, message: string) => {
+              const provider = await connector?.getProvider();
+              return await provider?.request({
+                method: 'eth_signTypedData_v4',
+                params: [addr, message],
+              });
             },
-            {
-              simulate: false,
-              denom: 'BNB',
-              gasLimit: Number(simulateInfo.gasLimit),
-              gasPrice: simulateInfo.gasPrice,
-              payer: address,
-              granter: '',
-            },
-          );
+          });
 
           if (res.code === 0) {
             alert('transfer success!!');
           }
         }}
       >
-        broadcast
+        broadcast with simulate
       </button>
     </div>
   );

@@ -10,6 +10,9 @@ You can find some package documentation below:
 | [@bnb-chain/greenfield-chain-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain |
 | [@bnb-chain/greenfiled-file-handle](./packages/file-handle/README.md) | WASM module that handle file, such as `checksums` |
 
+## Document
+[Document](./packages/chain-sdk/README.md)
+
 ## Examples
 
 Support use in browser and node.js
@@ -21,6 +24,7 @@ Support use in browser and node.js
 
 1. Modern browsers (Chromium, Firefox, Safari)
 2. Browser extensions (Chromium, Firefox)
+3. Nodejs
 
 ## Contribution
 

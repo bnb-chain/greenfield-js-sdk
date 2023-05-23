@@ -1,24 +1,19 @@
+import { MsgClaimSDKTypeEIP712 } from '@/messages/cosmos/oracle/MsgClaim';
 import {
-  QueryClientImpl as BridgeQueryClientImpl,
-  QueryParamsResponse,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
-
-import { MsgTransferOutSDKTypeEIP712 } from '@/messages/greenfield/bridge/transferOut';
+  MsgTransferOutSDKTypeEIP712,
+  MsgTransferOutTypeUrl,
+} from '@/messages/greenfield/bridge/MsgTransferOut';
+import { MsgMirrorBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorBucket';
+import { MsgMirrorGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorGroup';
+import { MsgMirrorObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorObject';
 import {
-  QueryClientImpl as CrosschainQueryClientImpl,
   QueryCrossChainPackageResponse,
   QueryReceiveSequenceResponse,
   QuerySendSequenceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/crosschain/v1/query';
-import {
-  QueryClientImpl as OracleQueryClientImpl,
-  QueryInturnRelayerResponse,
-} from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
+import { QueryInturnRelayerResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
 import { MsgClaim } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/tx';
-import { MsgClaimSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/cosmos/oracle/v1/MsgClaimSDKTypeEIP712';
-import { MsgMirrorBucketSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorBucketSDKTypeEIP712';
-import { MsgMirrorGroupSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorGroupSDKTypeEIP712';
-import { MsgMirrorObjectSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/storage/MsgMirrorObjectSDKTypeEIP712';
+import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
 import { MsgTransferOut } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/tx';
 import {
   MsgMirrorBucket,
@@ -26,21 +21,21 @@ import {
   MsgMirrorObject,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import Long from 'long';
-import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
-import { Account } from './account';
+import { container, singleton } from 'tsyringe';
+import { TxResponse } from '..';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface ICrossChain {
   /**
    * makes a transfer from Greenfield to BSC
    */
-  transferOut<T extends ITxOption>(msg: MsgTransferOut, txOption: T): Promise<SimulateOrBroad<T>>;
-  transferOut(msg: MsgTransferOut, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  transferOut(msg: MsgTransferOut): Promise<TxResponse>;
 
   /**
    * cross-chain packages from BSC to Greenfield, used by relayers which run by validators
    */
-  claims<T extends ITxOption>(msg: MsgClaim, txOption: T): Promise<SimulateOrBroad<T>>;
-  claims(msg: MsgClaim, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  claims(msg: MsgClaim): Promise<TxResponse>;
 
   /**
    * gets the next send sequence for a channel
@@ -65,209 +60,105 @@ export interface ICrossChain {
   /**
    * mirrors the group to BSC as NFT
    */
-  mirrorGroup<T extends ITxOption>(msg: MsgMirrorGroup, txOption: T): Promise<SimulateOrBroad<T>>;
-  mirrorGroup(msg: MsgMirrorGroup, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  mirrorGroup(msg: MsgMirrorGroup): Promise<TxResponse>;
 
   /**
    * mirrors the bucket to BSC as NFT
    */
-  mirrorBucket<T extends ITxOption>(msg: MsgMirrorBucket, txOption: T): Promise<SimulateOrBroad<T>>;
-  mirrorBucket(msg: MsgMirrorBucket, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  mirrorBucket(msg: MsgMirrorBucket): Promise<TxResponse>;
 
   /**
    * mirrors the object to BSC as NFT
    */
-  mirrorObject<T extends ITxOption>(msg: MsgMirrorObject, txOption: T): Promise<SimulateOrBroad<T>>;
-  mirrorObject(msg: MsgMirrorObject, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  mirrorObject(msg: MsgMirrorObject): Promise<TxResponse>;
 
   getParams(): Promise<QueryParamsResponse>;
 }
 
-export class CrossChain extends Account implements ICrossChain {
-  public async transferOut(msg: MsgTransferOut, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.bridge.MsgTransferOut';
-    const msgBytes = MsgTransferOut.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.from);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
+@singleton()
+export class CrossChain implements ICrossChain {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async transferOut(msg: MsgTransferOut) {
+    return await this.basic.tx(
+      MsgTransferOutTypeUrl,
+      msg.from,
       MsgTransferOutSDKTypeEIP712,
       MsgTransferOut.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgTransferOut.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async claims(msg: MsgClaim, txOption: ITxOption) {
-    const typeUrl = '/cosmos.oracle.v1.MsgClaim';
-    const msgBytes = MsgClaim.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.fromAddress);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async claims(msg: MsgClaim) {
+    return await this.basic.tx(
+      '/cosmos.oracle.v1.MsgClaim',
+      msg.fromAddress,
       MsgClaimSDKTypeEIP712,
       MsgClaim.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgClaim.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   public async getChannelSendSequence(channelId: number) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new CrosschainQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getCrosschainQueryClient();
     return await rpc.SendSequence({
       channelId,
     });
   }
 
   public async getChannelReceiveSequence(channelId: number) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new CrosschainQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getCrosschainQueryClient();
     return await rpc.ReceiveSequence({
       channelId,
     });
   }
 
   public async getInturnRelayer() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new OracleQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getOracleQueryClient();
     return await rpc.InturnRelayer();
   }
 
   public async getCrosschainPackage(channelId: number, sequence: number) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new CrosschainQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getCrosschainQueryClient();
     return await rpc.CrossChainPackage({
       channelId,
       sequence: Long.fromNumber(sequence),
     });
   }
 
-  public async mirrorGroup(msg: MsgMirrorGroup, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgMirrorGroup';
-    const msgBytes = MsgMirrorGroup.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async mirrorGroup(msg: MsgMirrorGroup) {
+    return await this.basic.tx(
+      '/greenfield.storage.MsgMirrorGroup',
+      msg.operator,
       MsgMirrorGroupSDKTypeEIP712,
       MsgMirrorGroup.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgMirrorGroup.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async mirrorBucket(msg: MsgMirrorBucket, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgMirrorBucket';
-    const msgBytes = MsgMirrorBucket.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async mirrorBucket(msg: MsgMirrorBucket) {
+    return await this.basic.tx(
+      '/greenfield.storage.MsgMirrorBucket',
+      msg.operator,
       MsgMirrorBucketSDKTypeEIP712,
       MsgMirrorBucket.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgMirrorBucket.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async mirrorObject(msg: MsgMirrorObject, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.storage.MsgMirrorObject';
-    const msgBytes = MsgMirrorObject.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.operator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async mirrorObject(msg: MsgMirrorObject) {
+    return await this.basic.tx(
+      '/greenfield.storage.MsgMirrorObject',
+      msg.operator,
       MsgMirrorObjectSDKTypeEIP712,
       MsgMirrorObject.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgMirrorObject.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
   async getParams() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new BridgeQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getBridgeQueryClient();
     return rpc.Params();
   }
 }

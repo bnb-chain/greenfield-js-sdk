@@ -1,8 +1,7 @@
-import { MsgDepositSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgDepositSDKTypeEIP712';
-import { MsgDisableRefundSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgDisableRefundSDKTypeEIP712';
-import { MsgWithdrawSDKTypeEIP712 } from '@bnb-chain/greenfield-cosmos-types/eip712/greenfield/payment/MsgWithdrawSDKTypeEIP712';
+import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
+import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
+import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
-  QueryClientImpl as PaymentQueryClientImpl,
   QueryGetStreamRecordResponse,
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
@@ -11,8 +10,10 @@ import {
   MsgDisableRefund,
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { ITxOption, SimulateOrBroad, SimulateOrBroadResponse } from '..';
-import { Account } from './account';
+import { container, singleton } from 'tsyringe';
+import { TxResponse } from '..';
+import { Basic } from './basic';
+import { RpcQueryClient } from './queryclient';
 
 export interface IPayment {
   /**
@@ -23,129 +24,65 @@ export interface IPayment {
   /**
    * deposits BNB to a stream account.
    */
-  deposit<T extends ITxOption>(msg: MsgDeposit, txOption: T): Promise<SimulateOrBroad<T>>;
-  deposit(msg: MsgDeposit, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  deposit(msg: MsgDeposit): Promise<TxResponse>;
 
   /**
    * withdraws BNB from a stream account.
    */
-  withdraw<T extends ITxOption>(msg: MsgWithdraw, txOption: T): Promise<SimulateOrBroad<T>>;
-  withdraw(msg: MsgWithdraw, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  withdraw(msg: MsgWithdraw): Promise<TxResponse>;
 
   /**
    * disables refund for a stream account.
    */
-  disableRefund<T extends ITxOption>(
-    msg: MsgDisableRefund,
-    txOption: T,
-  ): Promise<SimulateOrBroad<T>>;
-  disableRefund(msg: MsgDisableRefund, txOption: ITxOption): Promise<SimulateOrBroadResponse>;
+  disableRefund(msg: MsgDisableRefund): Promise<TxResponse>;
 
   params(): Promise<QueryParamsResponse>;
 }
 
-export class Payment extends Account implements IPayment {
+@singleton()
+export class Payment implements IPayment {
+  private basic: Basic = container.resolve(Basic);
+  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+
   public async getStreamRecord(account: string) {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.StreamRecord({
       account,
     });
   }
 
   public async params() {
-    const rpcClient = await this.getRpcClient();
-    const rpc = new PaymentQueryClientImpl(rpcClient);
+    const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.Params();
   }
 
-  public async deposit(msg: MsgDeposit, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.payment.MsgDeposit';
-    const msgBytes = MsgDeposit.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async deposit(msg: MsgDeposit) {
+    return await this.basic.tx(
+      '/greenfield.payment.MsgDeposit',
+      msg.creator,
       MsgDepositSDKTypeEIP712,
       MsgDeposit.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgDeposit.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async withdraw(msg: MsgWithdraw, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.payment.MsgWithdraw';
-    const msgBytes = MsgWithdraw.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.creator);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async withdraw(msg: MsgWithdraw) {
+    return await this.basic.tx(
+      '/greenfield.payment.MsgWithdraw',
+      msg.creator,
       MsgWithdrawSDKTypeEIP712,
       MsgWithdraw.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgWithdraw.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 
-  public async disableRefund(msg: MsgDisableRefund, txOption: ITxOption) {
-    const typeUrl = '/bnbchain.greenfield.payment.MsgDisableRefund';
-    const msgBytes = MsgDisableRefund.encode(msg).finish();
-    const accountInfo = await this.getAccount(msg.addr);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
-
-    if (txOption.simulate) {
-      return await this.simulateRawTx(bodyBytes, accountInfo, {
-        denom: txOption.denom,
-      });
-    }
-
-    const rawTxBytes = await this.getRawTxBytes(
-      typeUrl,
+  public async disableRefund(msg: MsgDisableRefund) {
+    return await this.basic.tx(
+      '/greenfield.payment.MsgDisableRefund',
+      msg.addr,
       MsgDisableRefundSDKTypeEIP712,
       MsgDisableRefund.toSDK(msg),
-      bodyBytes,
-      accountInfo,
-      {
-        denom: txOption.denom,
-        gasLimit: txOption.gasLimit,
-        gasPrice: txOption.gasPrice,
-        payer: accountInfo.address,
-        granter: '',
-      },
+      MsgDisableRefund.encode(msg).finish(),
     );
-
-    return await this.broadcastRawTx(rawTxBytes);
   }
 }

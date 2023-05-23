@@ -4,7 +4,7 @@ const { Client } = require('@bnb-chain/greenfield-chain-sdk');
 const client = Client.create('https://gnfd.qa.bnbchain.world', '9000');
 
 (async () => {
-  const account = await client.account.getAccount('0x7239B73CA99b095d4FEe1495cB62e36be8CfeeD1');
+  const account = await client.account.getAccount('0x1C893441AB6c1A75E01887087ea508bE8e07AAae');
 
   console.log(account);
 })();

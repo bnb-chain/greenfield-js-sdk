@@ -20,6 +20,9 @@
     "allowUmdGlobalAccess": true,
     "allowJs": true,
     "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
     "paths": {
       "@/*": [
         "../src/*"
