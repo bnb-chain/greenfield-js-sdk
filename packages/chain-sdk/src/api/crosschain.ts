@@ -1,11 +1,20 @@
-import { MsgClaimSDKTypeEIP712 } from '@/messages/cosmos/oracle/MsgClaim';
+import { MsgClaimSDKTypeEIP712, MsgClaimTypeUrl } from '@/messages/cosmos/oracle/MsgClaim';
 import {
   MsgTransferOutSDKTypeEIP712,
   MsgTransferOutTypeUrl,
 } from '@/messages/greenfield/bridge/MsgTransferOut';
-import { MsgMirrorBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorBucket';
-import { MsgMirrorGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorGroup';
-import { MsgMirrorObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorObject';
+import {
+  MsgMirrorBucketSDKTypeEIP712,
+  MsgMirrorBucketTypeUrl,
+} from '@/messages/greenfield/storage/MsgMirrorBucket';
+import {
+  MsgMirrorGroupSDKTypeEIP712,
+  MsgMirrorGroupTypeUrl,
+} from '@/messages/greenfield/storage/MsgMirrorGroup';
+import {
+  MsgMirrorObjectSDKTypeEIP712,
+  MsgMirrorObjectTypeUrl,
+} from '@/messages/greenfield/storage/MsgMirrorObject';
 import {
   QueryCrossChainPackageResponse,
   QueryReceiveSequenceResponse,
@@ -92,7 +101,7 @@ export class CrossChain implements ICrossChain {
 
   public async claims(msg: MsgClaim) {
     return await this.basic.tx(
-      '/cosmos.oracle.v1.MsgClaim',
+      MsgClaimTypeUrl,
       msg.fromAddress,
       MsgClaimSDKTypeEIP712,
       MsgClaim.toSDK(msg),
@@ -129,7 +138,7 @@ export class CrossChain implements ICrossChain {
 
   public async mirrorGroup(msg: MsgMirrorGroup) {
     return await this.basic.tx(
-      '/greenfield.storage.MsgMirrorGroup',
+      MsgMirrorGroupTypeUrl,
       msg.operator,
       MsgMirrorGroupSDKTypeEIP712,
       MsgMirrorGroup.toSDK(msg),
@@ -139,7 +148,7 @@ export class CrossChain implements ICrossChain {
 
   public async mirrorBucket(msg: MsgMirrorBucket) {
     return await this.basic.tx(
-      '/greenfield.storage.MsgMirrorBucket',
+      MsgMirrorBucketTypeUrl,
       msg.operator,
       MsgMirrorBucketSDKTypeEIP712,
       MsgMirrorBucket.toSDK(msg),
@@ -149,7 +158,7 @@ export class CrossChain implements ICrossChain {
 
   public async mirrorObject(msg: MsgMirrorObject) {
     return await this.basic.tx(
-      '/greenfield.storage.MsgMirrorObject',
+      MsgMirrorObjectTypeUrl,
       msg.operator,
       MsgMirrorObjectSDKTypeEIP712,
       MsgMirrorObject.toSDK(msg),

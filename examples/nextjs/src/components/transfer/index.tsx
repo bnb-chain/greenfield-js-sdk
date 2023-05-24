@@ -13,17 +13,6 @@ export const Transfer = () => {
 
   return (
     <div>
-      <button
-        onClick={async () => {
-          const account = await client.account.getAccount(
-            '0x1C893441AB6c1A75E01887087ea508bE8e07AAae',
-          );
-
-          console.log(account);
-        }}
-      >
-        click
-      </button>
       <h2>Transfer</h2>
       to :
       <input
