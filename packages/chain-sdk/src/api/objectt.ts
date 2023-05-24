@@ -11,26 +11,24 @@ import {
   MsgDeleteObjectTypeUrl,
 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import {
-  MsgUpdateObjectInfoSDKTypeEIP712,
-  MsgUpdateObjectInfoTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import {
-  fetchWithTimeout,
   METHOD_GET,
   METHOD_PUT,
   MOCK_SIGNATURE,
   NORMAL_ERROR_CODE,
+  fetchWithTimeout,
 } from '@/utils/http';
 import {
   redundancyTypeFromJSON,
   visibilityTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { QueryHeadObjectResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
+import {
+  QueryHeadObjectResponse,
+  QueryClientImpl as StorageQueryClientImpl,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCancelCreateObject,
   MsgCreateObject,
   MsgDeleteObject,
-  MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
@@ -53,6 +51,7 @@ import {
   isValidObjectName,
   isValidUrl,
 } from '../utils/s3';
+import { Account } from './account';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
@@ -66,8 +65,6 @@ export interface IObject {
   uploadObject(configParam: IPutObjectPropsType): Promise<IObjectResultType<null>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
-
-  updateObjectInfo(msg: MsgUpdateObjectInfo): Promise<TxResponse>;
 
   deleteObject(msg: MsgDeleteObject): Promise<TxResponse>;
 
@@ -84,12 +81,6 @@ export interface IObject {
   ): Promise<IObjectResultType<Array<IObjectProps>>>;
 
   createFolder(getApprovalParams: IGetCreateObjectApproval): Promise<TxResponse>;
-
-  // TODO: PutObjectPolicy
-  // TODO: DeleteObjectPolicy
-  // TODO: IsObjectPermissionAllowed
-  // TODO: GetObjectUploadProgress
-  // TODO: getObjectStatusFromSP
 }
 
 @singleton()
@@ -308,16 +299,6 @@ export class Objectt implements IObject {
       MsgDeleteObjectSDKTypeEIP712,
       MsgDeleteObject.toSDK(msg),
       MsgDeleteObject.encode(msg).finish(),
-    );
-  }
-
-  public async updateObjectInfo(msg: MsgUpdateObjectInfo) {
-    return await this.basic.tx(
-      MsgUpdateObjectInfoTypeUrl,
-      msg.operator,
-      MsgUpdateObjectInfoSDKTypeEIP712,
-      MsgUpdateObjectInfo.toSDK(msg),
-      MsgUpdateObjectInfo.encode(msg).finish(),
     );
   }
 

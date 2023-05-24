@@ -1,15 +1,6 @@
-import {
-  MsgDepositSDKTypeEIP712,
-  MsgDepositTypeUrl,
-} from '@/messages/greenfield/payment/MsgDeposit';
-import {
-  MsgDisableRefundSDKTypeEIP712,
-  MsgDisableRefundTypeUrl,
-} from '@/messages/greenfield/payment/MsgDisableRefund';
-import {
-  MsgWithdrawSDKTypeEIP712,
-  MsgWithdrawTypeUrl,
-} from '@/messages/greenfield/payment/MsgWithdraw';
+import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
+import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
+import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
   QueryGetStreamRecordResponse,
   QueryParamsResponse,
@@ -67,7 +58,7 @@ export class Payment implements IPayment {
 
   public async deposit(msg: MsgDeposit) {
     return await this.basic.tx(
-      MsgDepositTypeUrl,
+      '/greenfield.payment.MsgDeposit',
       msg.creator,
       MsgDepositSDKTypeEIP712,
       MsgDeposit.toSDK(msg),
@@ -77,7 +68,7 @@ export class Payment implements IPayment {
 
   public async withdraw(msg: MsgWithdraw) {
     return await this.basic.tx(
-      MsgWithdrawTypeUrl,
+      '/greenfield.payment.MsgWithdraw',
       msg.creator,
       MsgWithdrawSDKTypeEIP712,
       MsgWithdraw.toSDK(msg),
@@ -87,7 +78,7 @@ export class Payment implements IPayment {
 
   public async disableRefund(msg: MsgDisableRefund) {
     return await this.basic.tx(
-      MsgDisableRefundTypeUrl,
+      '/greenfield.payment.MsgDisableRefund',
       msg.addr,
       MsgDisableRefundSDKTypeEIP712,
       MsgDisableRefund.toSDK(msg),

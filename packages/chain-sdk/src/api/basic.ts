@@ -26,14 +26,14 @@ import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { toBuffer } from '@ethereumjs/util';
 import Long from 'long';
-import { container, inject, singleton } from 'tsyringe';
 import { BroadcastOptions, ISimulateGasFee, SimulateOptions } from '..';
 import { DEFAULT_DENOM, ZERO_PUBKEY } from '../constants';
 import { createEIP712, generateFee, generateMessage, generateTypes } from '../messages';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 import { typeWrapper } from '../tx/utils';
-import { Account } from './account';
 import { RpcQueryClient } from './queryclient';
+import { Account } from './account';
+import { autoInjectable, container, delay, inject, injectable, singleton } from 'tsyringe';
 
 export interface IBasic {
   /**

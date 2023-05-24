@@ -6,18 +6,9 @@ import {
   MsgDeleteBucketSDKTypeEIP712,
   MsgDeleteBucketTypeUrl,
 } from '@/messages/greenfield/storage/MsgDeleteBucket';
-import {
-  MsgDeletePolicySDKTypeEIP712,
-  MsgDeletePolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeletePolicy';
-import {
-  MsgPutPolicySDKTypeEIP712,
-  MsgPutPolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgPutPolicy';
-import {
-  MsgUpdateBucketInfoSDKTypeEIP712,
-  MsgUpdateBucketInfoTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
+import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
+import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout, METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
@@ -25,8 +16,6 @@ import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permis
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
   QueryHeadBucketResponse,
-  QueryPolicyForAccountRequest,
-  QueryPolicyForAccountResponse,
   QueryVerifyPermissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
@@ -98,10 +87,6 @@ export interface IBucket {
   putBucketPolicy(msg: MsgPutPolicy): Promise<TxResponse>;
 
   deleteBucketPolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
-
-  getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
-
-  // TODO: getBucketReadQuota();
 }
 
 @singleton()
@@ -386,7 +371,7 @@ export class Bucket implements IBucket {
 
   public async updateBucketInfo(msg: MsgUpdateBucketInfo) {
     return await this.basic.tx(
-      MsgUpdateBucketInfoTypeUrl,
+      '/greenfield.storage.MsgUpdateBucketInfo',
       msg.operator,
       MsgUpdateBucketInfoSDKTypeEIP712,
       MsgUpdateBucketInfo.toSDK(msg),
@@ -396,7 +381,7 @@ export class Bucket implements IBucket {
 
   public async putBucketPolicy(msg: MsgPutPolicy) {
     return await this.basic.tx(
-      MsgPutPolicyTypeUrl,
+      '/greenfield.storage.MsgPutPolicy',
       msg.operator,
       MsgPutPolicySDKTypeEIP712,
       MsgPutPolicy.toSDK(msg),
@@ -405,17 +390,14 @@ export class Bucket implements IBucket {
   }
 
   public async deleteBucketPolicy(msg: MsgDeletePolicy) {
+    const typeUrl = '/greenfield.storage.MsgDeletePolicy';
+
     return await this.basic.tx(
-      MsgDeletePolicyTypeUrl,
+      typeUrl,
       msg.operator,
       MsgDeletePolicySDKTypeEIP712,
       MsgDeletePolicy.toSDK(msg),
       MsgDeletePolicy.encode(msg).finish(),
     );
-  }
-
-  public async getBucketPolicy(request: QueryPolicyForAccountRequest) {
-    const rpc = await this.queryClient.getStorageQueryClient();
-    return rpc.QueryPolicyForAccount(request);
   }
 }
