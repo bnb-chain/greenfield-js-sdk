@@ -1,19 +1,7 @@
-import {
-  MsgCreateGroupSDKTypeEIP712,
-  MsgCreateGroupTypeUrl,
-} from '@/messages/greenfield/storage/MsgCreateGroup';
-import {
-  MsgDeleteGroupSDKTypeEIP712,
-  MsgDeleteGroupTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeleteGroup';
-import {
-  MsgLeaveGroupSDKTypeEIP712,
-  MsgLeaveGroupTypeUrl,
-} from '@/messages/greenfield/storage/MsgLeaveGroup';
-import {
-  MsgUpdateGroupMemberSDKTypeEIP712,
-  MsgUpdateGroupMemberTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateGroupMember';
+import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateGroup';
+import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
+import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
+import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
 import {
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
@@ -71,12 +59,6 @@ export interface IGroup {
    * it queries a bucket policy that grants permission to a group
    */
   getPolicyOfGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
-
-  // TODO: PutGroupPolicy compire with bucket.putBucketPolicy
-
-  // TODO: getBucketPolicyOfGroup
-
-  // TODO: getObjectPolicyOfGroup
 }
 
 @singleton()
@@ -86,7 +68,7 @@ export class Group implements IGroup {
 
   public async createGroup(msg: MsgCreateGroup) {
     return await this.basic.tx(
-      MsgCreateGroupTypeUrl,
+      '/greenfield.storage.MsgCreateGroup',
       msg.creator,
       MsgCreateGroupSDKTypeEIP712,
       MsgCreateGroup.toSDK(msg),
@@ -96,7 +78,7 @@ export class Group implements IGroup {
 
   public async deleteGroup(msg: MsgDeleteGroup) {
     return await this.basic.tx(
-      MsgDeleteGroupTypeUrl,
+      '/greenfield.storage.MsgCreateGroup',
       msg.operator,
       MsgDeleteGroupSDKTypeEIP712,
       MsgDeleteGroup.toSDK(msg),
@@ -114,7 +96,7 @@ export class Group implements IGroup {
     }
 
     return await this.basic.tx(
-      MsgUpdateGroupMemberTypeUrl,
+      '/greenfield.storage.MsgUpdateGroupMember',
       msg.operator,
       MsgUpdateGroupMemberSDKTypeEIP712,
       MsgUpdateGroupMember.toSDK(msg),
@@ -124,7 +106,7 @@ export class Group implements IGroup {
 
   public async leaveGroup(address: string, msg: MsgLeaveGroup) {
     return await this.basic.tx(
-      MsgLeaveGroupTypeUrl,
+      '/greenfield.storage.MsgLeaveGroup',
       address,
       MsgLeaveGroupSDKTypeEIP712,
       MsgLeaveGroup.toSDK(msg),
@@ -152,13 +134,5 @@ export class Group implements IGroup {
   public async getPolicyOfGroup(request: QueryPolicyForGroupRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.QueryPolicyForGroup(request);
-  }
-
-  public async getBucketPolicyOfGroup() {
-    // ...
-  }
-
-  public async getObjectPolicyOfGroup() {
-    // ...
   }
 }

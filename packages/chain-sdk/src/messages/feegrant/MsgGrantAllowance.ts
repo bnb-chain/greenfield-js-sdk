@@ -1,32 +1,31 @@
-export const MsgGrantAllowanceTypeUrl = '/cosmos.feegrant.v1beta1.MsgGrantAllowance';
-
+export const MsgGrantAllowanceTypeUrl = '/cosmos/feegrant/v1beta1/MsgGrantAllowance';
 export const MsgGrantAllowanceSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
+      type: 'string',
       name: 'type',
-      type: 'string',
     },
     {
+      type: 'string',
       name: 'granter',
-      type: 'string',
     },
     {
+      type: 'string',
       name: 'grantee',
-      type: 'string',
     },
     {
+      type: 'TypeAllowance',
       name: 'allowance',
-      type: 'TypeAny',
     },
   ],
-  TypeAny: [
+  TypeAllowance: [
     {
-      name: 'type',
       type: 'string',
+      name: 'type_url',
     },
     {
-      name: 'value',
       type: 'bytes',
+      name: 'value',
     },
   ],
 };

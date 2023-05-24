@@ -1,7 +1,7 @@
 export const MsgDeleteObjectTypeUrl = '/greenfield.storage.MsgDeleteObject';
 
 export const MsgDeleteObjectSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',

@@ -1,34 +1,64 @@
-export const MsgAttestTypeUrl = '/greenfield.challenge.MsgAttest';
-
 export const MsgAttestSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
+      type: 'string',
       name: 'type',
+    },
+    {
       type: 'string',
+      name: 'challenger',
     },
     {
-      name: 'submitter',
       type: 'string',
-    },
-    {
-      name: 'challenge_id',
-      type: 'uint64',
-    },
-    {
-      name: 'object_id',
-      type: 'string',
-    },
-    {
       name: 'sp_operator_address',
-      type: 'string',
     },
     {
+      type: 'string',
+      name: 'bucket_name',
+    },
+    {
+      type: 'string',
+      name: 'object_name',
+    },
+    {
+      type: 'uint64',
+      name: 'segment_index',
+    },
+    {
+      type: 'bool',
+      name: 'random_index',
+    },
+    {
+      type: 'string',
+      name: 'submitter',
+    },
+    {
+      type: 'uint64',
+      name: 'challenge_id',
+    },
+    {
+      type: 'string',
+      name: 'object_id',
+    },
+    {
+      type: 'string',
+      name: 'sp_operator_address',
+    },
+    {
+      type: 'string',
       name: 'vote_result',
-      type: 'string',
     },
     {
-      name: 'challenger_address',
       type: 'string',
+      name: 'challenger_address',
+    },
+    {
+      type: 'uint64[]',
+      name: 'vote_validator_set',
+    },
+    {
+      type: 'bytes',
+      name: 'vote_agg_signature',
     },
   ],
 };

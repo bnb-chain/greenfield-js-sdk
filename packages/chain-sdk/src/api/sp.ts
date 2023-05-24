@@ -1,3 +1,6 @@
+import { MsgUpdateSpStoragePriceSDKTypeEIP712 } from '@/messages/greenfield/sp/MsgUpdateSpStoragePrice';
+
+import { MsgUpdateSpStoragePrice } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/tx';
 import {
   SecondarySpStorePrice,
   SpStoragePrice,
@@ -29,6 +32,10 @@ export interface ISp {
    * returns the secondary storage price, including update time and store price
    */
   getSecondarySpStorePrice(): Promise<SecondarySpStorePrice | undefined>;
+
+  /**
+   * submit a grant transaction to allow gov module account to deduct the specified number of tokens
+   */
 }
 
 @singleton()
@@ -65,5 +72,15 @@ export class Sp implements ISp {
       timestamp: Long.fromNumber(0),
     });
     return res.secondarySpStorePrice;
+  }
+
+  public async updateSpStoragePrice(address: string, msg: MsgUpdateSpStoragePrice) {
+    return await this.basic.tx(
+      '/greenfield.sp.MsgUpdateSpStoragePrice',
+      address,
+      MsgUpdateSpStoragePriceSDKTypeEIP712,
+      MsgUpdateSpStoragePrice.toSDK(msg),
+      MsgUpdateSpStoragePrice.encode(msg).finish(),
+    );
   }
 }

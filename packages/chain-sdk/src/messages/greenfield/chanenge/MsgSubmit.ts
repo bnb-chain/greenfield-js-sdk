@@ -1,34 +1,32 @@
-export const MsgSubmitTypeUrl = '/greenfield.challenge.MsgSubmit';
-
 export const MsgSubmitSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
+      type: 'string',
       name: 'type',
-      type: 'string',
     },
     {
+      type: 'string',
       name: 'challenger',
-      type: 'string',
     },
     {
+      type: 'string',
       name: 'sp_operator_address',
-      type: 'string',
     },
     {
+      type: 'string',
       name: 'bucket_name',
-      type: 'string',
     },
     {
+      type: 'string',
       name: 'object_name',
-      type: 'string',
     },
     {
+      type: 'uint64',
       name: 'segment_index',
-      type: 'uint32',
     },
     {
-      name: 'random_index',
       type: 'bool',
+      name: 'random_index',
     },
   ],
 };

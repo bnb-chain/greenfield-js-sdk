@@ -1,7 +1,7 @@
 export const MsgCancelCreateObjectTypeUrl = '/greenfield.storage.MsgCancelCreateObject';
 
 export const MsgCancelCreateObjectSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',
