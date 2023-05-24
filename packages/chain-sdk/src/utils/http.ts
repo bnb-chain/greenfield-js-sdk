@@ -4,7 +4,7 @@ const METHOD_GET = 'GET';
 const METHOD_POST = 'POST';
 const METHOD_PUT = 'PUT';
 
-function timeoutAfter(duration: number) {
+export function sleep(duration: number) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       reject(new Error('request time out'));
@@ -14,7 +14,7 @@ function timeoutAfter(duration: number) {
 
 const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration = 30000) => {
   try {
-    const response = await Promise.race([timeoutAfter(duration), fetch(fetchUrl, fetchOptions)]);
+    const response = await Promise.race([sleep(duration), fetch(fetchUrl, fetchOptions)]);
     return response as Promise<Response>;
   } catch (error) {
     return Promise.reject(error);

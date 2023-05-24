@@ -1,4 +1,4 @@
-import { client } from '@/client';
+import { client, selectSp } from '@/client';
 import { ethers } from 'ethers';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -15,11 +15,9 @@ export const Transfer = () => {
     <div>
       <button
         onClick={async () => {
-          const account = await client.account.getAccount(
-            '0x1C893441AB6c1A75E01887087ea508bE8e07AAae',
-          );
+          const sps = await selectSp();
 
-          console.log(account);
+          await client.object.getObjectUploadProgress('zcxcxz', 'ddsxxxx1');
         }}
       >
         click

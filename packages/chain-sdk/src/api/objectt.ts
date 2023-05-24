@@ -11,20 +11,18 @@ import {
   MsgDeleteObjectTypeUrl,
 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import {
+  fetchWithTimeout,
   METHOD_GET,
   METHOD_PUT,
   MOCK_SIGNATURE,
   NORMAL_ERROR_CODE,
-  fetchWithTimeout,
 } from '@/utils/http';
 import {
+  ObjectStatus,
   redundancyTypeFromJSON,
   visibilityTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import {
-  QueryHeadObjectResponse,
-  QueryClientImpl as StorageQueryClientImpl,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
+import { QueryHeadObjectResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCancelCreateObject,
   MsgCreateObject,
@@ -51,8 +49,8 @@ import {
   isValidObjectName,
   isValidUrl,
 } from '../utils/s3';
-import { Account } from './account';
 import { Basic } from './basic';
+import { HttpClient } from './httpclient';
 import { RpcQueryClient } from './queryclient';
 
 export interface IObject {
@@ -81,12 +79,15 @@ export interface IObject {
   ): Promise<IObjectResultType<Array<IObjectProps>>>;
 
   createFolder(getApprovalParams: IGetCreateObjectApproval): Promise<TxResponse>;
+
+  getObjectUploadProgress(bucketName: string, objectName: string): Promise<ObjectStatus>;
 }
 
 @singleton()
 export class Objectt implements IObject {
   private basic: Basic = container.resolve(Basic);
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+  private httpClient: HttpClient = container.resolve(HttpClient);
 
   public async getCreateObjectApproval({
     bucketName,
@@ -133,22 +134,15 @@ export class Objectt implements IObject {
         redundancy_type: redundancyType,
         expect_secondary_sp_addresses: spInfo.secondarySpAddresses,
       };
-      const signature = MOCK_SIGNATURE;
-      const url = spInfo.endpoint + '/greenfield/admin/v1/get-approval?action=CreateObject';
-      const unSignedMessageInHex = encodeObjectToHexString(msg);
-      const headers = new Headers({
-        // todo place the correct authorization string
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-      });
-      const result = await fetchWithTimeout(
-        url,
-        {
-          headers,
-          method: METHOD_GET,
-        },
+
+      const unSignedMsg = encodeObjectToHexString(msg);
+      const result = await this.httpClient.approval(
+        spInfo.endpoint,
+        '/greenfield/admin/v1/get-approval?action=CreateObject',
+        { unSignedMsg },
         duration,
       );
+
       const { status } = result;
       if (!result.ok) {
         return {
@@ -450,16 +444,33 @@ export class Objectt implements IObject {
     return this.createObject(getApprovalParams);
   }
 
-  // private async getObjectStatusFromSP(params: IGetObjectStaus) {
-  //   const {bucketInfo} = await this.bucket.headBucket(params.bucketName);
-  //   const primarySpAddress = bucketInfo?.primarySpAddress
+  public async getObjectUploadProgress(bucketName: string, objectName: string) {
+    const { objectInfo } = await this.headObject(bucketName, objectName);
+    if (!objectInfo) throw new Error('Object not found');
 
-  //   // const url = params.endpoint + '/greenfield/admin/v1/get-approval?upload-progress=';
-  //   // const unSignedMessageInHex = encodeObjectToHexString(msg);
-  //   // const headers = new Headers({
-  //   //   // TODO: replace when offchain release
-  //   //   Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${MOCK_SIGNATURE}`,
-  //   //   'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-  //   // });
-  // }
+    const { objectStatus } = objectInfo;
+    // if (objectStatus === ObjectStatus.OBJECT_STATUS_CREATED) {
+    //   const bucketSp = await this.httpClient.getSPUrlByBucket(bucketName);
+
+    //   if (!bucketSp) throw new Error('Bucket not found');
+
+    //   const res = await fetch(
+    //     'https://' +
+    //       bucketName +
+    //       '.' +
+    //       bucketSp.endpoint.replace('https://', '') +
+    //       `/${objectName}` +
+    //       '?upload-progress=',
+    //     {
+    //       headers: new Headers({
+    //         Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${MOCK_SIGNATURE}`,
+    //       }),
+    //     },
+    //   );
+
+    //   return res;
+    // }
+
+    return objectStatus;
+  }
 }

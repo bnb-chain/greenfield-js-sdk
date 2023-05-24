@@ -67,6 +67,7 @@ export const CreateObject = () => {
           });
 
           console.log('res', res);
+          return;
 
           const uploadRes = await client.object.uploadObject({
             bucketName: createObjectInfo.bucketName,
