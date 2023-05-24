@@ -95,17 +95,16 @@ export class Objectt implements IObject {
     visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
     spInfo,
     duration = 3000,
-    file,
+    fileType = 'application/octet-stream',
     redundancyType = 'REDUNDANCY_EC_TYPE',
+    contentLength,
+    expectCheckSums,
   }: IGetCreateObjectApproval) {
     try {
       if (!isValidUrl(spInfo.endpoint)) {
         throw new Error('Invalid endpoint');
       }
 
-      if (!file) {
-        throw new Error('File is needed');
-      }
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
@@ -115,16 +114,11 @@ export class Objectt implements IObject {
       if (!creator) {
         throw new Error('empty creator address');
       }
-      const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      const hashResult = await FileHandler.getPieceHashRoots(bytes);
-      const { contentLength, expectCheckSums } = hashResult;
-      const finalContentType =
-        file && file.type && file.type.length > 0 ? file.type : 'application/octet-stream';
+
       const msg: ICreateObjectMsgType = {
         creator: creator,
         object_name: objectName,
-        content_type: finalContentType,
+        content_type: fileType,
         payload_size: contentLength.toString(),
         bucket_name: bucketName,
         visibility,
@@ -141,6 +135,7 @@ export class Objectt implements IObject {
         Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       });
+
       const result = await fetchWithTimeout(
         url,
         {
@@ -149,6 +144,7 @@ export class Objectt implements IObject {
         },
         duration,
       );
+
       const { status } = result;
       if (!result.ok) {
         return {
