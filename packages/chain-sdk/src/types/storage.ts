@@ -94,12 +94,14 @@ export interface IGetCreateObjectApproval {
   objectName: string;
   creator: string;
   visibility?: keyof typeof VisibilityType;
-  file: File;
+  fileType: string;
   redundancyType?: keyof typeof RedundancyType;
   expectSecondarySpAddresses: string[];
   // endpoint?: string;
   spInfo: ISpInfo;
   duration?: number;
+  contentLength: number;
+  expectCheckSums: string[];
   // hashResult?: any;
 }
 

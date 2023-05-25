@@ -1,6 +1,6 @@
 {
   "name": "@demo/nodejs",
-  "version": "0.0.4",
+  "version": "0.0.5-alpha.0",
   "type": "commonjs",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@bnb-chain/greenfield-chain-sdk": "workspace:*"
+    "@bnb-chain/greenfield-chain-sdk": "workspace:*",
+    "@bnb-chain/greenfiled-file-handle": "workspace:*"
   }
 }

@@ -13,12 +13,28 @@ Use [React](https://react.dev/) and [Next.js](https://nextjs.org/)
 
 ## Getting Started
 
+### copy env template file
+
 ```bash
 # DEV ENV
 > cp .env.simple .env.development.local
 
 # QA ENV
 > cp .env.simple .env.test.local
+```
+
+### Enter your own configuration
+
+Take testnet, for example:
+
+```
+NEXT_PUBLIC_GRPC_URL=https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org
+NEXT_PUBLIC_GREENFIELD_RPC_URL=https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org/ethapi
+NEXT_PUBLIC_GREEN_CHAIN_ID=5600
+NEXT_PUBLIC_BSC_RPC_URL=https://gnfd-bsc-testnet-dataseed1.bnbchain.org
+NEXT_PUBLIC_BSC_CHAIN_ID=5601
+NEXT_PUBLIC_TOKEN_HUB_CONTRACT_ADDRESS=0x10C6E9530F1C1AF873a391030a1D9E8ed0630D26
+NEXT_PUBLIC_CROSS_CHAIN_CONTRACT_ADDRESS=0xeEBe00Ac0756308ac4AaBfD76c05c4F3088B8883
 ```
 
 ## Install and Build

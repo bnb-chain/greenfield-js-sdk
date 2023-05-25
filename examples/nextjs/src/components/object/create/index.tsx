@@ -1,4 +1,5 @@
 import { client, selectSp } from '@/client';
+import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -49,11 +50,17 @@ export const CreateObject = () => {
           }
 
           const spInfo = await selectSp();
+          const fileBytes = await file.arrayBuffer();
+          const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+          const { contentLength, expectCheckSums } = hashResult;
+
           const createObjectTx = await client.object.createObject({
             bucketName: createObjectInfo.bucketName,
             objectName: createObjectInfo.objectName,
             spInfo,
-            file,
+            contentLength,
+            expectCheckSums,
+            fileType: file.type,
             creator: address,
             expectSecondarySpAddresses: [],
           });
@@ -65,8 +72,6 @@ export const CreateObject = () => {
             payer: address,
             granter: '',
           });
-
-          console.log('res', res);
 
           const uploadRes = await client.object.uploadObject({
             bucketName: createObjectInfo.bucketName,
