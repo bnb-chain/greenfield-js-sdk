@@ -1,1 +1,18 @@
-
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "@demo/wallet": "0.0.2-alpha.6",
+    "@demo/nodejs": "0.0.4",
+    "@bnb-chain/greenfield-chain-sdk": "0.2.0",
+    "@bnb-chain/greenfiled-file-handle": "0.2.0"
+  },
+  "changesets": [
+    "beige-tables-carry",
+    "cuddly-eels-knock",
+    "dull-dodos-prove",
+    "early-parents-divide",
+    "ninety-meals-impress",
+    "rude-tips-rush"
+  ]
+}
