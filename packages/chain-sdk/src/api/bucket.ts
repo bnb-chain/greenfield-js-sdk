@@ -39,6 +39,7 @@ import {
   IQuotaProps,
 } from '../types/storage';
 import { Basic } from './basic';
+import { HttpClient } from './httpclient';
 import { RpcQueryClient } from './queryclient';
 
 export interface IBucket {
@@ -91,7 +92,10 @@ export interface IBucket {
 
 @singleton()
 export class Bucket implements IBucket {
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(
+    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => HttpClient)) private httpClient: HttpClient,
+  ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
 
@@ -114,7 +118,6 @@ export class Bucket implements IBucket {
         throw new Error('Empty creator address');
       }
 
-      const endpoint = spInfo.endpoint;
       const msg: ICreateBucketMsgType = {
         bucket_name: bucketName,
         creator,
@@ -128,20 +131,11 @@ export class Bucket implements IBucket {
         payment_address: '',
       };
 
-      const url = endpoint + '/greenfield/admin/v1/get-approval?action=CreateBucket';
-      const unSignedMessageInHex = encodeObjectToHexString(msg);
-      const headers = new Headers({
-        // TODO: replace when offchain release
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${MOCK_SIGNATURE}`,
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-      });
-
-      const result = await fetchWithTimeout(
-        url,
-        {
-          headers,
-          method: METHOD_GET,
-        },
+      const unSignedMsg = encodeObjectToHexString(msg);
+      const result = await this.httpClient.approval(
+        spInfo.endpoint,
+        '/greenfield/admin/v1/get-approval?action=CreateBucket',
+        { unSignedMsg },
         duration,
       );
 
