@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.1
+
+### Patch Changes
+
+- [#59](https://github.com/bnb-chain/greenfield-js-sdk/pull/59)
+  [`a85c225`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a85c2258793e5cda2746a6523cf7a1460aed5b09)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Update EIP712 struct, Support Multi Message
+  !!!!!
+
 ## 0.2.1-alpha.0
 
 ### Patch Changes
