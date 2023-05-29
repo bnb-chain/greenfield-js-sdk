@@ -28,7 +28,7 @@ export const generateMessage = (
     sequence,
     memo,
     fee,
-    msg,
+    msg1: msg,
     timeout_height: timeoutHeight,
   };
 };
@@ -46,24 +46,41 @@ export const generateTypes = (newTypes?: object) => {
       { name: 'verifyingContract', type: 'string' },
       { name: 'salt', type: 'string' },
     ],
-    Tx: [
-      { name: 'account_number', type: 'uint256' },
-      { name: 'chain_id', type: 'uint256' },
-      { name: 'fee', type: 'Fee' },
-      { name: 'memo', type: 'string' },
-      { name: 'msg', type: 'Msg' },
-      { name: 'sequence', type: 'uint256' },
-      { name: 'timeout_height', type: 'uint256' },
-    ],
     Fee: [
       { name: 'amount', type: 'Coin[]' },
       { name: 'gas_limit', type: 'uint256' },
       { name: 'payer', type: 'string' },
       { name: 'granter', type: 'string' },
     ],
-    TypeAmount: [
-      { name: 'denom', type: 'string' },
-      { name: 'amount', type: 'string' },
+    Tx: [
+      {
+        name: 'account_number',
+        type: 'uint256',
+      },
+      {
+        name: 'chain_id',
+        type: 'uint256',
+      },
+      {
+        name: 'fee',
+        type: 'Fee',
+      },
+      {
+        name: 'memo',
+        type: 'string',
+      },
+      {
+        name: 'sequence',
+        type: 'uint256',
+      },
+      {
+        name: 'timeout_height',
+        type: 'uint256',
+      },
+      {
+        name: 'msg1',
+        type: 'Msg1',
+      },
     ],
   };
 

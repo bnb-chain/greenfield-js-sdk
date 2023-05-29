@@ -1,6 +1,6 @@
-export const MsgUpdateBucketInfoTypeUrl = '/greenfield.storage.MsgUpdateBucketInfo';
+export const MsgUpdateObjectInfoTypeUrl = '/greenfield.storage.MsgUpdateObjectInfo';
 
-export const MsgUpdateBucketInfoSDKTypeEIP712 = {
+export const MsgUpdateObjectInfoSDKTypeEIP712 = {
   Msg1: [
     {
       name: 'type',
@@ -15,7 +15,7 @@ export const MsgUpdateBucketInfoSDKTypeEIP712 = {
       type: 'string',
     },
     {
-      name: 'payment_address',
+      name: 'object_name',
       type: 'string',
     },
     {
