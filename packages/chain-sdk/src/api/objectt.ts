@@ -215,13 +215,10 @@ export class Objectt implements IObject {
       {
         ...signedMsg,
         type: MsgCreateObjectTypeUrl,
-        visibility: signedMsg.visibility,
         primary_sp_approval: {
           expired_height: signedMsg.primary_sp_approval.expired_height,
           sig: signedMsg.primary_sp_approval.sig,
         },
-        redundancy_type: signedMsg.redundancy_type,
-        payload_size: signedMsg.payload_size,
       },
       MsgCreateObject.encode(msg).finish(),
     );
@@ -241,10 +238,7 @@ export class Objectt implements IObject {
       visibility: visibilityTypeFromJSON(signedMsg.visibility),
       expectChecksums: signedMsg.expect_checksums.map((e: string) => bytesFromBase64(e)),
       expectSecondarySpAddresses: signedMsg.expect_secondary_sp_addresses,
-      redundancyType:
-        signedMsg.redundancy_type === undefined
-          ? redundancyTypeFromJSON(0)
-          : redundancyTypeFromJSON(signedMsg.redundancy_type),
+      redundancyType: redundancyTypeFromJSON(signedMsg.redundancy_type),
       primarySpApproval: {
         expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
         sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),

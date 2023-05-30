@@ -62,14 +62,19 @@ export const CreateObject = () => {
             expectCheckSums,
             fileType: file.type,
             creator: address,
-            expectSecondarySpAddresses: [],
             signType: 'authTypeV2',
           });
 
+          const simulateInfo = await createObjectTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log('simulateInfo', simulateInfo);
+
           const res = await createObjectTx.broadcast({
             denom: 'BNB',
-            gasLimit: 210000,
-            gasPrice: '50000000000',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
             payer: address,
             granter: '',
           });
