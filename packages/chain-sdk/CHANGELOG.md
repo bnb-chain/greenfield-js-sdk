@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.2
+
+### Patch Changes
+
+- [#64](https://github.com/bnb-chain/greenfield-js-sdk/pull/64)
+  [`ff7427d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ff7427dd29d6da1550f22615d5c3b900fede2afa)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat: add offchainauth
+
 ## 0.2.1-alpha.1
 
 ### Patch Changes
