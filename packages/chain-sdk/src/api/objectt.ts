@@ -14,13 +14,7 @@ import {
   MsgUpdateObjectInfoSDKTypeEIP712,
   MsgUpdateObjectInfoTypeUrl,
 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import {
-  fetchWithTimeout,
-  METHOD_GET,
-  METHOD_PUT,
-  MOCK_SIGNATURE,
-  NORMAL_ERROR_CODE,
-} from '@/utils/http';
+import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
 import {
   redundancyTypeFromJSON,
   visibilityTypeFromJSON,
@@ -36,14 +30,16 @@ import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { container, singleton } from 'tsyringe';
 import {
   ICreateObjectMsgType,
-  IGetCreateObjectApproval,
-  IGetObjectPropsType,
-  IListObjectsByBucketNamePropsType,
   IObjectProps,
   IObjectResultType,
-  IPutObjectPropsType,
+  TPutObject,
   Long,
+  TGetCreateObject,
+  TKeyValue,
   TxResponse,
+  TGetObject,
+  TListObjects,
+  TDownloadFile,
 } from '../types';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
@@ -54,15 +50,15 @@ import {
 } from '../utils/s3';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
+import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
+import { OffChainAuth } from './offchainauth';
 
 export interface IObject {
-  getCreateObjectApproval(
-    getApprovalParams: IGetCreateObjectApproval,
-  ): Promise<IObjectResultType<string>>;
+  getCreateObjectApproval(getApprovalParams: TGetCreateObject): Promise<IObjectResultType<string>>;
 
-  createObject(getApprovalParams: IGetCreateObjectApproval): Promise<TxResponse>;
+  createObject(getApprovalParams: TGetCreateObject): Promise<TxResponse>;
 
-  uploadObject(configParam: IPutObjectPropsType): Promise<IObjectResultType<null>>;
+  uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
@@ -74,15 +70,13 @@ export interface IObject {
 
   headObjectById(objectId: string): Promise<QueryHeadObjectResponse>;
 
-  getObject(configParam: IGetObjectPropsType): Promise<IObjectResultType<Blob>>;
+  getObject(configParam: TGetObject): Promise<IObjectResultType<Blob>>;
 
-  downloadFile(configParam: IGetObjectPropsType): Promise<void>;
+  downloadFile(configParam: TGetObject): Promise<void>;
 
-  listObjects(
-    configParam: IListObjectsByBucketNamePropsType,
-  ): Promise<IObjectResultType<Array<IObjectProps>>>;
+  listObjects(configParam: TListObjects): Promise<IObjectResultType<Array<IObjectProps>>>;
 
-  createFolder(getApprovalParams: IGetCreateObjectApproval): Promise<TxResponse>;
+  createFolder(getApprovalParams: TGetCreateObject): Promise<TxResponse>;
 
   // TODO: PutObjectPolicy
   // TODO: DeleteObjectPolicy
@@ -95,19 +89,22 @@ export interface IObject {
 export class Objectt implements IObject {
   private basic: Basic = container.resolve(Basic);
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
+  private offChainAuthClient = container.resolve(OffChainAuth);
 
-  public async getCreateObjectApproval({
-    bucketName,
-    creator,
-    objectName,
-    visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
-    spInfo,
-    duration = 3000,
-    fileType = 'application/octet-stream',
-    redundancyType = 'REDUNDANCY_EC_TYPE',
-    contentLength,
-    expectCheckSums,
-  }: IGetCreateObjectApproval) {
+  public async getCreateObjectApproval(configParam: TGetCreateObject) {
+    const {
+      bucketName,
+      creator,
+      objectName,
+      visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
+      spInfo,
+      duration = 3000,
+      fileType = 'application/octet-stream',
+      redundancyType = 'REDUNDANCY_EC_TYPE',
+      contentLength,
+      expectCheckSums,
+    } = configParam;
+
     try {
       if (!isValidUrl(spInfo.endpoint)) {
         throw new Error('Invalid endpoint');
@@ -135,15 +132,36 @@ export class Objectt implements IObject {
         redundancy_type: redundancyType,
         expect_secondary_sp_addresses: spInfo.secondarySpAddresses,
       };
-      const signature = MOCK_SIGNATURE;
       const url = spInfo.endpoint + '/greenfield/admin/v1/get-approval?action=CreateObject';
       const unSignedMessageInHex = encodeObjectToHexString(msg);
-      const headers = new Headers({
-        // todo place the correct authorization string
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-      });
 
+      let headerContent: TKeyValue = {
+        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+      };
+      if (!configParam.signType || configParam.signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      } else if (configParam.signType === 'offChainAuth') {
+        const { seedString, domain } = configParam;
+        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          return {
+            code: -1,
+            message: 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-User-Address': creator,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+      const headers = new Headers(headerContent);
       const result = await fetchWithTimeout(
         url,
         {
@@ -206,7 +224,7 @@ export class Objectt implements IObject {
     );
   }
 
-  public async createObject(getApprovalParams: IGetCreateObjectApproval) {
+  public async createObject(getApprovalParams: TGetCreateObject) {
     const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams);
     if (!signedMsg) {
       throw new Error('Get create object approval error');
@@ -230,7 +248,7 @@ export class Objectt implements IObject {
     return await this.createObjectTx(msg, signedMsg);
   }
 
-  public async uploadObject(configParam: IPutObjectPropsType): Promise<IObjectResultType<null>> {
+  public async uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>> {
     const { bucketName, objectName, txnHash, body, endpoint, duration = 30000 } = configParam;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
@@ -245,13 +263,35 @@ export class Objectt implements IObject {
       throw new Error('Transaction hash is empty, please check.');
     }
     const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
-    // todo generate real signature
-    const signature = MOCK_SIGNATURE;
-    const headers = new Headers({
-      // todo place the correct authorization string
-      Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
+
+    let headerContent: TKeyValue = {
       'X-Gnfd-Txn-hash': txnHash,
-    });
+    };
+    if (!configParam.signType || configParam.signType === 'authTypeV2') {
+      const Authorization = getAuthorizationAuthTypeV2();
+      headerContent = {
+        ...headerContent,
+        Authorization,
+      };
+    } else if (configParam.signType === 'offChainAuth') {
+      const { seedString, address, domain } = configParam;
+      const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+      if (code !== 0) {
+        return {
+          code: -1,
+          message: 'Get create bucket approval error.',
+          statusCode: statusCode,
+        };
+      }
+      headerContent = {
+        ...headerContent,
+        Authorization: body?.authorization as string,
+        'X-Gnfd-User-Address': address,
+        'X-Gnfd-App-Domain': domain,
+      };
+    }
+
+    const headers = new Headers(headerContent);
 
     try {
       const result = await fetchWithTimeout(
@@ -327,11 +367,9 @@ export class Objectt implements IObject {
     });
   }
 
-  public async getObject(configParam: IGetObjectPropsType) {
+  public async getObject(configParam: TGetObject) {
     try {
       const { bucketName, objectName, endpoint, duration = 30000 } = configParam;
-      // todo generate real signature
-      const signature = MOCK_SIGNATURE;
       if (!isValidUrl(endpoint)) {
         throw new Error('Invalid endpoint');
       }
@@ -342,9 +380,33 @@ export class Objectt implements IObject {
         throw new Error('Error object name');
       }
       const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
-      const headers = new Headers({
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
-      });
+
+      let headerContent: TKeyValue = {};
+      if (!configParam.signType || configParam.signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      } else if (configParam.signType === 'offChainAuth') {
+        const { seedString, address, domain } = configParam;
+        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          return {
+            code: -1,
+            message: 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-User-Address': address,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+
+      const headers = new Headers(headerContent);
 
       const result = await fetchWithTimeout(
         url,
@@ -382,7 +444,7 @@ export class Objectt implements IObject {
     }
   }
 
-  public async downloadFile(configParam: IGetObjectPropsType): Promise<void> {
+  public async downloadFile(configParam: TGetObject): Promise<void> {
     try {
       const { objectName } = configParam;
       const getObjectResult = await this.getObject(configParam);
@@ -409,7 +471,7 @@ export class Objectt implements IObject {
     }
   }
 
-  public async listObjects(configParam: IListObjectsByBucketNamePropsType) {
+  public async listObjects(configParam: TListObjects) {
     try {
       const { bucketName, endpoint, duration = 30000 } = configParam;
       if (!isValidBucketName(bucketName)) {
@@ -419,11 +481,33 @@ export class Objectt implements IObject {
         throw new Error('Invalid endpoint');
       }
       const url = generateUrlByBucketName(endpoint, bucketName);
-      const signature = MOCK_SIGNATURE;
-      const headers = new Headers({
-        // todo place the correct authorization string
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
-      });
+
+      let headerContent: TKeyValue = {};
+      if (!configParam.signType || configParam.signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      } else if (configParam.signType === 'offChainAuth') {
+        const { seedString, address, domain } = configParam;
+        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          return {
+            code: -1,
+            message: 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-User-Address': address,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+      const headers = new Headers(headerContent);
+
       const result = await fetchWithTimeout(
         url,
         {
@@ -448,7 +532,7 @@ export class Objectt implements IObject {
     }
   }
 
-  public async createFolder(getApprovalParams: IGetCreateObjectApproval) {
+  public async createFolder(getApprovalParams: TGetCreateObject) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',

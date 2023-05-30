@@ -52,6 +52,7 @@ export const BucketInfo = () => {
               const res = await client.bucket.getUserBuckets({
                 address,
                 endpoint: spInfo.endpoint,
+                signType: 'authTypeV2',
               });
               console.log(res);
             }}

@@ -62,8 +62,7 @@ export const CreateObject = () => {
             expectCheckSums,
             fileType: file.type,
             creator: address,
-            // redundancyType: 'REDUNDANCY_EC_TYPE',
-            // visibility: 'VISIBILITY_TYPE_PRIVATE',
+            signType: 'authTypeV2',
           });
 
           const simulateInfo = await createObjectTx.simulate({
@@ -86,6 +85,7 @@ export const CreateObject = () => {
             body: file,
             txnHash: res.transactionHash,
             endpoint: spInfo.endpoint,
+            signType: 'authTypeV2',
           });
           console.log('uploadRes', uploadRes);
 

@@ -10,6 +10,7 @@ import { Group, IGroup } from './api/group';
 import { IObject, Objectt } from './api/objectt';
 import { IPayment, Payment } from './api/payment';
 import { ISp, Sp } from './api/sp';
+import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 
 @injectable()
 export class Client {
@@ -27,6 +28,7 @@ export class Client {
     const objectt = container.resolve<Objectt>(Objectt);
     const payment = container.resolve<Payment>(Payment);
     const sp = container.resolve<Sp>(Sp);
+    const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
 
     return new Client(
       account,
@@ -39,6 +41,7 @@ export class Client {
       objectt,
       payment,
       sp,
+      offchainauth,
     );
   }
 
@@ -53,5 +56,6 @@ export class Client {
     public object: IObject,
     public payment: IPayment,
     public sp: ISp,
+    public offchainauth: IOffChainAuth,
   ) {}
 }
