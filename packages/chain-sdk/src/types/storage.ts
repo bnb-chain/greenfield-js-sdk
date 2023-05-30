@@ -96,7 +96,7 @@ export interface IGetCreateObjectApproval {
   visibility?: keyof typeof VisibilityType;
   fileType: string;
   redundancyType?: keyof typeof RedundancyType;
-  expectSecondarySpAddresses: string[];
+  // expectSecondarySpAddresses: string[];
   // endpoint?: string;
   spInfo: ISpInfo;
   duration?: number;

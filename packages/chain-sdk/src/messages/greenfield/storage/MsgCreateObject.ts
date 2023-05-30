@@ -35,14 +35,26 @@ export const MsgCreateObjectSDKTypeEIP712 = {
       type: 'TypeMsg1PrimarySpApproval',
     },
     {
+      name: 'expect_checksums',
+      type: 'bytes[]',
+    },
+    {
       name: 'redundancy_type',
       type: 'string',
+    },
+    {
+      name: 'expect_secondary_sp_addresses',
+      type: 'string[]',
     },
   ],
   TypeMsg1PrimarySpApproval: [
     {
       name: 'expired_height',
       type: 'uint64',
+    },
+    {
+      name: 'sig',
+      type: 'bytes',
     },
   ],
 };
