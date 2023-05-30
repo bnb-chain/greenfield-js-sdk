@@ -62,13 +62,20 @@ export const CreateObject = () => {
             expectCheckSums,
             fileType: file.type,
             creator: address,
-            expectSecondarySpAddresses: [],
+            // redundancyType: 'REDUNDANCY_EC_TYPE',
+            // visibility: 'VISIBILITY_TYPE_PRIVATE',
           });
+
+          const simulateInfo = await createObjectTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log('simulateInfo', simulateInfo);
 
           const res = await createObjectTx.broadcast({
             denom: 'BNB',
-            gasLimit: 210000,
-            gasPrice: '50000000000',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
             payer: address,
             granter: '',
           });
