@@ -63,6 +63,7 @@ export const CreateObject = () => {
             fileType: file.type,
             creator: address,
             expectSecondarySpAddresses: [],
+            signType: 'authTypeV2',
           });
 
           const res = await createObjectTx.broadcast({
@@ -79,6 +80,7 @@ export const CreateObject = () => {
             body: file,
             txnHash: res.transactionHash,
             endpoint: spInfo.endpoint,
+            signType: 'authTypeV2',
           });
           console.log('uploadRes', uploadRes);
 

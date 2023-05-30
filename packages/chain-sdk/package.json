@@ -55,6 +55,7 @@
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.9",
     "@bnb-chain/greenfiled-file-handle": "workspace:*",
+    "@bnb-chain/zkbas-js-sdk": "^3.0.0",
     "@cosmjs/proto-signing": "^0.30.1",
     "@cosmjs/stargate": "^0.30.1",
     "@cosmjs/tendermint-rpc": "^0.30.1",
@@ -62,7 +63,10 @@
     "@ethersproject/signing-key": "^5.7.0",
     "@ethersproject/units": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
+    "dayjs": "^1.11.7",
     "ethereum-cryptography": "^2.0.0",
+    "@ethersproject/bytes": "5.7.0",
+    "@ethersproject/strings": "5.7.0",
     "long": "^5.2.1",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.7.0"

@@ -3,7 +3,9 @@ import {
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 
-export interface IGetCreateBucketApproval {
+export type SignType = 'authTypeV2' | 'offChainAuth';
+
+export interface IBaseGetCreateBucket {
   bucketName: string;
   creator: string;
   visibility: keyof typeof VisibilityType;
@@ -11,6 +13,18 @@ export interface IGetCreateBucketApproval {
   spInfo: ISpInfo;
   duration?: number;
 }
+
+export interface IGetCreateBucketByOffChainAuth extends IBaseGetCreateBucket {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+}
+
+export interface IGetCreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
+  signType: 'authTypeV2';
+}
+
+export type TGetCreateBucket = IGetCreateBucketByOffChainAuth | IGetCreateBucketByAuthTypeV2;
 
 export interface ISpInfo {
   endpoint: string;
@@ -41,11 +55,20 @@ export interface ICreateBucketMsgType {
   charged_read_quota: string;
 }
 
-export interface getUserBucketsPropsType {
+export type TBaseGetUserBuckets = {
   address: string;
   duration?: number;
   endpoint: string;
-}
+};
+export type TGetUserBucketByOffChainAuth = TBaseGetUserBuckets & {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+};
+export type TGetCreateBucketByAuthTypeV2 = TBaseGetUserBuckets & {
+  signType: 'authTypeV2';
+};
+export type TGetUserBuckets = TGetUserBucketByOffChainAuth | TGetCreateBucketByAuthTypeV2;
 
 export type BucketProps = {
   bucket_info: {
@@ -75,7 +98,7 @@ export type BucketProps = {
   update_time: string;
 };
 
-export type GetObjectPropsType = {
+export type TBaseGetBucketReadQuota = {
   bucketName: string;
   endpoint: string;
   duration?: number;
@@ -83,13 +106,28 @@ export type GetObjectPropsType = {
   month?: number;
 };
 
+export type TGetBucketReadQuotaByAuthTypeV2 = TBaseGetBucketReadQuota & {
+  signType: 'authTypeV2';
+};
+
+export type TGetBucketReadQuotaByOffChainAuth = TBaseGetBucketReadQuota & {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+  address: string;
+};
+
+export type TGetBucketReadQuota =
+  | TGetBucketReadQuotaByAuthTypeV2
+  | TGetBucketReadQuotaByOffChainAuth;
+
 export interface IQuotaProps {
   readQuota: number;
   freeQuota: number;
   consumedQuota: number;
 }
 
-export interface IGetCreateObjectApproval {
+export type TBaseGetCreateObject = {
   bucketName: string;
   objectName: string;
   creator: string;
@@ -103,7 +141,19 @@ export interface IGetCreateObjectApproval {
   contentLength: number;
   expectCheckSums: string[];
   // hashResult?: any;
-}
+};
+
+export type TGetCreateObjectByOffChainAuth = TBaseGetCreateObject & {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+};
+
+export type TGetCreateObjectByAuthTypeV2 = TBaseGetCreateObject & {
+  signType: 'authTypeV2';
+};
+
+export type TGetCreateObject = TGetCreateObjectByOffChainAuth | TGetCreateObjectByAuthTypeV2;
 
 export interface ICreateObjectMsgType {
   creator: string;
@@ -122,29 +172,75 @@ export interface ICreateObjectMsgType {
   // charged_read_quota: string;
 }
 
-export interface IPutObjectPropsType {
+export type TBasePutObject = {
   bucketName: string;
   objectName: string;
   txnHash: string;
   body: Blob;
   endpoint?: string;
   duration?: number;
-}
+};
 
-export interface IGetObjectPropsType {
+export type TPutObjectByAuthTypeV2 = TBasePutObject & {
+  signType: 'authTypeV2';
+};
+
+export type TPutObjectByOffChainAuth = TBasePutObject & {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+  address: string;
+};
+
+export type TPutObject = TPutObjectByAuthTypeV2 | TPutObjectByOffChainAuth;
+
+export type TBaseGetObject = {
   bucketName: string;
   objectName: string;
   endpoint?: string;
   duration?: number;
-}
+};
 
-export interface IListObjectsByBucketNamePropsType {
+export type TGetObjectByAuthTypeV2 = TBaseGetObject & {
+  signType: 'authTypeV2';
+};
+
+export type TGetObjectByOffChainAuth = TBaseGetObject & {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+  address: string;
+};
+
+export type TGetObject = TGetObjectByAuthTypeV2 | TGetObjectByOffChainAuth;
+
+export type TBaseListObjects = {
   bucketName: string;
   duration?: number;
   endpoint: string;
   protocol?: string;
-}
+};
 
+export type TListObjectsByAuthTypeV2 = TBaseListObjects & {
+  signType: 'authTypeV2';
+};
+
+export type TListObjectsByOffChainAuth = TBaseListObjects & {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+  address: string;
+};
+
+export type TListObjects = TListObjectsByAuthTypeV2 | TListObjectsByOffChainAuth;
+
+export type TDownloadFile = {
+  bucketName: string;
+  endpoint: string;
+  duration?: number;
+  year?: number;
+  month?: number;
+};
 export interface IObjectProps {
   object_info: {
     owner: string;
@@ -176,4 +272,82 @@ export interface IGetObjectStaus {
   bucketName: string;
   objectName: string;
   endpoint: string;
+}
+
+export interface IBaseUser {
+  address: string;
+  domain: string;
+}
+export interface ISp {
+  address: string;
+  endpoint: string;
+  name?: string;
+  nonce?: number;
+}
+
+export interface IFetchNonce extends IBaseUser {
+  spEndpoint: string;
+  spAddress: string;
+  spName?: string;
+}
+
+export interface IFetchNonces extends IBaseUser {
+  sps: ISp[];
+}
+
+export interface IGenOffChainAuthKeyPairAndUpload extends IBaseUser {
+  sps: ISp[];
+  chainId: number;
+  expirationMs: number;
+}
+
+export interface IReturnOffChainAuthKeyPairAndUpload {
+  seedString: string;
+  pubKey: string;
+  expirationTime: number;
+  spAddresses: string[];
+}
+
+export interface IReturnSignWithSeedString {
+  unSignedMsg: string;
+  signature: string;
+  authorization: string;
+}
+
+export interface TGenSecondSignMsgParams {
+  domain: string;
+  address: string;
+  pubKey: string;
+  chainId: number;
+  issuedDate: string;
+  expireDate: string;
+  sps: ISp[];
+}
+
+export interface IUpdateOneSpPubKeyBaseParams {
+  address: string;
+  domain: string;
+  pubKey: string;
+  expireDate: string;
+  authorization: string;
+}
+
+export interface IUpdateOneSpPubKeyParams extends IUpdateOneSpPubKeyBaseParams {
+  sp: ISp;
+}
+export interface IUpdateSpsPubKeyParams extends IUpdateOneSpPubKeyBaseParams {
+  sps: ISp[];
+}
+
+export interface IPersonalSignParams {
+  message: string;
+  address: string;
+  provider: any;
+}
+
+export interface TGetCurrentSeedStringParams {
+  message: string;
+  address: string;
+  chainId: number;
+  provider: any;
 }
