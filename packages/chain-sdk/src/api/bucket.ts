@@ -151,7 +151,7 @@ export class Bucket implements IBucket {
       let headerContent: TKeyValue = {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
-      if (configParam.signType === 'authTypeV2') {
+      if (!configParam.signType || configParam.signType === 'authTypeV2') {
         const Authorization = getAuthorizationAuthTypeV2();
         headerContent = {
           ...headerContent,
@@ -313,14 +313,13 @@ export class Bucket implements IBucket {
       let headerContent: TKeyValue = {
         'X-Gnfd-User-Address': address,
       };
-      if (signType === 'authTypeV2') {
+      if (!signType || signType === 'authTypeV2') {
         const Authorization = getAuthorizationAuthTypeV2();
         headerContent = {
           ...headerContent,
           Authorization,
         };
-      }
-      if (configParam.signType === 'offChainAuth') {
+      } else if (configParam.signType === 'offChainAuth') {
         const { seedString } = configParam;
         const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {
@@ -382,14 +381,13 @@ export class Bucket implements IBucket {
         `/?read-quota&year-month=${finalYear}-${formattedMonth}`;
 
       let headerContent: TKeyValue = {};
-      if (signType === 'authTypeV2') {
+      if (!signType || signType === 'authTypeV2') {
         const Authorization = getAuthorizationAuthTypeV2();
         headerContent = {
           ...headerContent,
           Authorization,
         };
-      }
-      if (configParam.signType === 'offChainAuth') {
+      } else if (configParam.signType === 'offChainAuth') {
         const { seedString, address, domain } = configParam;
         const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {

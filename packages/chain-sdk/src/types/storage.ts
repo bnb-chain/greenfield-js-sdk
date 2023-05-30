@@ -21,7 +21,7 @@ export interface IGetCreateBucketByOffChainAuth extends IBaseGetCreateBucket {
 }
 
 export interface IGetCreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
-  signType: 'authTypeV2';
+  signType?: 'authTypeV2';
 }
 
 export type TGetCreateBucket = IGetCreateBucketByOffChainAuth | IGetCreateBucketByAuthTypeV2;
@@ -66,7 +66,7 @@ export type TGetUserBucketByOffChainAuth = TBaseGetUserBuckets & {
   seedString: string;
 };
 export type TGetCreateBucketByAuthTypeV2 = TBaseGetUserBuckets & {
-  signType: 'authTypeV2';
+  signType?: 'authTypeV2';
 };
 export type TGetUserBuckets = TGetUserBucketByOffChainAuth | TGetCreateBucketByAuthTypeV2;
 
@@ -107,7 +107,7 @@ export type TBaseGetBucketReadQuota = {
 };
 
 export type TGetBucketReadQuotaByAuthTypeV2 = TBaseGetBucketReadQuota & {
-  signType: 'authTypeV2';
+  signType?: 'authTypeV2';
 };
 
 export type TGetBucketReadQuotaByOffChainAuth = TBaseGetBucketReadQuota & {
@@ -150,7 +150,7 @@ export type TGetCreateObjectByOffChainAuth = TBaseGetCreateObject & {
 };
 
 export type TGetCreateObjectByAuthTypeV2 = TBaseGetCreateObject & {
-  signType: 'authTypeV2';
+  signType?: 'authTypeV2';
 };
 
 export type TGetCreateObject = TGetCreateObjectByOffChainAuth | TGetCreateObjectByAuthTypeV2;
@@ -182,7 +182,7 @@ export type TBasePutObject = {
 };
 
 export type TPutObjectByAuthTypeV2 = TBasePutObject & {
-  signType: 'authTypeV2';
+  signType?: 'authTypeV2';
 };
 
 export type TPutObjectByOffChainAuth = TBasePutObject & {
@@ -202,7 +202,7 @@ export type TBaseGetObject = {
 };
 
 export type TGetObjectByAuthTypeV2 = TBaseGetObject & {
-  signType: 'authTypeV2';
+  signType?: 'authTypeV2';
 };
 
 export type TGetObjectByOffChainAuth = TBaseGetObject & {
@@ -222,7 +222,7 @@ export type TBaseListObjects = {
 };
 
 export type TListObjectsByAuthTypeV2 = TBaseListObjects & {
-  signType: 'authTypeV2';
+  signType?: 'authTypeV2';
 };
 
 export type TListObjectsByOffChainAuth = TBaseListObjects & {
