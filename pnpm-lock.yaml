@@ -67,7 +67,6 @@ importers:
   examples/nextjs:
     specifiers:
       '@bnb-chain/greenfield-chain-sdk': workspace:*
-      '@bnb-chain/greenfield-cosmos-types': 0.3.0-alpha.8
       '@bnb-chain/greenfiled-file-handle': workspace:*
       '@cosmjs/encoding': ^0.29.5
       '@cosmjs/proto-signing': ^0.29.5
@@ -95,7 +94,6 @@ importers:
       wagmi: ^1.0.5
     dependencies:
       '@bnb-chain/greenfield-chain-sdk': link:../../packages/chain-sdk
-      '@bnb-chain/greenfield-cosmos-types': 0.3.0-alpha.8
       '@bnb-chain/greenfiled-file-handle': link:../../packages/file-handle
       '@cosmjs/encoding': 0.29.5
       '@cosmjs/proto-signing': 0.29.5
@@ -1968,13 +1966,6 @@ packages:
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
-
-  /@bnb-chain/greenfield-cosmos-types/0.3.0-alpha.8:
-    resolution: {integrity: sha512-TaGFVdrKEKIOGPMh1AbrvqosxyIr+RgMPW8zBGGx9UNXgT6c5rvPri2GYSZo201Y9vELeiBJ3JQvsLyVCepV5w==}
-    dependencies:
-      long: 4.0.0
-      protobufjs: 6.11.3
-    dev: false
 
   /@bnb-chain/greenfield-cosmos-types/0.4.0-alpha.10:
     resolution: {integrity: sha512-JTZjKAQfo2e9d0PUXy9umqNNnpEOv2rvUsfAyJFijG8rnHAR1SUJchh0su344b6u0t+bhvUu/fixA3VVqaNvQw==}
