@@ -34,12 +34,11 @@ import {
   IObjectResultType,
   TPutObject,
   Long,
-  TGetCreateObject,
+  TCreateObject,
   TKeyValue,
   TxResponse,
   TGetObject,
   TListObjects,
-  TDownloadFile,
 } from '../types';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
@@ -54,9 +53,9 @@ import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { OffChainAuth } from './offchainauth';
 
 export interface IObject {
-  getCreateObjectApproval(getApprovalParams: TGetCreateObject): Promise<IObjectResultType<string>>;
+  getCreateObjectApproval(getApprovalParams: TCreateObject): Promise<IObjectResultType<string>>;
 
-  createObject(getApprovalParams: TGetCreateObject): Promise<TxResponse>;
+  createObject(getApprovalParams: TCreateObject): Promise<TxResponse>;
 
   uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>>;
 
@@ -76,7 +75,7 @@ export interface IObject {
 
   listObjects(configParam: TListObjects): Promise<IObjectResultType<Array<IObjectProps>>>;
 
-  createFolder(getApprovalParams: TGetCreateObject): Promise<TxResponse>;
+  createFolder(getApprovalParams: TCreateObject): Promise<TxResponse>;
 
   // TODO: PutObjectPolicy
   // TODO: DeleteObjectPolicy
@@ -91,7 +90,7 @@ export class Objectt implements IObject {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
   private offChainAuthClient = container.resolve(OffChainAuth);
 
-  public async getCreateObjectApproval(configParam: TGetCreateObject) {
+  public async getCreateObjectApproval(configParam: TCreateObject) {
     const {
       bucketName,
       creator,
@@ -148,7 +147,7 @@ export class Objectt implements IObject {
         const { seedString, domain } = configParam;
         const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {
-          return {
+          throw {
             code: -1,
             message: 'Get create bucket approval error.',
             statusCode: statusCode,
@@ -173,10 +172,11 @@ export class Objectt implements IObject {
 
       const { status } = result;
       if (!result.ok) {
-        return {
+        throw {
           code: -1,
           message: 'Get create object approval error.',
           statusCode: status,
+          error: result,
         };
       }
       const resultContentType = result.headers.get('Content-Type');
@@ -184,7 +184,7 @@ export class Objectt implements IObject {
       if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
         const xmlText = await result.text();
         const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return {
+        throw {
           code: -1,
           xml,
           message: 'Get create object approval error.',
@@ -203,7 +203,7 @@ export class Objectt implements IObject {
         signedMsg,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      throw { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
     }
   }
 
@@ -224,7 +224,7 @@ export class Objectt implements IObject {
     );
   }
 
-  public async createObject(getApprovalParams: TGetCreateObject) {
+  public async createObject(getApprovalParams: TCreateObject) {
     const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams);
     if (!signedMsg) {
       throw new Error('Get create object approval error');
@@ -275,11 +275,11 @@ export class Objectt implements IObject {
       };
     } else if (configParam.signType === 'offChainAuth') {
       const { seedString, address, domain } = configParam;
-      const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+      const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
       if (code !== 0) {
         return {
           code: -1,
-          message: 'Get create bucket approval error.',
+          message: message || 'Get create object approval error.',
           statusCode: statusCode,
         };
       }
@@ -390,11 +390,11 @@ export class Objectt implements IObject {
         };
       } else if (configParam.signType === 'offChainAuth') {
         const { seedString, address, domain } = configParam;
-        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {
-          return {
+          throw {
             code: -1,
-            message: 'Get create bucket approval error.',
+            message: message || 'Get create bucket approval error.',
             statusCode: statusCode,
           };
         }
@@ -491,11 +491,11 @@ export class Objectt implements IObject {
         };
       } else if (configParam.signType === 'offChainAuth') {
         const { seedString, address, domain } = configParam;
-        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {
-          return {
+          throw {
             code: -1,
-            message: 'Get create bucket approval error.',
+            message: message || 'Get create bucket approval error.',
             statusCode: statusCode,
           };
         }
@@ -532,7 +532,7 @@ export class Objectt implements IObject {
     }
   }
 
-  public async createFolder(getApprovalParams: TGetCreateObject) {
+  public async createFolder(getApprovalParams: TCreateObject) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
