@@ -45,7 +45,7 @@ import {
   TGetBucketReadQuota,
   TGetUserBuckets,
   ICreateBucketMsgType,
-  TGetCreateBucket,
+  TCreateBucket,
   IObjectResultType,
   IQuotaProps,
 } from '../types/storage';
@@ -58,12 +58,12 @@ export interface IBucket {
   /**
    * returns the signature info for the approval of preCreating resources
    */
-  getCreateBucketApproval(params: TGetCreateBucket): Promise<IObjectResultType<string>>;
+  getCreateBucketApproval(params: TCreateBucket): Promise<IObjectResultType<string>>;
 
   /**
    * get approval of creating bucket and send createBucket txn to greenfield chain
    */
-  createBucket(params: TGetCreateBucket): Promise<TxResponse>;
+  createBucket(params: TCreateBucket): Promise<TxResponse>;
 
   /**
    * query the bucketInfo on chain, return the bucket info if exists
@@ -111,7 +111,7 @@ export class Bucket implements IBucket {
   private queryClient = container.resolve(RpcQueryClient);
   private offChainAuthClient = container.resolve(OffChainAuth);
 
-  public async getCreateBucketApproval(configParam: TGetCreateBucket) {
+  public async getCreateBucketApproval(configParam: TCreateBucket) {
     const {
       bucketName,
       creator,
@@ -160,11 +160,11 @@ export class Bucket implements IBucket {
       }
       if (configParam.signType === 'offChainAuth') {
         const { seedString, domain } = configParam;
-        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {
-          return {
+          throw {
             code: -1,
-            message: 'Get create bucket approval error.',
+            message: message || 'Get create bucket approval error.',
             statusCode: statusCode,
           };
         }
@@ -188,7 +188,7 @@ export class Bucket implements IBucket {
 
       const { status } = result;
       if (!result.ok) {
-        return {
+        throw {
           code: -1,
           message: 'Get create bucket approval error.',
           statusCode: status,
@@ -199,7 +199,7 @@ export class Bucket implements IBucket {
       if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
         const xmlText = await result.text();
         const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return {
+        throw {
           code: -1,
           xml,
           message: 'Get create bucket approval error.',
@@ -241,7 +241,7 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async createBucket(params: TGetCreateBucket) {
+  public async createBucket(params: TCreateBucket) {
     const { signedMsg } = await this.getCreateBucketApproval(params);
 
     if (!signedMsg) {
@@ -321,11 +321,11 @@ export class Bucket implements IBucket {
         };
       } else if (configParam.signType === 'offChainAuth') {
         const { seedString } = configParam;
-        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {
           return {
             code: -1,
-            message: 'Get create bucket approval error.',
+            message: message || 'Get create bucket approval error.',
             statusCode: statusCode,
           };
         }
@@ -389,11 +389,11 @@ export class Bucket implements IBucket {
         };
       } else if (configParam.signType === 'offChainAuth') {
         const { seedString, address, domain } = configParam;
-        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
         if (code !== 0) {
           return {
             code: -1,
-            message: 'Get create bucket approval error.',
+            message: message || 'Get create bucket approval error.',
             statusCode: statusCode,
           };
         }

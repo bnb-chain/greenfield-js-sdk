@@ -14,17 +14,17 @@ export interface IBaseGetCreateBucket {
   duration?: number;
 }
 
-export interface IGetCreateBucketByOffChainAuth extends IBaseGetCreateBucket {
+export interface ICreateBucketByOffChainAuth extends IBaseGetCreateBucket {
   signType: 'offChainAuth';
   domain: string;
   seedString: string;
 }
 
-export interface IGetCreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
+export interface ICreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
   signType?: 'authTypeV2';
 }
 
-export type TGetCreateBucket = IGetCreateBucketByOffChainAuth | IGetCreateBucketByAuthTypeV2;
+export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthTypeV2;
 
 export interface ISpInfo {
   endpoint: string;
@@ -143,17 +143,17 @@ export type TBaseGetCreateObject = {
   // hashResult?: any;
 };
 
-export type TGetCreateObjectByOffChainAuth = TBaseGetCreateObject & {
+export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & {
   signType: 'offChainAuth';
   domain: string;
   seedString: string;
 };
 
-export type TGetCreateObjectByAuthTypeV2 = TBaseGetCreateObject & {
+export type TCreateObjectByAuthTypeV2 = TBaseGetCreateObject & {
   signType?: 'authTypeV2';
 };
 
-export type TGetCreateObject = TGetCreateObjectByOffChainAuth | TGetCreateObjectByAuthTypeV2;
+export type TCreateObject = TCreateObjectByOffChainAuth | TCreateObjectByAuthTypeV2;
 
 export interface ICreateObjectMsgType {
   creator: string;
