@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.3
+
+### Patch Changes
+
+- [#70](https://github.com/bnb-chain/greenfield-js-sdk/pull/70)
+  [`cda82a4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cda82a415385807e24353cbf19edae68412c1c3b)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat: Optimize get approval types and add
+  throw error
+
+- [#67](https://github.com/bnb-chain/greenfield-js-sdk/pull/67)
+  [`834aa99`](https://github.com/bnb-chain/greenfield-js-sdk/commit/834aa990fa41ac3999dff939d056403ebec059eb)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sp params
+
 ## 0.2.1-alpha.2
 
 ### Patch Changes
