@@ -67,7 +67,12 @@ export const Withdraw = () => {
           console.log('transferout simuluate relayFee', relayFeeInfo);
           console.log('transferout simulate gasFee', simulateGasFee);
 
-          const relayFee = getRelayFeeBySimulate(relayFeeInfo);
+          const relayFee = relayFeeInfo.params
+            ? getRelayFeeBySimulate(
+                relayFeeInfo.params.transferOutAckRelayerFee,
+                relayFeeInfo.params.transferOutRelayerFee,
+              )
+            : '0';
           setTransferOutRelayFee(relayFee.toString());
           setSimulateInfo(simulateGasFee);
 
