@@ -1,3 +1,4 @@
+import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import {
   SecondarySpStorePrice,
   SpStoragePrice,
@@ -29,6 +30,8 @@ export interface ISp {
    * returns the secondary storage price, including update time and store price
    */
   getSecondarySpStorePrice(): Promise<SecondarySpStorePrice | undefined>;
+
+  params(): Promise<QueryParamsResponse>;
 }
 
 @singleton()
@@ -65,5 +68,10 @@ export class Sp implements ISp {
       timestamp: Long.fromNumber(0),
     });
     return res.secondarySpStorePrice;
+  }
+
+  public async params() {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return rpc.Params();
   }
 }
