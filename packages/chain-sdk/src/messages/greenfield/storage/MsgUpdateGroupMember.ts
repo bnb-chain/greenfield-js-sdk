@@ -18,5 +18,13 @@ export const MsgUpdateGroupMemberSDKTypeEIP712 = {
       name: 'group_name',
       type: 'string',
     },
+    {
+      name: 'members_to_add',
+      type: 'string[]',
+    },
+    {
+      name: 'members_to_delete',
+      type: 'string[]',
+    },
   ],
 };

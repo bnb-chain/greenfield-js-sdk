@@ -24,12 +24,15 @@ import {
   MsgCreateGroup,
   MsgDeleteGroup,
   MsgLeaveGroup,
+  MsgPutPolicy,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { container, singleton } from 'tsyringe';
+import { container, delay, inject, singleton } from 'tsyringe';
 import { TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
+import { newBucketGRN, GRNToString, newObjectGRN, newGroupGRN } from '@/utils/grn';
+import { Storage } from './storage';
 
 export interface IGroup {
   /**
@@ -72,16 +75,24 @@ export interface IGroup {
    */
   getPolicyOfGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 
-  // TODO: PutGroupPolicy compire with bucket.putBucketPolicy
+  // TODO: putGroupPolicy compire with bucket.putBucketPolicy
 
-  // TODO: getBucketPolicyOfGroup
+  getBucketPolicyOfGroup(bucketName: string, groupId: number): Promise<QueryPolicyForGroupResponse>;
 
-  // TODO: getObjectPolicyOfGroup
+  getObjectPolicyOfGroup(
+    bucketName: string,
+    objectName: string,
+    groupId: number,
+  ): Promise<QueryPolicyForGroupResponse>;
 }
 
 @singleton()
 export class Group implements IGroup {
-  private basic: Basic = container.resolve(Basic);
+  constructor(
+    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => Storage)) private storage: Storage,
+  ) {}
+
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async createGroup(msg: MsgCreateGroup) {
@@ -150,15 +161,36 @@ export class Group implements IGroup {
   }
 
   public async getPolicyOfGroup(request: QueryPolicyForGroupRequest) {
-    const rpc = await this.queryClient.getStorageQueryClient();
-    return await rpc.QueryPolicyForGroup(request);
+    return await this.storage.getPolicyForGroup(request);
   }
 
-  public async getBucketPolicyOfGroup() {
-    // ...
+  public async getBucketPolicyOfGroup(bucketName: string, groupId: number) {
+    const resource = GRNToString(newBucketGRN(bucketName));
+    return await this.storage.getPolicyForGroup({
+      resource,
+      principalGroupId: groupId.toString(),
+    });
   }
 
-  public async getObjectPolicyOfGroup() {
-    // ...
+  public async getObjectPolicyOfGroup(bucketName: string, objectName: string, groupId: number) {
+    const resource = GRNToString(newObjectGRN(bucketName, objectName));
+
+    return await this.storage.getPolicyForGroup({
+      resource,
+      principalGroupId: groupId.toString(),
+    });
+  }
+
+  public async putGroupPolicy(
+    owner: string,
+    groupName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+  ) {
+    const resource = GRNToString(newGroupGRN(owner, groupName));
+    const msg: MsgPutPolicy = {
+      ...srcMsg,
+      resource,
+    };
+    return this.storage.putPolicy(msg);
   }
 }
