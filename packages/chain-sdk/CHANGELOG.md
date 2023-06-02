@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.6
+
+### Patch Changes
+
+- [#77](https://github.com/bnb-chain/greenfield-js-sdk/pull/77)
+  [`3710889`](https://github.com/bnb-chain/greenfield-js-sdk/commit/371088932c074088724c7152d9c5531dd59328b6)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add MirrorGroup
+
 ## 0.2.1-alpha.5
 
 ### Patch Changes
