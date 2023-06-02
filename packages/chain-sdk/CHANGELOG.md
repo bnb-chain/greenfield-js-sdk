@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.4
+
+### Patch Changes
+
+- [#72](https://github.com/bnb-chain/greenfield-js-sdk/pull/72)
+  [`dc5f6e2`](https://github.com/bnb-chain/greenfield-js-sdk/commit/dc5f6e2a8ddfdcc36c05467139414793dc7525ea)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Return Promise
+
 ## 0.2.1-alpha.3
 
 ### Patch Changes
