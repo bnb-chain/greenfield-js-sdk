@@ -11,6 +11,7 @@ import { IObject, Objectt } from './api/objectt';
 import { IPayment, Payment } from './api/payment';
 import { ISp, Sp } from './api/sp';
 import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
+import { IStorage, Storage } from './api/storage';
 
 @injectable()
 export class Client {
@@ -28,6 +29,7 @@ export class Client {
     const objectt = container.resolve<Objectt>(Objectt);
     const payment = container.resolve<Payment>(Payment);
     const sp = container.resolve<Sp>(Sp);
+    const storage = container.resolve<Storage>(Storage);
     const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
 
     return new Client(
@@ -41,6 +43,7 @@ export class Client {
       objectt,
       payment,
       sp,
+      storage,
       offchainauth,
     );
   }
@@ -56,6 +59,7 @@ export class Client {
     public object: IObject,
     public payment: IPayment,
     public sp: ISp,
+    public storage: IStorage,
     public offchainauth: IOffChainAuth,
   ) {}
 }
