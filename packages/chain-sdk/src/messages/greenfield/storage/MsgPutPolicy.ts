@@ -11,7 +11,35 @@ export const MsgPutPolicySDKTypeEIP712 = {
       type: 'string',
     },
     {
+      name: 'principal',
+      type: 'TypeMsg1Principal',
+    },
+    {
       name: 'resource',
+      type: 'string',
+    },
+    {
+      name: 'statements',
+      type: 'TypeMsg1Statements[]',
+    },
+    {
+      name: 'expiration_time',
+      type: 'string',
+    },
+  ],
+  TypeMsg1Principal: [
+    {
+      name: 'type',
+      type: 'string',
+    },
+    {
+      name: 'value',
+      type: 'string',
+    },
+  ],
+  TypeMsg1Statements: [
+    {
+      name: 'effect',
       type: 'string',
     },
     {

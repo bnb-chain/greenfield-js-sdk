@@ -1,5 +1,7 @@
 import { Bucket } from '@/components/bucket';
 import { Deposit } from '@/components/deposit';
+import { Group } from '@/components/group';
+import { Mirror } from '@/components/mirror';
 import { ObjectComponent } from '@/components/object';
 import { OffChainAuth } from '@/components/offchainauth';
 import { Transfer } from '@/components/transfer';
@@ -33,6 +35,10 @@ export default function Tx() {
           <Bucket />
           <hr style={{ margin: '10px 0' }} />
           <ObjectComponent />
+          <hr style={{ margin: '10px 0' }} />
+          <Group />
+          <hr style={{ margin: '10px 0' }} />
+          <Mirror />
         </>
       )}
     </div>

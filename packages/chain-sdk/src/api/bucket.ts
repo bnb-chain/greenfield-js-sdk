@@ -11,13 +11,10 @@ import {
   MsgDeletePolicyTypeUrl,
 } from '@/messages/greenfield/storage/MsgDeletePolicy';
 import {
-  MsgPutPolicySDKTypeEIP712,
-  MsgPutPolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgPutPolicy';
-import {
   MsgUpdateBucketInfoSDKTypeEIP712,
   MsgUpdateBucketInfoTypeUrl,
 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
@@ -39,20 +36,20 @@ import {
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { TKeyValue, TxResponse } from '..';
+import { GRNToString, newBucketGRN, TKeyValue, TxResponse } from '..';
 import {
   BucketProps,
-  TGetBucketReadQuota,
-  TGetUserBuckets,
   ICreateBucketMsgType,
-  TCreateBucket,
   IObjectResultType,
   IQuotaProps,
+  TCreateBucket,
+  TGetBucketReadQuota,
+  TGetUserBuckets,
 } from '../types/storage';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { OffChainAuth } from './offchainauth';
+import { RpcQueryClient } from './queryclient';
+import { Storage } from './storage';
 
 export interface IBucket {
   /**
@@ -95,7 +92,7 @@ export interface IBucket {
 
   updateBucketInfo(msg: MsgUpdateBucketInfo): Promise<TxResponse>;
 
-  putBucketPolicy(msg: MsgPutPolicy): Promise<TxResponse>;
+  putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
 
   deleteBucketPolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
 
@@ -106,7 +103,10 @@ export interface IBucket {
 
 @singleton()
 export class Bucket implements IBucket {
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(
+    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => Storage)) private storage: Storage,
+  ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
   private offChainAuthClient = container.resolve(OffChainAuth);
@@ -463,14 +463,14 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async putBucketPolicy(msg: MsgPutPolicy) {
-    return await this.basic.tx(
-      MsgPutPolicyTypeUrl,
-      msg.operator,
-      MsgPutPolicySDKTypeEIP712,
-      MsgPutPolicy.toSDK(msg),
-      MsgPutPolicy.encode(msg).finish(),
-    );
+  public async putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>) {
+    const resource = GRNToString(newBucketGRN(bucketName));
+    const msg: MsgPutPolicy = {
+      ...srcMsg,
+      resource,
+    };
+
+    return this.storage.putPolicy(msg);
   }
 
   public async deleteBucketPolicy(msg: MsgDeletePolicy) {

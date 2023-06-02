@@ -14,6 +14,7 @@ const _getPublicEnv = (prefix) => {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  trailingSlash: true,
   publicRuntimeConfig: {
     ..._getPublicEnv('NEXT_PUBLIC_'),
   },
