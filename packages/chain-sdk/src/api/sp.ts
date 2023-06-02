@@ -72,6 +72,6 @@ export class Sp implements ISp {
 
   public async params() {
     const rpc = await this.queryClient.getSpQueryClient();
-    return rpc.Params();
+    return await rpc.Params();
   }
 }
