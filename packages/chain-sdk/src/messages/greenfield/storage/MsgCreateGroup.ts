@@ -18,5 +18,9 @@ export const MsgCreateGroupSDKTypeEIP712 = {
       name: 'members',
       type: 'string[]',
     },
+    {
+      name: 'extra',
+      type: 'string',
+    },
   ],
 };
