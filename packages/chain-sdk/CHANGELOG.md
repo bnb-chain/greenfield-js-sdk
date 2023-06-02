@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.5
+
+### Patch Changes
+
+- [#74](https://github.com/bnb-chain/greenfield-js-sdk/pull/74)
+  [`ac99583`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ac9958391d436d6b79fcbc5c57d8be13e85851b4)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: add extra in Create Group message
+
 ## 0.2.1-alpha.4
 
 ### Patch Changes
