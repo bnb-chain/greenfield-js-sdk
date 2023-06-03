@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 export const CreateGroup = () => {
   const { address, connector } = useAccount();
   const [createGroupInfo, setCreateGroupInfo] = useState({
-    bucketName: '',
+    groupName: '',
   });
 
   return (
@@ -13,10 +13,10 @@ export const CreateGroup = () => {
       <h3>create group</h3>
 
       <input
-        value={createGroupInfo.bucketName}
-        placeholder="bucket name"
+        value={createGroupInfo.groupName}
+        placeholder="group name"
         onChange={(e) => {
-          setCreateGroupInfo({ ...setCreateGroupInfo, bucketName: e.target.value });
+          setCreateGroupInfo({ ...setCreateGroupInfo, groupName: e.target.value });
         }}
       />
 
@@ -26,7 +26,7 @@ export const CreateGroup = () => {
 
           const createGroupTx = await client.group.createGroup({
             creator: address,
-            groupName: createGroupInfo.bucketName,
+            groupName: createGroupInfo.groupName,
             members: [address],
             extra: 'extra info',
           });
