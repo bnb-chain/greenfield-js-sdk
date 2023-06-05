@@ -473,15 +473,14 @@ export class Objectt implements IObject {
 
   public async listObjects(configParam: TListObjects) {
     try {
-      const { bucketName, endpoint, duration = 30000 } = configParam;
+      const { bucketName, endpoint, duration = 30000, query = new URLSearchParams() } = configParam;
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
       if (!isValidUrl(endpoint)) {
         throw new Error('Invalid endpoint');
       }
-      const url = generateUrlByBucketName(endpoint, bucketName);
-
+      const url = `${generateUrlByBucketName(endpoint, bucketName)}?${query?.toString()}`;
       let headerContent: TKeyValue = {};
       if (!configParam.signType || configParam.signType === 'authTypeV2') {
         const Authorization = getAuthorizationAuthTypeV2();
