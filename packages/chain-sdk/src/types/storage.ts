@@ -219,6 +219,7 @@ export type TBaseListObjects = {
   duration?: number;
   endpoint: string;
   protocol?: string;
+  query?: URLSearchParams;
 };
 
 export type TListObjectsByAuthTypeV2 = TBaseListObjects & {
