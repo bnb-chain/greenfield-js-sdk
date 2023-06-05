@@ -26,7 +26,7 @@ export const Mirror = () => {
           if (!groupInfo) return;
 
           const mirrorGroupTx = await client.crosschain.mirrorGroup({
-            groupName: '',
+            groupName: groupInfo.groupName,
             id: groupInfo.id,
             operator: address,
           });
