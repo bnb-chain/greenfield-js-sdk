@@ -14,9 +14,14 @@ import {
   MsgUpdateGroupMemberSDKTypeEIP712,
   MsgUpdateGroupMemberTypeUrl,
 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
+import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '@/utils/grn';
 import {
+  QueryBucketNFTResponse,
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
+  QueryListGroupRequest,
+  QueryListGroupResponse,
+  QueryNFTRequest,
   QueryPolicyForGroupRequest,
   QueryPolicyForGroupResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
@@ -31,7 +36,6 @@ import { container, delay, inject, singleton } from 'tsyringe';
 import { TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
-import { newBucketGRN, GRNToString, newObjectGRN, newGroupGRN } from '@/utils/grn';
 import { Storage } from './storage';
 
 export interface IGroup {
@@ -68,6 +72,10 @@ export interface IGroup {
     groupOwner: string,
     member: string,
   ): Promise<QueryHeadGroupMemberResponse>;
+
+  listGroup(request: QueryListGroupRequest): Promise<QueryListGroupResponse>;
+
+  headGroupNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
 
   /**
    * get the bucket policy info of the group specified by group id
@@ -158,6 +166,16 @@ export class Group implements IGroup {
       groupOwner,
       member,
     });
+  }
+
+  public async headGroupNFT(request: QueryNFTRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.HeadBucketNFT(request);
+  }
+
+  public async listGroup(request: QueryListGroupRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.ListGroup(request);
   }
 
   public async getPolicyOfGroup(request: QueryPolicyForGroupRequest) {

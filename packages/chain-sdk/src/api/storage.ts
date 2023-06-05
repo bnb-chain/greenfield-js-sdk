@@ -4,6 +4,10 @@ import {
 } from '@/messages/greenfield/storage/MsgPutPolicy';
 import {
   QueryParamsResponse,
+  QueryPolicyByIdRequest,
+  QueryPolicyByIdResponse,
+  QueryPolicyForAccountRequest,
+  QueryPolicyForAccountResponse,
   QueryPolicyForGroupRequest,
   QueryPolicyForGroupResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
@@ -19,6 +23,14 @@ export interface IStorage {
   putPolicy(msg: MsgPutPolicy): Promise<TxResponse>;
 
   getPolicyForGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
+
+  getQueryPolicyForAccount(
+    request: QueryPolicyForAccountRequest,
+  ): Promise<QueryPolicyForAccountResponse>;
+
+  getQueryPolicyForGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
+
+  getQueryPolicyById(request: QueryPolicyByIdRequest): Promise<QueryPolicyByIdResponse>;
 }
 
 @singleton()
@@ -44,5 +56,20 @@ export class Storage implements IStorage {
   public async getPolicyForGroup(request: QueryPolicyForGroupRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.QueryPolicyForGroup(request);
+  }
+
+  public async getQueryPolicyForAccount(request: QueryPolicyForAccountRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryPolicyForAccount(request);
+  }
+
+  public async getQueryPolicyForGroup(request: QueryPolicyForGroupRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryPolicyForGroup(request);
+  }
+
+  public async getQueryPolicyById(request: QueryPolicyByIdRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryPolicyById(request);
   }
 }
