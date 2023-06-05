@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.7
+
+### Patch Changes
+
+- [#80](https://github.com/bnb-chain/greenfield-js-sdk/pull/80)
+  [`8632c39`](https://github.com/bnb-chain/greenfield-js-sdk/commit/8632c396ccab8d55c5afc5cfdbebed3afcfebd02)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat(dcellar-web-ui): Add query for
+  ListObjects api
+
+- [#82](https://github.com/bnb-chain/greenfield-js-sdk/pull/82)
+  [`8a7f083`](https://github.com/bnb-chain/greenfield-js-sdk/commit/8a7f083eeb4007d54f5ad3b4ef8d8b0534bb57a7)
+  Thanks [@rrr523](https://github.com/rrr523)! - fear: Add some API about group
+
 ## 0.2.1-alpha.6
 
 ### Patch Changes
