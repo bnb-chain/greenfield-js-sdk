@@ -21,7 +21,9 @@ import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl 
 import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
+  QueryBucketNFTResponse,
   QueryHeadBucketResponse,
+  QueryNFTRequest,
   QueryPolicyForAccountRequest,
   QueryPolicyForAccountResponse,
   QueryVerifyPermissionResponse,
@@ -71,6 +73,8 @@ export interface IBucket {
    * query the bucketInfo on chain by bucketId, return the bucket info if exists
    */
   headBucketById(bucketId: string): Promise<QueryHeadBucketResponse>;
+
+  headBucketNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
 
   /**
    * check if the permission of bucket is allowed to the user.
@@ -288,6 +292,11 @@ export class Bucket implements IBucket {
     return await rpc.HeadBucketById({
       bucketId,
     });
+  }
+
+  public async headBucketNFT(request: QueryNFTRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.HeadBucketNFT(request);
   }
 
   public async getVerifyPermission(bucketName: string, operator: string, actionType: ActionType) {

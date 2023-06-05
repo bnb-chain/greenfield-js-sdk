@@ -14,12 +14,17 @@ import {
   MsgUpdateObjectInfoSDKTypeEIP712,
   MsgUpdateObjectInfoTypeUrl,
 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
 import {
   redundancyTypeFromJSON,
   visibilityTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { QueryHeadObjectResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
+import {
+  QueryBucketNFTResponse,
+  QueryHeadObjectResponse,
+  QueryNFTRequest,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCancelCreateObject,
   MsgCreateObject,
@@ -32,13 +37,13 @@ import {
   ICreateObjectMsgType,
   IObjectProps,
   IObjectResultType,
-  TPutObject,
   Long,
   TCreateObject,
-  TKeyValue,
-  TxResponse,
   TGetObject,
+  TKeyValue,
   TListObjects,
+  TPutObject,
+  TxResponse,
 } from '../types';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
@@ -48,9 +53,8 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { OffChainAuth } from './offchainauth';
+import { RpcQueryClient } from './queryclient';
 
 export interface IObject {
   getCreateObjectApproval(getApprovalParams: TCreateObject): Promise<IObjectResultType<string>>;
@@ -68,6 +72,8 @@ export interface IObject {
   headObject(bucketName: string, objectName: string): Promise<QueryHeadObjectResponse>;
 
   headObjectById(objectId: string): Promise<QueryHeadObjectResponse>;
+
+  headObjectNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
 
   getObject(configParam: TGetObject): Promise<IObjectResultType<Blob>>;
 
@@ -365,6 +371,11 @@ export class Objectt implements IObject {
     return rpc.HeadObjectById({
       objectId,
     });
+  }
+
+  public async headObjectNFT(request: QueryNFTRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.HeadObjectNFT(request);
   }
 
   public async getObject(configParam: TGetObject) {
