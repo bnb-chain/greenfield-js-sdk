@@ -17,22 +17,29 @@ import {
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
 import {
+  Principal,
+  PrincipalType,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
+import {
   redundancyTypeFromJSON,
   visibilityTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
-  QueryBucketNFTResponse,
   QueryHeadObjectResponse,
   QueryNFTRequest,
+  QueryObjectNFTResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCancelCreateObject,
   MsgCreateObject,
   MsgDeleteObject,
+  MsgDeletePolicy,
+  MsgPutPolicy,
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
-import { container, singleton } from 'tsyringe';
+import { container, delay, inject, singleton } from 'tsyringe';
+import { GRNToString, newObjectGRN } from '..';
 import {
   ICreateObjectMsgType,
   IObjectProps,
@@ -55,6 +62,7 @@ import {
 import { Basic } from './basic';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
+import { Storage } from './storage';
 
 export interface IObject {
   getCreateObjectApproval(getApprovalParams: TCreateObject): Promise<IObjectResultType<string>>;
@@ -73,7 +81,7 @@ export interface IObject {
 
   headObjectById(objectId: string): Promise<QueryHeadObjectResponse>;
 
-  headObjectNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
+  headObjectNFT(request: QueryNFTRequest): Promise<QueryObjectNFTResponse>;
 
   getObject(configParam: TGetObject): Promise<IObjectResultType<Blob>>;
 
@@ -83,8 +91,19 @@ export interface IObject {
 
   createFolder(getApprovalParams: TCreateObject): Promise<TxResponse>;
 
-  // TODO: PutObjectPolicy
-  // TODO: DeleteObjectPolicy
+  putObjectPolicy(
+    owner: string,
+    groupName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+  ): Promise<TxResponse>;
+
+  deleteObjectPolicy(
+    operator: string,
+    bucketName: string,
+    objectName: string,
+    principalAddr: string,
+  ): Promise<TxResponse>;
+
   // TODO: IsObjectPermissionAllowed
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
@@ -92,7 +111,11 @@ export interface IObject {
 
 @singleton()
 export class Objectt implements IObject {
-  private basic: Basic = container.resolve(Basic);
+  constructor(
+    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => Storage)) private storage: Storage,
+  ) {}
+
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
   private offChainAuthClient = container.resolve(OffChainAuth);
 
@@ -550,6 +573,39 @@ export class Objectt implements IObject {
     }
 
     return this.createObject(getApprovalParams);
+  }
+
+  public async putObjectPolicy(
+    owner: string,
+    groupName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+  ) {
+    const resource = GRNToString(newObjectGRN(owner, groupName));
+    const msg: MsgPutPolicy = {
+      ...srcMsg,
+      resource,
+    };
+    return await this.storage.putPolicy(msg);
+  }
+
+  public async deleteObjectPolicy(
+    operator: string,
+    bucketName: string,
+    objectName: string,
+    principalAddr: string,
+  ) {
+    const resource = GRNToString(newObjectGRN(bucketName, objectName));
+    const principal: Principal = {
+      type: PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+      value: principalAddr,
+    };
+
+    const msg: MsgDeletePolicy = {
+      resource,
+      principal,
+      operator: operator,
+    };
+    return await this.storage.deletePolicy(msg);
   }
 
   // private async getObjectStatusFromSP(params: IGetObjectStaus) {
