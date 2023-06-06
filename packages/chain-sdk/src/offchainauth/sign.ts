@@ -2,40 +2,11 @@ import { hexlify, arrayify } from '@ethersproject/bytes';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { TGetCurrentSeedStringParams } from '../types/storage';
 
-const getZkCrypto = (function () {
-  let instance: any;
-  return async function () {
-    if (!instance) {
-      const { ZkCrypto } = await import('@bnb-chain/zkbas-js-sdk/zkCrypto/web');
-      instance = ZkCrypto;
-    }
+const getCurrentAccountPublicKey = (seedString: string) =>
+  (window as any).getEddsaCompressedPublicKey(seedString);
 
-    return instance;
-  };
-})();
-
-const getCurrentAccountPublicKey = async (seedString: string) => {
-  const ZkCrypto = await getZkCrypto();
-  const Z = await ZkCrypto();
-
-  return Z.getEddsaCompressedPublicKey(seedString);
-};
-
-const signSignatureByEddsa = async (seed: string, message: string) => {
-  const ZkCrypto = await getZkCrypto();
-  const Z = await ZkCrypto();
-  const signature = Z.eddsaSign(seed, message);
-
-  return signature;
-};
-
-const verifySignature = async (pubKey: string, signRes: string, msg: string) => {
-  const ZkCrypto = await getZkCrypto();
-  const Z = await ZkCrypto();
-
-  const verifyRes = Z.eddsaVerify(pubKey, signRes, msg);
-  return verifyRes;
-};
+const signSignatureByEddsa = (seedString: string, message: string) =>
+  (window as any).eddsaSign(seedString, message);
 
 const signMessagePersonalAPI = async (
   provider: any,
@@ -81,4 +52,4 @@ const getCurrentSeedString = async ({
   return seeds[seedKey].seed;
 };
 
-export { getCurrentAccountPublicKey, signSignatureByEddsa, verifySignature, getCurrentSeedString };
+export { getCurrentAccountPublicKey, signSignatureByEddsa, getCurrentSeedString };
