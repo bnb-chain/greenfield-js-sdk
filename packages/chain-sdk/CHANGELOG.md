@@ -1,5 +1,22 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.8
+
+### Patch Changes
+
+- [#83](https://github.com/bnb-chain/greenfield-js-sdk/pull/83)
+  [`dc31d06`](https://github.com/bnb-chain/greenfield-js-sdk/commit/dc31d06166522c9337d2be7700c04bc337bc2f7e)
+  Thanks [@aiden-cao](https://github.com/aiden-cao)! - fix: missing resp params
+
+- [#85](https://github.com/bnb-chain/greenfield-js-sdk/pull/85)
+  [`5497148`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5497148df205bec9e07bdc3466ce0a1c20b57244)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat: Migrate out zkbas-js-sdk and upate
+  the sign msg format (remove WASM dependiencies)
+
+- [#86](https://github.com/bnb-chain/greenfield-js-sdk/pull/86)
+  [`3e47ba0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3e47ba016bb5b4f6d5e36c51fbcceb72f1a0dcfd)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add some new policy API
+
 ## 0.2.1-alpha.7
 
 ### Patch Changes
