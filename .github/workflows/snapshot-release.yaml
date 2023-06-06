@@ -1,4 +1,4 @@
-name: Release
+name: Snapshot Release
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
 jobs:
   release:
     if: github.repository == 'bnb-chain/greenfield-js-sdk'
-    name: release
+    name: snapshot release
     permissions:
       contents: write  #  to create release (changesets/action)
       issues: write # to post issue comments (changesets/action)
