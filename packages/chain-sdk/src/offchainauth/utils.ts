@@ -118,5 +118,5 @@ export const personalSign = async ({ message, address, provider }: IPersonalSign
 };
 
 export const genSeedSignMsg = (timestamp: number) => {
-  return `I want to get approval_${timestamp}`;
+  return `InvokeSPAPI_offChainSign_${timestamp}`;
 };
