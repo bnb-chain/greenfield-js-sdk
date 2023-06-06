@@ -18,7 +18,11 @@ import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
-import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
+import {
+  ActionType,
+  Principal,
+  PrincipalType,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
   QueryBucketNFTResponse,
@@ -98,7 +102,11 @@ export interface IBucket {
 
   putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
 
-  deleteBucketPolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
+  deleteBucketPolicy(
+    operator: string,
+    bucketName: string,
+    principalAddr: string,
+  ): Promise<TxResponse>;
 
   getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
 
@@ -482,14 +490,19 @@ export class Bucket implements IBucket {
     return this.storage.putPolicy(msg);
   }
 
-  public async deleteBucketPolicy(msg: MsgDeletePolicy) {
-    return await this.basic.tx(
-      MsgDeletePolicyTypeUrl,
-      msg.operator,
-      MsgDeletePolicySDKTypeEIP712,
-      MsgDeletePolicy.toSDK(msg),
-      MsgDeletePolicy.encode(msg).finish(),
-    );
+  public async deleteBucketPolicy(operator: string, bucketName: string, principalAddr: string) {
+    const resource = GRNToString(newBucketGRN(bucketName));
+    const principal: Principal = {
+      type: PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+      value: principalAddr,
+    };
+
+    const msg: MsgDeletePolicy = {
+      resource,
+      principal,
+      operator: operator,
+    };
+    return await this.storage.deletePolicy(msg);
   }
 
   public async getBucketPolicy(request: QueryPolicyForAccountRequest) {

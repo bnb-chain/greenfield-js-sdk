@@ -1,4 +1,8 @@
 import {
+  MsgDeletePolicySDKTypeEIP712,
+  MsgDeletePolicyTypeUrl,
+} from '@/messages/greenfield/storage/MsgDeletePolicy';
+import {
   MsgPutPolicySDKTypeEIP712,
   MsgPutPolicyTypeUrl,
 } from '@/messages/greenfield/storage/MsgPutPolicy';
@@ -11,7 +15,10 @@ import {
   QueryPolicyForGroupRequest,
   QueryPolicyForGroupResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
-import { MsgPutPolicy } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import {
+  MsgDeletePolicy,
+  MsgPutPolicy,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
 import { TxResponse } from '..';
 import { Basic } from './basic';
@@ -21,6 +28,8 @@ export interface IStorage {
   params(): Promise<QueryParamsResponse>;
 
   putPolicy(msg: MsgPutPolicy): Promise<TxResponse>;
+
+  deletePolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
 
   getPolicyForGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 
@@ -50,6 +59,16 @@ export class Storage implements IStorage {
       MsgPutPolicySDKTypeEIP712,
       MsgPutPolicy.toSDK(msg),
       MsgPutPolicy.encode(msg).finish(),
+    );
+  }
+
+  public async deletePolicy(msg: MsgDeletePolicy) {
+    return await this.basic.tx(
+      MsgDeletePolicyTypeUrl,
+      msg.operator,
+      MsgDeletePolicySDKTypeEIP712,
+      MsgDeletePolicy.toSDK(msg),
+      MsgDeletePolicy.encode(msg).finish(),
     );
   }
 
