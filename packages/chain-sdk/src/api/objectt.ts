@@ -97,7 +97,7 @@ export interface IObject {
     srcMsg: Omit<MsgPutPolicy, 'resource'>,
   ): Promise<TxResponse>;
 
-  deleteBucketPolicy(
+  deleteObjectPolicy(
     operator: string,
     bucketName: string,
     objectName: string,
@@ -588,7 +588,7 @@ export class Objectt implements IObject {
     return await this.storage.putPolicy(msg);
   }
 
-  public async deleteBucketPolicy(
+  public async deleteObjectPolicy(
     operator: string,
     bucketName: string,
     objectName: string,
