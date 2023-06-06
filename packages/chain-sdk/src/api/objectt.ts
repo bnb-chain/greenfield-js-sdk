@@ -530,12 +530,12 @@ export class Objectt implements IObject {
       if (!result.ok) {
         return { code: -1, message: 'List object error.', statusCode: status };
       }
-      const { objects } = await result.json();
+      const body = await result.json();
       return {
         code: 0,
         message: 'List object success.',
         statusCode: status,
-        body: objects,
+        body,
       };
     } catch (error: any) {
       return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
