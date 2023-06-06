@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.0.0
+
+### Patch Changes
+
+- [#92](https://github.com/bnb-chain/greenfield-js-sdk/pull/92)
+  [`a5863b4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a5863b4ad5428f390dcbe27cc0bebdb7a9355480)
+  Thanks [@rrr523](https://github.com/rrr523)! - first snapshot
+
 ## 0.0.0-singlemsg-20230606081001
 
 ### Patch Changes
