@@ -37,7 +37,7 @@ jobs:
         with:
           # Note: pnpm install after versioning is necessary to refresh lockfile
           version: pnpm run version --snapshot singlemsg
-          publish: pnpm exec changeset publish --no-git-tag --snapshot
+          publish: pnpm exec changeset publish --tag singlemsg --no-git-tag --snapshot
           commit: 'chore: [ci] release'
           title: 'chore: [ci] release'
         env:
