@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.0.0-snapshot-20230607090144
+
+### Patch Changes
+
+- [#100](https://github.com/bnb-chain/greenfield-js-sdk/pull/100)
+  [`9b65645`](https://github.com/bnb-chain/greenfield-js-sdk/commit/9b656457eca249b6f22d33396fbc8116cb39bf57)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat: Allow to have sp auth fail
+
 ## 0.0.0-snapshot-20230606104458
 
 ### Patch Changes
