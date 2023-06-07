@@ -1,10 +1,8 @@
 {
-  "lib": [
-    "dom",
-    "esnext",
-    "es6"
-  ],
   "compilerOptions": {
+    "lib": [
+      "es2021"
+    ],
     "baseUrl": ".",
     "target": "ESNext",
     "module": "ESNext",
