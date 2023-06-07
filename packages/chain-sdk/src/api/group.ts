@@ -17,6 +17,7 @@ import {
 import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '@/utils/grn';
 import {
   QueryBucketNFTResponse,
+  QueryGroupNFTResponse,
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
   QueryListGroupRequest,
@@ -75,7 +76,7 @@ export interface IGroup {
 
   listGroup(request: QueryListGroupRequest): Promise<QueryListGroupResponse>;
 
-  headGroupNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
+  headGroupNFT(request: QueryNFTRequest): Promise<QueryGroupNFTResponse>;
 
   /**
    * get the bucket policy info of the group specified by group id
@@ -170,7 +171,7 @@ export class Group implements IGroup {
 
   public async headGroupNFT(request: QueryNFTRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
-    return await rpc.HeadBucketNFT(request);
+    return await rpc.HeadGroupNFT(request);
   }
 
   public async listGroup(request: QueryListGroupRequest) {
