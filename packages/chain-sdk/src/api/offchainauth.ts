@@ -47,7 +47,7 @@ export class OffChainAuth implements IOffChainAuth {
       const spsNonceRaw = await fetchNonces({ sps, address, domain });
       const fetchSpsNonceFailed = spsNonceRaw
         .filter((item: ISp) => item.nonce === null)
-        .map((item: ISp) => item.endpoint);
+        .map((item: ISp) => item.address);
       if (fetchSpsNonceFailed.length === spsNonceRaw.length) {
         throw new Error(`No Sp service available, Please try again later.`);
       }
