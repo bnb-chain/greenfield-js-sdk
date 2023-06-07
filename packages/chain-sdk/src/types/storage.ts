@@ -307,6 +307,7 @@ export interface IReturnOffChainAuthKeyPairAndUpload {
   pubKey: string;
   expirationTime: number;
   spAddresses: string[];
+  failedSpAddresses: string[];
 }
 
 export interface IReturnSignWithSeedString {
