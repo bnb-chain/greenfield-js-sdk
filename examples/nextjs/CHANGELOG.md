@@ -1,5 +1,18 @@
 # @demo/wallet
 
+## 0.0.2-alpha.16
+
+### Patch Changes
+
+- [#97](https://github.com/bnb-chain/greenfield-js-sdk/pull/97)
+  [`6dc142a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/6dc142a1b99063b611e177c43e0ac2e5103147e8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support Multi tx !!
+
+- Updated dependencies
+  [[`be23cd2`](https://github.com/bnb-chain/greenfield-js-sdk/commit/be23cd233cfa2e9ee723d9bee0faf30f38dc4325),
+  [`6dc142a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/6dc142a1b99063b611e177c43e0ac2e5103147e8)]:
+  - @bnb-chain/greenfield-chain-sdk@0.2.1-alpha.9
+
 ## 0.0.2-alpha.15
 
 ### Patch Changes
