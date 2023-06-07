@@ -20,18 +20,24 @@ import {
   TxBody,
   TxRaw,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/tx';
-import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { toBuffer } from '@ethereumjs/util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
-import { BroadcastOptions, ISimulateGasFee, SimulateOptions } from '..';
+import { BroadcastOptions, ISimulateGasFee, MetaTxInfo, SimulateOptions, TxResponse } from '..';
 import { DEFAULT_DENOM, ZERO_PUBKEY } from '../constants';
-import { createEIP712, generateFee, generateMessage, generateTypes } from '../messages';
+import {
+  createEIP712,
+  generateFee,
+  generateMessage,
+  generateTypes,
+  mergeMultiEip712,
+  mergeMultiMessage,
+} from '../messages';
+import { generateMsg, typeWrapper } from '../messages/utils';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
-import { typeWrapper } from '../tx/utils';
 import { Account } from './account';
 import { RpcQueryClient } from './queryclient';
 
@@ -85,12 +91,25 @@ export interface IBasic {
     The function returns a pointer to a BroadcastTxResponse and any error that occurred during the operation.
    */
   broadcastRawTx(txRawBytes: Uint8Array): Promise<DeliverTxResponse>;
+
+  tx(
+    typeUrl: MetaTxInfo['typeUrl'],
+    address: MetaTxInfo['address'],
+    MsgSDKTypeEIP712: MetaTxInfo['MsgSDKTypeEIP712'],
+    MsgSDK: MetaTxInfo['MsgSDK'],
+    msgBytes: MetaTxInfo['msgBytes'],
+  ): Promise<TxResponse>;
+
+  /**
+   *
+   */
+  multiTx(txResList: TxResponse[]): Promise<Omit<TxResponse, 'metaTxInfo'>>;
 }
 
 @singleton()
 export class Basic implements IBasic {
-  private rpcUrl: string;
-  private chainId: string;
+  public rpcUrl: string;
+  public chainId: string;
   constructor(@inject('RPC_URL') rpcUrl: string, @inject('CHAIN_ID') chainId: string) {
     this.rpcUrl = rpcUrl;
     this.chainId = chainId;
@@ -141,14 +160,14 @@ export class Basic implements IBasic {
   }
 
   public async tx(
-    typeUrl: string,
-    address: string,
-    MsgSDKTypeEIP712: object,
-    MsgSDK: object,
-    msgBytes: Uint8Array,
+    typeUrl: MetaTxInfo['typeUrl'],
+    address: MetaTxInfo['address'],
+    MsgSDKTypeEIP712: MetaTxInfo['MsgSDKTypeEIP712'],
+    MsgSDK: MetaTxInfo['MsgSDK'],
+    msgBytes: MetaTxInfo['msgBytes'],
   ) {
     const accountInfo = await this.account.getAccount(address);
-    const bodyBytes = this.getBodyBytes(typeUrl, msgBytes);
+    const bodyBytes = this.getSingleBodyBytes(typeUrl, msgBytes);
 
     return {
       simulate: async (opts: SimulateOptions) => {
@@ -165,6 +184,14 @@ export class Basic implements IBasic {
         );
 
         return await this.broadcastRawTx(rawTxBytes);
+      },
+      metaTxInfo: {
+        typeUrl,
+        address,
+        MsgSDKTypeEIP712,
+        MsgSDK,
+        msgBytes,
+        bodyBytes,
       },
     };
   }
@@ -206,6 +233,80 @@ export class Basic implements IBasic {
     return await client.broadcastTx(txRawBytes);
   }
 
+  public async multiTx(txResList: TxResponse[]) {
+    const txs = txResList.map((txRes) => txRes.metaTxInfo);
+    const accountInfo = await this.account.getAccount(txs[0].address);
+    const multiMsgBytes = txs.map((tx) => {
+      return generateMsg(tx.typeUrl, tx.msgBytes);
+    });
+    const txBody = TxBody.fromPartial({
+      messages: multiMsgBytes,
+    });
+    const txBodyBytes = TxBody.encode(txBody).finish();
+
+    return {
+      simulate: async (opts: SimulateOptions) => {
+        return await this.simulateRawTx(txBodyBytes, accountInfo, opts);
+      },
+      broadcast: async (opts: BroadcastOptions) => {
+        const {
+          denom,
+          gasLimit,
+          gasPrice,
+          privateKey,
+          payer,
+          signTypedDataCallback = defaultSignTypedData,
+        } = opts;
+
+        const types = mergeMultiEip712(txs.map((tx) => tx.MsgSDKTypeEIP712));
+        const fee = generateFee(
+          String(BigInt(gasLimit) * BigInt(gasPrice)),
+          denom,
+          String(gasLimit),
+          payer,
+          '',
+        );
+        const wrapperTypes = generateTypes(types);
+        const multiMessages = mergeMultiMessage(txs);
+        const messages = generateMessage(
+          accountInfo.accountNumber.toString(),
+          accountInfo.sequence.toString(),
+          this.chainId,
+          '',
+          fee,
+          multiMessages,
+          '0',
+        );
+
+        const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
+        const signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
+        const messageHash = eip712Hash(JSON.stringify(eip712));
+
+        const pk = recoverPk({
+          signature,
+          messageHash,
+        });
+        const pubKey = makeCosmsPubKey(pk);
+
+        const authInfoBytes = this.getAuthInfoBytes({
+          denom,
+          sequence: accountInfo.sequence + '',
+          gasLimit,
+          gasPrice,
+          pubKey,
+        });
+
+        const txRaw = TxRaw.fromPartial({
+          bodyBytes: txBodyBytes,
+          authInfoBytes,
+          signatures: [toBuffer(signature)],
+        });
+        const txBytes = TxRaw.encode(txRaw).finish();
+        return await this.broadcastRawTx(txBytes);
+      },
+    };
+  }
+
   private getAuthInfoBytes(
     params: Pick<BroadcastOptions, 'denom' | 'gasLimit' | 'gasPrice'> & {
       pubKey: BaseAccount['pubKey'];
@@ -235,6 +336,11 @@ export class Basic implements IBasic {
     return authInfoBytes;
   }
 
+  /**
+   * Get the body bytes of a transaction
+   *
+   * EIP712 sign or private key sign
+   */
   protected async getRawTxBytes(
     typeUrl: string,
     msgEIP712Structor: object,
@@ -301,11 +407,8 @@ export class Basic implements IBasic {
     return TxRaw.encode(txRaw).finish();
   }
 
-  protected getBodyBytes(typeUrl: string, msgBytes: Uint8Array): Uint8Array {
-    const msgWrapped = Any.fromPartial({
-      typeUrl,
-      value: msgBytes,
-    });
+  protected getSingleBodyBytes(typeUrl: string, msgBytes: Uint8Array): Uint8Array {
+    const msgWrapped = generateMsg(typeUrl, msgBytes);
 
     const txBody = TxBody.fromPartial({
       messages: [msgWrapped],

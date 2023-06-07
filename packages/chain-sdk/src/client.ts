@@ -12,6 +12,7 @@ import { IPayment, Payment } from './api/payment';
 import { ISp, Sp } from './api/sp';
 import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 import { IStorage, Storage } from './api/storage';
+import { Basic, IBasic } from './api/basic';
 
 @injectable()
 export class Client {
@@ -20,6 +21,7 @@ export class Client {
     container.register('CHAIN_ID', { useValue: chainId });
 
     const account = container.resolve<Account>(Account);
+    const basic = container.resolve<Basic>(Basic);
     const bucket = container.resolve<Bucket>(Bucket);
     const challenge = container.resolve<Challenge>(Challenge);
     const crosschain = container.resolve<CrossChain>(CrossChain);
@@ -34,6 +36,7 @@ export class Client {
 
     return new Client(
       account,
+      basic,
       bucket,
       challenge,
       crosschain,
@@ -50,6 +53,7 @@ export class Client {
 
   constructor(
     public account: IAccount,
+    public basic: IBasic,
     public bucket: IBucket,
     public challenge: IChallenge,
     public crosschain: ICrossChain,
