@@ -47,13 +47,13 @@ export class OffChainAuth implements IOffChainAuth {
       const spsNonceRaw = await fetchNonces({ sps, address, domain });
       const fetchSpsNonceFailed = spsNonceRaw
         .filter((item: ISp) => item.nonce === null)
-        .map((item: ISp) => item.endpoint);
-      if (fetchSpsNonceFailed.length > 0) {
-        throw new Error(`Fetch nonce failed for sps: ${fetchSpsNonceFailed.join(',')}`);
+        .map((item: ISp) => item.address);
+      if (fetchSpsNonceFailed.length === spsNonceRaw.length) {
+        throw new Error(`No Sp service available, Please try again later.`);
       }
-      const spsNonce = spsNonceRaw.filter((item: ISp) => item.nonce !== null);
+      const spsWithNonce = spsNonceRaw.filter((item: ISp) => item.nonce !== null);
       // 2. generate signature key pair
-      const seedMsg = genLocalSignMsg(spsNonce, domain);
+      const seedMsg = genLocalSignMsg(spsWithNonce, domain);
       const seed = await getCurrentSeedString({ message: seedMsg, address, chainId, provider });
       const seedString = hexlify(seed);
       const pubKey = await getCurrentAccountPublicKey(seedString);
@@ -69,7 +69,7 @@ export class OffChainAuth implements IOffChainAuth {
         chainId,
         issuedDate,
         expireDate,
-        sps: spsNonce,
+        sps: spsWithNonce,
       });
       const signRes = await personalSign({ message: signMsg, address, provider });
       const jsonSignMsg = JSON.stringify(signMsg).replace(/\"/g, '');
@@ -77,7 +77,7 @@ export class OffChainAuth implements IOffChainAuth {
       // 4. upload signature and pubKey to server
       const res = await updateSpsPubKey({
         address,
-        sps: spsNonce,
+        sps: spsWithNonce,
         domain,
         pubKey,
         expireDate,
@@ -86,8 +86,8 @@ export class OffChainAuth implements IOffChainAuth {
       const uploadSpsPubkeyFailed = res
         .filter((item: any) => item.code !== 0)
         .map((item: any) => item.data.address);
-      if (uploadSpsPubkeyFailed.length > 0) {
-        throw new Error(`Upload public key failed for sps: ${fetchSpsNonceFailed.join(',')}`);
+      if (uploadSpsPubkeyFailed.length === spsWithNonce.length) {
+        throw new Error(`No Sp service available, Please try again later.`);
       }
       const successSps: string[] = [];
       res.forEach((item: any) => {
@@ -103,6 +103,7 @@ export class OffChainAuth implements IOffChainAuth {
           pubKey,
           expirationTime,
           spAddresses: successSps,
+          failedSpAddresses: [...fetchSpsNonceFailed, ...uploadSpsPubkeyFailed],
         },
         message: 'Sign and upload public key success',
       };
