@@ -1,3 +1,5 @@
+import mapValues from 'lodash.mapvalues';
+import sortBy from 'lodash.sortby';
 import { MetaTxInfo } from '..';
 
 export const createEIP712 = (types: object, chainId: string, message: object) => {
@@ -92,6 +94,7 @@ export const generateTypes = (newTypes: object) => {
     ],
   };
 
+  // multi broadcast txs
   if (Array.isArray(newTypes)) {
     for (let i = 0; i < newTypes.length; i++) {
       types.Tx.push({
@@ -100,23 +103,18 @@ export const generateTypes = (newTypes: object) => {
       });
     }
     Object.assign(types, ...newTypes);
-  } else {
-    types.Tx.push({
-      name: 'msg1',
-      type: 'Msg1',
+
+    return mapValues(types, (o) => {
+      return sortBy(o, ['name']);
     });
-    Object.assign(types, newTypes);
   }
 
-  // sort types by field name
-  const resTypes: Record<string, any> = {};
-  const unsortedObjArr = [...Object.entries(types)];
-  const sortedObjArr = unsortedObjArr.sort(([k1], [k2]) => k1.localeCompare(k2));
-  sortedObjArr.forEach(([k, v]) => {
-    resTypes[k] = v;
+  types.Tx.push({
+    name: 'msg1',
+    type: 'Msg1',
   });
-
-  return resTypes;
+  Object.assign(types, newTypes);
+  return types;
 };
 
 export const generateFee = (
