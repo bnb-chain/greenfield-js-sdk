@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.10
+
+### Patch Changes
+
+- [#106](https://github.com/bnb-chain/greenfield-js-sdk/pull/106)
+  [`4efba33`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4efba33c650b1c9124cea5bf03d7bac8eee5b3d1)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: sync protobuf with greenfield 0.2.2-alpha.2
+  and greenfield-cosmos-sdk 0.2.2-alpha.1
+
+- [#101](https://github.com/bnb-chain/greenfield-js-sdk/pull/101)
+  [`573528f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/573528f16c5a73f04d64431c667be5bb59767801)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat: Allow to have sp auth fail
+
 ## 0.2.1-alpha.9
 
 ### Patch Changes
