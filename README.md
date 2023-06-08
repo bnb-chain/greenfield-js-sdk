@@ -17,7 +17,7 @@ You can find some package documentation below:
 
 Support use in browser and node.js
 
-* [nextjs](./examples/nextjs/README.md)
+* [Next.js Example(TypeScript)](./examples/nextjs/README.md)
 * [Nodejs](./examples/nodejs/README.md)
 
 ## Supported JS environments

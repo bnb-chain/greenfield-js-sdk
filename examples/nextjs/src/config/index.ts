@@ -17,6 +17,7 @@ export const CROSS_CHAIN_CONTRACT_ADDRESS = env.CROSS_CHAIN_CONTRACT_ADDRESS;
 const greenFieldChain: Chain = {
   id: GREEN_CHAIN_ID,
   network: 'greenfield',
+  iconUrl: 'https://github.com/wagmi-dev/wagmi/assets/5653652/44446c8c-5c72-4e89-b8eb-3042ef618eed',
   rpcUrls: {
     default: {
       http: [GREENFIELD_RPC_URL],
