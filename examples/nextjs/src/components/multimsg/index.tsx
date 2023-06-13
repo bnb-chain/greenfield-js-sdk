@@ -1,5 +1,5 @@
 import { client } from '@/client';
-import { ethers } from 'ethers';
+import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 
 export const MultiMsg = () => {
@@ -18,7 +18,7 @@ export const MultiMsg = () => {
               amount: [
                 {
                   denom: 'BNB',
-                  amount: ethers.utils.parseEther('0.00001').toString(),
+                  amount: parseEther('0.00001').toString(),
                 },
               ],
             });
@@ -29,7 +29,7 @@ export const MultiMsg = () => {
               from: address,
               to: '0x0000000000000000000000000000000000000001',
               amount: {
-                amount: ethers.utils.parseEther('0.00001').toString(),
+                amount: parseEther('0.00001').toString(),
                 denom: 'BNB',
               },
             });

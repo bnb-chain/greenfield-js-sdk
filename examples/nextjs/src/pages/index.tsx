@@ -4,8 +4,6 @@ import Link from 'next/link';
 export default function Home() {
   const isMounted = useIsMounted();
 
-  // https://github.com/ethers-io/ethers.js/issues/726
-
   if (!isMounted) return null;
 
   return (

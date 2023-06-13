@@ -1,11 +1,11 @@
 import { CROSS_CHAIN_CONTRACT_ADDRESS, TOKEN_HUB_CONTRACT_ADDRESS } from '@/config';
 import { CROSS_CHAIN_ABI, TOKENHUB_ABI } from '@/constants/abi';
 import { useState } from 'react';
-import { formatEther, parseEther } from 'viem';
+import { formatEther, formatGwei, parseEther, parseGwei } from 'viem';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 
 export const Deposit = () => {
-  const { address, connector, isConnected } = useAccount();
+  const { address } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [depositAmount, setDepositAmount] = useState(0);
@@ -16,14 +16,13 @@ export const Deposit = () => {
       amount:
       <input
         onChange={(e) => {
-          setDepositAmount(parseInt(e.target.value));
+          setDepositAmount(parseFloat(e.target.value));
         }}
       />
       <br />
       <button
         onClick={async () => {
           if (!walletClient || !address) return;
-
           const relayFees = await publicClient.readContract({
             abi: CROSS_CHAIN_ABI,
             address: CROSS_CHAIN_CONTRACT_ADDRESS,
@@ -46,33 +45,14 @@ export const Deposit = () => {
             account: address,
             value: amount_with_relay_fee,
           });
-
           console.log('estimateGas', estimateGas);
+
           const gasPrice = await publicClient.getGasPrice();
 
-          console.log('gasPrice');
+          console.log('gasPrice', gasPrice);
+
           const gasFee = estimateGas * gasPrice;
           console.log('estimate gas fee: gas price * gas = ', formatEther(gasFee), 'ETH');
-        }}
-      >
-        estimate gas
-      </button>
-      <br />
-      <button
-        onClick={async () => {
-          if (!walletClient) return;
-          const relayFees = await publicClient.readContract({
-            abi: CROSS_CHAIN_ABI,
-            address: CROSS_CHAIN_CONTRACT_ADDRESS,
-            functionName: 'getRelayFees',
-          });
-          console.log('relayFees', relayFees);
-          const [relayFee, ackRelayFee] = relayFees;
-          console.log('relayFee', relayFee);
-          console.log('ackRelayFee', ackRelayFee);
-
-          const amount = parseEther(`${depositAmount}`);
-          const amount_with_relay_fee = relayFee + ackRelayFee + amount;
 
           const txHash = await walletClient.writeContract({
             address: TOKEN_HUB_CONTRACT_ADDRESS,
@@ -82,10 +62,11 @@ export const Deposit = () => {
             account: address,
             value: amount_with_relay_fee,
           });
+
           console.log(txHash);
         }}
       >
-        call contract
+        deposit
       </button>
     </div>
   );

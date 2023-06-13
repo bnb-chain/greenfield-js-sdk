@@ -27,15 +27,14 @@
     "cors": "^2.8.5",
     "eslint": "^8.21.0",
     "eslint-config-next": "13.1.6",
-    "ethers": "^5",
     "evmosjs": "^0.2.17",
     "long": "^5.2.1",
     "next": "13.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "^4.7.4",
-    "viem": "^0.3.31",
-    "wagmi": "^1.1.1"
+    "viem": "^1.0.6",
+    "wagmi": "^1.2.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

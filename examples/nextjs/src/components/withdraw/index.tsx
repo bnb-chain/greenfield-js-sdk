@@ -1,8 +1,8 @@
 import { client } from '@/client';
 import { getRelayFeeBySimulate } from '@/utils/simulate';
 import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
-import { ethers } from 'ethers';
 import { useState } from 'react';
+import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 
 export const Withdraw = () => {
@@ -54,7 +54,7 @@ export const Withdraw = () => {
             from: address,
             to: transferoutInfo.to,
             amount: {
-              amount: ethers.utils.parseEther(transferoutInfo.amount).toString(),
+              amount: parseEther(`${Number(transferoutInfo.amount)}`).toString(),
               denom: 'BNB',
             },
           });
