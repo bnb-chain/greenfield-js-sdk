@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.12
+
+### Patch Changes
+
+- [#110](https://github.com/bnb-chain/greenfield-js-sdk/pull/110)
+  [`3eebdc3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3eebdc31aee7591cc42f1b4734e7f6487a694cda)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `sp.listGroup` API
+
 ## 0.2.1-alpha.11
 
 ### Patch Changes
