@@ -1,13 +1,13 @@
-import { ethers } from 'ethers';
+import { formatUnits, parseUnits } from 'viem';
 
 export const getRelayFeeBySimulate = (
   transferOutRelayerFee: string,
   transferOutAckRelayerFee: string,
 ) => {
-  const relayFee = ethers.utils.parseUnits(transferOutRelayerFee, 0);
-  const ackFee = ethers.utils.parseUnits(transferOutAckRelayerFee, 0);
+  const relayFee = parseUnits(`${Number(BigInt(transferOutRelayerFee))}`, 0);
+  const ackFee = parseUnits(`${Number(BigInt(transferOutAckRelayerFee))}`, 0);
 
-  const total = relayFee.add(ackFee);
+  const total = relayFee + ackFee;
 
-  return ethers.utils.formatUnits(total, 18);
+  return formatUnits(total, 18);
 };

@@ -1,6 +1,6 @@
 import { client } from '@/client';
-import { ethers } from 'ethers';
 import { useState } from 'react';
+import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 
 export const Transfer = () => {
@@ -51,7 +51,7 @@ export const Transfer = () => {
             amount: [
               {
                 denom: 'BNB',
-                amount: ethers.utils.parseEther(transferInfo.amount).toString(),
+                amount: parseEther(`${Number(transferInfo.amount)}`).toString(),
               },
             ],
           });

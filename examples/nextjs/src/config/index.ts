@@ -1,8 +1,7 @@
-import { Chain, configureChains } from 'wagmi';
-import { mainnet } from 'wagmi/chains';
+import { Chain, configureChains, mainnet } from 'wagmi';
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { publicProvider } from 'wagmi/providers/public';
 import * as env from './env';
 
@@ -17,7 +16,6 @@ export const CROSS_CHAIN_CONTRACT_ADDRESS = env.CROSS_CHAIN_CONTRACT_ADDRESS;
 const greenFieldChain: Chain = {
   id: GREEN_CHAIN_ID,
   network: 'greenfield',
-  iconUrl: 'https://github.com/wagmi-dev/wagmi/assets/5653652/44446c8c-5c72-4e89-b8eb-3042ef618eed',
   rpcUrls: {
     default: {
       http: [GREENFIELD_RPC_URL],
@@ -58,7 +56,16 @@ const bscChain: Chain = {
 };
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, greenFieldChain, bscChain],
+  [
+    mainnet,
+    // {
+    //   ...,
+    //   iconUrl:
+    //     'https://github.com/wagmi-dev/wagmi/assets/5653652/44446c8c-5c72-4e89-b8eb-3042ef618eed',
+    // },
+    greenFieldChain,
+    bscChain,
+  ],
   [publicProvider()],
 );
 
