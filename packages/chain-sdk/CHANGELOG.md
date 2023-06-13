@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.11
+
+### Patch Changes
+
+- [#108](https://github.com/bnb-chain/greenfield-js-sdk/pull/108)
+  [`a85d900`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a85d900611ece2f1a77f0ae84258825b6d0e15f6)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add `updateGroupExtra` api
+
 ## 0.2.1-alpha.10
 
 ### Patch Changes
