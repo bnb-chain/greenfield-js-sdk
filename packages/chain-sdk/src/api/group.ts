@@ -11,6 +11,10 @@ import {
   MsgLeaveGroupTypeUrl,
 } from '@/messages/greenfield/storage/MsgLeaveGroup';
 import {
+  MsgUpdateGroupExtraSDKTypeEIP712,
+  MsgUpdateGroupExtraTypeUrl,
+} from '@/messages/greenfield/storage/MsgUpdateGroupExtra';
+import {
   MsgUpdateGroupMemberSDKTypeEIP712,
   MsgUpdateGroupMemberTypeUrl,
 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
@@ -31,6 +35,7 @@ import {
   MsgDeleteGroup,
   MsgLeaveGroup,
   MsgPutPolicy,
+  MsgUpdateGroupExtra,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
@@ -54,6 +59,8 @@ export interface IGroup {
    * support adding or removing members from the group and return the txn hash
    */
   updateGroupMember(msg: MsgUpdateGroupMember): Promise<TxResponse>;
+
+  updateGroupExtra(msg: MsgUpdateGroupExtra): Promise<TxResponse>;
 
   /**
    * make the member leave the specific group
@@ -139,6 +146,16 @@ export class Group implements IGroup {
       MsgUpdateGroupMemberSDKTypeEIP712,
       MsgUpdateGroupMember.toSDK(msg),
       MsgUpdateGroupMember.encode(msg).finish(),
+    );
+  }
+
+  public async updateGroupExtra(msg: MsgUpdateGroupExtra) {
+    return await this.basic.tx(
+      MsgUpdateGroupExtraTypeUrl,
+      msg.operator,
+      MsgUpdateGroupExtraSDKTypeEIP712,
+      MsgUpdateGroupExtra.toSDK(msg),
+      MsgUpdateGroupExtra.encode(msg).finish(),
     );
   }
 
