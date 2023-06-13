@@ -20,7 +20,6 @@ import {
 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
 import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '@/utils/grn';
 import {
-  QueryBucketNFTResponse,
   QueryGroupNFTResponse,
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
@@ -91,8 +90,6 @@ export interface IGroup {
    */
   getPolicyOfGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 
-  // TODO: putGroupPolicy compire with bucket.putBucketPolicy
-
   getBucketPolicyOfGroup(bucketName: string, groupId: number): Promise<QueryPolicyForGroupResponse>;
 
   getObjectPolicyOfGroup(
@@ -100,6 +97,12 @@ export interface IGroup {
     objectName: string,
     groupId: number,
   ): Promise<QueryPolicyForGroupResponse>;
+
+  putGroupPolicy(
+    owner: string,
+    groupName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+  ): Promise<TxResponse>;
 }
 
 @singleton()
