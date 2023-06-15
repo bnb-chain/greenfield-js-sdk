@@ -1,4 +1,4 @@
-import { chains, publicClient, webSocketPublicClient } from '@/config';
+import { chains, publicClient, RainbowTrustWalletConnector, webSocketPublicClient } from '@/config';
 import '@/styles/globals.css';
 import {
   connectorsForWallets,
@@ -10,7 +10,7 @@ import { trustWallet } from '@rainbow-me/rainbowkit/wallets';
 import type { AppProps } from 'next/app';
 import { createConfig, WagmiConfig } from 'wagmi';
 
-const projectId = '';
+const projectId = '9bf3510aab08be54d5181a126967ee71';
 const { wallets } = getDefaultWallets({
   projectId,
   appName: 'greenfield js sdk demo',
@@ -19,10 +19,13 @@ const { wallets } = getDefaultWallets({
 
 const connectors = connectorsForWallets([
   ...wallets,
-  {
-    groupName: 'Recommended',
-    wallets: [trustWallet({ projectId, chains })],
-  },
+  // {
+  //   groupName: 'Recommended',
+  //   wallets: [
+  //     trustWallet({ projectId, chains, shimDisconnect: true }),
+  //     // RainbowTrustWalletConnector({ projectId, chains }),
+  //   ],
+  // },
 ]);
 
 const wagmiConfig = createConfig({

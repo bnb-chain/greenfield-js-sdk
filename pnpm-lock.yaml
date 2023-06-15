@@ -74,7 +74,7 @@ importers:
       '@ethersproject/signing-key': ^5.7.0
       '@metamask/eth-sig-util': ^5.0.2
       '@next/font': 13.1.6
-      '@rainbow-me/rainbowkit': ^1.0.1
+      '@rainbow-me/rainbowkit': ^1.0.2
       '@types/node': ^18.7.1
       '@types/react': ^18.0.17
       '@types/react-dom': ^18.0.6
@@ -101,7 +101,7 @@ importers:
       '@ethersproject/signing-key': 5.7.0
       '@metamask/eth-sig-util': 5.0.2
       '@next/font': 13.1.6
-      '@rainbow-me/rainbowkit': 1.0.1_osz7gkuvw6gybth6kg2yker4la
+      '@rainbow-me/rainbowkit': 1.0.2_osz7gkuvw6gybth6kg2yker4la
       '@types/node': 18.16.7
       '@types/react': 18.2.6
       '@types/react-dom': 18.2.4
@@ -3981,14 +3981,14 @@ packages:
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
     dev: false
 
-  /@rainbow-me/rainbowkit/1.0.1_osz7gkuvw6gybth6kg2yker4la:
-    resolution: {integrity: sha512-P+2lgHaN5X84K1e+MARUydyhYRS+nStN4H470QloBBWP5UsidHZpSJGd4qi0WFtfR6zBff96N6kmsfJo7PjFhQ==}
+  /@rainbow-me/rainbowkit/1.0.2_osz7gkuvw6gybth6kg2yker4la:
+    resolution: {integrity: sha512-CIcEekBBlYiqg2oNS7LZqqN882OfJ0T1ORe4c46dscSuMCaX9sdbviQR1m8LoA4KocSCzSxOPAnfoVN8eC/HNA==}
     engines: {node: '>=12.4'}
     peerDependencies:
       react: '>=17'
       react-dom: '>=17'
-      viem: ~0.3.19
-      wagmi: ~1.0.1
+      viem: ~0.3.19 || ^1.0.0
+      wagmi: ~1.0.1 || ~1.1.0 || ~1.2.0
     dependencies:
       '@vanilla-extract/css': 1.9.1
       '@vanilla-extract/dynamic': 2.0.2
