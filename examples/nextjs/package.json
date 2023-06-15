@@ -19,7 +19,7 @@
     "@ethersproject/signing-key": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
     "@next/font": "13.1.6",
-    "@rainbow-me/rainbowkit": "^1.0.1",
+    "@rainbow-me/rainbowkit": "^1.0.2",
     "@types/node": "^18.7.1",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
