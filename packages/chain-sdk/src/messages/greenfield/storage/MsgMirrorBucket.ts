@@ -1,7 +1,7 @@
 export const MsgMirrorBucketTypeUrl = '/greenfield.storage.MsgMirrorBucket';
 
 export const MsgMirrorBucketSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',

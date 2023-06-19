@@ -1,7 +1,7 @@
 export const MsgUpdateObjectInfoTypeUrl = '/greenfield.storage.MsgUpdateObjectInfo';
 
 export const MsgUpdateObjectInfoSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',
