@@ -13,89 +13,128 @@ export const CreateObject = () => {
 
   return (
     <div>
-      <h4>Create Object</h4>
-      bucket name :
-      <input
-        value={createObjectInfo.bucketName}
-        placeholder="bucket name"
-        onChange={(e) => {
-          setCreateObjectInfo({ ...createObjectInfo, bucketName: e.target.value });
-        }}
-      />
-      <br />
-      object name :
-      <input
-        value={createObjectInfo.objectName}
-        placeholder="object name"
-        onChange={(e) => {
-          setCreateObjectInfo({ ...createObjectInfo, objectName: e.target.value });
-        }}
-      />
-      <br />
-      <input
-        type="file"
-        placeholder="select a file"
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          if (e.target.files) {
-            setFile(e.target.files[0]);
-          }
-        }}
-      />
-      <br />
-      <button
-        onClick={async () => {
-          if (!address || !file) {
-            alert('Please select a file or address');
-            return;
-          }
+      <>
+        <h4>Create Object</h4>
+        bucket name :
+        <input
+          value={createObjectInfo.bucketName}
+          placeholder="bucket name"
+          onChange={(e) => {
+            setCreateObjectInfo({ ...createObjectInfo, bucketName: e.target.value });
+          }}
+        />
+        <br />
+        object name :
+        <input
+          value={createObjectInfo.objectName}
+          placeholder="object name"
+          onChange={(e) => {
+            setCreateObjectInfo({ ...createObjectInfo, objectName: e.target.value });
+          }}
+        />
+        <br />
+        <input
+          type="file"
+          placeholder="select a file"
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            if (e.target.files) {
+              setFile(e.target.files[0]);
+            }
+          }}
+        />
+        <br />
+        <button
+          onClick={async () => {
+            if (!address || !file) {
+              alert('Please select a file or address');
+              return;
+            }
 
-          const spInfo = await selectSp();
-          const fileBytes = await file.arrayBuffer();
-          const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
-          const { contentLength, expectCheckSums } = hashResult;
+            const spInfo = await selectSp();
+            const fileBytes = await file.arrayBuffer();
+            const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+            const { contentLength, expectCheckSums } = hashResult;
 
-          const createObjectTx = await client.object.createObject({
-            bucketName: createObjectInfo.bucketName,
-            objectName: createObjectInfo.objectName,
-            spInfo,
-            contentLength,
-            expectCheckSums,
-            fileType: file.type,
-            creator: address,
-            signType: 'authTypeV2',
-          });
+            const createObjectTx = await client.object.createObject({
+              bucketName: createObjectInfo.bucketName,
+              objectName: createObjectInfo.objectName,
+              spInfo,
+              contentLength,
+              expectCheckSums,
+              fileType: file.type,
+              creator: address,
+              signType: 'authTypeV2',
+            });
 
-          const simulateInfo = await createObjectTx.simulate({
-            denom: 'BNB',
-          });
+            const simulateInfo = await createObjectTx.simulate({
+              denom: 'BNB',
+            });
 
-          console.log('simulateInfo', simulateInfo);
+            console.log('simulateInfo', simulateInfo);
 
-          const res = await createObjectTx.broadcast({
-            denom: 'BNB',
-            gasLimit: Number(simulateInfo?.gasLimit),
-            gasPrice: simulateInfo?.gasPrice || '5000000000',
-            payer: address,
-            granter: '',
-          });
+            const res = await createObjectTx.broadcast({
+              denom: 'BNB',
+              gasLimit: Number(simulateInfo?.gasLimit),
+              gasPrice: simulateInfo?.gasPrice || '5000000000',
+              payer: address,
+              granter: '',
+            });
 
-          const uploadRes = await client.object.uploadObject({
-            bucketName: createObjectInfo.bucketName,
-            objectName: createObjectInfo.objectName,
-            body: file,
-            txnHash: res.transactionHash,
-            endpoint: spInfo.endpoint,
-            signType: 'authTypeV2',
-          });
-          console.log('uploadRes', uploadRes);
+            const uploadRes = await client.object.uploadObject({
+              bucketName: createObjectInfo.bucketName,
+              objectName: createObjectInfo.objectName,
+              body: file,
+              txnHash: res.transactionHash,
+              endpoint: spInfo.endpoint,
+              signType: 'authTypeV2',
+            });
+            console.log('uploadRes', uploadRes);
 
-          if (uploadRes.code === 0) {
-            alert('success');
-          }
-        }}
-      >
-        create object and upload file
-      </button>
+            if (uploadRes.code === 0) {
+              alert('success');
+            }
+          }}
+        >
+          create object and upload file
+        </button>
+        <br />
+        <button
+          onClick={async () => {
+            if (!address) return;
+
+            const spInfo = await selectSp();
+            const createFolderTx = await client.object.createFolder({
+              bucketName: createObjectInfo.bucketName,
+              objectName: createObjectInfo.objectName + '/',
+              spInfo,
+              creator: address,
+              signType: 'authTypeV2',
+            });
+
+            const simulateInfo = await createFolderTx.simulate({
+              denom: 'BNB',
+            });
+
+            console.log('simulateInfo', simulateInfo);
+
+            const res = await createFolderTx.broadcast({
+              denom: 'BNB',
+              gasLimit: Number(simulateInfo?.gasLimit),
+              gasPrice: simulateInfo?.gasPrice || '5000000000',
+              payer: address,
+              granter: '',
+            });
+
+            console.log('res', res);
+
+            if (res.code === 0) {
+              alert('success');
+            }
+          }}
+        >
+          create folder
+        </button>
+      </>
     </div>
   );
 };
