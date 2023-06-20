@@ -89,7 +89,9 @@ export interface IObject {
 
   listObjects(configParam: TListObjects): Promise<IObjectResultType<Array<IObjectProps>>>;
 
-  createFolder(getApprovalParams: TCreateObject): Promise<TxResponse>;
+  createFolder(
+    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+  ): Promise<TxResponse>;
 
   putObjectPolicy(
     owner: string,
@@ -565,14 +567,41 @@ export class Objectt implements IObject {
     }
   }
 
-  public async createFolder(getApprovalParams: TCreateObject) {
+  public async createFolder(
+    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+  ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
       );
     }
 
-    return this.createObject(getApprovalParams);
+    /**
+     * const file = new File([], 'scc', { type: 'text/plain' });
+      const fileBytes = await file.arrayBuffer();
+      console.log('fileBytes', fileBytes);
+      const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+      console.log('hashResult', hashResult);
+      const { contentLength, expectCheckSums } = hashResult;
+     */
+
+    return this.createObject({
+      bucketName: getApprovalParams.bucketName,
+      objectName: getApprovalParams.objectName,
+      contentLength: 0,
+      fileType: 'text/plain',
+      expectCheckSums: [
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+      ],
+      creator: getApprovalParams.creator,
+      spInfo: getApprovalParams.spInfo,
+    });
   }
 
   public async putObjectPolicy(
