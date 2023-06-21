@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.15
+
+### Patch Changes
+
+- [#122](https://github.com/bnb-chain/greenfield-js-sdk/pull/122)
+  [`5161eb3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5161eb36dc779b05ff3cf53778324d1533463ac8)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Bucket policy
+
 ## 0.2.1-alpha.14
 
 ### Patch Changes
