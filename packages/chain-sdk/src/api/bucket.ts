@@ -100,7 +100,10 @@ export interface IBucket {
 
   updateBucketInfo(msg: MsgUpdateBucketInfo): Promise<TxResponse>;
 
-  putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
+  putBucketPolicy(
+    bucketName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+  ): Promise<TxResponse>;
 
   deleteBucketPolicy(
     operator: string,
@@ -480,7 +483,10 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>) {
+  public async putBucketPolicy(
+    bucketName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+  ) {
     const resource = GRNToString(newBucketGRN(bucketName));
     const msg: MsgPutPolicy = {
       ...srcMsg,
