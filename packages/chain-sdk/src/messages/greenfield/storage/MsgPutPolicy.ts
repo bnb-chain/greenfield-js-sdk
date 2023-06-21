@@ -43,6 +43,14 @@ export const MsgPutPolicySDKTypeEIP712 = {
       type: 'string',
     },
     {
+      name: 'actions',
+      type: 'string[]',
+    },
+    {
+      name: 'resources',
+      type: 'string[]',
+    },
+    {
       name: 'expiration_time',
       type: 'string',
     },

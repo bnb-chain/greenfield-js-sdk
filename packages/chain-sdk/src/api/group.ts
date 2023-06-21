@@ -101,7 +101,7 @@ export interface IGroup {
   putGroupPolicy(
     owner: string,
     groupName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
   ): Promise<TxResponse>;
 }
 
@@ -223,7 +223,7 @@ export class Group implements IGroup {
   public async putGroupPolicy(
     owner: string,
     groupName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
   ) {
     const resource = GRNToString(newGroupGRN(owner, groupName));
     const msg: MsgPutPolicy = {

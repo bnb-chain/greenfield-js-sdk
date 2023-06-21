@@ -37,7 +37,11 @@ import {
   MsgPutPolicy,
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import {
+  bytesFromBase64,
+  fromJsonTimestamp,
+  toTimestamp,
+} from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { container, delay, inject, singleton } from 'tsyringe';
 import { GRNToString, newObjectGRN } from '..';
 import {
@@ -94,9 +98,10 @@ export interface IObject {
   ): Promise<TxResponse>;
 
   putObjectPolicy(
-    owner: string,
-    groupName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+    bucketName: string,
+    objectName: string,
+    // expirationTime: Date,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
   ): Promise<TxResponse>;
 
   deleteObjectPolicy(
@@ -605,14 +610,16 @@ export class Objectt implements IObject {
   }
 
   public async putObjectPolicy(
-    owner: string,
-    groupName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+    bucketName: string,
+    objectName: string,
+    // expirationTime: Date,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
   ) {
-    const resource = GRNToString(newObjectGRN(owner, groupName));
+    const resource = GRNToString(newObjectGRN(bucketName, objectName));
     const msg: MsgPutPolicy = {
       ...srcMsg,
       resource,
+      // expirationTime: fromJsonTimestamp(expirationTime),
     };
     return await this.storage.putPolicy(msg);
   }

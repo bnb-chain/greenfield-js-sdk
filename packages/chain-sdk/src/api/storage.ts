@@ -6,6 +6,7 @@ import {
   MsgPutPolicySDKTypeEIP712,
   MsgPutPolicyTypeUrl,
 } from '@/messages/greenfield/storage/MsgPutPolicy';
+import { Statement } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   QueryParamsResponse,
   QueryPolicyByIdRequest,
@@ -19,8 +20,9 @@ import {
   MsgDeletePolicy,
   MsgPutPolicy,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import { toTimestamp } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import { PermissionTypes, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
@@ -53,11 +55,19 @@ export class Storage implements IStorage {
   }
 
   public async putPolicy(msg: MsgPutPolicy) {
+    const toSdk = MsgPutPolicy.toSDK(msg);
     return await this.basic.tx(
       MsgPutPolicyTypeUrl,
       msg.operator,
       MsgPutPolicySDKTypeEIP712,
-      MsgPutPolicy.toSDK(msg),
+      {
+        ...toSdk,
+        expiration_time: '',
+        statements: toSdk.statements.map((e) => {
+          e.expiration_time = '';
+          return e;
+        }),
+      },
       MsgPutPolicy.encode(msg).finish(),
     );
   }
