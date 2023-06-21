@@ -1,5 +1,12 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.14
+
+### Patch Changes
+
+- [`8fa1aa7`](https://github.com/bnb-chain/greenfield-js-sdk/commit/8fa1aa7f4161ee319cb97b7874f0ca0e52de03fb)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Timestamp format
+
 ## 0.2.1-alpha.13
 
 ### Patch Changes
