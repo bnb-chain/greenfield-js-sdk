@@ -1,5 +1,121 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: feegrant
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Bucket policy
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add MirrorGroup
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat(dcellar-web-ui): Add query for ListObjects api
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: missing resp params
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Update createObject params
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Head Group
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - Update Types
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Change Tx API
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Update EIP712 struct, Support Multi Message
+  !!!!!
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Migrate out zkbas-js-sdk and upate the sign
+  msg format (remove WASM dependiencies)
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Optimize get approval types and add throw
+  error
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support Multi tx !!
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support dynamic provider
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: sync protobuf with greenfield 0.2.2-alpha.2
+  and greenfield-cosmos-sdk 0.2.2-alpha.1
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add some new policy API
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add `updateGroupExtra` api
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `sp.listGroup` API
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - Upgrade Cosmos SDK
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: CreateFoler API params
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Timestamp format
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Return Promise
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - fear: Add some API about group
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add offchainauth
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sp params
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Allow to have sp auth fail
+
+- [#124](https://github.com/bnb-chain/greenfield-js-sdk/pull/124)
+  [`d89f6b9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d89f6b9418eee5aac46e6b649e34fbf941651bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: add extra in Create Group message
+
 ## 0.2.1-alpha.15
 
 ### Patch Changes
