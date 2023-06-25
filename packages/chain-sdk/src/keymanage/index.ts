@@ -1,5 +1,5 @@
 import { createEIP712, generateFee, generateMessage, generateTypes } from '@/messages';
-import { typeWrapper } from '@/tx/utils';
+import { typeWrapper } from '@/messages/utils';
 import { bufferToHex, toBuffer } from '@ethereumjs/util';
 import { SignTypedDataVersion, signTypedData } from '@metamask/eth-sig-util';
 import { publicKeyCreate } from 'ethereum-cryptography/secp256k1-compat';

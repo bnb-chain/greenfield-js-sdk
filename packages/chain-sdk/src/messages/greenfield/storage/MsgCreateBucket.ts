@@ -1,7 +1,7 @@
 export const MsgCreateBucketTypeUrl = '/greenfield.storage.MsgCreateBucket';
 
 export const MsgCreateBucketSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',
@@ -28,14 +28,14 @@ export const MsgCreateBucketSDKTypeEIP712 = {
     },
     {
       name: 'primary_sp_approval',
-      type: 'TypePrimarySpApproval',
+      type: 'TypeMsg1PrimarySpApproval',
     },
     {
       name: 'charged_read_quota',
       type: 'uint64',
     },
   ],
-  TypePrimarySpApproval: [
+  TypeMsg1PrimarySpApproval: [
     {
       name: 'expired_height',
       type: 'uint64',
@@ -45,40 +45,4 @@ export const MsgCreateBucketSDKTypeEIP712 = {
       type: 'bytes',
     },
   ],
-};
-
-export interface ICreateBucketMsg {
-  bucketName: string;
-  expiredHeight: string;
-  from: string;
-  visibility: string;
-  paymentAddress: string;
-  primarySpAddress: string;
-  chargedReadQuota: number;
-  sig: string;
-}
-
-export const newMsgCreateBucket = ({
-  bucketName,
-  expiredHeight,
-  from,
-  visibility,
-  paymentAddress,
-  primarySpAddress,
-  chargedReadQuota,
-  sig,
-}: ICreateBucketMsg) => {
-  return {
-    type: MsgCreateBucketTypeUrl,
-    bucket_name: bucketName,
-    creator: from,
-    visibility,
-    payment_address: paymentAddress,
-    primary_sp_address: primarySpAddress,
-    primary_sp_approval: {
-      expired_height: expiredHeight,
-      sig,
-    },
-    charged_read_quota: chargedReadQuota,
-  };
 };

@@ -14,15 +14,12 @@ export const QueryComponent = () => {
             onClick={async () => {
               if (!address) return;
 
-              const balance = await client.account.getAccountBalance({
-                address: address,
-                denom: 'BNB',
-              });
+              const account = await client.account.getAccount(address);
 
-              console.log('balance', balance);
+              console.log('account', account);
             }}
           >
-            get balance
+            get account
           </button>
         </li>
       </ul>

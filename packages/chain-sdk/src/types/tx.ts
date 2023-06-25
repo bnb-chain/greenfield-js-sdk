@@ -30,7 +30,17 @@ export type SimulateOptions = {
 
 export type BroadcastOptions = TxOptions & SimulateOptions & Partial<SignOptions>;
 
+export type MetaTxInfo = {
+  typeUrl: string;
+  address: string;
+  MsgSDKTypeEIP712: object;
+  MsgSDK: object;
+  msgBytes: Uint8Array;
+  bodyBytes: Uint8Array;
+};
+
 export type TxResponse = {
   simulate: (opts: Readonly<SimulateOptions>) => Promise<ISimulateGasFee>;
   broadcast: (opts: Readonly<BroadcastOptions>) => Promise<DeliverTxResponse>;
+  metaTxInfo: MetaTxInfo;
 };

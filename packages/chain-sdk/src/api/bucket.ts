@@ -6,16 +6,30 @@ import {
   MsgDeleteBucketSDKTypeEIP712,
   MsgDeleteBucketTypeUrl,
 } from '@/messages/greenfield/storage/MsgDeleteBucket';
-import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
-import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
-import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import {
+  MsgDeletePolicySDKTypeEIP712,
+  MsgDeletePolicyTypeUrl,
+} from '@/messages/greenfield/storage/MsgDeletePolicy';
+import {
+  MsgUpdateBucketInfoSDKTypeEIP712,
+  MsgUpdateBucketInfoTypeUrl,
+} from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { fetchWithTimeout, METHOD_GET, MOCK_SIGNATURE, NORMAL_ERROR_CODE } from '@/utils/http';
+import { fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
-import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
+import {
+  ActionType,
+  Principal,
+  PrincipalType,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
+  QueryBucketNFTResponse,
   QueryHeadBucketResponse,
+  QueryNFTRequest,
+  QueryPolicyForAccountRequest,
+  QueryPolicyForAccountResponse,
   QueryVerifyPermissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
@@ -28,29 +42,31 @@ import {
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import { GRNToString, newBucketGRN, TKeyValue, TxResponse } from '..';
 import {
   BucketProps,
-  GetObjectPropsType,
-  getUserBucketsPropsType,
   ICreateBucketMsgType,
-  IGetCreateBucketApproval,
   IObjectResultType,
   IQuotaProps,
+  TCreateBucket,
+  TGetBucketReadQuota,
+  TGetUserBuckets,
 } from '../types/storage';
 import { Basic } from './basic';
+import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
+import { Storage } from './storage';
 
 export interface IBucket {
   /**
    * returns the signature info for the approval of preCreating resources
    */
-  getCreateBucketApproval(params: IGetCreateBucketApproval): Promise<IObjectResultType<string>>;
+  getCreateBucketApproval(params: TCreateBucket): Promise<IObjectResultType<string>>;
 
   /**
    * get approval of creating bucket and send createBucket txn to greenfield chain
    */
-  createBucket(params: IGetCreateBucketApproval): Promise<TxResponse>;
+  createBucket(params: TCreateBucket): Promise<TxResponse>;
 
   /**
    * query the bucketInfo on chain, return the bucket info if exists
@@ -62,6 +78,8 @@ export interface IBucket {
    */
   headBucketById(bucketId: string): Promise<QueryHeadBucketResponse>;
 
+  headBucketNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
+
   /**
    * check if the permission of bucket is allowed to the user.
    */
@@ -71,38 +89,53 @@ export interface IBucket {
     actionType: ActionType,
   ): Promise<QueryVerifyPermissionResponse>;
 
-  getUserBuckets(
-    configParam: getUserBucketsPropsType,
-  ): Promise<IObjectResultType<Array<BucketProps>>>;
+  getUserBuckets(configParam: TGetUserBuckets): Promise<IObjectResultType<Array<BucketProps>>>;
 
   /**
    * return quota info of bucket of current month, include chain quota, free quota and consumed quota
    */
-  getBucketReadQuota(configParam: GetObjectPropsType): Promise<IObjectResultType<IQuotaProps>>;
+  getBucketReadQuota(configParam: TGetBucketReadQuota): Promise<IObjectResultType<IQuotaProps>>;
 
   deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
 
   updateBucketInfo(msg: MsgUpdateBucketInfo): Promise<TxResponse>;
 
-  putBucketPolicy(msg: MsgPutPolicy): Promise<TxResponse>;
+  putBucketPolicy(
+    bucketName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+  ): Promise<TxResponse>;
 
-  deleteBucketPolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
+  deleteBucketPolicy(
+    operator: string,
+    bucketName: string,
+    principalAddr: string,
+  ): Promise<TxResponse>;
+
+  getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
+
+  // TODO: getBucketReadQuota();
 }
 
 @singleton()
 export class Bucket implements IBucket {
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(
+    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => Storage)) private storage: Storage,
+  ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
+  private offChainAuthClient = container.resolve(OffChainAuth);
 
-  public async getCreateBucketApproval({
-    bucketName,
-    creator,
-    visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
-    chargedReadQuota,
-    spInfo,
-    duration,
-  }: IGetCreateBucketApproval) {
+  public async getCreateBucketApproval(configParam: TCreateBucket) {
+    const {
+      bucketName,
+      creator,
+      visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
+      chargedReadQuota,
+      spInfo,
+      duration,
+    } = configParam;
+
     try {
       if (!spInfo.primarySpAddress) {
         throw new Error('Primary sp address is missing');
@@ -127,15 +160,38 @@ export class Bucket implements IBucket {
         charged_read_quota: chargedReadQuota,
         payment_address: '',
       };
-
       const url = endpoint + '/greenfield/admin/v1/get-approval?action=CreateBucket';
       const unSignedMessageInHex = encodeObjectToHexString(msg);
-      const headers = new Headers({
-        // TODO: replace when offchain release
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${MOCK_SIGNATURE}`,
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-      });
 
+      let headerContent: TKeyValue = {
+        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+      };
+      if (!configParam.signType || configParam.signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      }
+      if (configParam.signType === 'offChainAuth') {
+        const { seedString, domain } = configParam;
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          throw {
+            code: -1,
+            message: message || 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-User-Address': creator,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+
+      const headers = new Headers(headerContent);
       const result = await fetchWithTimeout(
         url,
         {
@@ -147,7 +203,7 @@ export class Bucket implements IBucket {
 
       const { status } = result;
       if (!result.ok) {
-        return {
+        throw {
           code: -1,
           message: 'Get create bucket approval error.',
           statusCode: status,
@@ -158,7 +214,7 @@ export class Bucket implements IBucket {
       if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
         const xmlText = await result.text();
         const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return {
+        throw {
           code: -1,
           xml,
           message: 'Get create bucket approval error.',
@@ -200,8 +256,9 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async createBucket(params: IGetCreateBucketApproval) {
+  public async createBucket(params: TCreateBucket) {
     const { signedMsg } = await this.getCreateBucketApproval(params);
+
     if (!signedMsg) {
       throw new Error('Get create bucket approval error');
     }
@@ -248,6 +305,11 @@ export class Bucket implements IBucket {
     });
   }
 
+  public async headBucketNFT(request: QueryNFTRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.HeadBucketNFT(request);
+  }
+
   public async getVerifyPermission(bucketName: string, operator: string, actionType: ActionType) {
     const rpc = await this.queryClient.getBucketQueryClient();
     return rpc.VerifyPermission({
@@ -258,9 +320,9 @@ export class Bucket implements IBucket {
     });
   }
 
-  public async getUserBuckets(configParam: getUserBucketsPropsType) {
+  public async getUserBuckets(configParam: TGetUserBuckets) {
     try {
-      const { address, duration = 30000, endpoint } = configParam;
+      const { address, duration = 30000, endpoint, signType } = configParam;
       if (!isValidAddress(address)) {
         throw new Error('Error address');
       }
@@ -268,12 +330,32 @@ export class Bucket implements IBucket {
         throw new Error('Invalid endpoint');
       }
       const url = endpoint;
-      const signature = MOCK_SIGNATURE;
-      const headers = new Headers({
-        // todo place the correct authorization string
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
+      let headerContent: TKeyValue = {
         'X-Gnfd-User-Address': address,
-      });
+      };
+      if (!signType || signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      } else if (configParam.signType === 'offChainAuth') {
+        const { seedString } = configParam;
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          return {
+            code: -1,
+            message: message || 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-App-Domain': configParam.domain,
+        };
+      }
+      const headers = new Headers(headerContent);
       const result = await fetchWithTimeout(
         url,
         {
@@ -300,12 +382,10 @@ export class Bucket implements IBucket {
   }
 
   public async getBucketReadQuota(
-    configParam: GetObjectPropsType,
+    configParam: TGetBucketReadQuota,
   ): Promise<IObjectResultType<IQuotaProps>> {
     try {
-      const { bucketName, endpoint, duration = 30000, year, month } = configParam;
-      // todo generate real signature
-      const signature = MOCK_SIGNATURE;
+      const { bucketName, endpoint, duration = 30000, year, month, signType } = configParam;
       if (!isValidUrl(endpoint)) {
         throw new Error('Invalid endpoint');
       }
@@ -319,9 +399,33 @@ export class Bucket implements IBucket {
       const url =
         generateUrlByBucketName(endpoint, bucketName) +
         `/?read-quota&year-month=${finalYear}-${formattedMonth}`;
-      const headers = new Headers({
-        Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${signature}`,
-      });
+
+      let headerContent: TKeyValue = {};
+      if (!signType || signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      } else if (configParam.signType === 'offChainAuth') {
+        const { seedString, address, domain } = configParam;
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          return {
+            code: -1,
+            message: message || 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-User-Address': address,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+
+      const headers = new Headers(headerContent);
 
       const result = await fetchWithTimeout(
         url,
@@ -371,7 +475,7 @@ export class Bucket implements IBucket {
 
   public async updateBucketInfo(msg: MsgUpdateBucketInfo) {
     return await this.basic.tx(
-      '/greenfield.storage.MsgUpdateBucketInfo',
+      MsgUpdateBucketInfoTypeUrl,
       msg.operator,
       MsgUpdateBucketInfoSDKTypeEIP712,
       MsgUpdateBucketInfo.toSDK(msg),
@@ -379,25 +483,36 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async putBucketPolicy(msg: MsgPutPolicy) {
-    return await this.basic.tx(
-      '/greenfield.storage.MsgPutPolicy',
-      msg.operator,
-      MsgPutPolicySDKTypeEIP712,
-      MsgPutPolicy.toSDK(msg),
-      MsgPutPolicy.encode(msg).finish(),
-    );
+  public async putBucketPolicy(
+    bucketName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+  ) {
+    const resource = GRNToString(newBucketGRN(bucketName));
+    const msg: MsgPutPolicy = {
+      ...srcMsg,
+      resource,
+    };
+
+    return this.storage.putPolicy(msg);
   }
 
-  public async deleteBucketPolicy(msg: MsgDeletePolicy) {
-    const typeUrl = '/greenfield.storage.MsgDeletePolicy';
+  public async deleteBucketPolicy(operator: string, bucketName: string, principalAddr: string) {
+    const resource = GRNToString(newBucketGRN(bucketName));
+    const principal: Principal = {
+      type: PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+      value: principalAddr,
+    };
 
-    return await this.basic.tx(
-      typeUrl,
-      msg.operator,
-      MsgDeletePolicySDKTypeEIP712,
-      MsgDeletePolicy.toSDK(msg),
-      MsgDeletePolicy.encode(msg).finish(),
-    );
+    const msg: MsgDeletePolicy = {
+      resource,
+      principal,
+      operator: operator,
+    };
+    return await this.storage.deletePolicy(msg);
+  }
+
+  public async getBucketPolicy(request: QueryPolicyForAccountRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return rpc.QueryPolicyForAccount(request);
   }
 }

@@ -28,7 +28,16 @@ export const newBucketGRN = (bucketName: string): IGRN => {
   };
 };
 
-export const newObjectGRN = (owner: string, groupName: string): IGRN => {
+export const newObjectGRN = (bucketName: string, objectName: string): IGRN => {
+  const name = [bucketName, objectName].join('/');
+  return {
+    name,
+    resType: ResourceType.RESOURCE_TYPE_OBJECT,
+    groupOwner: '',
+  };
+};
+
+export const newGroupGRN = (owner: string, groupName: string): IGRN => {
   return {
     resType: ResourceType.RESOURCE_TYPE_GROUP,
     groupOwner: owner,
