@@ -1,5 +1,5 @@
 import { client } from '@/client';
-import { PermissionTypes } from '@bnb-chain/greenfield-chain-sdk';
+import { GRNToString, newBucketGRN, PermissionTypes } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -28,7 +28,7 @@ export const BucketPolicy = () => {
           const statement: PermissionTypes.Statement = {
             effect: PermissionTypes.Effect.EFFECT_ALLOW,
             actions: [PermissionTypes.ActionType.ACTION_UPDATE_BUCKET_INFO],
-            resources: ['grn:b::asdsd'],
+            resources: [GRNToString(newBucketGRN(policyBucketInfo.bucketName))],
           };
 
           const tx = await client.bucket.putBucketPolicy(policyBucketInfo.bucketName, {
