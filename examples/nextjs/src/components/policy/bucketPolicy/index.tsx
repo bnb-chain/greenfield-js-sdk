@@ -3,21 +3,21 @@ import { PermissionTypes } from '@bnb-chain/greenfield-chain-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
-export const GroupPolicy = () => {
+export const BucketPolicy = () => {
   const { address } = useAccount();
-  const [policyGroupInfo, setPolicyGroupInfo] = useState({
-    groupName: '',
+  const [policyBucketInfo, setBucketGroupInfo] = useState({
+    bucketName: '',
   });
 
   return (
     <>
-      <h4>Group Policy</h4>
-      group name :
+      <h4>Bucket Policy</h4>
+      bucket name :
       <input
-        value={policyGroupInfo.groupName}
-        placeholder="group name"
+        value={policyBucketInfo.bucketName}
+        placeholder="bucket name"
         onChange={(e) => {
-          setPolicyGroupInfo({ ...policyGroupInfo, groupName: e.target.value });
+          setBucketGroupInfo({ ...policyBucketInfo, bucketName: e.target.value });
         }}
       />
       <br />
@@ -27,11 +27,11 @@ export const GroupPolicy = () => {
 
           const statement: PermissionTypes.Statement = {
             effect: PermissionTypes.Effect.EFFECT_ALLOW,
-            actions: [PermissionTypes.ActionType.ACTION_UPDATE_GROUP_MEMBER],
-            resources: [''],
+            actions: [PermissionTypes.ActionType.ACTION_UPDATE_BUCKET_INFO],
+            resources: ['grn:b::asdsd'],
           };
 
-          const tx = await client.group.putGroupPolicy(address, policyGroupInfo.groupName, {
+          const tx = await client.bucket.putBucketPolicy(policyBucketInfo.bucketName, {
             operator: address,
             statements: [statement],
             principal: {
@@ -61,7 +61,7 @@ export const GroupPolicy = () => {
           }
         }}
       >
-        put group policy
+        put bucket policy
       </button>
     </>
   );
