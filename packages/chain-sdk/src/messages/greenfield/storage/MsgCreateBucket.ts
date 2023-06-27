@@ -1,5 +1,3 @@
-export const MsgCreateBucketTypeUrl = '/greenfield.storage.MsgCreateBucket';
-
 export const MsgCreateBucketSDKTypeEIP712 = {
   Msg1: [
     {

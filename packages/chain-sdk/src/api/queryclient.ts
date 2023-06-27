@@ -8,6 +8,7 @@ import { QueryClientImpl as BridgeQueryClientImpl } from '@bnb-chain/greenfield-
 import { QueryClientImpl as ChallengeQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { QueryClientImpl as PaymentQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { QueryClientImpl as SpQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
+import { QueryClientImpl as GashubClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/gashub/v1beta1/query';
 import {
   QueryClientImpl as BucketQueryClientImpl,
   QueryClientImpl as StorageQueryClientImpl,
@@ -118,6 +119,11 @@ export class RpcQueryClient {
   public async getMsgClient() {
     const rpcClient = await this.getRpcClient();
     return new MsgClientImpl(rpcClient);
+  }
+
+  public async getGashubClient() {
+    const rpcClient = await this.getRpcClient();
+    return new GashubClientImpl(rpcClient);
   }
 }
 
