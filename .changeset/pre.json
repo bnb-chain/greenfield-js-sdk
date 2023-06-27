@@ -7,5 +7,7 @@
     "@bnb-chain/greenfield-chain-sdk": "0.2.1",
     "@bnb-chain/greenfiled-file-handle": "0.2.0"
   },
-  "changesets": []
+  "changesets": [
+    "grumpy-gorillas-breathe"
+  ]
 }
