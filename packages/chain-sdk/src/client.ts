@@ -13,6 +13,7 @@ import { ISp, Sp } from './api/sp';
 import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 import { IStorage, Storage } from './api/storage';
 import { Basic, IBasic } from './api/basic';
+import { Gashub, IGashub } from './api/gashub';
 
 @injectable()
 export class Client {
@@ -27,6 +28,7 @@ export class Client {
     const crosschain = container.resolve<CrossChain>(CrossChain);
     const distribution = container.resolve<Distribution>(Distribution);
     const feegrant = container.resolve<FeeGrant>(FeeGrant);
+    const gashub = container.resolve<Gashub>(Gashub);
     const group = container.resolve<Group>(Group);
     const objectt = container.resolve<Objectt>(Objectt);
     const payment = container.resolve<Payment>(Payment);
@@ -42,6 +44,7 @@ export class Client {
       crosschain,
       distribution,
       feegrant,
+      gashub,
       group,
       objectt,
       payment,
@@ -59,6 +62,7 @@ export class Client {
     public crosschain: ICrossChain,
     public distribution: IDistribution,
     public feegrant: IFeeGrant,
+    public gashub: IGashub,
     public group: IGroup,
     public object: IObject,
     public payment: IPayment,
