@@ -1,11 +1,5 @@
-import {
-  MsgGrantAllowanceSDKTypeEIP712,
-  MsgGrantAllowanceTypeUrl,
-} from '@/messages/feegrant/MsgGrantAllowance';
-import {
-  MsgRevokeAllowanceSDKTypeEIP712,
-  MsgRevokeAllowanceTypeUrl,
-} from '@/messages/feegrant/MsgRevokeAllowance';
+import { MsgGrantAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgGrantAllowance';
+import { MsgRevokeAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgRevokeAllowance';
 import {
   QueryAllowanceRequest,
   QueryAllowanceResponse,
@@ -17,7 +11,7 @@ import {
   MsgRevokeAllowance,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
 import { container, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import { MsgGrantAllowanceTypeUrl, MsgRevokeAllowanceTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 

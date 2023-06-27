@@ -1,5 +1,5 @@
-import { MsgAttestSDKTypeEIP712, MsgAttestTypeUrl } from '@/messages/greenfield/chanenge/MsgAttest';
-import { MsgSubmitSDKTypeEIP712, MsgSubmitTypeUrl } from '@/messages/greenfield/chanenge/MsgSubmit';
+import { MsgAttestSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgAttest';
+import { MsgSubmitSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgSubmit';
 import {
   QueryInturnAttestationSubmitterResponse,
   QueryLatestAttestedChallengesResponse,
@@ -7,7 +7,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import { MsgAttestTypeUrl, MsgSubmitTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 

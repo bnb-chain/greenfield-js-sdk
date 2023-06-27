@@ -1,12 +1,5 @@
-import {
-  MsgDeletePolicySDKTypeEIP712,
-  MsgDeletePolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeletePolicy';
-import {
-  MsgPutPolicySDKTypeEIP712,
-  MsgPutPolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgPutPolicy';
-import { Statement } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
+import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
+import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
 import {
   QueryParamsResponse,
   QueryPolicyByIdRequest,
@@ -20,9 +13,8 @@ import {
   MsgDeletePolicy,
   MsgPutPolicy,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { toTimestamp } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { PermissionTypes, TxResponse } from '..';
+import { MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 

@@ -1,5 +1,3 @@
-export const MsgGrantAllowanceTypeUrl = '/cosmos.feegrant.v1beta1.MsgGrantAllowance';
-
 export const MsgGrantAllowanceSDKTypeEIP712 = {
   Msg1: [
     {

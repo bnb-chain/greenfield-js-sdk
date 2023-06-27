@@ -1,4 +1,3 @@
-export const MsgMultiSendTypeUrl = '/cosmos.bank.v1beta1.MsgMultiSend';
 export const MsgMultiSendSDKTypeEIP712 = {
   Msg1: [
     {

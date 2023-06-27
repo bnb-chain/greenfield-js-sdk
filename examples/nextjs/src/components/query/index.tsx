@@ -24,6 +24,23 @@ export const QueryComponent = () => {
         </li>
       </ul>
 
+      <h3>tx</h3>
+      <ul>
+        <li>
+          <button
+            onClick={async () => {
+              const gasfeeList = await client.gashub.getMsgGasParams({
+                msgTypeUrls: [],
+              });
+
+              console.log('gasfeeList', gasfeeList);
+            }}
+          >
+            get gasfeeList
+          </button>
+        </li>
+      </ul>
+
       <h3>sp</h3>
       <ul>
         <li>
