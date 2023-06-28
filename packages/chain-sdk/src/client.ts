@@ -14,6 +14,7 @@ import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 import { IStorage, Storage } from './api/storage';
 import { Basic, IBasic } from './api/basic';
 import { Gashub, IGashub } from './api/gashub';
+import { RpcQueryClient } from './api/queryclient';
 
 @injectable()
 export class Client {
@@ -32,6 +33,7 @@ export class Client {
     const group = container.resolve<Group>(Group);
     const objectt = container.resolve<Objectt>(Objectt);
     const payment = container.resolve<Payment>(Payment);
+    const queryClient = container.resolve<RpcQueryClient>(RpcQueryClient);
     const sp = container.resolve<Sp>(Sp);
     const storage = container.resolve<Storage>(Storage);
     const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
@@ -48,6 +50,7 @@ export class Client {
       group,
       objectt,
       payment,
+      queryClient,
       sp,
       storage,
       offchainauth,
@@ -66,6 +69,7 @@ export class Client {
     public group: IGroup,
     public object: IObject,
     public payment: IPayment,
+    public queryClient: RpcQueryClient,
     public sp: ISp,
     public storage: IStorage,
     public offchainauth: IOffChainAuth,
