@@ -8,6 +8,8 @@
     "@bnb-chain/greenfiled-file-handle": "0.2.0"
   },
   "changesets": [
-    "grumpy-gorillas-breathe"
+    "calm-birds-sleep",
+    "grumpy-gorillas-breathe",
+    "old-roses-play"
   ]
 }
