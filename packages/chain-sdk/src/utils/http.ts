@@ -1,3 +1,5 @@
+import fetch from 'cross-fetch';
+
 const EMPTY_STRING_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 const MOCK_SIGNATURE = '1234567812345678123456781234567812345678123456781234567812345678';
 const NORMAL_ERROR_CODE = 404;
@@ -15,8 +17,11 @@ function timeoutAfter(duration: number) {
 
 const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration = 30000) => {
   try {
-    const response = await Promise.race([timeoutAfter(duration), fetch(fetchUrl, fetchOptions)]);
-    return response as Promise<Response>;
+    const response = (await Promise.race([
+      timeoutAfter(duration),
+      fetch(fetchUrl, fetchOptions),
+    ])) as Response;
+    return response;
   } catch (error) {
     return Promise.reject(error);
   }

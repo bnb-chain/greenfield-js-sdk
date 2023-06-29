@@ -25,11 +25,8 @@ import {
   MsgPutPolicy,
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import {
-  bytesFromBase64,
-  fromJsonTimestamp,
-  toTimestamp,
-} from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { Headers } from 'cross-fetch';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -210,18 +207,6 @@ export class Objectt implements IObject {
           error: result,
         };
       }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when get object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        throw {
-          code: -1,
-          xml,
-          message: 'Get create object approval error.',
-          statusCode: status,
-        };
-      }
 
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
       const signedMsg = decodeObjectFromHexString(signedMsgString) as ICreateObjectMsgType;
@@ -338,13 +323,7 @@ export class Objectt implements IObject {
       if (!result.ok) {
         return { code: -1, message: 'Put object error.', statusCode: status };
       }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when put object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return { code: -1, message: 'Put object error.', xml, statusCode: status };
-      }
+
       return { code: 0, message: 'Put object success.', statusCode: status };
     } catch (error: any) {
       return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
@@ -456,18 +435,7 @@ export class Objectt implements IObject {
       if (!result.ok) {
         return { code: -1, message: 'Get object error.', statusCode: status };
       }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when get object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return {
-          code: -1,
-          xml,
-          message: 'Get object error.',
-          statusCode: status,
-        };
-      }
+
       const fileBlob = await result.blob();
       return {
         code: 0,

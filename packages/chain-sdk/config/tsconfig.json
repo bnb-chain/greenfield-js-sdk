@@ -2,7 +2,6 @@
   "compilerOptions": {
     "lib": [
       "es2021",
-      "DOM"
     ],
     "baseUrl": ".",
     "target": "ESNext",

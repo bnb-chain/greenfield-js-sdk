@@ -1,6 +1,6 @@
-import { describe, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 import { Client } from '../client';
-import { ACCOUNT, GREENFIELD_CHAIN_ID, GRPC_URL, ZERO_ACCOUNT_ADDRESS } from '../config.spec';
+import { ACCOUNT, GREENFIELD_CHAIN_ID, GRPC_URL, ZERO_ACCOUNT_ADDRESS } from './config.spec';
 
 const client = Client.create(GRPC_URL, GREENFIELD_CHAIN_ID);
 

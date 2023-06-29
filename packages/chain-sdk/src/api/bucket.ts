@@ -27,6 +27,7 @@ import {
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { Headers } from 'cross-fetch';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
@@ -200,18 +201,6 @@ export class Bucket implements IBucket {
       if (!result.ok) {
         throw {
           code: -1,
-          message: 'Get create bucket approval error.',
-          statusCode: status,
-        };
-      }
-
-      const resultContentType = result.headers.get('Content-Type');
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        throw {
-          code: -1,
-          xml,
           message: 'Get create bucket approval error.',
           statusCode: status,
         };
