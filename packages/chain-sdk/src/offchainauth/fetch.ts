@@ -8,17 +8,23 @@ export const fetchNonce = async ({
   address,
   domain,
 }: IFetchNonce) => {
+  let result;
   const url = `${spEndpoint}/auth/request_nonce`;
   const headers = new Headers({
     'X-Gnfd-User-Address': address,
     'X-Gnfd-App-Domain': domain,
   });
-  const result = await fetchWithTimeout(url, {
-    headers,
-  });
-  if (!result.ok) {
+  try {
+    result = await fetchWithTimeout(url, {
+      headers,
+    });
+    if (!result.ok) {
+      return { code: -1, nonce: null };
+    }
+  } catch (error) {
     return { code: -1, nonce: null };
   }
+
   const res = await result.json();
 
   return {
@@ -37,6 +43,7 @@ export const updateOneSpPubKey = async ({
   expireDate,
   authorization,
 }: IUpdateOneSpPubKeyParams) => {
+  let result;
   const url = `${sp.endpoint}/auth/update_key`;
   const nonce = sp.nonce + '';
   const headers = new Headers({
@@ -47,11 +54,16 @@ export const updateOneSpPubKey = async ({
     'X-Gnfd-App-Reg-Expiry-Date': expireDate,
     Authorization: authorization,
   });
-  const result = await fetchWithTimeout(url, {
-    headers,
-    method: 'POST',
-  });
-  if (!result.ok) {
+
+  try {
+    result = await fetchWithTimeout(url, {
+      headers,
+      method: 'POST',
+    });
+    if (!result.ok) {
+      return { code: -1, data: { address }, message: 'upload sp pubKey error.' };
+    }
+  } catch (error) {
     return { code: -1, data: { address }, message: 'upload sp pubKey error.' };
   }
 
