@@ -4,6 +4,7 @@ module.exports = {
   rules: {
     'no-console': 2,
     'react/react-in-jsx-scope': ['off'],
+    '@typescript-eslint/ban-ts-comment': 'off',
   },
   plugins: ['prettier', '@typescript-eslint'],
 };

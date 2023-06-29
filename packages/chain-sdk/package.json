@@ -26,7 +26,7 @@
     "dev": "rollup -cw",
     "prebuild": "rimraf ./dist",
     "build": "rollup -c",
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "prettier --write './src/*.{ts,tsx,js,jsx}' && eslint ./src/ --ext .js,.jsx,.ts,.tsx --fix"
   },
   "keywords": [],
@@ -54,7 +54,6 @@
   },
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.11",
-    "@bnb-chain/greenfiled-file-handle": "workspace:*",
     "@cosmjs/proto-signing": "^0.30.1",
     "@cosmjs/stargate": "^0.30.1",
     "@cosmjs/tendermint-rpc": "^0.30.1",

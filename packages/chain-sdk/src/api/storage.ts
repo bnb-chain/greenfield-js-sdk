@@ -56,6 +56,7 @@ export class Storage implements IStorage {
         ...toSdk,
         expiration_time: '',
         statements: toSdk.statements.map((e) => {
+          // @ts-ignore
           e.expiration_time = '';
           return e;
         }),
