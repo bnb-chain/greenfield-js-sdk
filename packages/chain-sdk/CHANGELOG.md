@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.1
+
+### Patch Changes
+
+- [#131](https://github.com/bnb-chain/greenfield-js-sdk/pull/131)
+  [`82082a9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/82082a90352ba60193e8c109f82782fff14c59f9)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Export queryClient
+
+- [#133](https://github.com/bnb-chain/greenfield-js-sdk/pull/133)
+  [`d8361be`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d8361be80834c76b1522d312f4b7607a2b09b7fb)
+  Thanks [@randomx999](https://github.com/randomx999)! - fix: Compatiable net error
+
 ## 0.2.2-alpha.0
 
 ### Patch Changes
