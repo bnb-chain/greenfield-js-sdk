@@ -61,14 +61,6 @@ export const CreateGroup = () => {
       >
         create group
       </button>
-
-      <button
-        onClick={async () => {
-          await client.group.updateGroupExtra({});
-        }}
-      >
-        xxx
-      </button>
     </div>
   );
 };

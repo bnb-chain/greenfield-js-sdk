@@ -1,4 +1,5 @@
 import { fetchWithTimeout } from '@/utils/http';
+import { Headers } from 'cross-fetch';
 import { IFetchNonce, IUpdateOneSpPubKeyParams } from '../types/storage';
 
 export const fetchNonce = async ({

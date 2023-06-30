@@ -1,3 +1,4 @@
+import { Headers } from 'cross-fetch';
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { fetchWithTimeout, METHOD_GET } from '@/utils/http';
 import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
