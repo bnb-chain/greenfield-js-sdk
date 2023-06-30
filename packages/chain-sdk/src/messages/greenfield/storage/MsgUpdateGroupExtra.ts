@@ -17,7 +17,7 @@ export const MsgUpdateGroupExtraSDKTypeEIP712 = {
       type: 'string',
     },
     {
-      name: 'Extra',
+      name: 'extra',
       type: 'string',
     },
   ],
