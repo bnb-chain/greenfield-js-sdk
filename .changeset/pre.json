@@ -8,6 +8,7 @@
     "@bnb-chain/greenfiled-file-handle": "0.2.0"
   },
   "changesets": [
+    "beige-trainers-knock",
     "calm-birds-sleep",
     "grumpy-gorillas-breathe",
     "happy-humans-thank",

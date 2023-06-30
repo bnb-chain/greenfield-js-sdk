@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.4
+
+### Patch Changes
+
+- [#141](https://github.com/bnb-chain/greenfield-js-sdk/pull/141)
+  [`07c143f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/07c143f245a1c44b821a2bc75ef9877da3df5d2f)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Split approval and simulate
+
 ## 0.2.2-alpha.3
 
 ### Patch Changes
