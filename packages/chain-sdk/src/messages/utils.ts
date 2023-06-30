@@ -1,4 +1,7 @@
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import mapValues from 'lodash.mapvalues';
+import sortBy from 'lodash.sortby';
+import { MetaTxInfo } from '..';
 
 export const typeWrapper = (type: string, msg: object) => {
   return {
@@ -13,8 +16,6 @@ export const generateMsg = (typeUrl: string, msgBytes: Uint8Array) => {
     value: msgBytes,
   });
 };
-
-import { MetaTxInfo } from '..';
 
 export const createEIP712 = (types: object, chainId: string, message: object) => {
   return {
@@ -124,15 +125,9 @@ export const generateTypes = (newTypes: object) => {
     Object.assign(types, newTypes);
   }
 
-  // sort types by field name
-  const resTypes: Record<string, any> = {};
-  const unsortedObjArr = [...Object.entries(types)];
-  const sortedObjArr = unsortedObjArr.sort(([k1], [k2]) => k1.localeCompare(k2));
-  sortedObjArr.forEach(([k, v]) => {
-    resTypes[k] = v;
+  return mapValues(types, (o) => {
+    return sortBy(o, ['name']);
   });
-
-  return resTypes;
 };
 
 export const generateFee = (
