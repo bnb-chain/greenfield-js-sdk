@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.1-alpha.10
+
+### Patch Changes
+
+- [#137](https://github.com/bnb-chain/greenfield-js-sdk/pull/137)
+  [`57a8176`](https://github.com/bnb-chain/greenfield-js-sdk/commit/57a8176be1f8a816003db405e7c07f73170db804)
+  Thanks [@rrr523](https://github.com/rrr523)! - Sort EIP712 message field if send multi messages
+
 ## 0.2.2-alpha.2
 
 ### Patch Changes
