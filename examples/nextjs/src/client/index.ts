@@ -12,7 +12,7 @@ export const getSps = async () => {
 
 export const selectSp = async () => {
   const finalSps = await getSps();
-  const selectIndex = 0;
+  const selectIndex = 1;
   const secondarySpAddresses = [
     ...finalSps.slice(0, selectIndex),
     ...finalSps.slice(selectIndex + 1),

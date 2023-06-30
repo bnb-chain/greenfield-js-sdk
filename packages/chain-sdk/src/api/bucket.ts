@@ -21,6 +21,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCreateBucket,
+  MsgCreateBucketSDKType,
   MsgDeleteBucket,
   MsgDeletePolicy,
   MsgPutPolicy,
@@ -31,6 +32,7 @@ import { Headers } from 'cross-fetch';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
+  getApproval,
   GRNToString,
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
@@ -57,12 +59,17 @@ export interface IBucket {
   /**
    * returns the signature info for the approval of preCreating resources
    */
-  getCreateBucketApproval(params: TCreateBucket): Promise<IObjectResultType<string>>;
+  getCreateBucketApproval(params: TCreateBucket): Promise<IObjectResultType<ICreateBucketMsgType>>;
 
   /**
    * get approval of creating bucket and send createBucket txn to greenfield chain
+   *
+   * if approval is not supply, it will only simulate the txn
    */
-  createBucket(params: TCreateBucket): Promise<TxResponse>;
+  createBucket(
+    params: TCreateBucket,
+    approval?: ICreateBucketMsgType['primary_sp_approval'],
+  ): Promise<TxResponse>;
 
   /**
    * query the bucketInfo on chain, return the bucket info if exists
@@ -212,57 +219,45 @@ export class Bucket implements IBucket {
       return {
         code: 0,
         message: 'Get create bucket approval success.',
-        body: signedMsgString,
+        body: signedMsg,
         statusCode: status,
-        signedMsg: signedMsg,
       };
     } catch (error: any) {
       return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
     }
   }
 
-  private async createBucketTx(msg: MsgCreateBucket, signedMsg: ICreateBucketMsgType) {
+  public async createBucket(
+    params: TCreateBucket,
+    approval?: ICreateBucketMsgType['primary_sp_approval'],
+  ) {
+    const primarySpApproval = approval
+      ? getApproval(approval.expired_height, approval.sig)
+      : getApproval(`${Number.MAX_VALUE}`, '');
+
+    const msg: MsgCreateBucket = {
+      bucketName: params.bucketName,
+      creator: params.creator,
+      visibility: visibilityTypeFromJSON(params.visibility),
+      primarySpAddress: params.spInfo.primarySpAddress,
+      primarySpApproval: primarySpApproval,
+      chargedReadQuota: Long.fromString(params.chargedReadQuota),
+      paymentAddress: '',
+    };
+
     return await this.basic.tx(
       MsgCreateBucketTypeUrl,
       msg.creator,
       MsgCreateBucketSDKTypeEIP712,
       {
-        ...signedMsg,
+        ...MsgCreateBucket.toSDK(msg),
         type: MsgCreateBucketTypeUrl,
-        charged_read_quota: signedMsg.charged_read_quota,
-        visibility: signedMsg.visibility,
-        primary_sp_approval: {
-          expired_height: signedMsg.primary_sp_approval.expired_height,
-          sig: signedMsg.primary_sp_approval.sig,
-        },
+        charged_read_quota: params.chargedReadQuota,
+        visibility: params.visibility,
+        primary_sp_approval: approval,
       },
       MsgCreateBucket.encode(msg).finish(),
     );
-  }
-
-  public async createBucket(params: TCreateBucket) {
-    const { signedMsg } = await this.getCreateBucketApproval(params);
-
-    if (!signedMsg) {
-      throw new Error('Get create bucket approval error');
-    }
-
-    const msg: MsgCreateBucket = {
-      bucketName: signedMsg.bucket_name,
-      creator: signedMsg.creator,
-      visibility: visibilityTypeFromJSON(signedMsg.visibility),
-      primarySpAddress: signedMsg.primary_sp_address,
-      primarySpApproval: {
-        expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
-      },
-      chargedReadQuota: signedMsg.charged_read_quota
-        ? Long.fromString('0')
-        : Long.fromString(signedMsg.charged_read_quota),
-      paymentAddress: '',
-    };
-
-    return await this.createBucketTx(msg, signedMsg);
   }
 
   public async deleteBucket(msg: MsgDeleteBucket) {

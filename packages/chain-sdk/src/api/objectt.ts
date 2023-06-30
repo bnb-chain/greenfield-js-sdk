@@ -29,6 +29,7 @@ import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
+  getApproval,
   GRNToString,
   MsgCancelCreateObjectTypeUrl,
   MsgCreateObjectTypeUrl,
@@ -61,9 +62,14 @@ import { RpcQueryClient } from './queryclient';
 import { Storage } from './storage';
 
 export interface IObject {
-  getCreateObjectApproval(getApprovalParams: TCreateObject): Promise<IObjectResultType<string>>;
+  getCreateObjectApproval(
+    getApprovalParams: TCreateObject,
+  ): Promise<IObjectResultType<ICreateObjectMsgType>>;
 
-  createObject(getApprovalParams: TCreateObject): Promise<TxResponse>;
+  createObject(
+    params: TCreateObject,
+    approval?: ICreateObjectMsgType['primary_sp_approval'],
+  ): Promise<TxResponse>;
 
   uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>>;
 
@@ -214,9 +220,8 @@ export class Objectt implements IObject {
       return {
         code: 0,
         message: 'Get create object approval success.',
-        body: result.headers.get('X-Gnfd-Signed-Msg') ?? '',
+        body: signedMsg,
         statusCode: status,
-        signedMsg,
       };
     } catch (error: any) {
       throw { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
@@ -240,28 +245,53 @@ export class Objectt implements IObject {
     );
   }
 
-  public async createObject(getApprovalParams: TCreateObject) {
-    const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams);
-    if (!signedMsg) {
-      throw new Error('Get create object approval error');
-    }
+  public async createObject(
+    params: TCreateObject,
+    approval?: ICreateObjectMsgType['primary_sp_approval'],
+  ) {
+    const primarySpApproval = approval
+      ? getApproval(approval.expired_height, approval.sig)
+      : getApproval(`${Number.MAX_VALUE}`, '');
+
+    const {
+      bucketName,
+      creator,
+      objectName,
+      fileType,
+      contentLength,
+      expectCheckSums,
+      visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
+      redundancyType = 'REDUNDANCY_EC_TYPE',
+    } = params;
+
     const msg: MsgCreateObject = {
-      bucketName: signedMsg.bucket_name,
-      creator: signedMsg.creator,
-      objectName: signedMsg.object_name,
-      contentType: signedMsg.content_type,
-      payloadSize: Long.fromString(signedMsg.payload_size),
-      visibility: visibilityTypeFromJSON(signedMsg.visibility),
-      expectChecksums: signedMsg.expect_checksums.map((e: string) => bytesFromBase64(e)),
-      expectSecondarySpAddresses: signedMsg.expect_secondary_sp_addresses,
-      redundancyType: redundancyTypeFromJSON(signedMsg.redundancy_type),
-      primarySpApproval: {
-        expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
-      },
+      bucketName,
+      creator,
+      objectName,
+      contentType: fileType,
+      payloadSize: Long.fromString(`${contentLength}`),
+      visibility: visibilityTypeFromJSON(visibility),
+      expectChecksums: expectCheckSums.map((e: string) => bytesFromBase64(e)),
+      expectSecondarySpAddresses: params.spInfo.secondarySpAddresses,
+      redundancyType: redundancyTypeFromJSON(redundancyType),
+      primarySpApproval,
     };
 
-    return await this.createObjectTx(msg, signedMsg);
+    return await this.basic.tx(
+      MsgCreateObjectTypeUrl,
+      msg.creator,
+      MsgCreateObjectSDKTypeEIP712,
+      {
+        ...MsgCreateObject.toSDK(msg),
+        type: MsgCreateObjectTypeUrl,
+        primary_sp_approval: approval,
+        expect_checksums: params.expectCheckSums,
+        payload_size: params.contentLength,
+        redundancy_type: params.redundancyType,
+        visibility: params.visibility,
+      },
+      MsgCreateObject.encode(msg).finish(),
+    );
   }
 
   public async uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>> {
@@ -536,9 +566,10 @@ export class Objectt implements IObject {
   }
 
   public async createFolder(
-    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    params: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    approval?: ICreateObjectMsgType['primary_sp_approval'],
   ) {
-    if (!getApprovalParams.objectName.endsWith('/')) {
+    if (!params.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
       );
@@ -553,23 +584,26 @@ export class Objectt implements IObject {
       const { contentLength, expectCheckSums } = hashResult;
      */
 
-    return this.createObject({
-      bucketName: getApprovalParams.bucketName,
-      objectName: getApprovalParams.objectName,
-      contentLength: 0,
-      fileType: 'text/plain',
-      expectCheckSums: [
-        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-      ],
-      creator: getApprovalParams.creator,
-      spInfo: getApprovalParams.spInfo,
-    });
+    return this.createObject(
+      {
+        bucketName: params.bucketName,
+        objectName: params.objectName,
+        contentLength: 0,
+        fileType: 'text/plain',
+        expectCheckSums: [
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        ],
+        creator: params.creator,
+        spInfo: params.spInfo,
+      },
+      approval,
+    );
   }
 
   public async putObjectPolicy(

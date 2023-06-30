@@ -55,7 +55,7 @@ export const CreateObject = () => {
             const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
             const { contentLength, expectCheckSums } = hashResult;
 
-            const createObjectTx = await client.object.createObject({
+            const { body: signedMsg } = await client.object.getCreateObjectApproval({
               bucketName: createObjectInfo.bucketName,
               objectName: createObjectInfo.objectName,
               spInfo,
@@ -63,8 +63,23 @@ export const CreateObject = () => {
               expectCheckSums,
               fileType: file.type,
               creator: address,
-              signType: 'authTypeV2',
             });
+
+            if (!signedMsg) throw new Error('failed to get approval message');
+
+            const createObjectTx = await client.object.createObject(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName,
+                spInfo,
+                contentLength,
+                expectCheckSums,
+                fileType: file.type,
+                creator: address,
+                signType: 'authTypeV2',
+              },
+              signedMsg.primary_sp_approval,
+            );
 
             const simulateInfo = await createObjectTx.simulate({
               denom: 'BNB',

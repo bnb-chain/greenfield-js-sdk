@@ -1,6 +1,7 @@
 import { SimulateResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/tx/v1beta1/service';
+import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { formatEther } from '@ethersproject/units';
-import { ISimulateGasFee } from '..';
+import { ISimulateGasFee, Long } from '..';
 
 export const getGasFeeBySimulate = (
   simulateTxInfo: SimulateResponse,
@@ -16,5 +17,12 @@ export const getGasFeeBySimulate = (
     gasLimit,
     gasPrice,
     gasFee: formatEther(String(gasFee)),
+  };
+};
+
+export const getApproval = (expiredHeight: string, sig: string) => {
+  return {
+    expiredHeight: Long.fromString(expiredHeight),
+    sig: bytesFromBase64(sig),
   };
 };
