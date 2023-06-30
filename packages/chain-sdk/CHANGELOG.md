@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.2
+
+### Patch Changes
+
+- [#134](https://github.com/bnb-chain/greenfield-js-sdk/pull/134)
+  [`535e9b0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/535e9b06674102ad197532110f018ebe3310eabd)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: isomorphic-fetch
+
+- [#136](https://github.com/bnb-chain/greenfield-js-sdk/pull/136)
+  [`d471489`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d47148950e7e82fb0c8f952a6f573f2ae1409298)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sync Types greenfield-cosmos-sdk
+  v0.2.3-alpha.1 and greendfield v0.2.3-alpha.2
+
 ## 0.2.2-alpha.1
 
 ### Patch Changes
