@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.5
+
+### Patch Changes
+
+- [#143](https://github.com/bnb-chain/greenfield-js-sdk/pull/143)
+  [`834b71b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/834b71b824b42817194f9fa698102be2e1c94be1)
+  Thanks [@rrr523](https://github.com/rrr523)! - Revert "feat: Split approval and simulate"
+
+- [#143](https://github.com/bnb-chain/greenfield-js-sdk/pull/143)
+  [`834b71b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/834b71b824b42817194f9fa698102be2e1c94be1)
+  Thanks [@rrr523](https://github.com/rrr523)! - revert: create bucket and object need approval
+
 ## 0.2.2-alpha.4
 
 ### Patch Changes
