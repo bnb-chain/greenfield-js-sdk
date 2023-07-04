@@ -28,8 +28,7 @@ export const CreateBucket = () => {
           if (!address) return;
 
           const spInfo = await selectSp();
-
-          const { body: signedMsg } = await client.bucket.getCreateBucketApproval({
+          const createBucketTx = await client.bucket.createBucket({
             bucketName: createBucketInfo.bucketName,
             creator: address,
             visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
@@ -37,20 +36,6 @@ export const CreateBucket = () => {
             spInfo,
             signType: 'authTypeV2',
           });
-
-          if (!signedMsg) throw new Error('failed to get approval message');
-
-          const createBucketTx = await client.bucket.createBucket(
-            {
-              bucketName: createBucketInfo.bucketName,
-              creator: address,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              chargedReadQuota: '0',
-              spInfo,
-              signType: 'authTypeV2',
-            },
-            signedMsg.primary_sp_approval,
-          );
 
           const simulateInfo = await createBucketTx.simulate({
             denom: 'BNB',
@@ -71,10 +56,10 @@ export const CreateBucket = () => {
           }
         }}
       >
-        broadcast with simulate
+        broadcast with simulate with authTypeV2
       </button>
       <br />
-      {/*       <button
+      <button
         onClick={async () => {
           if (!address) return;
           const domain = window.location.origin;
@@ -112,7 +97,7 @@ export const CreateBucket = () => {
         }}
       >
         broadcast with simulate with offChainAuth
-      </button> */}
+      </button>
     </>
   );
 };

@@ -28,7 +28,7 @@ export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthTyp
 
 export interface ISpInfo {
   endpoint: string;
-  primarySpAddress: string;
+  primarySpAddress?: string;
   sealAddress: string;
   secondarySpAddresses: string[];
 }

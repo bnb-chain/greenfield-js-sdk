@@ -2,4 +2,4 @@
 '@bnb-chain/greenfield-chain-sdk': patch
 ---
 
-feat: Split approval and simulate
+revert: create bucket and object need approval
