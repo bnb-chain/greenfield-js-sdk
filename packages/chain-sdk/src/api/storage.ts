@@ -1,6 +1,8 @@
 import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
 import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
 import {
+  QueryLockFeeRequest,
+  QueryLockFeeResponse,
   QueryParamsResponse,
   QueryPolicyByIdRequest,
   QueryPolicyByIdResponse,
@@ -34,6 +36,8 @@ export interface IStorage {
   getQueryPolicyForGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 
   getQueryPolicyById(request: QueryPolicyByIdRequest): Promise<QueryPolicyByIdResponse>;
+
+  queryLockFee(request: QueryLockFeeRequest): Promise<QueryLockFeeResponse>;
 }
 
 @singleton()
@@ -93,5 +97,10 @@ export class Storage implements IStorage {
   public async getQueryPolicyById(request: QueryPolicyByIdRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.QueryPolicyById(request);
+  }
+
+  public async queryLockFee(request: QueryLockFeeRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryLockFee(request);
   }
 }

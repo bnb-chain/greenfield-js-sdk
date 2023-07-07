@@ -1,4 +1,3 @@
-import { Headers } from 'cross-fetch';
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { fetchWithTimeout, METHOD_GET } from '@/utils/http';
 import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
@@ -10,6 +9,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import { SourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
+import { Headers } from 'cross-fetch';
 import Long from 'long';
 import { container, singleton } from 'tsyringe';
 import { RpcQueryClient } from './queryclient';
