@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.6
+
+### Patch Changes
+
+- [#147](https://github.com/bnb-chain/greenfield-js-sdk/pull/147)
+  [`d15ef5d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d15ef5d37ae8d3b340b89645a0fb26c5192d14f3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Query Lock Fee API
+
 ## 0.2.2-alpha.5
 
 ### Patch Changes
