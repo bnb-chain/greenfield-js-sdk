@@ -217,7 +217,7 @@ export class Bucket implements IBucket {
         signedMsg: signedMsg,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      throw { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
     }
   }
 
