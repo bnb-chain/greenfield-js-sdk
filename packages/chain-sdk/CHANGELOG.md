@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.7
+
+### Patch Changes
+
+- [#149](https://github.com/bnb-chain/greenfield-js-sdk/pull/149)
+  [`b050481`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b05048118d68abeff0939e09aad21ed6a22c34d3)
+  Thanks [@aiden-cao](https://github.com/aiden-cao)! - feat: bucket getApproval replace `return`
+  with `throw`
+
 ## 0.2.2-alpha.6
 
 ### Patch Changes
