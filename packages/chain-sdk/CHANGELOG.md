@@ -1,5 +1,27 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.0.0-snapshot-20230711151845
+
+### Patch Changes
+
+- [#154](https://github.com/bnb-chain/greenfield-js-sdk/pull/154)
+  [`b204045`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b20404593da1ccc7c15a8465df7193461aa8710d)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Query Lock Fee API
+
+- [#154](https://github.com/bnb-chain/greenfield-js-sdk/pull/154)
+  [`b204045`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b20404593da1ccc7c15a8465df7193461aa8710d)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: bucket getApproval replace `return` with
+  `throw`
+
+- [#154](https://github.com/bnb-chain/greenfield-js-sdk/pull/154)
+  [`b204045`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b20404593da1ccc7c15a8465df7193461aa8710d)
+  Thanks [@rrr523](https://github.com/rrr523)! - revert: create bucket and object need approval
+
+- [#154](https://github.com/bnb-chain/greenfield-js-sdk/pull/154)
+  [`b204045`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b20404593da1ccc7c15a8465df7193461aa8710d)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sync Types greenfield-cosmos-sdk
+  v0.2.3-alpha.1 and greendfield v0.2.3-alpha.2
+
 ## 0.0.0-snapshot-20230711065205
 
 ### Patch Changes
