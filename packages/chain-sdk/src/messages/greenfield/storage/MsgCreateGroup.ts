@@ -1,5 +1,5 @@
 export const MsgCreateGroupSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',

@@ -1,5 +1,5 @@
 export const MsgUpdateGroupMemberSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',

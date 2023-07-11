@@ -1,5 +1,5 @@
 export const MsgCreateObjectSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',
@@ -30,7 +30,7 @@ export const MsgCreateObjectSDKTypeEIP712 = {
     },
     {
       name: 'primary_sp_approval',
-      type: 'TypeMsg1PrimarySpApproval',
+      type: 'TypePrimarySpApproval',
     },
     {
       name: 'expect_checksums',
@@ -45,7 +45,7 @@ export const MsgCreateObjectSDKTypeEIP712 = {
       type: 'string[]',
     },
   ],
-  TypeMsg1PrimarySpApproval: [
+  TypePrimarySpApproval: [
     {
       name: 'expired_height',
       type: 'uint64',

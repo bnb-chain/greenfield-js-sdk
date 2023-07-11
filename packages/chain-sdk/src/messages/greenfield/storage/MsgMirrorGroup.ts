@@ -1,5 +1,5 @@
 export const MsgMirrorGroupSDKTypeEIP712 = {
-  Msg1: [
+  Msg: [
     {
       name: 'type',
       type: 'string',
