@@ -1,5 +1,5 @@
 export const MsgLeaveGroupSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',

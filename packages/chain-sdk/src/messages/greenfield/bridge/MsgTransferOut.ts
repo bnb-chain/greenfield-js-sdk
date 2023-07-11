@@ -1,5 +1,5 @@
 export const MsgTransferOutSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',
@@ -14,7 +14,17 @@ export const MsgTransferOutSDKTypeEIP712 = {
     },
     {
       name: 'amount',
-      type: 'TypeAmount',
+      type: 'TypeMsg1Amount',
+    },
+  ],
+  TypeMsg1Amount: [
+    {
+      name: 'denom',
+      type: 'string',
+    },
+    {
+      name: 'amount',
+      type: 'string',
     },
   ],
 };

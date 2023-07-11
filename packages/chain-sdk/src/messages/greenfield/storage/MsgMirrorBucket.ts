@@ -1,5 +1,5 @@
 export const MsgMirrorBucketSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',

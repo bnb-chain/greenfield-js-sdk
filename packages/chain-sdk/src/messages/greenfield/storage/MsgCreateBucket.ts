@@ -1,5 +1,5 @@
 export const MsgCreateBucketSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',
@@ -26,14 +26,14 @@ export const MsgCreateBucketSDKTypeEIP712 = {
     },
     {
       name: 'primary_sp_approval',
-      type: 'TypePrimarySpApproval',
+      type: 'TypeMsg1PrimarySpApproval',
     },
     {
       name: 'charged_read_quota',
       type: 'uint64',
     },
   ],
-  TypePrimarySpApproval: [
+  TypeMsg1PrimarySpApproval: [
     {
       name: 'expired_height',
       type: 'uint64',

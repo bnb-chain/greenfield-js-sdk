@@ -1,5 +1,5 @@
 export const MsgDeleteGroupSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',
