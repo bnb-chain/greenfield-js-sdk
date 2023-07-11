@@ -1,6 +1,4 @@
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
-import mapValues from 'lodash.mapvalues';
-import sortBy from 'lodash.sortby';
 import { MetaTxInfo } from '..';
 
 export const typeWrapper = (type: string, msg: object) => {
