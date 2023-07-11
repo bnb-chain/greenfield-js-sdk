@@ -1,5 +1,19 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.0.0-snapshot-20230711065205
+
+### Patch Changes
+
+- [#151](https://github.com/bnb-chain/greenfield-js-sdk/pull/151)
+  [`34addcf`](https://github.com/bnb-chain/greenfield-js-sdk/commit/34addcfb67b3e84c2978a966521200bdc9981bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: bucket getApproval replace `return` with
+  `throw`
+
+- [#151](https://github.com/bnb-chain/greenfield-js-sdk/pull/151)
+  [`34addcf`](https://github.com/bnb-chain/greenfield-js-sdk/commit/34addcfb67b3e84c2978a966521200bdc9981bf8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sync Types greenfield-cosmos-sdk
+  v0.2.3-alpha.1 and greendfield v0.2.3-alpha.2
+
 ## 0.0.0-snapshot-20230619125532
 
 ### Patch Changes
