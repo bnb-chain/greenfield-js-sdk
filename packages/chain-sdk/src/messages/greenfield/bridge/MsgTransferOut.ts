@@ -1,5 +1,3 @@
-export const MsgTransferOutTypeUrl = '/greenfield.bridge.MsgTransferOut';
-
 export const MsgTransferOutSDKTypeEIP712 = {
   Msg: [
     {

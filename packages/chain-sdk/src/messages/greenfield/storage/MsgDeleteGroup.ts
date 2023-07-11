@@ -1,4 +1,3 @@
-export const MsgDeleteGroupTypeUrl = '/greenfield.storage.MsgDeleteGroup';
 export const MsgDeleteGroupSDKTypeEIP712 = {
   Msg: [
     {

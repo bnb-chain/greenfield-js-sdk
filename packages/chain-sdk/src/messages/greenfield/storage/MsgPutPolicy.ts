@@ -1,5 +1,3 @@
-export const MsgPutPolicyTypeUrl = '/greenfield.storage.MsgPutPolicy';
-
 export const MsgPutPolicySDKTypeEIP712 = {
   Msg: [
     {
@@ -41,6 +39,14 @@ export const MsgPutPolicySDKTypeEIP712 = {
     {
       name: 'effect',
       type: 'string',
+    },
+    {
+      name: 'actions',
+      type: 'string[]',
+    },
+    {
+      name: 'resources',
+      type: 'string[]',
     },
     {
       name: 'expiration_time',

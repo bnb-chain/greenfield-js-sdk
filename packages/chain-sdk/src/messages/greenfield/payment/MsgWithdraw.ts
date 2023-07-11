@@ -1,4 +1,3 @@
-export const MsgWithdrawTypeUrl = '/greenfield.payment.MsgWithdraw';
 export const MsgWithdrawSDKTypeEIP712 = {
   Msg1: [
     {

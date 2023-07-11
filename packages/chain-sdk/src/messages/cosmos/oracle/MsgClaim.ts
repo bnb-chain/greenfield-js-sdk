@@ -1,5 +1,3 @@
-export const MsgClaimTypeUrl = '/cosmos.oracle.v1.MsgClaim';
-
 export const MsgClaimSDKTypeEIP712 = {
   Msg1: [
     {

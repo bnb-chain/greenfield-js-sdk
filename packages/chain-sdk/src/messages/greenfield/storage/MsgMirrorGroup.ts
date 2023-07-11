@@ -1,5 +1,3 @@
-export const MsgMirrorGroupTypeUrl = '/greenfield.storage.MsgMirrorGroup';
-
 export const MsgMirrorGroupSDKTypeEIP712 = {
   Msg: [
     {

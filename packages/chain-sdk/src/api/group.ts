@@ -1,22 +1,11 @@
-import {
-  MsgCreateGroupSDKTypeEIP712,
-  MsgCreateGroupTypeUrl,
-} from '@/messages/greenfield/storage/MsgCreateGroup';
-import {
-  MsgDeleteGroupSDKTypeEIP712,
-  MsgDeleteGroupTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeleteGroup';
-import {
-  MsgLeaveGroupSDKTypeEIP712,
-  MsgLeaveGroupTypeUrl,
-} from '@/messages/greenfield/storage/MsgLeaveGroup';
-import {
-  MsgUpdateGroupMemberSDKTypeEIP712,
-  MsgUpdateGroupMemberTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateGroupMember';
+import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateGroup';
+import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
+import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
+import { MsgUpdateGroupExtraSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupExtra';
+import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
 import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '@/utils/grn';
 import {
-  QueryBucketNFTResponse,
+  QueryGroupNFTResponse,
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
   QueryListGroupRequest,
@@ -30,10 +19,18 @@ import {
   MsgDeleteGroup,
   MsgLeaveGroup,
   MsgPutPolicy,
+  MsgUpdateGroupExtra,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import {
+  MsgCreateGroupTypeUrl,
+  MsgDeleteGroupTypeUrl,
+  MsgLeaveGroupTypeUrl,
+  MsgUpdateGroupExtraTypeUrl,
+  MsgUpdateGroupMemberTypeUrl,
+  TxResponse,
+} from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 import { Storage } from './storage';
@@ -53,6 +50,8 @@ export interface IGroup {
    * support adding or removing members from the group and return the txn hash
    */
   updateGroupMember(msg: MsgUpdateGroupMember): Promise<TxResponse>;
+
+  updateGroupExtra(msg: MsgUpdateGroupExtra): Promise<TxResponse>;
 
   /**
    * make the member leave the specific group
@@ -75,15 +74,13 @@ export interface IGroup {
 
   listGroup(request: QueryListGroupRequest): Promise<QueryListGroupResponse>;
 
-  headGroupNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
+  headGroupNFT(request: QueryNFTRequest): Promise<QueryGroupNFTResponse>;
 
   /**
    * get the bucket policy info of the group specified by group id
    * it queries a bucket policy that grants permission to a group
    */
   getPolicyOfGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
-
-  // TODO: putGroupPolicy compire with bucket.putBucketPolicy
 
   getBucketPolicyOfGroup(bucketName: string, groupId: number): Promise<QueryPolicyForGroupResponse>;
 
@@ -92,6 +89,12 @@ export interface IGroup {
     objectName: string,
     groupId: number,
   ): Promise<QueryPolicyForGroupResponse>;
+
+  putGroupPolicy(
+    owner: string,
+    groupName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+  ): Promise<TxResponse>;
 }
 
 @singleton()
@@ -141,6 +144,16 @@ export class Group implements IGroup {
     );
   }
 
+  public async updateGroupExtra(msg: MsgUpdateGroupExtra) {
+    return await this.basic.tx(
+      MsgUpdateGroupExtraTypeUrl,
+      msg.operator,
+      MsgUpdateGroupExtraSDKTypeEIP712,
+      MsgUpdateGroupExtra.toSDK(msg),
+      MsgUpdateGroupExtra.encode(msg).finish(),
+    );
+  }
+
   public async leaveGroup(address: string, msg: MsgLeaveGroup) {
     return await this.basic.tx(
       MsgLeaveGroupTypeUrl,
@@ -170,7 +183,7 @@ export class Group implements IGroup {
 
   public async headGroupNFT(request: QueryNFTRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
-    return await rpc.HeadBucketNFT(request);
+    return await rpc.HeadGroupNFT(request);
   }
 
   public async listGroup(request: QueryListGroupRequest) {
@@ -202,7 +215,7 @@ export class Group implements IGroup {
   public async putGroupPolicy(
     owner: string,
     groupName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
   ) {
     const resource = GRNToString(newGroupGRN(owner, groupName));
     const msg: MsgPutPolicy = {

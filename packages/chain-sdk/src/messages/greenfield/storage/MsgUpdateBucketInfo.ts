@@ -1,5 +1,3 @@
-export const MsgUpdateBucketInfoTypeUrl = '/greenfield.storage.MsgUpdateBucketInfo';
-
 export const MsgUpdateBucketInfoSDKTypeEIP712 = {
   Msg: [
     {

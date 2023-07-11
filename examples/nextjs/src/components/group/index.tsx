@@ -1,6 +1,7 @@
 import { CreateGroup } from './create';
 import { DeleteGroup } from './delete';
 import { GroupInfo } from './info';
+import { ListGroup } from './list';
 
 export const Group = () => {
   return (
@@ -12,6 +13,8 @@ export const Group = () => {
       <DeleteGroup />
 
       <GroupInfo />
+
+      <ListGroup />
     </div>
   );
 };

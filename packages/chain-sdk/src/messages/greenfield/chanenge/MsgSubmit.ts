@@ -1,5 +1,3 @@
-export const MsgSubmitTypeUrl = '/greenfield.challenge.MsgSubmit';
-
 export const MsgSubmitSDKTypeEIP712 = {
   Msg1: [
     {

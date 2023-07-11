@@ -2,8 +2,10 @@ import { Bucket } from '@/components/bucket';
 import { Deposit } from '@/components/deposit';
 import { Group } from '@/components/group';
 import { Mirror } from '@/components/mirror';
+import { MultiMsg } from '@/components/multimsg';
 import { ObjectComponent } from '@/components/object';
 import { OffChainAuth } from '@/components/offchainauth';
+import { Policy } from '@/components/policy';
 import { Transfer } from '@/components/transfer';
 import { WalletInfo } from '@/components/walletInfo';
 import { Withdraw } from '@/components/withdraw';
@@ -39,6 +41,10 @@ export default function Tx() {
           <Group />
           <hr style={{ margin: '10px 0' }} />
           <Mirror />
+          <hr style={{ margin: '10px 0' }} />
+          <Policy />
+          <hr style={{ margin: '10px 0' }} />
+          <MultiMsg />
         </>
       )}
     </div>

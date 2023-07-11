@@ -1,9 +1,6 @@
-import { MsgMultiSendSDKTypeEIP712, MsgMultiSendTypeUrl } from '@/messages/bank/MsgMultiSend';
-import { MsgSendSDKTypeEIP712, MsgSendTypeUrl } from '@/messages/bank/MsgSend';
-import {
-  MsgCreatePaymentAccountSDKTypeEIP712,
-  MsgCreatePaymentAccountTypeUrl,
-} from '@/messages/greenfield/payment/MsgCreatePaymentAccount';
+import { MsgMultiSendSDKTypeEIP712 } from '@/messages/bank/MsgMultiSend';
+import { MsgSendSDKTypeEIP712 } from '@/messages/bank/MsgSend';
+import { MsgCreatePaymentAccountSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgCreatePaymentAccount';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
   QueryModuleAccountByNameResponse,
@@ -21,7 +18,12 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import {
+  MsgCreatePaymentAccountTypeUrl,
+  MsgMultiSendTypeUrl,
+  MsgSendTypeUrl,
+  TxResponse,
+} from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 

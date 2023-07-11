@@ -1,5 +1,3 @@
-export const MsgAttestTypeUrl = '/greenfield.challenge.MsgAttest';
-
 export const MsgAttestSDKTypeEIP712 = {
   Msg1: [
     {

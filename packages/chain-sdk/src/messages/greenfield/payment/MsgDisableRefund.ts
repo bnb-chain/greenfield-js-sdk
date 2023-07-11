@@ -1,4 +1,3 @@
-export const MsgDisableRefundTypeUrl = '/greenfield.payment.MsgDisableRefund';
 export const MsgDisableRefundSDKTypeEIP712 = {
   Msg1: [
     {

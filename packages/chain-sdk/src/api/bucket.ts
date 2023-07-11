@@ -1,19 +1,6 @@
-import {
-  MsgCreateBucketSDKTypeEIP712,
-  MsgCreateBucketTypeUrl,
-} from '@/messages/greenfield/storage/MsgCreateBucket';
-import {
-  MsgDeleteBucketSDKTypeEIP712,
-  MsgDeleteBucketTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeleteBucket';
-import {
-  MsgDeletePolicySDKTypeEIP712,
-  MsgDeletePolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeletePolicy';
-import {
-  MsgUpdateBucketInfoSDKTypeEIP712,
-  MsgUpdateBucketInfoTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateBucket';
+import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
+import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
@@ -40,9 +27,18 @@ import {
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { Headers } from 'cross-fetch';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { GRNToString, newBucketGRN, TKeyValue, TxResponse } from '..';
+import {
+  GRNToString,
+  MsgCreateBucketTypeUrl,
+  MsgDeleteBucketTypeUrl,
+  MsgUpdateBucketInfoTypeUrl,
+  newBucketGRN,
+  TKeyValue,
+  TxResponse,
+} from '..';
 import {
   BucketProps,
   ICreateBucketMsgType,
@@ -100,7 +96,10 @@ export interface IBucket {
 
   updateBucketInfo(msg: MsgUpdateBucketInfo): Promise<TxResponse>;
 
-  putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
+  putBucketPolicy(
+    bucketName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+  ): Promise<TxResponse>;
 
   deleteBucketPolicy(
     operator: string,
@@ -207,18 +206,6 @@ export class Bucket implements IBucket {
         };
       }
 
-      const resultContentType = result.headers.get('Content-Type');
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        throw {
-          code: -1,
-          xml,
-          message: 'Get create bucket approval error.',
-          statusCode: status,
-        };
-      }
-
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
       const signedMsg = decodeObjectFromHexString(signedMsgString) as ICreateBucketMsgType;
 
@@ -230,7 +217,7 @@ export class Bucket implements IBucket {
         signedMsg: signedMsg,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      throw { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
     }
   }
 
@@ -480,7 +467,10 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>) {
+  public async putBucketPolicy(
+    bucketName: string,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+  ) {
     const resource = GRNToString(newBucketGRN(bucketName));
     const msg: MsgPutPolicy = {
       ...srcMsg,

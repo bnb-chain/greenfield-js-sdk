@@ -1,19 +1,7 @@
-import {
-  MsgCancelCreateObjectSDKTypeEIP712,
-  MsgCancelCreateObjectTypeUrl,
-} from '@/messages/greenfield/storage/MsgCancelCreateObject';
-import {
-  MsgCreateObjectSDKTypeEIP712,
-  MsgCreateObjectTypeUrl,
-} from '@/messages/greenfield/storage/MsgCreateObject';
-import {
-  MsgDeleteObjectSDKTypeEIP712,
-  MsgDeleteObjectTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeleteObject';
-import {
-  MsgUpdateObjectInfoSDKTypeEIP712,
-  MsgUpdateObjectInfoTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
+import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
+import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
+import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
 import {
@@ -38,8 +26,16 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { Headers } from 'cross-fetch';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { GRNToString, newObjectGRN } from '..';
+import {
+  GRNToString,
+  MsgCancelCreateObjectTypeUrl,
+  MsgCreateObjectTypeUrl,
+  MsgDeleteObjectTypeUrl,
+  MsgUpdateObjectInfoTypeUrl,
+  newObjectGRN,
+} from '..';
 import {
   ICreateObjectMsgType,
   IObjectProps,
@@ -89,12 +85,15 @@ export interface IObject {
 
   listObjects(configParam: TListObjects): Promise<IObjectResultType<Array<IObjectProps>>>;
 
-  createFolder(getApprovalParams: TCreateObject): Promise<TxResponse>;
+  createFolder(
+    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+  ): Promise<TxResponse>;
 
   putObjectPolicy(
-    owner: string,
-    groupName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+    bucketName: string,
+    objectName: string,
+    // expirationTime: Date,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
   ): Promise<TxResponse>;
 
   deleteObjectPolicy(
@@ -206,18 +205,6 @@ export class Objectt implements IObject {
           message: 'Get create object approval error.',
           statusCode: status,
           error: result,
-        };
-      }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when get object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        throw {
-          code: -1,
-          xml,
-          message: 'Get create object approval error.',
-          statusCode: status,
         };
       }
 
@@ -336,13 +323,7 @@ export class Objectt implements IObject {
       if (!result.ok) {
         return { code: -1, message: 'Put object error.', statusCode: status };
       }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when put object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return { code: -1, message: 'Put object error.', xml, statusCode: status };
-      }
+
       return { code: 0, message: 'Put object success.', statusCode: status };
     } catch (error: any) {
       return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
@@ -454,18 +435,7 @@ export class Objectt implements IObject {
       if (!result.ok) {
         return { code: -1, message: 'Get object error.', statusCode: status };
       }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when get object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return {
-          code: -1,
-          xml,
-          message: 'Get object error.',
-          statusCode: status,
-        };
-      }
+
       const fileBlob = await result.blob();
       return {
         code: 0,
@@ -565,25 +535,54 @@ export class Objectt implements IObject {
     }
   }
 
-  public async createFolder(getApprovalParams: TCreateObject) {
+  public async createFolder(
+    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+  ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
       );
     }
 
-    return this.createObject(getApprovalParams);
+    /**
+     * const file = new File([], 'scc', { type: 'text/plain' });
+      const fileBytes = await file.arrayBuffer();
+      console.log('fileBytes', fileBytes);
+      const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+      console.log('hashResult', hashResult);
+      const { contentLength, expectCheckSums } = hashResult;
+     */
+
+    return this.createObject({
+      bucketName: getApprovalParams.bucketName,
+      objectName: getApprovalParams.objectName,
+      contentLength: 0,
+      fileType: 'text/plain',
+      expectCheckSums: [
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+      ],
+      creator: getApprovalParams.creator,
+      spInfo: getApprovalParams.spInfo,
+    });
   }
 
   public async putObjectPolicy(
-    owner: string,
-    groupName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource'>,
+    bucketName: string,
+    objectName: string,
+    // expirationTime: Date,
+    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
   ) {
-    const resource = GRNToString(newObjectGRN(owner, groupName));
+    const resource = GRNToString(newObjectGRN(bucketName, objectName));
     const msg: MsgPutPolicy = {
       ...srcMsg,
       resource,
+      // expirationTime: fromJsonTimestamp(expirationTime),
     };
     return await this.storage.putPolicy(msg);
   }
