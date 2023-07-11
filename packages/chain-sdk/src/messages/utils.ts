@@ -125,9 +125,14 @@ export const generateTypes = (newTypes: object) => {
     Object.assign(types, newTypes);
   }
 
-  return mapValues(types, (o) => {
-    return sortBy(o, ['name']);
+  const resTypes: Record<string, any> = {};
+  const unsortedObjArr = [...Object.entries(types)];
+  const sortedObjArr = unsortedObjArr.sort(([k1], [k2]) => k1.localeCompare(k2));
+  sortedObjArr.forEach(([k, v]) => {
+    resTypes[k] = v;
   });
+
+  return resTypes;
 };
 
 export const generateFee = (
