@@ -7,7 +7,6 @@ export const QueryComponent = () => {
   return (
     <>
       <h2>open console panel</h2>
-
       <h3>account</h3>
       <ul>
         <li>
@@ -24,7 +23,6 @@ export const QueryComponent = () => {
           </button>
         </li>
       </ul>
-
       <h3>tx</h3>
       <ul>
         <li>
@@ -41,7 +39,6 @@ export const QueryComponent = () => {
           </button>
         </li>
       </ul>
-
       <h3>sp</h3>
       <ul>
         <li>
@@ -55,6 +52,43 @@ export const QueryComponent = () => {
           </button>
         </li>
       </ul>
+      <button
+        onClick={async () => {
+          const xx = await client.payment.params();
+          console.log(xx);
+        }}
+      >
+        test222
+      </button>
+
+      <button
+        onClick={async () => {
+          const updateGroupTx = await client.group.updateGroupExtra({
+            groupName: 'sdfsdfsdf2',
+            groupOwner: address!,
+            operator: address!,
+            extra: 'sdsd',
+          });
+
+          const simulateInfo = await updateGroupTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log(simulateInfo);
+
+          const res = await updateGroupTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo.gasLimit),
+            gasPrice: simulateInfo.gasPrice,
+            payer: address!,
+            granter: '',
+          });
+
+          console.log(res);
+        }}
+      >
+        test
+      </button>
     </>
   );
 };
