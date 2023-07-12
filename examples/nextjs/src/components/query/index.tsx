@@ -1,4 +1,5 @@
-import { client } from '@/client';
+import { client, selectSp } from '@/client';
+import { Long } from '@bnb-chain/greenfield-chain-sdk';
 import { useAccount } from 'wagmi';
 
 export const QueryComponent = () => {
