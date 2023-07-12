@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfield-chain-sdk",
-  "version": "0.0.0-snapshot-20230712073047",
+  "version": "0.0.0-snapshot-20230712114801",
   "description": "greenfield js chain sdk",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
