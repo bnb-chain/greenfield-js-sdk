@@ -193,8 +193,8 @@ importers:
   packages/chain-sdk:
     dependencies:
       '@bnb-chain/greenfield-cosmos-types':
-        specifier: 0.4.0-alpha.13
-        version: 0.4.0-alpha.13
+        specifier: 0.4.0-alpha.14
+        version: 0.4.0-alpha.14
       '@bnb-chain/greenfiled-file-handle':
         specifier: workspace:*
         version: link:../file-handle
@@ -2029,8 +2029,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.13:
-    resolution: {integrity: sha512-ClfQzmeO+saqRXx7kx0XPn0Y0ILh7cSG8CF2k22D1f4k3p5XeUhF3lZSpIOtuTf7eRkd3lXsIlNPSjN3AUZHTw==}
+  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.14:
+    resolution: {integrity: sha512-sSeLK5ZcZuSQ2DzPdmvxXOa4TvWifKmU7VKyBLryPZoeGb5oOzTKlCL7AeZKGPq6uva8laR1hDuQaK/pi5E07g==}
     dependencies:
       long: 4.0.0
       protobufjs: 6.11.3
@@ -7231,7 +7231,7 @@ packages:
       eslint-import-resolver-node: 0.3.7
       eslint-module-utils: 2.8.0(@typescript-eslint/parser@5.59.11)(eslint-import-resolver-node@0.3.7)(eslint@8.40.0)
       has: 1.0.3
-      is-core-module: 2.12.0
+      is-core-module: 2.12.1
       is-glob: 4.0.3
       minimatch: 3.1.2
       object.values: 1.1.6
