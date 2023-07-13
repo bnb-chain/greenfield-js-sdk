@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.8
+
+### Patch Changes
+
+- [#164](https://github.com/bnb-chain/greenfield-js-sdk/pull/164)
+  [`f248937`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f248937d3cfb97b4e2085017436aa25bc7fc6c40)
+  Thanks [@randomx999](https://github.com/randomx999)! - fix: Return real statuscode when call
+  metaservice
+
 ## 0.2.2-alpha.7
 
 ### Patch Changes
