@@ -67,7 +67,7 @@ export const QueryComponent = () => {
             groupName: 'sdfsdfsdf2',
             groupOwner: address!,
             operator: address!,
-            extra: 'sdsd',
+            Extra: 'sdsd',
           });
 
           const simulateInfo = await updateGroupTx.simulate({
