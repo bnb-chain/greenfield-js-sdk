@@ -219,7 +219,11 @@ export class Objectt implements IObject {
         signedMsg,
       };
     } catch (error: any) {
-      throw { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      throw {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -326,7 +330,11 @@ export class Objectt implements IObject {
 
       return { code: 0, message: 'Put object success.', statusCode: status };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -409,7 +417,7 @@ export class Objectt implements IObject {
         if (code !== 0) {
           throw {
             code: -1,
-            message: message || 'Get create bucket approval error.',
+            message: message || 'Get create object approval error.',
             statusCode: statusCode,
           };
         }
@@ -444,7 +452,11 @@ export class Objectt implements IObject {
         statusCode: status,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -531,7 +543,11 @@ export class Objectt implements IObject {
         body,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
