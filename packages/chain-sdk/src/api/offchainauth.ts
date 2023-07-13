@@ -135,7 +135,7 @@ export class OffChainAuth implements IOffChainAuth {
       return {
         code: -1,
         message: error.message || 'Sign with seed string failed',
-        statusCode: error.status || NORMAL_ERROR_CODE,
+        statusCode: error?.status || NORMAL_ERROR_CODE,
       };
     }
   }
