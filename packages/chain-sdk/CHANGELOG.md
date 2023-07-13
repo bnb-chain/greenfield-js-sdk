@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.0.0-snapshot-20230713041344
+
+### Patch Changes
+
+- [#163](https://github.com/bnb-chain/greenfield-js-sdk/pull/163)
+  [`c353429`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c3534290c0206bd1f9c56b004e189a94332acbc2)
+  Thanks [@randomx999](https://github.com/randomx999)! - fix: Return real statuscode when call
+  metaservice
+
 ## 0.0.0-snapshot-20230713024007
 
 ### Patch Changes
