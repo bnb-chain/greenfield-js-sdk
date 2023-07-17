@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.9
+
+### Patch Changes
+
+- [#167](https://github.com/bnb-chain/greenfield-js-sdk/pull/167)
+  [`3907fc4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3907fc4ce5f7f5888583b737c46e65bf828fd779)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upgrade types version to 0.4.0-alpha.16
+
 ## 0.2.2-alpha.8
 
 ### Patch Changes
