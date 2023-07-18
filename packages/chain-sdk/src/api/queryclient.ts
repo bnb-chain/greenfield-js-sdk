@@ -1,18 +1,19 @@
-import { MsgClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/distribution/v1beta1/tx';
 import { QueryClientImpl as AuthQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/query';
 import { QueryClientImpl as BankQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { QueryClientImpl as CrosschainQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/crosschain/v1/query';
+import { MsgClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/distribution/v1beta1/tx';
 import { QueryClientImpl as FeeGrantQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/query';
+import { QueryClientImpl as GashubClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/gashub/v1beta1/query';
 import { QueryClientImpl as OracleQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
 import { QueryClientImpl as BridgeQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
 import { QueryClientImpl as ChallengeQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { QueryClientImpl as PaymentQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { QueryClientImpl as SpQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
-import { QueryClientImpl as GashubClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/gashub/v1beta1/query';
 import {
   QueryClientImpl as BucketQueryClientImpl,
   QueryClientImpl as StorageQueryClientImpl,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
+import { QueryClientImpl as VirtualGroupClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/query';
 import {
   AuthExtension,
   BankExtension,
@@ -124,6 +125,11 @@ export class RpcQueryClient {
   public async getGashubClient() {
     const rpcClient = await this.getRpcClient();
     return new GashubClientImpl(rpcClient);
+  }
+
+  public async getVirtualGroupClient() {
+    const rpcClient = await this.getRpcClient();
+    return new VirtualGroupClientImpl(rpcClient);
   }
 }
 
