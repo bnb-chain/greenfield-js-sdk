@@ -51,6 +51,7 @@ export interface ICreateBucketMsgType {
   primary_sp_approval: {
     expired_height: string;
     sig: string;
+    global_virtual_group_family_id: number;
   };
   charged_read_quota: string;
 }
@@ -165,9 +166,10 @@ export interface ICreateObjectMsgType {
   primary_sp_approval: {
     expired_height: string;
     sig: string;
+    global_virtual_group_family_id: number;
   };
   expect_checksums: string[];
-  expect_secondary_sp_addresses: string[];
+  // expect_secondary_sp_addresses: string[];
   redundancy_type: keyof typeof RedundancyType;
   // charged_read_quota: string;
 }

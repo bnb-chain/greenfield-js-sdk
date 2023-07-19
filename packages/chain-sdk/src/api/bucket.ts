@@ -152,6 +152,7 @@ export class Bucket implements IBucket {
         primary_sp_approval: {
           expired_height: '0',
           sig: '',
+          global_virtual_group_family_id: 0,
         },
         charged_read_quota: chargedReadQuota,
         payment_address: '',
@@ -235,10 +236,7 @@ export class Bucket implements IBucket {
         type: MsgCreateBucketTypeUrl,
         charged_read_quota: signedMsg.charged_read_quota,
         visibility: signedMsg.visibility,
-        primary_sp_approval: {
-          expired_height: signedMsg.primary_sp_approval.expired_height,
-          sig: signedMsg.primary_sp_approval.sig,
-        },
+        primary_sp_approval: signedMsg.primary_sp_approval,
       },
       MsgCreateBucket.encode(msg).finish(),
     );
@@ -259,6 +257,7 @@ export class Bucket implements IBucket {
       primarySpApproval: {
         expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
         sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
+        globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
       },
       chargedReadQuota: signedMsg.charged_read_quota
         ? Long.fromString('0')
