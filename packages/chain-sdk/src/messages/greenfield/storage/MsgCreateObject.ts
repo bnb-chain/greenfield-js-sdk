@@ -1,7 +1,11 @@
 export const MsgCreateObjectSDKTypeEIP712 = {
   Msg1: [
     {
-      name: 'type',
+      name: 'bucket_name',
+      type: 'string',
+    },
+    {
+      name: 'content_type',
       type: 'string',
     },
     {
@@ -9,8 +13,8 @@ export const MsgCreateObjectSDKTypeEIP712 = {
       type: 'string',
     },
     {
-      name: 'bucket_name',
-      type: 'string',
+      name: 'expect_checksums',
+      type: 'bytes[]',
     },
     {
       name: 'object_name',
@@ -21,34 +25,30 @@ export const MsgCreateObjectSDKTypeEIP712 = {
       type: 'uint64',
     },
     {
-      name: 'visibility',
-      type: 'string',
-    },
-    {
-      name: 'content_type',
-      type: 'string',
-    },
-    {
       name: 'primary_sp_approval',
       type: 'TypeMsg1PrimarySpApproval',
-    },
-    {
-      name: 'expect_checksums',
-      type: 'bytes[]',
     },
     {
       name: 'redundancy_type',
       type: 'string',
     },
     {
-      name: 'expect_secondary_sp_addresses',
-      type: 'string[]',
+      name: 'type',
+      type: 'string',
+    },
+    {
+      name: 'visibility',
+      type: 'string',
     },
   ],
   TypeMsg1PrimarySpApproval: [
     {
       name: 'expired_height',
       type: 'uint64',
+    },
+    {
+      name: 'global_virtual_group_family_id',
+      type: 'uint32',
     },
     {
       name: 'sig',

@@ -18,6 +18,7 @@ export const selectSp = async () => {
     ...finalSps.slice(selectIndex + 1),
   ].map((item) => item.operatorAddress);
   const selectSpInfo = {
+    id: finalSps[selectIndex].id,
     endpoint: finalSps[selectIndex].endpoint,
     primarySpAddress: finalSps[selectIndex]?.operatorAddress,
     sealAddress: finalSps[selectIndex].sealAddress,

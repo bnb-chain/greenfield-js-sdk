@@ -1,5 +1,6 @@
 import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateBucket';
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
+import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
@@ -23,6 +24,7 @@ import {
   MsgCreateBucket,
   MsgDeleteBucket,
   MsgDeletePolicy,
+  MsgMigrateBucket,
   MsgPutPolicy,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
@@ -34,6 +36,7 @@ import {
   GRNToString,
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
+  MsgMigrateBucketTypeUrl,
   MsgUpdateBucketInfoTypeUrl,
   newBucketGRN,
   TKeyValue,
@@ -42,6 +45,8 @@ import {
 import {
   BucketProps,
   ICreateBucketMsgType,
+  IMigrateBucket,
+  IMigrateBucketMsgType,
   IObjectResultType,
   IQuotaProps,
   TCreateBucket,
@@ -109,7 +114,9 @@ export interface IBucket {
 
   getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
 
-  // TODO: getBucketReadQuota();
+  getMigrateBucketApproval(params: IMigrateBucket): Promise<IObjectResultType<string>>;
+
+  migrateBucket(configParams: IMigrateBucket): Promise<TxResponse>;
 }
 
 @singleton()
@@ -152,6 +159,7 @@ export class Bucket implements IBucket {
         primary_sp_approval: {
           expired_height: '0',
           sig: '',
+          global_virtual_group_family_id: 0,
         },
         charged_read_quota: chargedReadQuota,
         payment_address: '',
@@ -235,10 +243,7 @@ export class Bucket implements IBucket {
         type: MsgCreateBucketTypeUrl,
         charged_read_quota: signedMsg.charged_read_quota,
         visibility: signedMsg.visibility,
-        primary_sp_approval: {
-          expired_height: signedMsg.primary_sp_approval.expired_height,
-          sig: signedMsg.primary_sp_approval.sig,
-        },
+        primary_sp_approval: signedMsg.primary_sp_approval,
       },
       MsgCreateBucket.encode(msg).finish(),
     );
@@ -259,6 +264,7 @@ export class Bucket implements IBucket {
       primarySpApproval: {
         expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
         sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
+        globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
       },
       chargedReadQuota: signedMsg.charged_read_quota
         ? Long.fromString('0')
@@ -510,5 +516,124 @@ export class Bucket implements IBucket {
   public async getBucketPolicy(request: QueryPolicyForAccountRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
     return rpc.QueryPolicyForAccount(request);
+  }
+
+  public async getMigrateBucketApproval(configParams: IMigrateBucket) {
+    const { params, spInfo, signType } = configParams;
+
+    try {
+      const endpoint = spInfo.endpoint;
+      const url = endpoint + '/greenfield/admin/v1/get-approval?action=MigrateBucket';
+      const msg = {
+        operator: params.operator,
+        bucket_name: 'asddas',
+        dst_primary_sp_id: spInfo.id,
+        dst_primary_sp_approval: {
+          expired_height: '0',
+          sig: '',
+          global_virtual_group_family_id: 0,
+        },
+      };
+      const unSignedMessageInHex = encodeObjectToHexString(msg);
+
+      let headerContent: TKeyValue = {
+        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+      };
+
+      if (!signType || signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      }
+      if (signType === 'offChainAuth') {
+        const { seedString, domain } = configParams;
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          throw {
+            code: -1,
+            message: message || 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-User-Address': msg.operator,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+
+      const headers = new Headers(headerContent);
+      const result = await fetchWithTimeout(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        30000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        throw {
+          code: -1,
+          message: 'Get create bucket approval error.',
+          statusCode: status,
+        };
+      }
+      const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
+      const signedMsg = decodeObjectFromHexString(signedMsgString) as IMigrateBucketMsgType;
+
+      return {
+        code: 0,
+        message: 'Get migrate bucket approval success.',
+        body: signedMsgString,
+        statusCode: status,
+        signedMsg: signedMsg,
+      };
+    } catch (error: any) {
+      throw {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async migrateBucket(configParams: IMigrateBucket) {
+    const { signedMsg } = await this.getMigrateBucketApproval(configParams);
+
+    if (!signedMsg) {
+      throw new Error('Get migrate bucket approval error');
+    }
+
+    const msg: MsgMigrateBucket = {
+      bucketName: signedMsg.bucket_name,
+      operator: signedMsg.operator,
+      dstPrimarySpId: signedMsg.dst_primary_sp_id,
+      dstPrimarySpApproval: {
+        expiredHeight: Long.fromString(signedMsg.dst_primary_sp_approval.expired_height),
+        globalVirtualGroupFamilyId:
+          signedMsg.dst_primary_sp_approval.global_virtual_group_family_id,
+        sig: bytesFromBase64(signedMsg.dst_primary_sp_approval.sig),
+      },
+    };
+
+    return await this.migrateBucketTx(msg, signedMsg);
+  }
+
+  private async migrateBucketTx(msg: MsgMigrateBucket, signedMsg: IMigrateBucketMsgType) {
+    return await this.basic.tx(
+      MsgMigrateBucketTypeUrl,
+      msg.operator,
+      MsgMigrateBucketSDKTypeEIP712,
+      {
+        ...signedMsg,
+        type: MsgMigrateBucketTypeUrl,
+        primary_sp_approval: signedMsg.dst_primary_sp_approval,
+      },
+      MsgMigrateBucket.encode(msg).finish(),
+    );
   }
 }

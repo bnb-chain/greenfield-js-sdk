@@ -15,6 +15,7 @@ import { IStorage, Storage } from './api/storage';
 import { Basic, IBasic } from './api/basic';
 import { Gashub, IGashub } from './api/gashub';
 import { RpcQueryClient } from './api/queryclient';
+import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
 
 @injectable()
 export class Client {
@@ -37,6 +38,7 @@ export class Client {
     const sp = container.resolve<Sp>(Sp);
     const storage = container.resolve<Storage>(Storage);
     const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
+    const virtualGroup = container.resolve<VirtualGroup>(VirtualGroup);
 
     return new Client(
       account,
@@ -54,6 +56,7 @@ export class Client {
       sp,
       storage,
       offchainauth,
+      virtualGroup,
     );
   }
 
@@ -73,5 +76,6 @@ export class Client {
     public sp: ISp,
     public storage: IStorage,
     public offchainauth: IOffChainAuth,
+    public virtualGroup: IVirtualGroup,
   ) {}
 }
