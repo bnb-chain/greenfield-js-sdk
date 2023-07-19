@@ -2,6 +2,7 @@ import {
   RedundancyType,
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
+import { MsgMigrateBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 
 export type SignType = 'authTypeV2' | 'offChainAuth';
 
@@ -27,6 +28,7 @@ export interface ICreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
 export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthTypeV2;
 
 export interface ISpInfo {
+  id: number;
   endpoint: string;
   primarySpAddress?: string;
   sealAddress: string;
@@ -354,4 +356,32 @@ export interface TGetCurrentSeedStringParams {
   address: string;
   chainId: number;
   provider: any;
+}
+
+export interface IBaseMigrateBucket {
+  params: MsgMigrateBucket;
+  spInfo: ISpInfo;
+}
+
+export interface IMigrateBucketByOffChainAuth extends IBaseMigrateBucket {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+}
+
+export interface IMigrateBucketByAuthTypeV2 extends IBaseMigrateBucket {
+  signType?: 'authTypeV2';
+}
+
+export type IMigrateBucket = IMigrateBucketByOffChainAuth | IMigrateBucketByAuthTypeV2;
+
+export interface IMigrateBucketMsgType {
+  operator: string;
+  bucket_name: string;
+  dst_primary_sp_id: number;
+  dst_primary_sp_approval: {
+    expired_height: string;
+    sig: string;
+    global_virtual_group_family_id: number;
+  };
 }
