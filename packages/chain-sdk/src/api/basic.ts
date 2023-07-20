@@ -211,6 +211,8 @@ export class Basic implements IBasic {
       gasLimit: 0,
       gasPrice: '0',
       pubKey: makeCosmsPubKey(ZERO_PUBKEY),
+      granter: '',
+      payer: '',
     });
     const tx = Tx.fromPartial({
       authInfo: AuthInfo.decode(authInfoBytes),
@@ -255,6 +257,7 @@ export class Basic implements IBasic {
           gasPrice,
           privateKey,
           payer,
+          granter,
           signTypedDataCallback = defaultSignTypedData,
         } = opts;
 
@@ -294,6 +297,8 @@ export class Basic implements IBasic {
           gasLimit,
           gasPrice,
           pubKey,
+          granter,
+          payer,
         });
 
         const txRaw = TxRaw.fromPartial({
@@ -308,12 +313,12 @@ export class Basic implements IBasic {
   }
 
   private getAuthInfoBytes(
-    params: Pick<BroadcastOptions, 'denom' | 'gasLimit' | 'gasPrice'> & {
+    params: Pick<BroadcastOptions, 'denom' | 'gasLimit' | 'gasPrice' | 'granter' | 'payer'> & {
       pubKey: BaseAccount['pubKey'];
       sequence: string;
     },
   ) {
-    const { pubKey, denom = DEFAULT_DENOM, sequence, gasLimit, gasPrice } = params;
+    const { pubKey, denom = DEFAULT_DENOM, sequence, gasLimit, gasPrice, granter, payer } = params;
     if (!pubKey) throw new Error('pubKey is required');
 
     const feeAmount: Coin[] = [
@@ -322,8 +327,8 @@ export class Basic implements IBasic {
         amount: String(BigInt(gasLimit) * BigInt(gasPrice)),
       },
     ];
-    const feeGranter = undefined;
-    const feePayer = undefined;
+    const feeGranter = granter;
+    const feePayer = payer;
     const authInfoBytes = makeAuthInfoBytes(
       [{ pubkey: pubKey, sequence: Number(sequence) }],
       feeAmount,
@@ -355,6 +360,8 @@ export class Basic implements IBasic {
       gasPrice,
       privateKey,
       signTypedDataCallback = defaultSignTypedData,
+      granter,
+      payer,
     } = txOption;
     const eip712 = this.getEIP712Struct(
       typeUrl,
@@ -396,6 +403,8 @@ export class Basic implements IBasic {
       gasLimit,
       gasPrice,
       pubKey,
+      granter,
+      payer,
     });
 
     const txRaw = TxRaw.fromPartial({
