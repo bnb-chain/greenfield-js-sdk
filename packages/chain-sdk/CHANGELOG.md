@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.0.0-snapshot-20230720170853
+
+### Patch Changes
+
+- [#176](https://github.com/bnb-chain/greenfield-js-sdk/pull/176)
+  [`02eccd4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/02eccd4222439c215c7e3d13c84303985c901c74)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: AuthInfoBytes add feePayer and feeGranter
+
 ## 0.0.0-snapshot-20230720091518
 
 ### Patch Changes
