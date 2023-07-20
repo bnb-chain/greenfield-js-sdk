@@ -183,6 +183,8 @@ export class Basic implements IBasic {
           opts,
         );
 
+        // console.log('txRaw', bufferToHex(Buffer.from(rawTxBytes)));
+
         return await this.broadcastRawTx(rawTxBytes);
       },
       metaTxInfo: {
@@ -255,6 +257,7 @@ export class Basic implements IBasic {
           gasPrice,
           privateKey,
           payer,
+          granter,
           signTypedDataCallback = defaultSignTypedData,
         } = opts;
 
@@ -264,7 +267,7 @@ export class Basic implements IBasic {
           denom,
           String(gasLimit),
           payer,
-          '',
+          granter,
         );
         const wrapperTypes = generateTypes(types);
         const multiMessages = mergeMultiMessage(txs);
@@ -380,6 +383,7 @@ export class Basic implements IBasic {
         msgEIP712,
         txOption,
       );
+      // console.log('signature', signature);
     } else {
       signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
       const messageHash = eip712Hash(JSON.stringify(eip712));
