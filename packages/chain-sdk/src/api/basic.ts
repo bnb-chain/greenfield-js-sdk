@@ -391,9 +391,13 @@ export class Basic implements IBasic {
         messageHash,
       });
       pubKey = makeCosmsPubKey(pk);
+
+      // console.log('messageHash', bufferToHex(messageHash));
+      // console.log('signature', signature);
+      // console.log('pubKey', pubKey, bufferToHex(Buffer.from(pubKey.value)));
     }
 
-    // console.log('eip712', eip712);
+    // console.log('eip712', eip712, JSON.stringify(eip712));
 
     const authInfoBytes = this.getAuthInfoBytes({
       denom,
