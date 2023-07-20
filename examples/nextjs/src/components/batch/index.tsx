@@ -3,6 +3,7 @@ import {
   GRNToString,
   MsgCreateBucketTypeUrl,
   MsgCreateObjectTypeUrl,
+  MsgSendTypeUrl,
   newBucketGRN,
   PermissionTypes,
 } from '@bnb-chain/greenfield-chain-sdk';
@@ -50,7 +51,7 @@ export const FeeGrant = () => {
           const grantAllowanceTx = await client.feegrant.grantAllowance({
             granter: address,
             grantee: wallet.address,
-            allowedMessages: [MsgCreateBucketTypeUrl],
+            allowedMessages: [MsgSendTypeUrl],
             amount: parseEther('0.1').toString(),
             denom: 'BNB',
           });
@@ -102,32 +103,35 @@ export const FeeGrant = () => {
           const granteeAddr = wallet.address;
           const privateKey = wallet.privateKey;
 
-          const spInfo = await selectSp();
-          const createFolderTx = await client.bucket.createBucket({
-            bucketName,
-            creator: granteeAddr,
-            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-            chargedReadQuota: '0',
-            spInfo,
-            signType: 'authTypeV2',
+          const transferTx = await client.account.transfer({
+            fromAddress: granteeAddr,
+            toAddress: '0x0000000000000000000000000000000000000001',
+            amount: [
+              {
+                denom: 'BNB',
+                amount: parseEther(`${Number(0.01)}`).toString(),
+              },
+            ],
           });
 
-          const simulateInfo = await createFolderTx.simulate({
+          const simulateInfo = await transferTx.simulate({
             denom: 'BNB',
           });
+
           console.log('simulateInfo', simulateInfo);
-          const txres = await createFolderTx.broadcast({
+
+          const res = await transferTx.broadcast({
             denom: 'BNB',
-            gasLimit: Number(simulateInfo?.gasLimit),
-            gasPrice: simulateInfo?.gasPrice || '5000000000',
+            gasLimit: Number(simulateInfo.gasLimit),
+            gasPrice: simulateInfo.gasPrice,
             payer: granteeAddr,
             granter: address,
             privateKey,
           });
 
-          console.log('txres', txres);
+          console.log('txres', res);
 
-          if (txres.code === 0) {
+          if (res.code === 0) {
             alert('success');
           }
         }}
