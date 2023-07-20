@@ -1,6 +1,6 @@
 {
   "name": "@demo/nodejs",
-  "version": "0.0.0-snapshot-20230713041344",
+  "version": "0.0.0-snapshot-20230720091518",
   "type": "commonjs",
   "private": true,
   "scripts": {
