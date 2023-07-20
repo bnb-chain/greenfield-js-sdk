@@ -23,7 +23,7 @@ import {
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { toBuffer } from '@ethereumjs/util';
+import { bufferToHex, toBuffer } from '@ethereumjs/util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
 import { BroadcastOptions, ISimulateGasFee, MetaTxInfo, SimulateOptions, TxResponse } from '..';
@@ -366,6 +366,9 @@ export class Basic implements IBasic {
       txOption,
     );
 
+    // console.log('txOption', txOption);
+    // console.log('msgEIP712', msgEIP712);
+
     let signature,
       pubKey = undefined;
 
@@ -389,6 +392,8 @@ export class Basic implements IBasic {
       });
       pubKey = makeCosmsPubKey(pk);
     }
+
+    // console.log('eip712', eip712);
 
     const authInfoBytes = this.getAuthInfoBytes({
       denom,
