@@ -28,3 +28,5 @@ export const MsgUpdateBucketInfoTypeUrl = '/greenfield.storage.MsgUpdateBucketIn
 export const MsgUpdateGroupExtraTypeUrl = '/greenfield.storage.MsgUpdateGroupExtra';
 export const MsgUpdateGroupMemberTypeUrl = '/greenfield.storage.MsgUpdateGroupMember';
 export const MsgUpdateObjectInfoTypeUrl = '/greenfield.storage.MsgUpdateObjectInfo';
+export const BasicAllowanceTypeUrl = '/cosmos.feegrant.v1beta1.BasicAllowance';
+export const AllowedMsgAllowanceTypeUrl = '/cosmos.feegrant.v1beta1.AllowedMsgAllowance';

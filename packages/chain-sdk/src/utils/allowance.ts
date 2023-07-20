@@ -1,17 +1,79 @@
-// import { AllowedMsgAllowance } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/feegrant';
-// import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import {
+  AllowedMsgAllowance,
+  BasicAllowance,
+} from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/feegrant';
+import { MsgGrantAllowance } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
+import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import { AllowedMsgAllowanceTypeUrl, BasicAllowanceTypeUrl, DEFAULT_DENOM } from '..';
 
-// const myAny: Any = {
-//   typeUrl: '/cosmos.feegrant.v1beta1.MsgAllowance',
-//   // value:
-// };
+export interface IGrantAllowance {
+  amount: string;
+  denom: string;
+  allowedMessages: string[];
+  granter: MsgGrantAllowance['granter'];
+  grantee: MsgGrantAllowance['grantee'];
+}
 
-// const x: AllowedMsgAllowance = {
-//   allowedMessages: [],
-//   allowance: myAny,
-// };
+export const newBasicAllowance = (
+  amount: string,
+  denom: string = DEFAULT_DENOM,
+): BasicAllowance => {
+  return {
+    spendLimit: [
+      {
+        amount,
+        denom,
+      },
+    ],
+    // expiration: null,
+  };
+};
 
-// export const NewAllowedMsgAllowance = (
-//   allowance: any,
-//   allowedMsgs: string[],
-// ): AllowedMsgAllowance => {};
+export const newAllowedMsgAllowance = (
+  allowedMessages: string[],
+  basicAllowance: BasicAllowance,
+): AllowedMsgAllowance => {
+  return {
+    allowedMessages,
+    allowance: Any.fromPartial({
+      typeUrl: BasicAllowanceTypeUrl,
+      value: BasicAllowance.encode(basicAllowance).finish(),
+    }),
+  };
+};
+
+export const newMsgGrantAllowance = (
+  grantee: string,
+  granter: string,
+  allowedMsgAllowance: AllowedMsgAllowance,
+): MsgGrantAllowance => {
+  return {
+    grantee,
+    granter,
+    allowance: Any.fromPartial({
+      typeUrl: AllowedMsgAllowanceTypeUrl,
+      value: AllowedMsgAllowance.encode(allowedMsgAllowance).finish(),
+    }),
+  };
+};
+
+export const newMarshal = (
+  amount: string,
+  denom: string = DEFAULT_DENOM,
+  allowed_messages: string[],
+) => {
+  return {
+    '@type': AllowedMsgAllowanceTypeUrl,
+    allowance: {
+      '@type': BasicAllowanceTypeUrl,
+      expiration: null,
+      spend_limit: [
+        {
+          amount,
+          denom,
+        },
+      ],
+    },
+    allowed_messages,
+  };
+};

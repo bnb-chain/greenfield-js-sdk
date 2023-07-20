@@ -25,13 +25,13 @@ export const createEIP712Data = (
   MsgSDK: object,
   txOption: BroadcastOptions,
 ) => {
-  const { gasLimit, gasPrice, denom, payer } = txOption;
+  const { gasLimit, gasPrice, denom, payer, granter } = txOption;
   const fee = generateFee(
     String(BigInt(gasLimit) * BigInt(gasPrice)),
     denom,
     String(gasLimit),
     payer,
-    '',
+    granter,
   );
   const wrapperTypes = generateTypes(MsgSDKTypeEIP712);
   const wrapperMsg = typeWrapper(typeUrl, MsgSDK);
