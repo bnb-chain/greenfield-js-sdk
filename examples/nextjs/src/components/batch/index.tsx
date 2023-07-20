@@ -1,9 +1,7 @@
 import { client, selectSp } from '@/client';
 import {
   GRNToString,
-  MsgCreateBucketTypeUrl,
   MsgCreateObjectTypeUrl,
-  MsgSendTypeUrl,
   newBucketGRN,
   PermissionTypes,
 } from '@bnb-chain/greenfield-chain-sdk';
@@ -51,28 +49,28 @@ export const FeeGrant = () => {
           const grantAllowanceTx = await client.feegrant.grantAllowance({
             granter: address,
             grantee: wallet.address,
-            allowedMessages: [MsgSendTypeUrl],
+            allowedMessages: [MsgCreateObjectTypeUrl],
             amount: parseEther('0.1').toString(),
             denom: 'BNB',
           });
 
           // 3. Put bucket policy so that the temporary account can create objects within this bucket
-          // const statement: PermissionTypes.Statement = {
-          //   effect: PermissionTypes.Effect.EFFECT_ALLOW,
-          //   actions: [PermissionTypes.ActionType.ACTION_CREATE_OBJECT],
-          //   resources: [GRNToString(newBucketGRN(bucketName))],
-          // };
-          // const putPolicyTx = await client.bucket.putBucketPolicy(bucketName, {
-          //   operator: address,
-          //   statements: [statement],
-          //   principal: {
-          //     type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
-          //     value: wallet.address,
-          //   },
-          // });
+          const statement: PermissionTypes.Statement = {
+            effect: PermissionTypes.Effect.EFFECT_ALLOW,
+            actions: [PermissionTypes.ActionType.ACTION_CREATE_OBJECT],
+            resources: [GRNToString(newBucketGRN(bucketName))],
+          };
+          const putPolicyTx = await client.bucket.putBucketPolicy(bucketName, {
+            operator: address,
+            statements: [statement],
+            principal: {
+              type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+              value: wallet.address,
+            },
+          });
 
           // 4. broadcast txs include 2 msg
-          const txs = await client.basic.multiTx([grantAllowanceTx /* putPolicyTx */]);
+          const txs = await client.basic.multiTx([grantAllowanceTx, putPolicyTx]);
           const simuluateInfo = await txs.simulate({
             denom: 'BNB',
           });
@@ -103,35 +101,31 @@ export const FeeGrant = () => {
           const granteeAddr = wallet.address;
           const privateKey = wallet.privateKey;
 
-          const transferTx = await client.account.transfer({
-            fromAddress: granteeAddr,
-            toAddress: '0x0000000000000000000000000000000000000001',
-            amount: [
-              {
-                denom: 'BNB',
-                amount: parseEther(`${Number(0.01)}`).toString(),
-              },
-            ],
+          const spInfo = await selectSp();
+          const createFolderTx = await client.object.createFolder({
+            bucketName,
+            objectName: objectName + '/',
+            spInfo,
+            creator: granteeAddr,
+            signType: 'authTypeV2',
           });
 
-          const simulateInfo = await transferTx.simulate({
+          const simulateInfo = await createFolderTx.simulate({
             denom: 'BNB',
           });
-
           console.log('simulateInfo', simulateInfo);
-
-          const res = await transferTx.broadcast({
+          const txres = await createFolderTx.broadcast({
             denom: 'BNB',
-            gasLimit: Number(simulateInfo.gasLimit),
-            gasPrice: simulateInfo.gasPrice,
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
             payer: granteeAddr,
             granter: address,
             privateKey,
           });
 
-          console.log('txres', res);
+          console.log('txres', txres);
 
-          if (res.code === 0) {
+          if (txres.code === 0) {
             alert('success');
           }
         }}
