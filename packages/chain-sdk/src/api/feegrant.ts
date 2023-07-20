@@ -1,6 +1,10 @@
 import { MsgGrantAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgGrantAllowance';
 import { MsgRevokeAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgRevokeAllowance';
 import {
+  AllowedMsgAllowance,
+  BasicAllowance,
+} from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/feegrant';
+import {
   QueryAllowanceRequest,
   QueryAllowanceResponse,
   QueryAllowancesRequest,
@@ -10,8 +14,16 @@ import {
   MsgGrantAllowance,
   MsgRevokeAllowance,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
+import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import { Timestamp } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/timestamp';
+import {
+  base64FromBytes,
+  bytesFromBase64,
+  toTimestamp,
+} from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { toBuffer } from '@ethereumjs/util';
 import { container, singleton } from 'tsyringe';
-import { MsgGrantAllowanceTypeUrl, MsgRevokeAllowanceTypeUrl, TxResponse } from '..';
+import { encodeToHex, MsgGrantAllowanceTypeUrl, MsgRevokeAllowanceTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
@@ -31,12 +43,59 @@ export class FeeGrant implements IFeeGrant {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async grantAllowance(msg: MsgGrantAllowance) {
+    const basicAllowance: BasicAllowance = {
+      spendLimit: [
+        {
+          amount: '111',
+          denom: 'BNB',
+        },
+      ],
+    };
+
+    const allowedMsgAllowance: AllowedMsgAllowance = {
+      allowedMessages: ['/greenfield.storage.MsgCreateObject'],
+      allowance: Any.fromPartial({
+        typeUrl: '/cosmos.feegrant.v1beta1.BasicAllowance',
+        value: BasicAllowance.encode(basicAllowance).finish(),
+      }),
+    };
+
+    const grantAllowance: MsgGrantAllowance = {
+      ...msg,
+      allowance: Any.fromPartial({
+        typeUrl: '/cosmos.feegrant.v1beta1.AllowedMsgAllowance',
+        value: AllowedMsgAllowance.encode(allowedMsgAllowance).finish(),
+      }),
+    };
+
+    const marshal = {
+      '@type': '/cosmos.feegrant.v1beta1.AllowedMsgAllowance',
+      allowed_messages: ['/greenfield.storage.MsgCreateObject'],
+      allowance: Any.fromPartial({
+        typeUrl: '/cosmos.feegrant.v1beta1.BasicAllowance',
+        value: BasicAllowance.encode(basicAllowance).finish(),
+      }),
+      // expiration: null,
+      // spend_limit: [
+      //   {
+      //     amount: '111',
+      //     denom: 'BNB',
+      //   },
+      // ],
+    };
+
     return await this.basic.tx(
       MsgGrantAllowanceTypeUrl,
       msg.granter,
       MsgGrantAllowanceSDKTypeEIP712,
-      MsgGrantAllowance.toSDK(msg),
-      MsgGrantAllowance.encode(msg).finish(),
+      {
+        ...MsgGrantAllowance.toSDK(grantAllowance),
+        allowance: {
+          type: grantAllowance.allowance?.typeUrl,
+          value: toBuffer('0x' + encodeToHex(JSON.stringify(marshal))),
+        },
+      },
+      MsgGrantAllowance.encode(grantAllowance).finish(),
     );
   }
 
