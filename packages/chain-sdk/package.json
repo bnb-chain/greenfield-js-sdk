@@ -64,6 +64,7 @@
     "@ethersproject/strings": "5.7.0",
     "@ethersproject/units": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
+    "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.7",
     "ethereum-cryptography": "^2.0.0",
     "long": "^5.2.1",
