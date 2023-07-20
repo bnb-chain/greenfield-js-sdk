@@ -1,3 +1,4 @@
+import { FeeGrant } from '@/components/batch';
 import { Bucket } from '@/components/bucket';
 import { Deposit } from '@/components/deposit';
 import { Group } from '@/components/group';
@@ -43,6 +44,8 @@ export default function Tx() {
           <Mirror />
           <hr style={{ margin: '10px 0' }} />
           <Policy />
+          <hr style={{ margin: '10px 0' }} />
+          <FeeGrant />
           <hr style={{ margin: '10px 0' }} />
           <MultiMsg />
         </>

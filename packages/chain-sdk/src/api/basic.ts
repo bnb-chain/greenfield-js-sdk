@@ -23,7 +23,7 @@ import {
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { toBuffer } from '@ethereumjs/util';
+import { bufferToHex, toBuffer } from '@ethereumjs/util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
 import { BroadcastOptions, ISimulateGasFee, MetaTxInfo, SimulateOptions, TxResponse } from '..';

@@ -17,8 +17,11 @@ import {
   QueryGetPaymentAccountsByOwnerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
+import { toBuffer } from '@ethereumjs/util';
+import { hexlify } from '@ethersproject/bytes';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
+  Long,
   MsgCreatePaymentAccountTypeUrl,
   MsgMultiSendTypeUrl,
   MsgSendTypeUrl,
