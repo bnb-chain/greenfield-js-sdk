@@ -2,8 +2,14 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
-import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
+import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
+import {
+  EMPTY_STRING_SHA256,
+  fetchWithTimeout,
+  METHOD_GET,
+  METHOD_PUT,
+  NORMAL_ERROR_CODE,
+} from '@/utils/http';
 import {
   Principal,
   PrincipalType,
@@ -162,7 +168,9 @@ export class Objectt implements IObject {
         expect_checksums: expectCheckSums,
         redundancy_type: redundancyType,
       };
-      const url = spInfo.endpoint + '/greenfield/admin/v1/get-approval?action=CreateObject';
+      const path = '/greenfield/admin/v1/get-approval';
+      const query = 'action=CreateObject';
+      const url = `${spInfo.endpoint}${path}?${query}`;
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
       let headerContent: TKeyValue = {
@@ -174,6 +182,30 @@ export class Objectt implements IObject {
           ...headerContent,
           Authorization,
         };
+      } else if (configParam.signType === 'authTypeV1') {
+        const date = new Date().toISOString();
+        const reqMeta: Partial<ReqMeta> = {
+          contentSHA256: EMPTY_STRING_SHA256,
+          txnMsg: unSignedMessageInHex,
+          method: METHOD_GET,
+          url: {
+            hostname: new URL(spInfo.endpoint).hostname,
+            query,
+            path,
+          },
+          date,
+          contentType: fileType,
+        };
+
+        const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+        headerContent = {
+          ...headerContent,
+          // 'Content-Type': fileType,
+          // 'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+          // 'X-Gnfd-Date': date,
+          Authorization: v1Auth,
+        };
+        // console.log(x)
       } else if (configParam.signType === 'offChainAuth') {
         const { seedString, domain } = configParam;
         const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);

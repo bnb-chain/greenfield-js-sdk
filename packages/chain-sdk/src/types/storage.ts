@@ -152,11 +152,19 @@ export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & {
   seedString: string;
 };
 
+export type TCreateObjectByAuthTypeV1 = TBaseGetCreateObject & {
+  signType?: 'authTypeV1';
+  privateKey: string;
+};
+
 export type TCreateObjectByAuthTypeV2 = TBaseGetCreateObject & {
   signType?: 'authTypeV2';
 };
 
-export type TCreateObject = TCreateObjectByOffChainAuth | TCreateObjectByAuthTypeV2;
+export type TCreateObject =
+  | TCreateObjectByOffChainAuth
+  | TCreateObjectByAuthTypeV1
+  | TCreateObjectByAuthTypeV2;
 
 export interface ICreateObjectMsgType {
   creator: string;
