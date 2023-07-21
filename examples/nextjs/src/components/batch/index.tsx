@@ -130,7 +130,7 @@ export const FeeGrant = () => {
             contentLength,
             expectCheckSums,
             fileType: file.type,
-            creator: address,
+            creator: granteeAddr,
             signType: 'authTypeV2',
           });
 
