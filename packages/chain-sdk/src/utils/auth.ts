@@ -1,7 +1,8 @@
 import { bufferToHex } from '@ethereumjs/util';
+import { joinSignature } from '@ethersproject/bytes';
+import { SigningKey } from '@ethersproject/signing-key';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
-import { secp256k1 } from 'ethereum-cryptography/secp256k1';
 import { sha256 } from 'ethereum-cryptography/sha256.js';
 import { utf8ToBytes } from 'ethereum-cryptography/utils.js';
 import { METHOD_GET, METHOD_POST, MOCK_SIGNATURE } from './http';
@@ -77,31 +78,21 @@ export const getAuthorizationAuthTypeV1 = (reqMeta: Partial<ReqMeta>, privateKey
   const sig = secpSign(unsignedMsg, privateKey);
 
   // match TestSig
-  // const foo = utf8ToBytes('hello world');
-  // const unsignedMsg2 = getMsgToSign(foo);
-  // console.log('unsignedMsg2', bufferToHex(Buffer.from(unsignedMsg2)));
-  // const sig2 = secpSign(unsignedMsg2, privateKey);
-  // console.log('sig2', bufferToHex(Buffer.from(sig2)));
+  /* const foo = utf8ToBytes('hello world');
+  const digestBz = getMsgToSign(foo);
+  console.log('digestBz', digestBz, bufferToHex(Buffer.from(digestBz)));
 
-  // console.log(utf8ToBytes('hello world'));
-  // console.log(secpSign(utf8ToBytes('hello world'), privateKey));
+  const digestHash = digestBz;
 
-  // go match TestSig333
-  // const bytess = hexToBytes('0x0d8d36affb2fb903d3b7099b32a7b974bed99ec16b1009477f324e980e92694f')
-  // console.log('bytess', secpSign(bytess, privateKey));
+  const sig2 = secpSign(digestHash, privateKey);
+  console.log('sig2', sig2) */
 
   const authorization = `authTypeV1 ECDSA-secp256k1,  SignedMsg=${bufferToHex(
     Buffer.from(unsignedMsg),
-  ).slice(2)}, Signature=${bufferToHex(Buffer.from(sig)).slice(2)}`;
+  ).slice(2)}, Signature=${sig.slice(2)}`;
 
   // console.log('authorization', authorization);
   return authorization;
-
-  // return authorization;
-  // + string - to - sign + ':' + Signature;
-  // string-to-sign = crypto.Keccak256(sha256(canonical request)
-  // Signature = privateKey.secp256k1-Sign(string-to-sign)
-  // Authorization: authTypeV1 ECDSA-secp256k1, SignedMsg=70d03c8d65eb304fefc6d358168db4cfe9305a82dae54bb6a8dc4fbfa7461ca2, Signature=53e2f098411c5df46b71111337a5cf48bf254ba4a8516996445626619c4f10ac57a5ba081154272ed9e0334a338db39bf74f6de0f3c252fd27890fb81cffd29d00
 };
 
 const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
@@ -162,11 +153,10 @@ const SUPPORTED_HEADERS = [
 ];
 
 const secpSign = (digestBz: Uint8Array, privateKey: string) => {
-  if (digestBz.length !== 32) {
-    digestBz = keccak256(digestBz);
-  }
-  const sig = secp256k1.sign(digestBz, privateKey.slice(2));
-  return sig.toCompactHex();
+  const signingKey = new SigningKey(privateKey);
+  const signature = signingKey.signDigest(digestBz);
+
+  return joinSignature(signature);
 };
 
 const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
