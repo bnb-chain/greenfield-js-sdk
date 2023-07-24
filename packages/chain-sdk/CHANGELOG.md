@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.0.0-snapshot-20230724100555
+
+### Patch Changes
+
+- [#180](https://github.com/bnb-chain/greenfield-js-sdk/pull/180)
+  [`630ea25`](https://github.com/bnb-chain/greenfield-js-sdk/commit/630ea25322c8c05ff506d2c392521a3ea67b69ba)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `getObjectPolicy` and
+  `isObjectPermissionAllowed` apis
+
 ## 0.0.0-snapshot-20230720170853
 
 ### Patch Changes
