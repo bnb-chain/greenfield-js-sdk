@@ -131,7 +131,8 @@ export const FeeGrant = () => {
             expectCheckSums,
             fileType: file.type,
             creator: granteeAddr,
-            signType: 'authTypeV2',
+            signType: 'authTypeV1',
+            privateKey: privateKey,
           });
 
           const simulateInfo = await createObjectTx.simulate({

@@ -172,7 +172,7 @@ export interface ICreateObjectMsgType {
   content_type: string;
   primary_sp_approval: {
     expired_height: string;
-    sig: string;
+    sig: string | null;
   };
   expect_checksums: string[];
   expect_secondary_sp_addresses: string[];
