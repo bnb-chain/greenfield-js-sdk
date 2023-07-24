@@ -1,5 +1,22 @@
 # @demo/wallet
 
+## 0.0.3-alpha.11
+
+### Patch Changes
+
+- [#171](https://github.com/bnb-chain/greenfield-js-sdk/pull/171)
+  [`e2ebac6`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e2ebac6470c883013ff7dfaf610649b5e38f47bd)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Feegrant `grantAllowance` API
+
+- Updated dependencies
+  [[`e2ebac6`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e2ebac6470c883013ff7dfaf610649b5e38f47bd),
+  [`d894bad`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d894badd5fcd5ce915dfaec21808a300c15e7783),
+  [`dc87783`](https://github.com/bnb-chain/greenfield-js-sdk/commit/dc877833ed400166fd1384b315c9ac068d6a80f5),
+  [`d894bad`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d894badd5fcd5ce915dfaec21808a300c15e7783),
+  [`4d88665`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4d8866501f1693ebe2593c51fc9c74bd728fba70),
+  [`d894bad`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d894badd5fcd5ce915dfaec21808a300c15e7783)]:
+  - @bnb-chain/greenfield-chain-sdk@0.2.2-alpha.10
+
 ## 0.0.3-alpha.10
 
 ### Patch Changes
