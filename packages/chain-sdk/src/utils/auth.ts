@@ -33,21 +33,7 @@ const getSortedHeaders = (reqHeaders: Headers, supportHeaders: string[]) => {
     }
   });
 
-  // const xx = signedHeaders.sort(function (a, b) {
-  //   return a - b;
-  // });
-
-  // console.log('signedHeaders -----', signedHeaders, sortBy(signedHeaders, 'toLowerCase'));
-
   return signedHeaders.sort();
-};
-
-export const getCanonicalRequest = (url: URL) => {
-  const res = ['GET', '/greenfield/admin/v1/get-approval', 'action=CreateBucket'];
-
-  // const headers = newHeaders(contentType);
-  // const rawQuery = getRawQuery(url.searchParams);
-  // const canonicalHeaders = getCanonicalHeaders(url, SUPPORTED_HEADERS);
 };
 
 const getSignedHeaders = (reqHeaders: Headers) => {
@@ -77,27 +63,16 @@ export const getAuthorizationAuthTypeV1 = (reqMeta: Partial<ReqMeta>, privateKey
   const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
   const sig = secpSign(unsignedMsg, privateKey);
 
-  // match TestSig
-  /* const foo = utf8ToBytes('hello world');
-  const digestBz = getMsgToSign(foo);
-  console.log('digestBz', digestBz, bufferToHex(Buffer.from(digestBz)));
-
-  const digestHash = digestBz;
-
-  const sig2 = secpSign(digestHash, privateKey);
-  console.log('sig2', sig2) */
-
   const authorization = `authTypeV1 ECDSA-secp256k1,  SignedMsg=${bufferToHex(
     Buffer.from(unsignedMsg),
   ).slice(2)}, Signature=${sig.slice(2)}`;
-
-  // console.log('authorization', authorization);
   return authorization;
 };
 
 const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
   const headers = new Headers();
 
+  // console.log('meta', meta);
   if (meta.contentType) {
     headers.set(HTTPHeaderContentType, meta.contentType);
   } else {
@@ -155,13 +130,19 @@ const SUPPORTED_HEADERS = [
 const secpSign = (digestBz: Uint8Array, privateKey: string) => {
   const signingKey = new SigningKey(privateKey);
   const signature = signingKey.signDigest(digestBz);
+  let res = joinSignature(signature);
 
-  return joinSignature(signature);
+  const v = res.slice(-2);
+  if (v === '1c') res = res.slice(0, -2) + '01';
+  if (v === '1b') res = res.slice(0, -2) + '00';
+
+  return res;
 };
 
 const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
   const signBytes = sha256(unsignedBytes);
-  return keccak256(signBytes);
+  const res = keccak256(signBytes);
+  return res;
 };
 
 export interface ReqMeta {

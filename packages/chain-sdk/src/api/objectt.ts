@@ -32,7 +32,9 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { bufferToHex } from '@ethereumjs/util';
 import { Headers } from 'cross-fetch';
+import { utf8ToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -54,7 +56,11 @@ import {
   TPutObject,
   TxResponse,
 } from '../types';
-import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
+import {
+  decodeFromHex,
+  decodeObjectFromHexString,
+  encodeObjectToHexString,
+} from '../utils/encoding';
 import {
   generateUrlByBucketName,
   isValidBucketName,
@@ -153,29 +159,33 @@ export class Objectt implements IObject {
         throw new Error('empty creator address');
       }
 
+      // must sort (Go SDK)
       const msg: ICreateObjectMsgType = {
-        creator: creator,
-        object_name: objectName,
-        content_type: fileType,
-        payload_size: contentLength.toString(),
         bucket_name: bucketName,
-        visibility,
+        // content_type: fileType,
+        content_type: 'application/octet-stream',
+        creator: creator,
+        expect_checksums: expectCheckSums,
+        object_name: objectName,
+        payload_size: contentLength.toString(),
         primary_sp_approval: {
           expired_height: '0',
-          sig: '',
           global_virtual_group_family_id: 0,
+          sig: null,
         },
-        expect_checksums: expectCheckSums,
         redundancy_type: redundancyType,
+        visibility,
       };
       const path = '/greenfield/admin/v1/get-approval';
       const query = 'action=CreateObject';
       const url = `${spInfo.endpoint}${path}?${query}`;
+
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
       let headerContent: TKeyValue = {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
+
       if (!configParam.signType || configParam.signType === 'authTypeV2') {
         const Authorization = getAuthorizationAuthTypeV2();
         headerContent = {
@@ -183,7 +193,7 @@ export class Objectt implements IObject {
           Authorization,
         };
       } else if (configParam.signType === 'authTypeV1') {
-        const date = new Date().toISOString();
+        // const date = new Date().toISOString();
         const reqMeta: Partial<ReqMeta> = {
           contentSHA256: EMPTY_STRING_SHA256,
           txnMsg: unSignedMessageInHex,
@@ -193,16 +203,18 @@ export class Objectt implements IObject {
             query,
             path,
           },
-          date,
-          contentType: fileType,
+          date: '',
+          // contentType: fileType,
         };
 
         const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+
         headerContent = {
-          ...headerContent,
+          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
           // 'Content-Type': fileType,
-          // 'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-          // 'X-Gnfd-Date': date,
+          'Content-Type': 'application/octet-stream',
+          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+          'X-Gnfd-Date': '',
           Authorization: v1Auth,
         };
         // console.log(x)
@@ -298,7 +310,7 @@ export class Objectt implements IObject {
       redundancyType: redundancyTypeFromJSON(signedMsg.redundancy_type),
       primarySpApproval: {
         expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
+        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig || ''),
         globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
       },
     };

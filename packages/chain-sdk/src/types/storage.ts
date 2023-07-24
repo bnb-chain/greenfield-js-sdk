@@ -175,7 +175,7 @@ export interface ICreateObjectMsgType {
   content_type: string;
   primary_sp_approval: {
     expired_height: string;
-    sig: string;
+    sig: string | null;
     global_virtual_group_family_id: number;
   };
   expect_checksums: string[];
