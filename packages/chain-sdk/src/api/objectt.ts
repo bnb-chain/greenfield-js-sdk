@@ -5,6 +5,7 @@ import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
 import {
+  ActionType,
   Principal,
   PrincipalType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
@@ -16,6 +17,8 @@ import {
   QueryHeadObjectResponse,
   QueryNFTRequest,
   QueryObjectNFTResponse,
+  QueryPolicyForAccountResponse,
+  QueryVerifyPermissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCancelCreateObject,
@@ -103,7 +106,18 @@ export interface IObject {
     principalAddr: string,
   ): Promise<TxResponse>;
 
-  // TODO: IsObjectPermissionAllowed
+  isObjectPermissionAllowed(
+    bucketName: string,
+    objectName: string,
+    actionType: ActionType,
+    operator: string,
+  ): Promise<QueryVerifyPermissionResponse>;
+
+  getObjectPolicy(
+    bucketName: string,
+    objectName: string,
+    principalAddr: string,
+  ): Promise<QueryPolicyForAccountResponse>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }
@@ -607,6 +621,32 @@ export class Objectt implements IObject {
       // expirationTime: fromJsonTimestamp(expirationTime),
     };
     return await this.storage.putPolicy(msg);
+  }
+
+  public async isObjectPermissionAllowed(
+    bucketName: string,
+    objectName: string,
+    actionType: ActionType,
+    operator: string,
+  ) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.VerifyPermission({
+      bucketName,
+      objectName,
+      actionType,
+      operator,
+    });
+  }
+
+  public async getObjectPolicy(bucketName: string, objectName: string, principalAddr: string) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+
+    const resource = GRNToString(newObjectGRN(bucketName, objectName));
+
+    return await rpc.QueryPolicyForAccount({
+      resource,
+      principalAddress: principalAddr,
+    });
   }
 
   public async deleteObjectPolicy(
