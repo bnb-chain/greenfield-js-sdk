@@ -1,5 +1,35 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.10
+
+### Patch Changes
+
+- [#171](https://github.com/bnb-chain/greenfield-js-sdk/pull/171)
+  [`e2ebac6`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e2ebac6470c883013ff7dfaf610649b5e38f47bd)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Feegrant `grantAllowance` API
+
+- [#169](https://github.com/bnb-chain/greenfield-js-sdk/pull/169)
+  [`d894bad`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d894badd5fcd5ce915dfaec21808a300c15e7783)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add virtual group api
+
+- [#179](https://github.com/bnb-chain/greenfield-js-sdk/pull/179)
+  [`dc87783`](https://github.com/bnb-chain/greenfield-js-sdk/commit/dc877833ed400166fd1384b315c9ac068d6a80f5)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `getObjectPolicy` and
+  `isObjectPermissionAllowed`
+
+- [#169](https://github.com/bnb-chain/greenfield-js-sdk/pull/169)
+  [`d894bad`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d894badd5fcd5ce915dfaec21808a300c15e7783)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Migrate bucket api
+
+- [#174](https://github.com/bnb-chain/greenfield-js-sdk/pull/174)
+  [`4d88665`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4d8866501f1693ebe2593c51fc9c74bd728fba70)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: AuthInfoBytes add feePayer and feeGranter
+
+- [#169](https://github.com/bnb-chain/greenfield-js-sdk/pull/169)
+  [`d894bad`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d894badd5fcd5ce915dfaec21808a300c15e7783)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Compatibility createBucket and createObject
+  API for QA net new protobuf
+
 ## 0.2.2-alpha.9
 
 ### Patch Changes

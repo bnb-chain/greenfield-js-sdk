@@ -8,8 +8,10 @@
     "@bnb-chain/greenfiled-file-handle": "0.2.0"
   },
   "changesets": [
+    "angry-horses-enjoy",
     "calm-birds-sleep",
     "dirty-parrots-hear",
+    "forty-otters-scream",
     "green-avocados-jump",
     "grumpy-gorillas-breathe",
     "happy-humans-thank",
@@ -17,9 +19,13 @@
     "kind-eyes-brake",
     "large-humans-bathe",
     "little-pugs-peel",
+    "mean-wombats-remain",
     "metal-ways-crash",
     "old-roses-play",
     "old-trainers-shop",
+    "rare-steaks-repeat",
+    "selfish-pianos-try",
+    "serious-lizards-grab",
     "weak-hounds-sell"
   ]
 }
