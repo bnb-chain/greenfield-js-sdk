@@ -63,7 +63,9 @@ export const CreateObject = () => {
               expectCheckSums,
               fileType: file.type,
               creator: address,
-              signType: 'authTypeV2',
+              // signType: 'authTypeV2',
+              signType: 'authTypeV1',
+              privateKey: '0x6547492644d0136f76ef65e3bd04a77d079ed38028f747700c6c6063564d7032',
             });
 
             const simulateInfo = await createObjectTx.simulate({
@@ -78,6 +80,7 @@ export const CreateObject = () => {
               gasPrice: simulateInfo?.gasPrice || '5000000000',
               payer: address,
               granter: '',
+              // privateKey: '0x6547492644d0136f76ef65e3bd04a77d079ed38028f747700c6c6063564d7032',
             });
 
             const uploadRes = await client.object.uploadObject({
