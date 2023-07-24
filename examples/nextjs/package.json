@@ -1,6 +1,6 @@
 {
   "name": "@demo/wallet",
-  "version": "0.0.0-snapshot-20230720170853",
+  "version": "0.0.0-snapshot-20230724100555",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev",
