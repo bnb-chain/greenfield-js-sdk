@@ -505,7 +505,7 @@ export class Bucket implements IBucket {
       const url = endpoint + '/greenfield/admin/v1/get-approval?action=MigrateBucket';
       const msg = {
         operator: params.operator,
-        bucket_name: 'asddas',
+        bucket_name: params.bucketName,
         dst_primary_sp_id: spInfo.id,
         dst_primary_sp_approval: {
           expired_height: '0',
