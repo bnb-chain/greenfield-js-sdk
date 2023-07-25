@@ -28,7 +28,7 @@ export interface ICreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
 export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthTypeV2;
 
 export interface ISpInfo {
-  id: number;
+  // id: number;
   endpoint: string;
   primarySpAddress?: string;
   sealAddress: string;
@@ -58,20 +58,11 @@ export interface ICreateBucketMsgType {
   charged_read_quota: string;
 }
 
-export type TBaseGetUserBuckets = {
+export type TGetUserBuckets = {
   address: string;
   duration?: number;
   endpoint: string;
 };
-export type TGetUserBucketByOffChainAuth = TBaseGetUserBuckets & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-};
-export type TGetCreateBucketByAuthTypeV2 = TBaseGetUserBuckets & {
-  signType?: 'authTypeV2';
-};
-export type TGetUserBuckets = TGetUserBucketByOffChainAuth | TGetCreateBucketByAuthTypeV2;
 
 export type BucketProps = {
   bucket_info: {

@@ -316,7 +316,7 @@ export class Bucket implements IBucket {
 
   public async getUserBuckets(configParam: TGetUserBuckets) {
     try {
-      const { address, duration = 30000, endpoint, signType } = configParam;
+      const { address, duration = 30000, endpoint } = configParam;
       if (!isValidAddress(address)) {
         throw new Error('Error address');
       }
@@ -324,31 +324,10 @@ export class Bucket implements IBucket {
         throw new Error('Invalid endpoint');
       }
       const url = endpoint;
-      let headerContent: TKeyValue = {
+      const headerContent: TKeyValue = {
         'X-Gnfd-User-Address': address,
       };
-      if (!signType || signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString } = configParam;
-        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          return {
-            code: -1,
-            message: message || 'Get create bucket approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
-          'X-Gnfd-App-Domain': configParam.domain,
-        };
-      }
+
       const headers = new Headers(headerContent);
       const result = await fetchWithTimeout(
         url,
