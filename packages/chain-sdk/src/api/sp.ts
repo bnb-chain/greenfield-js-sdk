@@ -116,10 +116,8 @@ export class Sp implements ISp {
 
     let headerContent: Record<string, any> = {};
     const sp = await this.getInServiceSP();
-    const Authorization = getAuthorizationAuthTypeV2();
     headerContent = {
       ...headerContent,
-      Authorization,
     };
     const url = `${sp.endpoint}?group-query&name=${groupName}&prefix=${prefix}&source-type=${opts.sourceType}&limit=${opts.limit}&offset=${opts.offset}`;
 
