@@ -1,5 +1,21 @@
 # @demo/wallet
 
+## 0.0.3-alpha.12
+
+### Patch Changes
+
+- [#182](https://github.com/bnb-chain/greenfield-js-sdk/pull/182)
+  [`1b803da`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1b803da579469ffab9fa670973fd1414dfa88d2d)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add AuthV1 for SP API (createObject)
+
+- Updated dependencies
+  [[`42e323a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/42e323a2c14d759aef675864a6ce11ef73d146ca),
+  [`42e323a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/42e323a2c14d759aef675864a6ce11ef73d146ca),
+  [`42e323a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/42e323a2c14d759aef675864a6ce11ef73d146ca),
+  [`42e323a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/42e323a2c14d759aef675864a6ce11ef73d146ca),
+  [`1b803da`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1b803da579469ffab9fa670973fd1414dfa88d2d)]:
+  - @bnb-chain/greenfield-chain-sdk@0.2.2-alpha.11
+
 ## 0.0.3-alpha.11
 
 ### Patch Changes
