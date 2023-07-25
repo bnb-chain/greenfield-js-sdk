@@ -38,7 +38,6 @@ export const ObjectInfo = () => {
               const res = await client.object.listObjects({
                 bucketName,
                 endpoint: spInfo.endpoint,
-                signType: 'authTypeV2',
               });
               console.log('res', res);
             }}

@@ -49,7 +49,7 @@ import {
 } from '..';
 import {
   ICreateObjectMsgType,
-  IObjectProps,
+  IObjectsProps,
   IObjectResultType,
   Long,
   TCreateObject,
@@ -98,7 +98,7 @@ export interface IObject {
 
   downloadFile(configParam: TGetObject): Promise<void>;
 
-  listObjects(configParam: TListObjects): Promise<IObjectResultType<Array<IObjectProps>>>;
+  listObjects(configParam: TListObjects): Promise<IObjectResultType<IObjectsProps>>;
 
   createFolder(
     getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
@@ -561,30 +561,7 @@ export class Objectt implements IObject {
         throw new Error('Invalid endpoint');
       }
       const url = `${generateUrlByBucketName(endpoint, bucketName)}?${query?.toString()}`;
-      let headerContent: TKeyValue = {};
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString, address, domain } = configParam;
-        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          throw {
-            code: -1,
-            message: message || 'Get create bucket approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
-          'X-Gnfd-User-Address': address,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
+      const headerContent: TKeyValue = {};
       const headers = new Headers(headerContent);
 
       const result = await fetchWithTimeout(
