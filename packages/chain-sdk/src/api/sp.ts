@@ -150,10 +150,10 @@ type ListGroupsResult = {
   groups: {
     group: GroupInfo;
     operator: string;
-    createAt: number;
-    createTime: number;
-    updateAt: number;
-    updateTime: number;
+    create_at: number;
+    create_time: number;
+    update_at: number;
+    update_time: number;
     removed: boolean;
   }[];
   count: string;
