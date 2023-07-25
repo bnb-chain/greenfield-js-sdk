@@ -2,8 +2,14 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
-import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
+import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
+import {
+  EMPTY_STRING_SHA256,
+  fetchWithTimeout,
+  METHOD_GET,
+  METHOD_PUT,
+  NORMAL_ERROR_CODE,
+} from '@/utils/http';
 import {
   ActionType,
   Principal,
@@ -29,7 +35,9 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { bufferToHex } from '@ethereumjs/util';
 import { Headers } from 'cross-fetch';
+import { utf8ToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -51,7 +59,11 @@ import {
   TPutObject,
   TxResponse,
 } from '../types';
-import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
+import {
+  decodeFromHex,
+  decodeObjectFromHexString,
+  encodeObjectToHexString,
+} from '../utils/encoding';
 import {
   generateUrlByBucketName,
   isValidBucketName,
@@ -161,30 +173,65 @@ export class Objectt implements IObject {
         throw new Error('empty creator address');
       }
 
+      // must sort (Go SDK)
       const msg: ICreateObjectMsgType = {
-        creator: creator,
-        object_name: objectName,
-        content_type: fileType,
-        payload_size: contentLength.toString(),
         bucket_name: bucketName,
-        visibility,
-        primary_sp_approval: { expired_height: '0', sig: '' },
+        // content_type: fileType,
+        content_type: 'application/octet-stream',
+        creator: creator,
         expect_checksums: expectCheckSums,
+        object_name: objectName,
+        payload_size: contentLength.toString(),
+        primary_sp_approval: {
+          expired_height: '0',
+          sig: null,
+        },
         redundancy_type: redundancyType,
+        visibility,
         expect_secondary_sp_addresses: spInfo.secondarySpAddresses,
       };
-      const url = spInfo.endpoint + '/greenfield/admin/v1/get-approval?action=CreateObject';
+      const path = '/greenfield/admin/v1/get-approval';
+      const query = 'action=CreateObject';
+      const url = `${spInfo.endpoint}${path}?${query}`;
+
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
       let headerContent: TKeyValue = {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
+
       if (!configParam.signType || configParam.signType === 'authTypeV2') {
         const Authorization = getAuthorizationAuthTypeV2();
         headerContent = {
           ...headerContent,
           Authorization,
         };
+      } else if (configParam.signType === 'authTypeV1') {
+        // const date = new Date().toISOString();
+        const reqMeta: Partial<ReqMeta> = {
+          contentSHA256: EMPTY_STRING_SHA256,
+          txnMsg: unSignedMessageInHex,
+          method: METHOD_GET,
+          url: {
+            hostname: new URL(spInfo.endpoint).hostname,
+            query,
+            path,
+          },
+          date: '',
+          // contentType: fileType,
+        };
+
+        const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+
+        headerContent = {
+          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+          // 'Content-Type': fileType,
+          'Content-Type': 'application/octet-stream',
+          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+          'X-Gnfd-Date': '',
+          Authorization: v1Auth,
+        };
+        // console.log(x)
       } else if (configParam.signType === 'offChainAuth') {
         const { seedString, domain } = configParam;
         const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
@@ -275,7 +322,7 @@ export class Objectt implements IObject {
       redundancyType: redundancyTypeFromJSON(signedMsg.redundancy_type),
       primarySpApproval: {
         expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
+        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig || ''),
       },
     };
 

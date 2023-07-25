@@ -6,12 +6,15 @@ import {
   PermissionTypes,
 } from '@bnb-chain/greenfield-chain-sdk';
 import { Wallet } from '@ethersproject/wallet';
+import { ChangeEvent } from 'react';
+import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { useState } from 'react';
 import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 
 export const FeeGrant = () => {
   const { address } = useAccount();
+  const [file, setFile] = useState<File>();
   const [bucketName, setBucketName] = useState<string>('');
   const [objectName, setObjectName] = useState<string>('');
   const [wallet, setWallet] = useState<Wallet | null>(null);
@@ -33,6 +36,16 @@ export const FeeGrant = () => {
         placeholder="object name"
         onChange={(e) => {
           setObjectName(e.target.value);
+        }}
+      />
+      <br />
+      <input
+        type="file"
+        placeholder="select a file"
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+          if (e.target.files) {
+            setFile(e.target.files[0]);
+          }
         }}
       />
       <br />
@@ -96,25 +109,39 @@ export const FeeGrant = () => {
       <br />
       <button
         onClick={async () => {
-          if (!address || !wallet) return;
+          if (!address || !wallet || !file) return;
 
           const granteeAddr = wallet.address;
           const privateKey = wallet.privateKey;
 
           const spInfo = await selectSp();
-          const createFolderTx = await client.object.createFolder({
-            bucketName,
-            objectName: objectName + '/',
+
+          console.log('spInfo', spInfo);
+          console.log('temp account', granteeAddr, privateKey);
+
+          const fileBytes = await file.arrayBuffer();
+          const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+          const { contentLength, expectCheckSums } = hashResult;
+
+          const createObjectTx = await client.object.createObject({
+            bucketName: bucketName,
+            objectName: objectName,
             spInfo,
+            contentLength,
+            expectCheckSums,
+            fileType: file.type,
             creator: granteeAddr,
-            signType: 'authTypeV2',
+            signType: 'authTypeV1',
+            privateKey: privateKey,
           });
 
-          const simulateInfo = await createFolderTx.simulate({
+          const simulateInfo = await createObjectTx.simulate({
             denom: 'BNB',
           });
+
           console.log('simulateInfo', simulateInfo);
-          const txres = await createFolderTx.broadcast({
+
+          const res = await createObjectTx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',
@@ -123,11 +150,31 @@ export const FeeGrant = () => {
             privateKey,
           });
 
-          console.log('txres', txres);
-
-          if (txres.code === 0) {
+          if (res.code === 0) {
             alert('success');
           }
+
+          const uploadRes = await client.object.uploadObject({
+            bucketName: bucketName,
+            objectName: objectName,
+            body: file,
+            txnHash: res.transactionHash,
+            endpoint: spInfo.endpoint,
+            signType: 'authTypeV2',
+          });
+          console.log('uploadRes', uploadRes);
+
+          if (uploadRes.code === 0) {
+            alert('success');
+          }
+          // const txres = await createFolderTx.broadcast({
+          //   denom: 'BNB',
+          //   gasLimit: Number(simulateInfo?.gasLimit),
+          //   gasPrice: simulateInfo?.gasPrice || '5000000000',
+          //   payer: granteeAddr,
+          //   granter: address,
+          //   privateKey,
+          // });
         }}
       >
         create object
