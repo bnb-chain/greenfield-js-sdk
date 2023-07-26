@@ -23,7 +23,7 @@ import {
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { bufferToHex, toBuffer } from '@ethereumjs/util';
+import { toBuffer } from '@ethereumjs/util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
 import { BroadcastOptions, ISimulateGasFee, MetaTxInfo, SimulateOptions, TxResponse } from '..';
@@ -365,15 +365,6 @@ export class Basic implements IBasic {
       granter,
       payer,
     } = txOption;
-    const eip712 = this.getEIP712Struct(
-      typeUrl,
-      msgEIP712Structor,
-      accountInfo.accountNumber + '',
-      accountInfo.sequence + '',
-      this.chainId,
-      msgEIP712,
-      txOption,
-    );
 
     // console.log('txOption', txOption);
     // console.log('msgEIP712', msgEIP712);
@@ -394,6 +385,15 @@ export class Basic implements IBasic {
       );
       // console.log('signature', signature);
     } else {
+      const eip712 = this.getEIP712Struct(
+        typeUrl,
+        msgEIP712Structor,
+        accountInfo.accountNumber + '',
+        accountInfo.sequence + '',
+        this.chainId,
+        msgEIP712,
+        txOption,
+      );
       signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
       const messageHash = eip712Hash(JSON.stringify(eip712));
       const pk = recoverPk({
@@ -447,14 +447,14 @@ export class Basic implements IBasic {
     msg: object,
     txOption: BroadcastOptions,
   ) {
-    const { gasLimit, gasPrice, denom = DEFAULT_DENOM, payer } = txOption;
+    const { gasLimit, gasPrice, denom = DEFAULT_DENOM, payer, granter } = txOption;
 
     const fee = generateFee(
       String(BigInt(gasLimit) * BigInt(gasPrice)),
       denom,
       String(gasLimit),
       payer,
-      '',
+      granter,
     );
     const wrapperTypes = generateTypes(types);
     const wrapperMsg = typeWrapper(typeUrl, msg);

@@ -21,11 +21,19 @@ export interface ICreateBucketByOffChainAuth extends IBaseGetCreateBucket {
   seedString: string;
 }
 
+export interface ICreateBucketByAuthV1 extends IBaseGetCreateBucket {
+  signType?: 'authTypeV1';
+  privateKey: string;
+}
+
 export interface ICreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
   signType?: 'authTypeV2';
 }
 
-export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthTypeV2;
+export type TCreateBucket =
+  | ICreateBucketByOffChainAuth
+  | ICreateBucketByAuthV1
+  | ICreateBucketByAuthTypeV2;
 
 export interface ISpInfo {
   id: number;
@@ -146,25 +154,22 @@ export type TBaseGetCreateObject = {
   // hashResult?: any;
 };
 
-export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & {
+export type SignTypeV1 = {
+  signType: 'authTypeV1';
+  privateKey: string;
+};
+
+export type SignTypeOffChain = {
   signType: 'offChainAuth';
   domain: string;
   seedString: string;
 };
 
-export type TCreateObjectByAuthTypeV1 = TBaseGetCreateObject & {
-  signType?: 'authTypeV1';
-  privateKey: string;
-};
+export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & SignTypeOffChain;
 
-export type TCreateObjectByAuthTypeV2 = TBaseGetCreateObject & {
-  signType?: 'authTypeV2';
-};
+export type TCreateObjectByAuthTypeV1 = TBaseGetCreateObject & SignTypeV1;
 
-export type TCreateObject =
-  | TCreateObjectByOffChainAuth
-  | TCreateObjectByAuthTypeV1
-  | TCreateObjectByAuthTypeV2;
+export type TCreateObject = TCreateObjectByOffChainAuth | TCreateObjectByAuthTypeV1;
 
 export interface ICreateObjectMsgType {
   creator: string;

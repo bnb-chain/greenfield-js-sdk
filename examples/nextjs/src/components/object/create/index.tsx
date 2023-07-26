@@ -1,4 +1,5 @@
 import { client, selectSp } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -58,14 +59,15 @@ export const CreateObject = () => {
             const createObjectTx = await client.object.createObject({
               bucketName: createObjectInfo.bucketName,
               objectName: createObjectInfo.objectName,
-              spInfo,
+              creator: address,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              fileType: file.type,
+              redundancyType: 'REDUNDANCY_EC_TYPE',
               contentLength,
               expectCheckSums,
-              fileType: file.type,
-              creator: address,
-              // signType: 'authTypeV2',
+              spInfo,
               signType: 'authTypeV1',
-              privateKey: '0x6547492644d0136f76ef65e3bd04a77d079ed38028f747700c6c6063564d7032',
+              privateKey: ACCOUNT_PRIVATEKEY,
             });
 
             const simulateInfo = await createObjectTx.simulate({
@@ -80,8 +82,13 @@ export const CreateObject = () => {
               gasPrice: simulateInfo?.gasPrice || '5000000000',
               payer: address,
               granter: '',
-              // privateKey: '0x6547492644d0136f76ef65e3bd04a77d079ed38028f747700c6c6063564d7032',
             });
+
+            console.log('res', res);
+
+            if (res.code === 0) {
+              alert('create object tx success');
+            }
 
             const uploadRes = await client.object.uploadObject({
               bucketName: createObjectInfo.bucketName,
@@ -106,13 +113,18 @@ export const CreateObject = () => {
             if (!address) return;
 
             const spInfo = await selectSp();
-            const createFolderTx = await client.object.createFolder({
-              bucketName: createObjectInfo.bucketName,
-              objectName: createObjectInfo.objectName + '/',
-              spInfo,
-              creator: address,
-              signType: 'authTypeV2',
-            });
+            const createFolderTx = await client.object.createFolder(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName + '/',
+                spInfo,
+                creator: address,
+              },
+              {
+                signType: 'authTypeV1',
+                privateKey: ACCOUNT_PRIVATEKEY,
+              },
+            );
 
             const simulateInfo = await createFolderTx.simulate({
               denom: 'BNB',

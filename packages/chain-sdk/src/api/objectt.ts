@@ -35,9 +35,7 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
-import { bufferToHex } from '@ethereumjs/util';
 import { Headers } from 'cross-fetch';
-import { utf8ToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -52,6 +50,9 @@ import {
   IObjectProps,
   IObjectResultType,
   Long,
+  SignTypeOffChain,
+  SignTypeV1,
+  TBaseGetCreateObject,
   TCreateObject,
   TGetObject,
   TKeyValue,
@@ -59,11 +60,7 @@ import {
   TPutObject,
   TxResponse,
 } from '../types';
-import {
-  decodeFromHex,
-  decodeObjectFromHexString,
-  encodeObjectToHexString,
-} from '../utils/encoding';
+import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
   generateUrlByBucketName,
   isValidBucketName,
@@ -101,7 +98,8 @@ export interface IObject {
   listObjects(configParam: TListObjects): Promise<IObjectResultType<Array<IObjectProps>>>;
 
   createFolder(
-    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    signParams: SignTypeOffChain | SignTypeV1,
   ): Promise<TxResponse>;
 
   putObjectPolicy(
@@ -200,14 +198,10 @@ export class Objectt implements IObject {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
 
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      } else if (configParam.signType === 'authTypeV1') {
+      if (configParam.signType === 'authTypeV1') {
         // const date = new Date().toISOString();
+        if (configParam.privateKey === '') throw new Error('privateKey must not be empty');
+
         const reqMeta: Partial<ReqMeta> = {
           contentSHA256: EMPTY_STRING_SHA256,
           txnMsg: unSignedMessageInHex,
@@ -298,9 +292,9 @@ export class Objectt implements IObject {
         type: MsgCreateObjectTypeUrl,
         primary_sp_approval: {
           expired_height: signedMsg.primary_sp_approval.expired_height,
-          sig: signedMsg.primary_sp_approval.sig,
           global_virtual_group_family_id:
             signedMsg.primary_sp_approval.global_virtual_group_family_id,
+          sig: signedMsg.primary_sp_approval.sig,
         },
       },
       MsgCreateObject.encode(msg).finish(),
@@ -616,7 +610,8 @@ export class Objectt implements IObject {
   }
 
   public async createFolder(
-    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    signParams: SignTypeOffChain | SignTypeV1,
   ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
@@ -633,7 +628,7 @@ export class Objectt implements IObject {
       const { contentLength, expectCheckSums } = hashResult;
      */
 
-    return this.createObject({
+    const params: TCreateObject = {
       bucketName: getApprovalParams.bucketName,
       objectName: getApprovalParams.objectName,
       contentLength: 0,
@@ -649,7 +644,10 @@ export class Objectt implements IObject {
       ],
       creator: getApprovalParams.creator,
       spInfo: getApprovalParams.spInfo,
-    });
+      ...signParams,
+    };
+
+    return this.createObject(params);
   }
 
   public async putObjectPolicy(
