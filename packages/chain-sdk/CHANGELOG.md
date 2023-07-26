@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.13
+
+### Patch Changes
+
+- [#189](https://github.com/bnb-chain/greenfield-js-sdk/pull/189)
+  [`db5ab13`](https://github.com/bnb-chain/greenfield-js-sdk/commit/db5ab1363fbb5ff50e6c35f195a9b0a30a8375df)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Replace V2 with V1 auth for create object sp
+  api
+
 ## 0.2.2-alpha.12
 
 ### Patch Changes
