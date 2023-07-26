@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.12
+
+### Patch Changes
+
+- [#187](https://github.com/bnb-chain/greenfield-js-sdk/pull/187)
+  [`1b75dd2`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1b75dd2db01d99b078243619bd8c3d08b8e21f3d)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat: Offchainauth timeout reduced to 2s
+
 ## 0.2.2-alpha.11
 
 ### Patch Changes
