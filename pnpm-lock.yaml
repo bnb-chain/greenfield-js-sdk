@@ -197,8 +197,8 @@ importers:
   packages/chain-sdk:
     dependencies:
       '@bnb-chain/greenfield-cosmos-types':
-        specifier: 0.4.0-alpha.17
-        version: 0.4.0-alpha.17
+        specifier: 0.4.0-alpha.18
+        version: 0.4.0-alpha.18
       '@cosmjs/proto-signing':
         specifier: ^0.30.1
         version: 0.30.1
@@ -2062,8 +2062,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.17:
-    resolution: {integrity: sha512-nPMb+xy5bGpjg9shDvYt9Yyqa/jLPupA09H04n+i1m347PqfOxm9UItD7QVlUjaIm6PmLDiksLAJMvW8Ggp+og==}
+  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.18:
+    resolution: {integrity: sha512-UOdpZ8NCZZhJ5j7q5SUGW2TjgbBhnPjMG5beNk6QYQs7SjnY45ljFf3e9KicW77WvLCQDqUCpQLIgGE+y99AdQ==}
     dependencies:
       long: 4.0.0
       protobufjs: 6.11.3
@@ -6071,7 +6071,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001517
-      electron-to-chromium: 1.4.471
+      electron-to-chromium: 1.4.473
       node-releases: 2.0.13
       update-browserslist-db: 1.0.11(browserslist@4.21.9)
     dev: true
@@ -6916,8 +6916,8 @@ packages:
   /electron-to-chromium@1.4.411:
     resolution: {integrity: sha512-5VXLW4Qw89vM2WTICHua/y8v7fKGDRVa2VPOtBB9IpLvW316B+xd8yD1wTmLPY2ot/00P/qt87xdolj4aG/Lzg==}
 
-  /electron-to-chromium@1.4.471:
-    resolution: {integrity: sha512-GpmGRC1vTl60w/k6YpQ18pSiqnmr0j3un//5TV1idPi6aheNfkT1Ye71tMEabWyNDO6sBMgAR+95Eb0eUUr1tA==}
+  /electron-to-chromium@1.4.473:
+    resolution: {integrity: sha512-aVfC8+440vGfl06l8HKKn8/PD5jRfSnLkTTD65EFvU46igbpQRri1gxSzW9/+TeUlwYzrXk1sw867T96zlyECA==}
     dev: true
 
   /elliptic@6.5.4:
