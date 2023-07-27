@@ -1,5 +1,21 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.14
+
+### Patch Changes
+
+- [#191](https://github.com/bnb-chain/greenfield-js-sdk/pull/191)
+  [`1d9808f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1d9808f54b3bb2d934e09f34a2f49b0a644a12f1)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove Create object and create bucket
+
+- [#191](https://github.com/bnb-chain/greenfield-js-sdk/pull/191)
+  [`1d9808f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1d9808f54b3bb2d934e09f34a2f49b0a644a12f1)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: getStorageProviderInfo params update
+
+- [#191](https://github.com/bnb-chain/greenfield-js-sdk/pull/191)
+  [`1d9808f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1d9808f54b3bb2d934e09f34a2f49b0a644a12f1)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: GetSpURLfrom bucket
+
 ## 0.2.2-alpha.13
 
 ### Patch Changes
