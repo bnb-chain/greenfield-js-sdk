@@ -51,7 +51,9 @@ export const CreateObject = () => {
               return;
             }
 
-            const spInfo = await selectSp();
+            /* const spInfo = await selectSp();
+            console.log('spInfo', spInfo); */
+
             const fileBytes = await file.arrayBuffer();
             const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
             const { contentLength, expectCheckSums } = hashResult;
@@ -65,7 +67,6 @@ export const CreateObject = () => {
               redundancyType: 'REDUNDANCY_EC_TYPE',
               contentLength,
               expectCheckSums,
-              spInfo,
               signType: 'authTypeV1',
               privateKey: ACCOUNT_PRIVATEKEY,
             });
@@ -90,19 +91,19 @@ export const CreateObject = () => {
               alert('create object tx success');
             }
 
-            const uploadRes = await client.object.uploadObject({
-              bucketName: createObjectInfo.bucketName,
-              objectName: createObjectInfo.objectName,
-              body: file,
-              txnHash: res.transactionHash,
-              endpoint: spInfo.endpoint,
-              signType: 'authTypeV2',
-            });
-            console.log('uploadRes', uploadRes);
+            // const uploadRes = await client.object.uploadObject({
+            //   bucketName: createObjectInfo.bucketName,
+            //   objectName: createObjectInfo.objectName,
+            //   body: file,
+            //   txnHash: res.transactionHash,
+            //   endpoint: spInfo.endpoint,
+            //   signType: 'authTypeV2',
+            // });
+            // console.log('uploadRes', uploadRes);
 
-            if (uploadRes.code === 0) {
-              alert('success');
-            }
+            // if (uploadRes.code === 0) {
+            //   alert('success');
+            // }
           }}
         >
           create object and upload file
@@ -112,12 +113,10 @@ export const CreateObject = () => {
           onClick={async () => {
             if (!address) return;
 
-            const spInfo = await selectSp();
             const createFolderTx = await client.object.createFolder(
               {
                 bucketName: createObjectInfo.bucketName,
                 objectName: createObjectInfo.objectName + '/',
-                spInfo,
                 creator: address,
               },
               {

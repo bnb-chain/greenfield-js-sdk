@@ -119,21 +119,18 @@ export interface IBucket {
   getMigrateBucketApproval(params: IMigrateBucket): Promise<IObjectResultType<string>>;
 
   migrateBucket(configParams: IMigrateBucket): Promise<TxResponse>;
-
-  getSPUrlByBucket(bucketName: string): Promise<string>;
 }
 
 @singleton()
 export class Bucket implements IBucket {
   constructor(
     @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => Sp)) private sp: Sp,
     @inject(delay(() => Storage)) private storage: Storage,
   ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
-  private virtualGroup = container.resolve(VirtualGroup);
   private offChainAuthClient = container.resolve(OffChainAuth);
-  private sp = container.resolve(Sp);
 
   public async getCreateBucketApproval(configParam: TCreateBucket) {
     const {
@@ -156,7 +153,7 @@ export class Bucket implements IBucket {
         throw new Error('Empty creator address');
       }
 
-      const endpoint = spInfo.endpoint;
+      const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
       const msg: ICreateBucketMsgType = {
         bucket_name: bucketName,
         creator,
@@ -178,20 +175,14 @@ export class Bucket implements IBucket {
       let headerContent: TKeyValue = {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      }
+
       if (configParam.signType === 'authTypeV1') {
         const reqMeta: Partial<ReqMeta> = {
           contentSHA256: EMPTY_STRING_SHA256,
           txnMsg: unSignedMessageInHex,
           method: METHOD_GET,
           url: {
-            hostname: new URL(spInfo.endpoint).hostname,
+            hostname: new URL(endpoint).hostname,
             query,
             path,
           },
@@ -667,20 +658,5 @@ export class Bucket implements IBucket {
       },
       MsgMigrateBucket.encode(msg).finish(),
     );
-  }
-
-  public async getSPUrlByBucket(bucketName: string) {
-    const { bucketInfo } = await this.headBucket(bucketName);
-
-    if (!bucketInfo) throw new Error('Get bucket info error');
-
-    const familyResp = await this.virtualGroup.getGlobalVirtualGroupFamily({
-      familyId: bucketInfo.globalVirtualGroupFamilyId,
-    });
-
-    const spList = await this.sp.getStorageProviders();
-    const spId = familyResp.globalVirtualGroupFamily?.primarySpId;
-
-    return spList.filter((sp) => sp.id === spId)[0].endpoint;
   }
 }
