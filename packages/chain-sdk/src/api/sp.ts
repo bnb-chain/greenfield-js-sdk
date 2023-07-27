@@ -24,7 +24,7 @@ export interface ISp {
   /**
    * return the sp info with the sp chain address
    */
-  getStorageProviderInfo(spAddress: string): Promise<StorageProvider | undefined>;
+  getStorageProviderInfo(spId: number): Promise<StorageProvider | undefined>;
 
   /**
    * returns the storage price for a particular storage provider, including update time, read price, store price and .etc.
@@ -51,10 +51,10 @@ export class Sp implements ISp {
     return res.sps;
   }
 
-  public async getStorageProviderInfo(spAddress: string) {
+  public async getStorageProviderInfo(spId: number) {
     const rpc = await this.queryClient.getSpQueryClient();
     const res = await rpc.StorageProvider({
-      spAddress,
+      id: spId,
     });
     return res.storageProvider;
   }
