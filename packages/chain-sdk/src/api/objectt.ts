@@ -68,6 +68,7 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
+import { Bucket } from './bucket';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
 import { Storage } from './storage';
@@ -137,6 +138,7 @@ export class Objectt implements IObject {
   constructor(
     @inject(delay(() => Basic)) private basic: Basic,
     @inject(delay(() => Storage)) private storage: Storage,
+    @inject(delay(() => Bucket)) private bucket: Bucket,
   ) {}
 
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
@@ -188,9 +190,11 @@ export class Objectt implements IObject {
         redundancy_type: redundancyType,
         visibility,
       };
+
+      const endpoint = await this.bucket.getSPUrlByBucket(bucketName);
       const path = '/greenfield/admin/v1/get-approval';
       const query = 'action=CreateObject';
-      const url = `${spInfo.endpoint}${path}?${query}`;
+      const url = `${endpoint}${path}?${query}`;
 
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 

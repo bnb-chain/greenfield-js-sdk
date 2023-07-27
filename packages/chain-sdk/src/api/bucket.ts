@@ -2,9 +2,9 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
+import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
+import { EMPTY_STRING_SHA256, fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,
@@ -56,7 +56,9 @@ import {
 import { Basic } from './basic';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
+import { Sp } from './sp';
 import { Storage } from './storage';
+import { VirtualGroup } from './virtualGroup';
 
 export interface IBucket {
   /**
@@ -117,6 +119,8 @@ export interface IBucket {
   getMigrateBucketApproval(params: IMigrateBucket): Promise<IObjectResultType<string>>;
 
   migrateBucket(configParams: IMigrateBucket): Promise<TxResponse>;
+
+  getSPUrlByBucket(bucketName: string): Promise<string>;
 }
 
 @singleton()
@@ -127,7 +131,9 @@ export class Bucket implements IBucket {
   ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
+  private virtualGroup = container.resolve(VirtualGroup);
   private offChainAuthClient = container.resolve(OffChainAuth);
+  private sp = container.resolve(Sp);
 
   public async getCreateBucketApproval(configParam: TCreateBucket) {
     const {
@@ -164,7 +170,9 @@ export class Bucket implements IBucket {
         charged_read_quota: chargedReadQuota,
         payment_address: '',
       };
-      const url = endpoint + '/greenfield/admin/v1/get-approval?action=CreateBucket';
+      const path = '/greenfield/admin/v1/get-approval';
+      const query = 'action=CreateBucket';
+      const url = `${endpoint}${path}?${query}`;
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
       let headerContent: TKeyValue = {
@@ -175,6 +183,30 @@ export class Bucket implements IBucket {
         headerContent = {
           ...headerContent,
           Authorization,
+        };
+      }
+      if (configParam.signType === 'authTypeV1') {
+        const reqMeta: Partial<ReqMeta> = {
+          contentSHA256: EMPTY_STRING_SHA256,
+          txnMsg: unSignedMessageInHex,
+          method: METHOD_GET,
+          url: {
+            hostname: new URL(spInfo.endpoint).hostname,
+            query,
+            path,
+          },
+          date: '',
+          // contentType: fileType,
+        };
+        const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+
+        headerContent = {
+          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+          // 'Content-Type': fileType,
+          'Content-Type': 'application/octet-stream',
+          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+          'X-Gnfd-Date': '',
+          Authorization: v1Auth,
         };
       }
       if (configParam.signType === 'offChainAuth') {
@@ -635,5 +667,20 @@ export class Bucket implements IBucket {
       },
       MsgMigrateBucket.encode(msg).finish(),
     );
+  }
+
+  public async getSPUrlByBucket(bucketName: string) {
+    const { bucketInfo } = await this.headBucket(bucketName);
+
+    if (!bucketInfo) throw new Error('Get bucket info error');
+
+    const familyResp = await this.virtualGroup.getGlobalVirtualGroupFamily({
+      familyId: bucketInfo.globalVirtualGroupFamilyId,
+    });
+
+    const spList = await this.sp.getStorageProviders();
+    const spId = familyResp.globalVirtualGroupFamily?.primarySpId;
+
+    return spList.filter((sp) => sp.id === spId)[0].endpoint;
   }
 }
