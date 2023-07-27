@@ -11,7 +11,9 @@ export interface IBaseGetCreateBucket {
   creator: string;
   visibility: keyof typeof VisibilityType;
   chargedReadQuota: string;
-  spInfo: ISpInfo;
+  spInfo: {
+    primarySpAddress: string;
+  };
   duration?: number;
 }
 
@@ -26,14 +28,7 @@ export interface ICreateBucketByAuthV1 extends IBaseGetCreateBucket {
   privateKey: string;
 }
 
-export interface ICreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
-  signType?: 'authTypeV2';
-}
-
-export type TCreateBucket =
-  | ICreateBucketByOffChainAuth
-  | ICreateBucketByAuthV1
-  | ICreateBucketByAuthTypeV2;
+export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthV1;
 
 export interface ISpInfo {
   id: number;
@@ -132,13 +127,9 @@ export type TBaseGetCreateObject = {
   visibility?: keyof typeof VisibilityType;
   fileType: string;
   redundancyType?: keyof typeof RedundancyType;
-  // expectSecondarySpAddresses: string[];
-  // endpoint?: string;
-  spInfo: ISpInfo;
   duration?: number;
   contentLength: number;
   expectCheckSums: string[];
-  // hashResult?: any;
 };
 
 export type SignTypeV1 = {

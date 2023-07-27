@@ -68,8 +68,10 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
+import { Bucket } from './bucket';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
+import { Sp } from './sp';
 import { Storage } from './storage';
 
 export interface IObject {
@@ -137,6 +139,7 @@ export class Objectt implements IObject {
   constructor(
     @inject(delay(() => Basic)) private basic: Basic,
     @inject(delay(() => Storage)) private storage: Storage,
+    @inject(delay(() => Sp)) private sp: Sp,
   ) {}
 
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
@@ -148,7 +151,6 @@ export class Objectt implements IObject {
       creator,
       objectName,
       visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
-      spInfo,
       duration = 3000,
       fileType = 'application/octet-stream',
       redundancyType = 'REDUNDANCY_EC_TYPE',
@@ -157,10 +159,6 @@ export class Objectt implements IObject {
     } = configParam;
 
     try {
-      if (!isValidUrl(spInfo.endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
-
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
@@ -188,9 +186,11 @@ export class Objectt implements IObject {
         redundancy_type: redundancyType,
         visibility,
       };
+
+      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
       const path = '/greenfield/admin/v1/get-approval';
       const query = 'action=CreateObject';
-      const url = `${spInfo.endpoint}${path}?${query}`;
+      const url = `${endpoint}${path}?${query}`;
 
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
@@ -207,7 +207,7 @@ export class Objectt implements IObject {
           txnMsg: unSignedMessageInHex,
           method: METHOD_GET,
           url: {
-            hostname: new URL(spInfo.endpoint).hostname,
+            hostname: new URL(endpoint).hostname,
             query,
             path,
           },
@@ -620,7 +620,6 @@ export class Objectt implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
       ],
       creator: getApprovalParams.creator,
-      spInfo: getApprovalParams.spInfo,
       ...signParams,
     };
 

@@ -2,9 +2,9 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
+import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
+import { EMPTY_STRING_SHA256, fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,
@@ -56,7 +56,9 @@ import {
 import { Basic } from './basic';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
+import { Sp } from './sp';
 import { Storage } from './storage';
+import { VirtualGroup } from './virtualGroup';
 
 export interface IBucket {
   /**
@@ -123,6 +125,7 @@ export interface IBucket {
 export class Bucket implements IBucket {
   constructor(
     @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => Sp)) private sp: Sp,
     @inject(delay(() => Storage)) private storage: Storage,
   ) {}
 
@@ -150,7 +153,7 @@ export class Bucket implements IBucket {
         throw new Error('Empty creator address');
       }
 
-      const endpoint = spInfo.endpoint;
+      const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
       const msg: ICreateBucketMsgType = {
         bucket_name: bucketName,
         creator,
@@ -164,17 +167,37 @@ export class Bucket implements IBucket {
         charged_read_quota: chargedReadQuota,
         payment_address: '',
       };
-      const url = endpoint + '/greenfield/admin/v1/get-approval?action=CreateBucket';
+      const path = '/greenfield/admin/v1/get-approval';
+      const query = 'action=CreateBucket';
+      const url = `${endpoint}${path}?${query}`;
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
       let headerContent: TKeyValue = {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
+
+      if (configParam.signType === 'authTypeV1') {
+        const reqMeta: Partial<ReqMeta> = {
+          contentSHA256: EMPTY_STRING_SHA256,
+          txnMsg: unSignedMessageInHex,
+          method: METHOD_GET,
+          url: {
+            hostname: new URL(endpoint).hostname,
+            query,
+            path,
+          },
+          date: '',
+          // contentType: fileType,
+        };
+        const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+
         headerContent = {
-          ...headerContent,
-          Authorization,
+          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+          // 'Content-Type': fileType,
+          'Content-Type': 'application/octet-stream',
+          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+          'X-Gnfd-Date': '',
+          Authorization: v1Auth,
         };
       }
       if (configParam.signType === 'offChainAuth') {

@@ -53,6 +53,16 @@ export const QueryComponent = () => {
             get storage providers
           </button>
         </li>
+        <li>
+          <button
+            onClick={async () => {
+              const res = await client.sp.getSPUrlByBucket('dfggdf');
+              console.log('res', res);
+            }}
+          >
+            getSPUrlByBucket
+          </button>
+        </li>
       </ul>
     </>
   );

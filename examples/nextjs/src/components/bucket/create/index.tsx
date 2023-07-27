@@ -1,4 +1,5 @@
 import { client, selectSp } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { useState } from 'react';
 import { useAccount, useNetwork } from 'wagmi';
 
@@ -28,13 +29,18 @@ export const CreateBucket = () => {
           if (!address) return;
 
           const spInfo = await selectSp();
+          console.log('spInfo', spInfo);
+
           const createBucketTx = await client.bucket.createBucket({
             bucketName: createBucketInfo.bucketName,
             creator: address,
             visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
             chargedReadQuota: '0',
-            spInfo,
-            signType: 'authTypeV2',
+            spInfo: {
+              primarySpAddress: spInfo.primarySpAddress,
+            },
+            signType: 'authTypeV1',
+            privateKey: ACCOUNT_PRIVATEKEY,
           });
 
           const simulateInfo = await createBucketTx.simulate({
@@ -56,7 +62,7 @@ export const CreateBucket = () => {
           }
         }}
       >
-        broadcast with simulate with authTypeV2
+        broadcast with simulate with authTypeV1
       </button>
       <br />
       <button

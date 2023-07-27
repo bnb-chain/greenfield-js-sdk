@@ -11,8 +11,10 @@ import { SourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storag
 import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
 import { Headers } from 'cross-fetch';
 import Long from 'long';
-import { container, singleton } from 'tsyringe';
+import { container, delay, inject, singleton } from 'tsyringe';
+import { Bucket } from './bucket';
 import { RpcQueryClient } from './queryclient';
+import { VirtualGroup } from './virtualGroup';
 
 export interface ISp {
   /**
@@ -24,7 +26,7 @@ export interface ISp {
   /**
    * return the sp info with the sp chain address
    */
-  getStorageProviderInfo(spAddress: string): Promise<StorageProvider | undefined>;
+  getStorageProviderInfo(spId: number): Promise<StorageProvider | undefined>;
 
   /**
    * returns the storage price for a particular storage provider, including update time, read price, store price and .etc.
@@ -39,11 +41,17 @@ export interface ISp {
   params(): Promise<QueryParamsResponse>;
 
   listGroup(groupName: string, prefix: string, opts: ListGroupsOptions): Promise<ListGroupsResult>;
+
+  getSPUrlByBucket(bucketName: string): Promise<string>;
+
+  getSPUrlByPrimaryAddr(parimaryAddr: string): Promise<string>;
 }
 
 @singleton()
 export class Sp implements ISp {
+  private bucket = container.resolve(Bucket);
   private queryClient = container.resolve(RpcQueryClient);
+  private virtualGroup = container.resolve(VirtualGroup);
 
   public async getStorageProviders() {
     const rpc = await this.queryClient.getSpQueryClient();
@@ -51,12 +59,32 @@ export class Sp implements ISp {
     return res.sps;
   }
 
-  public async getStorageProviderInfo(spAddress: string) {
+  public async getStorageProviderInfo(spId: number) {
     const rpc = await this.queryClient.getSpQueryClient();
     const res = await rpc.StorageProvider({
-      spAddress,
+      id: spId,
     });
     return res.storageProvider;
+  }
+
+  public async getSPUrlByBucket(bucketName: string) {
+    const { bucketInfo } = await this.bucket.headBucket(bucketName);
+
+    if (!bucketInfo) throw new Error('Get bucket info error');
+
+    const familyResp = await this.virtualGroup.getGlobalVirtualGroupFamily({
+      familyId: bucketInfo.globalVirtualGroupFamilyId,
+    });
+
+    const spList = await this.getStorageProviders();
+    const spId = familyResp.globalVirtualGroupFamily?.primarySpId;
+
+    return spList.filter((sp) => sp.id === spId)[0].endpoint;
+  }
+
+  public async getSPUrlByPrimaryAddr(parimaryAddr: string) {
+    const sps = await this.getStorageProviders();
+    return sps.filter((sp) => sp.operatorAddress === parimaryAddr)[0].endpoint;
   }
 
   public async getStoragePriceByTime(spAddress: string) {
