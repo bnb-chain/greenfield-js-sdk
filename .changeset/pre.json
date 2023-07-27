@@ -10,8 +10,12 @@
   "changesets": [
     "angry-horses-enjoy",
     "calm-birds-sleep",
+    "chatty-ladybugs-listen",
     "dirty-parrots-hear",
+    "empty-pens-sing",
+    "flat-plants-buy",
     "forty-otters-scream",
+    "gold-ants-serve",
     "green-avocados-jump",
     "grumpy-gorillas-breathe",
     "happy-humans-thank",
@@ -23,9 +27,12 @@
     "metal-ways-crash",
     "old-roses-play",
     "old-trainers-shop",
+    "rare-chefs-agree",
     "rare-steaks-repeat",
     "selfish-pianos-try",
     "serious-lizards-grab",
+    "shaggy-experts-approve",
+    "warm-planets-exercise",
     "weak-hounds-sell"
   ]
 }
