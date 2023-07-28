@@ -1,5 +1,14 @@
 # @demo/nodejs
 
+## 0.0.6-alpha.17
+
+### Patch Changes
+
+- Updated dependencies
+  [[`b483901`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b483901d95048250d4b12e6ea34efd43550d9109),
+  [`1880084`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1880084ac21c17c73c553ce4256dc4e8dca24d5b)]:
+  - @bnb-chain/greenfield-chain-sdk@0.2.2-alpha.16
+
 ## 0.0.6-alpha.16
 
 ### Patch Changes
