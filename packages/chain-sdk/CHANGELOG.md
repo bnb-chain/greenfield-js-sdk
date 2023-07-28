@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.15
+
+### Patch Changes
+
+- [#193](https://github.com/bnb-chain/greenfield-js-sdk/pull/193)
+  [`776003d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/776003d7830355094c92cb09e266e0d163123d0b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Change allowance value type as base64
+
 ## 0.2.2-alpha.14
 
 ### Patch Changes
