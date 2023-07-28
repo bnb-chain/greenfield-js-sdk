@@ -24,6 +24,7 @@ import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { toBuffer } from '@ethereumjs/util';
+import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
 import { BroadcastOptions, ISimulateGasFee, MetaTxInfo, SimulateOptions, TxResponse } from '..';
@@ -263,6 +264,8 @@ export class Basic implements IBasic {
           signTypedDataCallback = defaultSignTypedData,
         } = opts;
 
+        let signature,
+          pubKey = undefined;
         const types = mergeMultiEip712(txs.map((tx) => tx.MsgSDKTypeEIP712));
         const fee = generateFee(
           String(BigInt(gasLimit) * BigInt(gasPrice)),
@@ -284,14 +287,25 @@ export class Basic implements IBasic {
         );
 
         const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
-        const signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
-        const messageHash = eip712Hash(JSON.stringify(eip712));
+        if (privateKey) {
+          pubKey = getPubKeyByPriKey(privateKey);
+          signature = signTypedData({
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            data: eip712,
+            version: SignTypedDataVersion.V4,
+            privateKey: toBuffer(privateKey),
+          });
+        } else {
+          signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
+          const messageHash = eip712Hash(JSON.stringify(eip712));
 
-        const pk = recoverPk({
-          signature,
-          messageHash,
-        });
-        const pubKey = makeCosmsPubKey(pk);
+          const pk = recoverPk({
+            signature,
+            messageHash,
+          });
+          pubKey = makeCosmsPubKey(pk);
+        }
 
         const authInfoBytes = this.getAuthInfoBytes({
           denom,
