@@ -1,5 +1,16 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.16
+
+### Patch Changes
+
+- [`b483901`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b483901d95048250d4b12e6ea34efd43550d9109)
+  Thanks [@randomx999](https://github.com/randomx999)! - fix: Throw sp error code and message
+
+- [#195](https://github.com/bnb-chain/greenfield-js-sdk/pull/195)
+  [`1880084`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1880084ac21c17c73c553ce4256dc4e8dca24d5b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Multi tx support private key
+
 ## 0.2.2-alpha.15
 
 ### Patch Changes
