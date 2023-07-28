@@ -1,5 +1,4 @@
-import { bufferToHex } from '@ethereumjs/util';
-import { joinSignature } from '@ethersproject/bytes';
+import { hexlify, joinSignature } from '@ethersproject/bytes';
 import { SigningKey } from '@ethersproject/signing-key';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
@@ -63,7 +62,7 @@ export const getAuthorizationAuthTypeV1 = (reqMeta: Partial<ReqMeta>, privateKey
   const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
   const sig = secpSign(unsignedMsg, privateKey);
 
-  const authorization = `authTypeV1 ECDSA-secp256k1,  SignedMsg=${bufferToHex(
+  const authorization = `authTypeV1 ECDSA-secp256k1,  SignedMsg=${hexlify(
     Buffer.from(unsignedMsg),
   ).slice(2)}, Signature=${sig.slice(2)}`;
   return authorization;
