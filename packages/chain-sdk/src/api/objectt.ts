@@ -7,6 +7,7 @@ import {
   EMPTY_STRING_SHA256,
   fetchWithTimeout,
   METHOD_GET,
+  METHOD_POST,
   METHOD_PUT,
   NORMAL_ERROR_CODE,
 } from '@/utils/http';
@@ -200,8 +201,6 @@ export class Objectt implements IObject {
 
       if (configParam.signType === 'authTypeV1') {
         // const date = new Date().toISOString();
-        if (configParam.privateKey === '') throw new Error('privateKey must not be empty');
-
         const reqMeta: Partial<ReqMeta> = {
           contentSHA256: EMPTY_STRING_SHA256,
           txnMsg: unSignedMessageInHex,
@@ -215,7 +214,7 @@ export class Objectt implements IObject {
           // contentType: fileType,
         };
 
-        const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+        const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
 
         headerContent = {
           'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
@@ -223,7 +222,7 @@ export class Objectt implements IObject {
           'Content-Type': 'application/octet-stream',
           'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
           'X-Gnfd-Date': '',
-          Authorization: v1Auth,
+          Authorization,
         };
         // console.log(x)
       } else if (configParam.signType === 'offChainAuth') {
@@ -327,12 +326,9 @@ export class Objectt implements IObject {
   }
 
   public async uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>> {
-    const { bucketName, objectName, txnHash, body, endpoint, duration = 30000 } = configParam;
+    const { bucketName, objectName, txnHash, body, duration = 30000 } = configParam;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
-    }
-    if (!isValidUrl(endpoint)) {
-      throw new Error('Invalid endpoint');
     }
     if (!isValidObjectName(objectName)) {
       throw new Error('Error object name');
@@ -340,15 +336,36 @@ export class Objectt implements IObject {
     if (!txnHash) {
       throw new Error('Transaction hash is empty, please check.');
     }
-    const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
+
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    const path = `/${objectName}`;
+    const query = '';
+    const url = generateUrlByBucketName(endpoint, bucketName) + path;
 
     let headerContent: TKeyValue = {
       'X-Gnfd-Txn-hash': txnHash,
     };
-    if (!configParam.signType || configParam.signType === 'authTypeV2') {
-      const Authorization = getAuthorizationAuthTypeV2();
+    if (!configParam.signType || configParam.signType === 'authTypeV1') {
+      const date = new Date().toISOString();
+      const reqMeta: Partial<ReqMeta> = {
+        contentSHA256: EMPTY_STRING_SHA256,
+        method: METHOD_PUT,
+        url: {
+          hostname: `${bucketName}.${new URL(endpoint).hostname}`,
+          query,
+          path,
+        },
+        date: date,
+        contentType: '',
+        txnHash: txnHash,
+      };
+
+      const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
       headerContent = {
         ...headerContent,
+        'Content-Type': '',
+        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+        'X-Gnfd-Date': date,
         Authorization,
       };
     } else if (configParam.signType === 'offChainAuth') {

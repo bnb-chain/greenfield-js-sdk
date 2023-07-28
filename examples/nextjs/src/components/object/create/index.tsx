@@ -7,6 +7,7 @@ import { useAccount } from 'wagmi';
 export const CreateObject = () => {
   const { address } = useAccount();
   const [file, setFile] = useState<File>();
+  const [txHash, setTxHash] = useState<string>();
   const [createObjectInfo, setCreateObjectInfo] = useState({
     bucketName: '',
     objectName: '',
@@ -51,9 +52,6 @@ export const CreateObject = () => {
               return;
             }
 
-            /* const spInfo = await selectSp();
-            console.log('spInfo', spInfo); */
-
             const fileBytes = await file.arrayBuffer();
             const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
             const { contentLength, expectCheckSums } = hashResult;
@@ -89,24 +87,35 @@ export const CreateObject = () => {
 
             if (res.code === 0) {
               alert('create object tx success');
+
+              setTxHash(res.transactionHash);
             }
-
-            // const uploadRes = await client.object.uploadObject({
-            //   bucketName: createObjectInfo.bucketName,
-            //   objectName: createObjectInfo.objectName,
-            //   body: file,
-            //   txnHash: res.transactionHash,
-            //   endpoint: spInfo.endpoint,
-            //   signType: 'authTypeV2',
-            // });
-            // console.log('uploadRes', uploadRes);
-
-            // if (uploadRes.code === 0) {
-            //   alert('success');
-            // }
           }}
         >
-          create object and upload file
+          1. create object tx
+        </button>
+        <br />
+        <button
+          onClick={async () => {
+            if (!file || !txHash) return;
+            console.log(file);
+
+            const uploadRes = await client.object.uploadObject({
+              bucketName: createObjectInfo.bucketName,
+              objectName: createObjectInfo.objectName,
+              body: file,
+              txnHash: txHash,
+              signType: 'authTypeV1',
+              privateKey: ACCOUNT_PRIVATEKEY,
+            });
+            console.log('uploadRes', uploadRes);
+
+            if (uploadRes.code === 0) {
+              alert('success');
+            }
+          }}
+        >
+          2. upload
         </button>
         <br />
         <button
