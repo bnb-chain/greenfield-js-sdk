@@ -1,5 +1,5 @@
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
-import { fetchWithTimeout, METHOD_GET } from '@/utils/http';
+import { fetchWithTimeout, METHOD_GET, parseErrorXml } from '@/utils/http';
 import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import {
   SecondarySpStorePrice,
@@ -157,9 +157,10 @@ export class Sp implements ISp {
 
     const { status } = result;
     if (!result.ok) {
+      const { code, message } = await parseErrorXml(result);
       throw {
-        code: -1,
-        message: 'Get group list error.',
+        code: code || -1,
+        message: message || 'Get group list error.',
         statusCode: status,
       };
     }
