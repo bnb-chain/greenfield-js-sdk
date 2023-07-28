@@ -63,7 +63,7 @@ export const FeeGrant = () => {
             granter: address,
             grantee: wallet.address,
             allowedMessages: [MsgCreateObjectTypeUrl],
-            amount: parseEther('0.1').toString(),
+            amount: parseEther('0.09').toString(),
             denom: 'BNB',
           });
 
@@ -114,9 +114,6 @@ export const FeeGrant = () => {
           const granteeAddr = wallet.address;
           const privateKey = wallet.privateKey;
 
-          const spInfo = await selectSp();
-
-          console.log('spInfo', spInfo);
           console.log('temp account', granteeAddr, privateKey);
 
           const fileBytes = await file.arrayBuffer();
@@ -126,12 +123,13 @@ export const FeeGrant = () => {
           const createObjectTx = await client.object.createObject({
             bucketName: bucketName,
             objectName: objectName,
-            spInfo,
+            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+            redundancyType: 'REDUNDANCY_EC_TYPE',
             contentLength,
             expectCheckSums,
             fileType: file.type,
-            creator: granteeAddr,
             signType: 'authTypeV1',
+            creator: granteeAddr,
             privateKey: privateKey,
           });
 

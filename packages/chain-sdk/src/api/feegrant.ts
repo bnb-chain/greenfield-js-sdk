@@ -10,6 +10,7 @@ import {
   MsgGrantAllowance,
   MsgRevokeAllowance,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
+import { base64FromBytes, bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { toBuffer } from '@ethereumjs/util';
 import { container, singleton } from 'tsyringe';
 import {
@@ -57,7 +58,7 @@ export class FeeGrant implements IFeeGrant {
         ...MsgGrantAllowance.toSDK(grantAllowance),
         allowance: {
           type: grantAllowance.allowance?.typeUrl,
-          value: toBuffer('0x' + encodeToHex(JSON.stringify(marshal))),
+          value: base64FromBytes(toBuffer('0x' + encodeToHex(JSON.stringify(marshal)))),
         },
       },
       MsgGrantAllowance.encode(grantAllowance).finish(),
