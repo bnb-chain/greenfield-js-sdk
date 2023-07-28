@@ -1,4 +1,4 @@
-import { FeeGrant } from '@/components/batch';
+import { FeeGrant } from '@/components/feegrant';
 import { Bucket } from '@/components/bucket';
 import { Deposit } from '@/components/deposit';
 import { Group } from '@/components/group';

@@ -1,27 +1,24 @@
-import { client, selectSp } from '@/client';
+import { client } from '@/client';
 import {
   GRNToString,
-  MsgCreateObjectTypeUrl,
-  newBucketGRN,
+  MsgDeleteObjectTypeUrl,
+  newObjectGRN,
   PermissionTypes,
 } from '@bnb-chain/greenfield-chain-sdk';
 import { Wallet } from '@ethersproject/wallet';
-import { ChangeEvent } from 'react';
-import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { useState } from 'react';
 import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 
-export const FeeGrant = () => {
+export const DelObj = () => {
   const { address } = useAccount();
-  const [file, setFile] = useState<File>();
   const [bucketName, setBucketName] = useState<string>('');
   const [objectName, setObjectName] = useState<string>('');
   const [wallet, setWallet] = useState<Wallet | null>(null);
 
   return (
     <>
-      <h4>Feegrant</h4>
+      <h3>grant account for deleting object</h3>
       bucket name :
       <input
         value={bucketName}
@@ -30,6 +27,7 @@ export const FeeGrant = () => {
           setBucketName(e.target.value);
         }}
       />
+      <br />
       object name :
       <input
         value={objectName}
@@ -39,19 +37,11 @@ export const FeeGrant = () => {
         }}
       />
       <br />
-      <input
-        type="file"
-        placeholder="select a file"
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          if (e.target.files) {
-            setFile(e.target.files[0]);
-          }
-        }}
-      />
-      <br />
       <button
         onClick={async () => {
           if (!address) return;
+
+          console.log(GRNToString(newObjectGRN(bucketName, objectName)));
 
           // 1. create temporary account
           const wallet = Wallet.createRandom();
@@ -62,7 +52,7 @@ export const FeeGrant = () => {
           const grantAllowanceTx = await client.feegrant.grantAllowance({
             granter: address,
             grantee: wallet.address,
-            allowedMessages: [MsgCreateObjectTypeUrl],
+            allowedMessages: [MsgDeleteObjectTypeUrl],
             amount: parseEther('0.09').toString(),
             denom: 'BNB',
           });
@@ -70,8 +60,8 @@ export const FeeGrant = () => {
           // 3. Put bucket policy so that the temporary account can create objects within this bucket
           const statement: PermissionTypes.Statement = {
             effect: PermissionTypes.Effect.EFFECT_ALLOW,
-            actions: [PermissionTypes.ActionType.ACTION_CREATE_OBJECT],
-            resources: [GRNToString(newBucketGRN(bucketName))],
+            actions: [PermissionTypes.ActionType.ACTION_DELETE_OBJECT],
+            resources: [GRNToString(newObjectGRN(bucketName, objectName))],
           };
           const putPolicyTx = await client.bucket.putBucketPolicy(bucketName, {
             operator: address,
@@ -104,42 +94,31 @@ export const FeeGrant = () => {
           }
         }}
       >
-        feegrant
+        1. feegrant
       </button>
       <br />
       <button
         onClick={async () => {
-          if (!address || !wallet || !file) return;
+          if (!address || !wallet) return;
 
           const granteeAddr = wallet.address;
           const privateKey = wallet.privateKey;
 
           console.log('temp account', granteeAddr, privateKey);
 
-          const fileBytes = await file.arrayBuffer();
-          const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
-          const { contentLength, expectCheckSums } = hashResult;
-
-          const createObjectTx = await client.object.createObject({
-            bucketName: bucketName,
-            objectName: objectName,
-            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-            redundancyType: 'REDUNDANCY_EC_TYPE',
-            contentLength,
-            expectCheckSums,
-            fileType: file.type,
-            signType: 'authTypeV1',
-            creator: granteeAddr,
-            privateKey: privateKey,
+          const deleteObjectTx = await client.object.deleteObject({
+            bucketName,
+            objectName,
+            operator: granteeAddr,
           });
 
-          const simulateInfo = await createObjectTx.simulate({
+          const simulateInfo = await deleteObjectTx.simulate({
             denom: 'BNB',
           });
 
           console.log('simulateInfo', simulateInfo);
 
-          const res = await createObjectTx.broadcast({
+          const res = await deleteObjectTx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',
@@ -151,44 +130,9 @@ export const FeeGrant = () => {
           if (res.code === 0) {
             alert('success');
           }
-
-          const uploadRes = await client.object.uploadObject({
-            bucketName: bucketName,
-            objectName: objectName,
-            body: file,
-            txnHash: res.transactionHash,
-            endpoint: spInfo.endpoint,
-            signType: 'authTypeV2',
-          });
-          console.log('uploadRes', uploadRes);
-
-          if (uploadRes.code === 0) {
-            alert('success');
-          }
-          // const txres = await createFolderTx.broadcast({
-          //   denom: 'BNB',
-          //   gasLimit: Number(simulateInfo?.gasLimit),
-          //   gasPrice: simulateInfo?.gasPrice || '5000000000',
-          //   payer: granteeAddr,
-          //   granter: address,
-          //   privateKey,
-          // });
         }}
       >
-        create object
-      </button>
-      <br />
-      <button
-        onClick={async () => {
-          if (!address || !wallet) return;
-
-          const res = await client.feegrant.getAllowences({
-            grantee: wallet.address,
-          });
-          console.log('res', res);
-        }}
-      >
-        get fee grant
+        2. delete object
       </button>
     </>
   );
