@@ -9,6 +9,7 @@ import {
   METHOD_GET,
   METHOD_PUT,
   NORMAL_ERROR_CODE,
+  parseErrorXml,
 } from '@/utils/http';
 import {
   ActionType,
@@ -255,9 +256,10 @@ export class Objectt implements IObject {
 
       const { status } = result;
       if (!result.ok) {
+        const { code, message } = await parseErrorXml(result);
         throw {
-          code: -1,
-          message: 'Get create object approval error.',
+          code: code || -1,
+          message: message || 'Get create object approval error.',
           statusCode: status,
           error: result,
         };
@@ -383,7 +385,12 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Put object error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        return {
+          code: +(code || 0) || -1,
+          message: message || 'Put object error.',
+          statusCode: status,
+        };
       }
 
       return { code: 0, message: 'Put object success.', statusCode: status };
@@ -499,7 +506,13 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Get object error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+
+        return {
+          code: code || -1,
+          message: message || 'Get object error.',
+          statusCode: status,
+        };
       }
 
       const fileBlob = await result.blob();
@@ -568,7 +581,12 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'List object error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        return {
+          code: code || -1,
+          message: message || 'List object error.',
+          statusCode: status,
+        };
       }
       const body = await result.json();
       return {

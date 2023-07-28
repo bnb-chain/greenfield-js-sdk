@@ -4,7 +4,13 @@ import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/Msg
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
 import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { EMPTY_STRING_SHA256, fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
+import {
+  EMPTY_STRING_SHA256,
+  fetchWithTimeout,
+  METHOD_GET,
+  NORMAL_ERROR_CODE,
+  parseErrorXml,
+} from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,
@@ -230,9 +236,10 @@ export class Bucket implements IBucket {
 
       const { status } = result;
       if (!result.ok) {
+        const { code, message } = await parseErrorXml(result);
         throw {
-          code: -1,
-          message: 'Get create bucket approval error.',
+          code: code || -1,
+          message: message || 'Get create bucket approval error.',
           statusCode: status,
         };
       }
@@ -362,7 +369,12 @@ export class Bucket implements IBucket {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Get bucket error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        throw {
+          code: code || -1,
+          message: message || 'Get bucket error.',
+          statusCode: status,
+        };
       }
       const { buckets } = await result.json();
 
@@ -437,7 +449,12 @@ export class Bucket implements IBucket {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Get Bucket Quota error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        return {
+          code: +(code || 0) || -1,
+          message: message || 'Get Bucket Quota error.',
+          statusCode: status,
+        };
       }
       const resultContentType = result.headers.get('Content-Type');
       // Will receive xml when get object met error
@@ -578,9 +595,10 @@ export class Bucket implements IBucket {
       );
       const { status } = result;
       if (!result.ok) {
+        const { code, message } = await parseErrorXml(result);
         throw {
-          code: -1,
-          message: 'Get create bucket approval error.',
+          code: code || -1,
+          message: message || 'Get create bucket approval error.',
           statusCode: status,
         };
       }

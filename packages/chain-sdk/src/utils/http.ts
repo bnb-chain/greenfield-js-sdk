@@ -27,6 +27,18 @@ const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration 
   }
 };
 
+const parseErrorXml = async (result: Response) => {
+  const xmlText = await result.text();
+  const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
+  const code = (xml as XMLDocument).getElementsByTagName('Code')[0].textContent;
+  const message = (xml as XMLDocument).getElementsByTagName('Message')[0].textContent;
+
+  return {
+    code,
+    message,
+  };
+};
+
 export {
   EMPTY_STRING_SHA256,
   MOCK_SIGNATURE,
@@ -35,4 +47,5 @@ export {
   METHOD_POST,
   METHOD_PUT,
   fetchWithTimeout,
+  parseErrorXml,
 };
