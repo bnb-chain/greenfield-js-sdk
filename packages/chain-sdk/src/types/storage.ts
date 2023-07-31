@@ -37,7 +37,7 @@ export interface ISpInfo {
 }
 
 export interface IObjectResultType<T> {
-  code: number;
+  code: number | string;
   xml?: Document;
   message?: string;
   statusCode?: number;
