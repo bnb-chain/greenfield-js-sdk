@@ -23,7 +23,7 @@ import {
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { toBuffer } from '@ethereumjs/util';
+import { arrayify } from '@ethersproject/bytes';
 import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
@@ -184,8 +184,6 @@ export class Basic implements IBasic {
           opts,
         );
 
-        // console.log('txRaw', bufferToHex(Buffer.from(rawTxBytes)));
-
         return await this.broadcastRawTx(rawTxBytes);
       },
       metaTxInfo: {
@@ -294,7 +292,7 @@ export class Basic implements IBasic {
             // @ts-ignore
             data: eip712,
             version: SignTypedDataVersion.V4,
-            privateKey: toBuffer(privateKey),
+            privateKey: Buffer.from(arrayify(privateKey)),
           });
         } else {
           signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
@@ -320,7 +318,7 @@ export class Basic implements IBasic {
         const txRaw = TxRaw.fromPartial({
           bodyBytes: txBodyBytes,
           authInfoBytes,
-          signatures: [toBuffer(signature)],
+          signatures: [arrayify(signature)],
         });
         const txBytes = TxRaw.encode(txRaw).finish();
         return await this.broadcastRawTx(txBytes);
@@ -415,13 +413,7 @@ export class Basic implements IBasic {
         messageHash,
       });
       pubKey = makeCosmsPubKey(pk);
-
-      // console.log('messageHash', bufferToHex(messageHash));
-      // console.log('signature', signature);
-      // console.log('pubKey', pubKey, bufferToHex(Buffer.from(pubKey.value)));
     }
-
-    // console.log('eip712', eip712, JSON.stringify(eip712));
 
     const authInfoBytes = this.getAuthInfoBytes({
       denom,
@@ -436,7 +428,7 @@ export class Basic implements IBasic {
     const txRaw = TxRaw.fromPartial({
       bodyBytes,
       authInfoBytes,
-      signatures: [toBuffer(signature)],
+      signatures: [arrayify(signature)],
     });
 
     return TxRaw.encode(txRaw).finish();

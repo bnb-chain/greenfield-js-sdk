@@ -4,8 +4,6 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { MsgMigrateBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 
-export type SignType = 'authTypeV2' | 'offChainAuth';
-
 export interface IBaseGetCreateBucket {
   bucketName: string;
   creator: string;
@@ -172,12 +170,12 @@ export type TBasePutObject = {
   objectName: string;
   txnHash: string;
   body: Blob;
-  endpoint?: string;
   duration?: number;
 };
 
-export type TPutObjectByAuthTypeV2 = TBasePutObject & {
-  signType?: 'authTypeV2';
+export type TPutObjectByAuthTypeV1 = TBasePutObject & {
+  signType?: 'authTypeV1';
+  privateKey: string;
 };
 
 export type TPutObjectByOffChainAuth = TBasePutObject & {
@@ -187,7 +185,7 @@ export type TPutObjectByOffChainAuth = TBasePutObject & {
   address: string;
 };
 
-export type TPutObject = TPutObjectByAuthTypeV2 | TPutObjectByOffChainAuth;
+export type TPutObject = TPutObjectByAuthTypeV1 | TPutObjectByOffChainAuth;
 
 export type TBaseGetObject = {
   bucketName: string;
