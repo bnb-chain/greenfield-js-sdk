@@ -173,8 +173,8 @@ export class Objectt implements IObject {
       // must sort (Go SDK)
       const msg: ICreateObjectMsgType = {
         bucket_name: bucketName,
-        // content_type: fileType,
-        content_type: 'application/octet-stream',
+        content_type: fileType,
+        // content_type: 'application/octet-stream',
         creator: creator,
         expect_checksums: expectCheckSums,
         object_name: objectName,
@@ -211,15 +211,15 @@ export class Objectt implements IObject {
             path,
           },
           date: '',
-          // contentType: fileType,
+          contentType: fileType,
         };
 
         const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
 
         headerContent = {
           'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-          // 'Content-Type': fileType,
-          'Content-Type': 'application/octet-stream',
+          'Content-Type': fileType,
+          // 'Content-Type': 'application/octet-stream',
           'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
           'X-Gnfd-Date': '',
           Authorization,
@@ -356,14 +356,14 @@ export class Objectt implements IObject {
           path,
         },
         date: date,
-        contentType: '',
+        // contentType: '',
         txnHash: txnHash,
       };
 
       const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
       headerContent = {
         ...headerContent,
-        'Content-Type': '',
+        'Content-Type': 'application/octet-stream',
         'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
         'X-Gnfd-Date': date,
         Authorization,
