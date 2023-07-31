@@ -1,5 +1,26 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.17
+
+### Patch Changes
+
+- [#200](https://github.com/bnb-chain/greenfield-js-sdk/pull/200)
+  [`61c7a9c`](https://github.com/bnb-chain/greenfield-js-sdk/commit/61c7a9ca56f03c6a8994b0dc22857777fe7fac46)
+  Thanks [@randomx999](https://github.com/randomx999)! - fix: No sp available error
+
+- [#198](https://github.com/bnb-chain/greenfield-js-sdk/pull/198)
+  [`c3af372`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c3af3729ecc69b65e2af12773028fcdb956bb827)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upload object V1 auth
+
+- [#198](https://github.com/bnb-chain/greenfield-js-sdk/pull/198)
+  [`c3af372`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c3af3729ecc69b65e2af12773028fcdb956bb827)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: CreateObject Tx content type field
+
+- [#198](https://github.com/bnb-chain/greenfield-js-sdk/pull/198)
+  [`c3af372`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c3af3729ecc69b65e2af12773028fcdb956bb827)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Replace @ethereumjs/util with
+  @ethersproject/bytes
+
 ## 0.2.2-alpha.16
 
 ### Patch Changes
