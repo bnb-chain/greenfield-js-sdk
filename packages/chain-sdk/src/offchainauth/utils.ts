@@ -12,7 +12,7 @@ const delay = (ms: number, value: { code: number; nonce?: null | number; message
 
 export const promiseRaceAll = async (
   promises: Promise<unknown>[],
-  timeout = 2000,
+  timeout = 3000,
   timeoutValue: any = { code: -1 },
 ) => {
   return Promise.all(
@@ -44,7 +44,7 @@ export const fetchNonces = async ({ sps, address, domain }: IFetchNonces): Promi
       domain,
     }),
   );
-  const res = await promiseRaceAll(promises, 2000, { code: -1, nonce: null });
+  const res = await promiseRaceAll(promises, 3000, { code: -1, nonce: null });
 
   return res;
 };
@@ -67,7 +67,7 @@ export const updateSpsPubKey = async ({
       authorization,
     }),
   );
-  const res = await promiseRaceAll(promises, 2000);
+  const res = await promiseRaceAll(promises, 3000);
 
   return res;
 };
