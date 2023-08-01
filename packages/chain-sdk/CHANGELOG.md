@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.18
+
+### Patch Changes
+
+- [#202](https://github.com/bnb-chain/greenfield-js-sdk/pull/202)
+  [`f790f26`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f790f261a1b056494a87bd955e7103bcf68c4f54)
+  Thanks [@randomx999](https://github.com/randomx999)! - feat: Extend response time to 3s
+
 ## 0.2.2-alpha.17
 
 ### Patch Changes
