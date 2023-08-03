@@ -1,5 +1,49 @@
 # @demo/nodejs
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  [[`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3),
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)]:
+  - @bnb-chain/greenfield-chain-sdk@0.2.2
+
 ## 0.0.6-alpha.19
 
 ### Patch Changes
