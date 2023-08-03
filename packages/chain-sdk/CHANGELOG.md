@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.3
+
+### Patch Changes
+
+- [#207](https://github.com/bnb-chain/greenfield-js-sdk/pull/207)
+  [`c21cef3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c21cef303a2f831e3ef79018883a3d14696d941b)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Rename package
+
 ## 0.2.2
 
 ### Patch Changes
