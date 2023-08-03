@@ -7,7 +7,7 @@ You can find some package documentation below:
 
 | Package | Description |
 | --- | --- |
-| [@bnb-chain/greenfield-chain-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain |
+| [@bnb-chain/greenfield-js-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain |
 | [@bnb-chain/greenfiled-file-handle](./packages/file-handle/README.md) | WASM module that handle file, such as `checksums` |
 
 ## Document

@@ -4,7 +4,7 @@ import {
   MsgCreateObjectTypeUrl,
   newBucketGRN,
   PermissionTypes,
-} from '@bnb-chain/greenfield-chain-sdk';
+} from '@bnb-chain/greenfield-js-sdk';
 import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { Wallet } from '@ethersproject/wallet';
 import { ChangeEvent, useState } from 'react';
