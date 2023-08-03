@@ -1,5 +1,5 @@
 import { getSps, client } from '@/client';
-import { IGenOffChainAuthKeyPairAndUpload } from '@bnb-chain/greenfield-chain-sdk';
+import { IGenOffChainAuthKeyPairAndUpload } from '@bnb-chain/greenfield-js-sdk';
 import { useAccount, useNetwork } from 'wagmi';
 
 export const OffChainAuth = () => {

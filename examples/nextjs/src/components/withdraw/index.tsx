@@ -1,6 +1,6 @@
 import { client } from '@/client';
 import { getRelayFeeBySimulate } from '@/utils/simulate';
-import { ISimulateGasFee } from '@bnb-chain/greenfield-chain-sdk';
+import { ISimulateGasFee } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
