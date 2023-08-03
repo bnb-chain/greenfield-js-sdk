@@ -1,13 +1,8 @@
+import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
+import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
 import {
-  MsgDeletePolicySDKTypeEIP712,
-  MsgDeletePolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeletePolicy';
-import {
-  MsgPutPolicySDKTypeEIP712,
-  MsgPutPolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgPutPolicy';
-import { Statement } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
-import {
+  QueryLockFeeRequest,
+  QueryLockFeeResponse,
   QueryParamsResponse,
   QueryPolicyByIdRequest,
   QueryPolicyByIdResponse,
@@ -20,9 +15,8 @@ import {
   MsgDeletePolicy,
   MsgPutPolicy,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { toTimestamp } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { PermissionTypes, TxResponse } from '..';
+import { MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
@@ -42,6 +36,8 @@ export interface IStorage {
   getQueryPolicyForGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 
   getQueryPolicyById(request: QueryPolicyByIdRequest): Promise<QueryPolicyByIdResponse>;
+
+  queryLockFee(request: QueryLockFeeRequest): Promise<QueryLockFeeResponse>;
 }
 
 @singleton()
@@ -64,6 +60,7 @@ export class Storage implements IStorage {
         ...toSdk,
         expiration_time: '',
         statements: toSdk.statements.map((e) => {
+          // @ts-ignore
           e.expiration_time = '';
           return e;
         }),
@@ -100,5 +97,10 @@ export class Storage implements IStorage {
   public async getQueryPolicyById(request: QueryPolicyByIdRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.QueryPolicyById(request);
+  }
+
+  public async queryLockFee(request: QueryLockFeeRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryLockFee(request);
   }
 }

@@ -1,4 +1,3 @@
-export const MsgDepositTypeUrl = '/greenfield.payment.MsgDeposit';
 export const MsgDepositSDKTypeEIP712 = {
   Msg1: [
     {

@@ -15,7 +15,7 @@ export const DeleteGroup = () => {
 
       <input
         value={deleteGroupInfo.bucketName}
-        placeholder="bucket name"
+        placeholder="group name"
         onChange={(e) => {
           setDeleteGroupInfo({ ...setDeleteGroupInfo, bucketName: e.target.value });
         }}

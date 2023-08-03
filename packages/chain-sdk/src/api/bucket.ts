@@ -1,22 +1,16 @@
-import {
-  MsgCreateBucketSDKTypeEIP712,
-  MsgCreateBucketTypeUrl,
-} from '@/messages/greenfield/storage/MsgCreateBucket';
-import {
-  MsgDeleteBucketSDKTypeEIP712,
-  MsgDeleteBucketTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeleteBucket';
-import {
-  MsgDeletePolicySDKTypeEIP712,
-  MsgDeletePolicyTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeletePolicy';
-import {
-  MsgUpdateBucketInfoSDKTypeEIP712,
-  MsgUpdateBucketInfoTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
+import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateBucket';
+import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
+import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
+import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { fetchWithTimeout, METHOD_GET, NORMAL_ERROR_CODE } from '@/utils/http';
+import {
+  EMPTY_STRING_SHA256,
+  fetchWithTimeout,
+  METHOD_GET,
+  NORMAL_ERROR_CODE,
+  parseErrorXml,
+} from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,
@@ -36,16 +30,29 @@ import {
   MsgCreateBucket,
   MsgDeleteBucket,
   MsgDeletePolicy,
+  MsgMigrateBucket,
   MsgPutPolicy,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { Headers } from 'cross-fetch';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { GRNToString, newBucketGRN, TKeyValue, TxResponse } from '..';
+import {
+  GRNToString,
+  MsgCreateBucketTypeUrl,
+  MsgDeleteBucketTypeUrl,
+  MsgMigrateBucketTypeUrl,
+  MsgUpdateBucketInfoTypeUrl,
+  newBucketGRN,
+  TKeyValue,
+  TxResponse,
+} from '..';
 import {
   BucketProps,
   ICreateBucketMsgType,
+  IMigrateBucket,
+  IMigrateBucketMsgType,
   IObjectResultType,
   IQuotaProps,
   TCreateBucket,
@@ -55,7 +62,9 @@ import {
 import { Basic } from './basic';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
+import { Sp } from './sp';
 import { Storage } from './storage';
+import { VirtualGroup } from './virtualGroup';
 
 export interface IBucket {
   /**
@@ -113,13 +122,16 @@ export interface IBucket {
 
   getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
 
-  // TODO: getBucketReadQuota();
+  getMigrateBucketApproval(params: IMigrateBucket): Promise<IObjectResultType<string>>;
+
+  migrateBucket(configParams: IMigrateBucket): Promise<TxResponse>;
 }
 
 @singleton()
 export class Bucket implements IBucket {
   constructor(
     @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => Sp)) private sp: Sp,
     @inject(delay(() => Storage)) private storage: Storage,
   ) {}
 
@@ -147,7 +159,7 @@ export class Bucket implements IBucket {
         throw new Error('Empty creator address');
       }
 
-      const endpoint = spInfo.endpoint;
+      const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
       const msg: ICreateBucketMsgType = {
         bucket_name: bucketName,
         creator,
@@ -156,21 +168,42 @@ export class Bucket implements IBucket {
         primary_sp_approval: {
           expired_height: '0',
           sig: '',
+          global_virtual_group_family_id: 0,
         },
         charged_read_quota: chargedReadQuota,
         payment_address: '',
       };
-      const url = endpoint + '/greenfield/admin/v1/get-approval?action=CreateBucket';
+      const path = '/greenfield/admin/v1/get-approval';
+      const query = 'action=CreateBucket';
+      const url = `${endpoint}${path}?${query}`;
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
       let headerContent: TKeyValue = {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
+
+      if (configParam.signType === 'authTypeV1') {
+        const reqMeta: Partial<ReqMeta> = {
+          contentSHA256: EMPTY_STRING_SHA256,
+          txnMsg: unSignedMessageInHex,
+          method: METHOD_GET,
+          url: {
+            hostname: new URL(endpoint).hostname,
+            query,
+            path,
+          },
+          date: '',
+          // contentType: fileType,
+        };
+        const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+
         headerContent = {
-          ...headerContent,
-          Authorization,
+          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+          // 'Content-Type': fileType,
+          'Content-Type': 'application/octet-stream',
+          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+          'X-Gnfd-Date': '',
+          Authorization: v1Auth,
         };
       }
       if (configParam.signType === 'offChainAuth') {
@@ -203,21 +236,10 @@ export class Bucket implements IBucket {
 
       const { status } = result;
       if (!result.ok) {
+        const { code, message } = await parseErrorXml(result);
         throw {
-          code: -1,
-          message: 'Get create bucket approval error.',
-          statusCode: status,
-        };
-      }
-
-      const resultContentType = result.headers.get('Content-Type');
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        throw {
-          code: -1,
-          xml,
-          message: 'Get create bucket approval error.',
+          code: code || -1,
+          message: message || 'Get create bucket approval error.',
           statusCode: status,
         };
       }
@@ -233,7 +255,11 @@ export class Bucket implements IBucket {
         signedMsg: signedMsg,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      throw {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -247,10 +273,7 @@ export class Bucket implements IBucket {
         type: MsgCreateBucketTypeUrl,
         charged_read_quota: signedMsg.charged_read_quota,
         visibility: signedMsg.visibility,
-        primary_sp_approval: {
-          expired_height: signedMsg.primary_sp_approval.expired_height,
-          sig: signedMsg.primary_sp_approval.sig,
-        },
+        primary_sp_approval: signedMsg.primary_sp_approval,
       },
       MsgCreateBucket.encode(msg).finish(),
     );
@@ -271,6 +294,7 @@ export class Bucket implements IBucket {
       primarySpApproval: {
         expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
         sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
+        globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
       },
       chargedReadQuota: signedMsg.charged_read_quota
         ? Long.fromString('0')
@@ -322,7 +346,7 @@ export class Bucket implements IBucket {
 
   public async getUserBuckets(configParam: TGetUserBuckets) {
     try {
-      const { address, duration = 30000, endpoint, signType } = configParam;
+      const { address, duration = 30000, endpoint } = configParam;
       if (!isValidAddress(address)) {
         throw new Error('Error address');
       }
@@ -330,31 +354,10 @@ export class Bucket implements IBucket {
         throw new Error('Invalid endpoint');
       }
       const url = endpoint;
-      let headerContent: TKeyValue = {
+      const headerContent: TKeyValue = {
         'X-Gnfd-User-Address': address,
       };
-      if (!signType || signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString } = configParam;
-        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          return {
-            code: -1,
-            message: message || 'Get create bucket approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
-          'X-Gnfd-App-Domain': configParam.domain,
-        };
-      }
+
       const headers = new Headers(headerContent);
       const result = await fetchWithTimeout(
         url,
@@ -366,7 +369,12 @@ export class Bucket implements IBucket {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Get bucket error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        throw {
+          code: code || -1,
+          message: message || 'Get bucket error.',
+          statusCode: status,
+        };
       }
       const { buckets } = await result.json();
 
@@ -377,7 +385,11 @@ export class Bucket implements IBucket {
         body: buckets,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -437,7 +449,12 @@ export class Bucket implements IBucket {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Get Bucket Quota error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        return {
+          code: +(code || 0) || -1,
+          message: message || 'Get Bucket Quota error.',
+          statusCode: status,
+        };
       }
       const resultContentType = result.headers.get('Content-Type');
       // Will receive xml when get object met error
@@ -469,7 +486,11 @@ export class Bucket implements IBucket {
         };
       }
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -514,5 +535,125 @@ export class Bucket implements IBucket {
   public async getBucketPolicy(request: QueryPolicyForAccountRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
     return rpc.QueryPolicyForAccount(request);
+  }
+
+  public async getMigrateBucketApproval(configParams: IMigrateBucket) {
+    const { params, spInfo, signType } = configParams;
+
+    try {
+      const endpoint = spInfo.endpoint;
+      const url = endpoint + '/greenfield/admin/v1/get-approval?action=MigrateBucket';
+      const msg = {
+        operator: params.operator,
+        bucket_name: params.bucketName,
+        dst_primary_sp_id: spInfo.id,
+        dst_primary_sp_approval: {
+          expired_height: '0',
+          sig: '',
+          global_virtual_group_family_id: 0,
+        },
+      };
+      const unSignedMessageInHex = encodeObjectToHexString(msg);
+
+      let headerContent: TKeyValue = {
+        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+      };
+
+      if (!signType || signType === 'authTypeV2') {
+        const Authorization = getAuthorizationAuthTypeV2();
+        headerContent = {
+          ...headerContent,
+          Authorization,
+        };
+      }
+      if (signType === 'offChainAuth') {
+        const { seedString, domain } = configParams;
+        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
+        if (code !== 0) {
+          throw {
+            code: -1,
+            message: message || 'Get create bucket approval error.',
+            statusCode: statusCode,
+          };
+        }
+        headerContent = {
+          ...headerContent,
+          Authorization: body?.authorization as string,
+          'X-Gnfd-User-Address': msg.operator,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+
+      const headers = new Headers(headerContent);
+      const result = await fetchWithTimeout(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        30000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const { code, message } = await parseErrorXml(result);
+        throw {
+          code: code || -1,
+          message: message || 'Get create bucket approval error.',
+          statusCode: status,
+        };
+      }
+      const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
+      const signedMsg = decodeObjectFromHexString(signedMsgString) as IMigrateBucketMsgType;
+
+      return {
+        code: 0,
+        message: 'Get migrate bucket approval success.',
+        body: signedMsgString,
+        statusCode: status,
+        signedMsg: signedMsg,
+      };
+    } catch (error: any) {
+      throw {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async migrateBucket(configParams: IMigrateBucket) {
+    const { signedMsg } = await this.getMigrateBucketApproval(configParams);
+
+    if (!signedMsg) {
+      throw new Error('Get migrate bucket approval error');
+    }
+
+    const msg: MsgMigrateBucket = {
+      bucketName: signedMsg.bucket_name,
+      operator: signedMsg.operator,
+      dstPrimarySpId: signedMsg.dst_primary_sp_id,
+      dstPrimarySpApproval: {
+        expiredHeight: Long.fromString(signedMsg.dst_primary_sp_approval.expired_height),
+        globalVirtualGroupFamilyId:
+          signedMsg.dst_primary_sp_approval.global_virtual_group_family_id,
+        sig: bytesFromBase64(signedMsg.dst_primary_sp_approval.sig),
+      },
+    };
+
+    return await this.migrateBucketTx(msg, signedMsg);
+  }
+
+  private async migrateBucketTx(msg: MsgMigrateBucket, signedMsg: IMigrateBucketMsgType) {
+    return await this.basic.tx(
+      MsgMigrateBucketTypeUrl,
+      msg.operator,
+      MsgMigrateBucketSDKTypeEIP712,
+      {
+        ...signedMsg,
+        type: MsgMigrateBucketTypeUrl,
+        primary_sp_approval: signedMsg.dst_primary_sp_approval,
+      },
+      MsgMigrateBucket.encode(msg).finish(),
+    );
   }
 }

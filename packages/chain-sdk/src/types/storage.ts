@@ -2,15 +2,16 @@ import {
   RedundancyType,
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-
-export type SignType = 'authTypeV2' | 'offChainAuth';
+import { MsgMigrateBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 
 export interface IBaseGetCreateBucket {
   bucketName: string;
   creator: string;
   visibility: keyof typeof VisibilityType;
   chargedReadQuota: string;
-  spInfo: ISpInfo;
+  spInfo: {
+    primarySpAddress: string;
+  };
   duration?: number;
 }
 
@@ -20,13 +21,15 @@ export interface ICreateBucketByOffChainAuth extends IBaseGetCreateBucket {
   seedString: string;
 }
 
-export interface ICreateBucketByAuthTypeV2 extends IBaseGetCreateBucket {
-  signType?: 'authTypeV2';
+export interface ICreateBucketByAuthV1 extends IBaseGetCreateBucket {
+  signType?: 'authTypeV1';
+  privateKey: string;
 }
 
-export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthTypeV2;
+export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthV1;
 
 export interface ISpInfo {
+  id: number;
   endpoint: string;
   primarySpAddress?: string;
   sealAddress: string;
@@ -51,51 +54,39 @@ export interface ICreateBucketMsgType {
   primary_sp_approval: {
     expired_height: string;
     sig: string;
+    global_virtual_group_family_id: number;
   };
   charged_read_quota: string;
 }
 
-export type TBaseGetUserBuckets = {
+export type TGetUserBuckets = {
   address: string;
   duration?: number;
   endpoint: string;
 };
-export type TGetUserBucketByOffChainAuth = TBaseGetUserBuckets & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-};
-export type TGetCreateBucketByAuthTypeV2 = TBaseGetUserBuckets & {
-  signType?: 'authTypeV2';
-};
-export type TGetUserBuckets = TGetUserBucketByOffChainAuth | TGetCreateBucketByAuthTypeV2;
 
 export type BucketProps = {
   bucket_info: {
-    owner: string;
     bucket_name: string;
-    visibility: number;
-    id: string;
-    source_type: string;
-    create_at: string;
-    payment_address: string;
-    primary_sp_address: string;
-    charged_read_quota: string;
-    billing_info: {
-      price_time: string;
-      total_charge_size: string;
-      secondary_sp_objects_size: Array<string>;
-    };
     bucket_status: number;
+    charged_read_quota: string;
+    create_at: string;
+    global_virtual_group_family_id: number;
+    id: string;
+    owner: string;
+    payment_address: string;
+    primary_sp_id: number;
+    source_type: string;
+    visibility: number;
   };
-  removed: boolean;
+  create_tx_hash: string;
   delete_at: string;
   delete_reason: string;
   operator: string;
-  create_tx_hash: string;
-  update_tx_hash: string;
+  removed: boolean;
   update_at: string;
   update_time: string;
+  update_tx_hash: string;
 };
 
 export type TBaseGetBucketReadQuota = {
@@ -134,26 +125,27 @@ export type TBaseGetCreateObject = {
   visibility?: keyof typeof VisibilityType;
   fileType: string;
   redundancyType?: keyof typeof RedundancyType;
-  // expectSecondarySpAddresses: string[];
-  // endpoint?: string;
-  spInfo: ISpInfo;
   duration?: number;
   contentLength: number;
   expectCheckSums: string[];
-  // hashResult?: any;
 };
 
-export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & {
+export type SignTypeV1 = {
+  signType: 'authTypeV1';
+  privateKey: string;
+};
+
+export type SignTypeOffChain = {
   signType: 'offChainAuth';
   domain: string;
   seedString: string;
 };
 
-export type TCreateObjectByAuthTypeV2 = TBaseGetCreateObject & {
-  signType?: 'authTypeV2';
-};
+export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & SignTypeOffChain;
 
-export type TCreateObject = TCreateObjectByOffChainAuth | TCreateObjectByAuthTypeV2;
+export type TCreateObjectByAuthTypeV1 = TBaseGetCreateObject & SignTypeV1;
+
+export type TCreateObject = TCreateObjectByOffChainAuth | TCreateObjectByAuthTypeV1;
 
 export interface ICreateObjectMsgType {
   creator: string;
@@ -164,10 +156,11 @@ export interface ICreateObjectMsgType {
   content_type: string;
   primary_sp_approval: {
     expired_height: string;
-    sig: string;
+    sig: string | null;
+    global_virtual_group_family_id: number;
   };
   expect_checksums: string[];
-  expect_secondary_sp_addresses: string[];
+  // expect_secondary_sp_addresses: string[];
   redundancy_type: keyof typeof RedundancyType;
   // charged_read_quota: string;
 }
@@ -177,12 +170,12 @@ export type TBasePutObject = {
   objectName: string;
   txnHash: string;
   body: Blob;
-  endpoint?: string;
   duration?: number;
 };
 
-export type TPutObjectByAuthTypeV2 = TBasePutObject & {
-  signType?: 'authTypeV2';
+export type TPutObjectByAuthTypeV1 = TBasePutObject & {
+  signType?: 'authTypeV1';
+  privateKey: string;
 };
 
 export type TPutObjectByOffChainAuth = TBasePutObject & {
@@ -192,7 +185,7 @@ export type TPutObjectByOffChainAuth = TBasePutObject & {
   address: string;
 };
 
-export type TPutObject = TPutObjectByAuthTypeV2 | TPutObjectByOffChainAuth;
+export type TPutObject = TPutObjectByAuthTypeV1 | TPutObjectByOffChainAuth;
 
 export type TBaseGetObject = {
   bucketName: string;
@@ -214,26 +207,13 @@ export type TGetObjectByOffChainAuth = TBaseGetObject & {
 
 export type TGetObject = TGetObjectByAuthTypeV2 | TGetObjectByOffChainAuth;
 
-export type TBaseListObjects = {
+export type TListObjects = {
   bucketName: string;
   duration?: number;
   endpoint: string;
   protocol?: string;
   query?: URLSearchParams;
 };
-
-export type TListObjectsByAuthTypeV2 = TBaseListObjects & {
-  signType?: 'authTypeV2';
-};
-
-export type TListObjectsByOffChainAuth = TBaseListObjects & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TListObjects = TListObjectsByAuthTypeV2 | TListObjectsByOffChainAuth;
 
 export type TDownloadFile = {
   bucketName: string;
@@ -242,31 +222,45 @@ export type TDownloadFile = {
   year?: number;
   month?: number;
 };
-export interface IObjectProps {
-  object_info: {
-    owner: string;
-    bucket_name: string;
-    object_name: string;
-    id: string;
-    payload_size: string;
-    visibility: number;
-    content_type: string;
-    create_at: string;
-    object_status: string;
-    redundancy_type: string;
-    source_type: string;
-    checksums: Array<string>;
-    secondary_sp_addresses: Array<string>;
-  };
-  locked_balance: string;
-  removed: boolean;
-  update_at: string;
+
+export interface IObjectResponse {
+  create_tx_hash: string;
   delete_at: string;
   delete_reason: string;
+  locked_balance: string;
   operator: string;
-  create_tx_hash: string;
-  update_tx_hash: string;
+  removed: boolean;
   seal_tx_hash: string;
+  update_at: string;
+  update_tx_hash: string;
+  object_info: {
+    bucket_name: string;
+    checksums: Array<string>;
+    content_type: string;
+    create_at: string;
+    creator: string;
+    id: string;
+    local_virtual_group_id: number;
+    object_name: string;
+    object_status: number;
+    owner: string;
+    payload_size: string;
+    redundancy_type: string;
+    source_type: string;
+    visibility: number;
+  };
+}
+export interface IObjectsProps {
+  common_prefixes: Array<string>;
+  continuation_token: string;
+  delimiter: string;
+  is_truncated: boolean;
+  key_count: string;
+  max_keys: string;
+  name: string;
+  next_continuation_token: string;
+  objects: IObjectResponse[];
+  prefix: string;
 }
 
 export interface IGetObjectStaus {
@@ -352,4 +346,32 @@ export interface TGetCurrentSeedStringParams {
   address: string;
   chainId: number;
   provider: any;
+}
+
+export interface IBaseMigrateBucket {
+  params: MsgMigrateBucket;
+  spInfo: ISpInfo;
+}
+
+export interface IMigrateBucketByOffChainAuth extends IBaseMigrateBucket {
+  signType: 'offChainAuth';
+  domain: string;
+  seedString: string;
+}
+
+export interface IMigrateBucketByAuthTypeV2 extends IBaseMigrateBucket {
+  signType?: 'authTypeV2';
+}
+
+export type IMigrateBucket = IMigrateBucketByOffChainAuth | IMigrateBucketByAuthTypeV2;
+
+export interface IMigrateBucketMsgType {
+  operator: string;
+  bucket_name: string;
+  dst_primary_sp_id: number;
+  dst_primary_sp_approval: {
+    expired_height: string;
+    sig: string;
+    global_virtual_group_family_id: number;
+  };
 }

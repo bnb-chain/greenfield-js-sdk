@@ -1,6 +1,6 @@
 {
   "name": "@demo/wallet",
-  "version": "0.0.2",
+  "version": "0.0.3-alpha.19",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev",
@@ -17,9 +17,10 @@
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
     "@ethersproject/signing-key": "^5.7.0",
+    "@ethersproject/wallet": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
     "@next/font": "13.1.6",
-    "@rainbow-me/rainbowkit": "^1.0.2",
+    "@rainbow-me/rainbowkit": "^1.0.5",
     "@types/node": "^18.7.1",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",

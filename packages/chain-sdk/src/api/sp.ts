@@ -1,5 +1,5 @@
 import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
-import { fetchWithTimeout, METHOD_GET } from '@/utils/http';
+import { fetchWithTimeout, METHOD_GET, parseErrorXml } from '@/utils/http';
 import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import {
   SecondarySpStorePrice,
@@ -9,9 +9,12 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import { SourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
+import { Headers } from 'cross-fetch';
 import Long from 'long';
-import { container, singleton } from 'tsyringe';
+import { container, delay, inject, singleton } from 'tsyringe';
+import { Bucket } from './bucket';
 import { RpcQueryClient } from './queryclient';
+import { VirtualGroup } from './virtualGroup';
 
 export interface ISp {
   /**
@@ -23,7 +26,7 @@ export interface ISp {
   /**
    * return the sp info with the sp chain address
    */
-  getStorageProviderInfo(spAddress: string): Promise<StorageProvider | undefined>;
+  getStorageProviderInfo(spId: number): Promise<StorageProvider | undefined>;
 
   /**
    * returns the storage price for a particular storage provider, including update time, read price, store price and .etc.
@@ -38,11 +41,17 @@ export interface ISp {
   params(): Promise<QueryParamsResponse>;
 
   listGroup(groupName: string, prefix: string, opts: ListGroupsOptions): Promise<ListGroupsResult>;
+
+  getSPUrlByBucket(bucketName: string): Promise<string>;
+
+  getSPUrlByPrimaryAddr(parimaryAddr: string): Promise<string>;
 }
 
 @singleton()
 export class Sp implements ISp {
+  private bucket = container.resolve(Bucket);
   private queryClient = container.resolve(RpcQueryClient);
+  private virtualGroup = container.resolve(VirtualGroup);
 
   public async getStorageProviders() {
     const rpc = await this.queryClient.getSpQueryClient();
@@ -50,12 +59,32 @@ export class Sp implements ISp {
     return res.sps;
   }
 
-  public async getStorageProviderInfo(spAddress: string) {
+  public async getStorageProviderInfo(spId: number) {
     const rpc = await this.queryClient.getSpQueryClient();
     const res = await rpc.StorageProvider({
-      spAddress,
+      id: spId,
     });
     return res.storageProvider;
+  }
+
+  public async getSPUrlByBucket(bucketName: string) {
+    const { bucketInfo } = await this.bucket.headBucket(bucketName);
+
+    if (!bucketInfo) throw new Error('Get bucket info error');
+
+    const familyResp = await this.virtualGroup.getGlobalVirtualGroupFamily({
+      familyId: bucketInfo.globalVirtualGroupFamilyId,
+    });
+
+    const spList = await this.getStorageProviders();
+    const spId = familyResp.globalVirtualGroupFamily?.primarySpId;
+
+    return spList.filter((sp) => sp.id === spId)[0].endpoint;
+  }
+
+  public async getSPUrlByPrimaryAddr(parimaryAddr: string) {
+    const sps = await this.getStorageProviders();
+    return sps.filter((sp) => sp.operatorAddress === parimaryAddr)[0].endpoint;
   }
 
   public async getStoragePriceByTime(spAddress: string) {
@@ -115,10 +144,8 @@ export class Sp implements ISp {
 
     let headerContent: Record<string, any> = {};
     const sp = await this.getInServiceSP();
-    const Authorization = getAuthorizationAuthTypeV2();
     headerContent = {
       ...headerContent,
-      Authorization,
     };
     const url = `${sp.endpoint}?group-query&name=${groupName}&prefix=${prefix}&source-type=${opts.sourceType}&limit=${opts.limit}&offset=${opts.offset}`;
 
@@ -130,9 +157,10 @@ export class Sp implements ISp {
 
     const { status } = result;
     if (!result.ok) {
+      const { code, message } = await parseErrorXml(result);
       throw {
-        code: -1,
-        message: 'Get group list error.',
+        code: code || -1,
+        message: message || 'Get group list error.',
         statusCode: status,
       };
     }
@@ -151,10 +179,10 @@ type ListGroupsResult = {
   groups: {
     group: GroupInfo;
     operator: string;
-    createAt: number;
-    createTime: number;
-    updateAt: number;
-    updateTime: number;
+    create_at: number;
+    create_time: number;
+    update_at: number;
+    update_time: number;
     removed: boolean;
   }[];
   count: string;

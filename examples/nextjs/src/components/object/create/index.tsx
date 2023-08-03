@@ -1,4 +1,5 @@
 import { client, selectSp } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -6,6 +7,7 @@ import { useAccount } from 'wagmi';
 export const CreateObject = () => {
   const { address } = useAccount();
   const [file, setFile] = useState<File>();
+  const [txHash, setTxHash] = useState<string>();
   const [createObjectInfo, setCreateObjectInfo] = useState({
     bucketName: '',
     objectName: '',
@@ -50,7 +52,6 @@ export const CreateObject = () => {
               return;
             }
 
-            const spInfo = await selectSp();
             const fileBytes = await file.arrayBuffer();
             const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
             const { contentLength, expectCheckSums } = hashResult;
@@ -58,12 +59,14 @@ export const CreateObject = () => {
             const createObjectTx = await client.object.createObject({
               bucketName: createObjectInfo.bucketName,
               objectName: createObjectInfo.objectName,
-              spInfo,
+              creator: address,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              fileType: file.type,
+              redundancyType: 'REDUNDANCY_EC_TYPE',
               contentLength,
               expectCheckSums,
-              fileType: file.type,
-              creator: address,
-              signType: 'authTypeV2',
+              signType: 'authTypeV1',
+              privateKey: ACCOUNT_PRIVATEKEY,
             });
 
             const simulateInfo = await createObjectTx.simulate({
@@ -80,13 +83,30 @@ export const CreateObject = () => {
               granter: '',
             });
 
+            console.log('res', res);
+
+            if (res.code === 0) {
+              alert('create object tx success');
+
+              setTxHash(res.transactionHash);
+            }
+          }}
+        >
+          1. create object tx
+        </button>
+        <br />
+        <button
+          onClick={async () => {
+            if (!file || !txHash) return;
+            console.log(file);
+
             const uploadRes = await client.object.uploadObject({
               bucketName: createObjectInfo.bucketName,
               objectName: createObjectInfo.objectName,
               body: file,
-              txnHash: res.transactionHash,
-              endpoint: spInfo.endpoint,
-              signType: 'authTypeV2',
+              txnHash: txHash,
+              signType: 'authTypeV1',
+              privateKey: ACCOUNT_PRIVATEKEY,
             });
             console.log('uploadRes', uploadRes);
 
@@ -95,21 +115,24 @@ export const CreateObject = () => {
             }
           }}
         >
-          create object and upload file
+          2. upload
         </button>
         <br />
         <button
           onClick={async () => {
             if (!address) return;
 
-            const spInfo = await selectSp();
-            const createFolderTx = await client.object.createFolder({
-              bucketName: createObjectInfo.bucketName,
-              objectName: createObjectInfo.objectName + '/',
-              spInfo,
-              creator: address,
-              signType: 'authTypeV2',
-            });
+            const createFolderTx = await client.object.createFolder(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName + '/',
+                creator: address,
+              },
+              {
+                signType: 'authTypeV1',
+                privateKey: ACCOUNT_PRIVATEKEY,
+              },
+            );
 
             const simulateInfo = await createFolderTx.simulate({
               denom: 'BNB',

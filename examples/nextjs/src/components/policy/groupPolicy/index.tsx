@@ -15,7 +15,7 @@ export const GroupPolicy = () => {
       group name :
       <input
         value={policyGroupInfo.groupName}
-        placeholder="bucket name"
+        placeholder="group name"
         onChange={(e) => {
           setPolicyGroupInfo({ ...policyGroupInfo, groupName: e.target.value });
         }}

@@ -23,7 +23,8 @@ import {
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { toBuffer } from '@ethereumjs/util';
+import { arrayify } from '@ethersproject/bytes';
+import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
 import { BroadcastOptions, ISimulateGasFee, MetaTxInfo, SimulateOptions, TxResponse } from '..';
@@ -211,6 +212,8 @@ export class Basic implements IBasic {
       gasLimit: 0,
       gasPrice: '0',
       pubKey: makeCosmsPubKey(ZERO_PUBKEY),
+      granter: '',
+      payer: '',
     });
     const tx = Tx.fromPartial({
       authInfo: AuthInfo.decode(authInfoBytes),
@@ -255,16 +258,19 @@ export class Basic implements IBasic {
           gasPrice,
           privateKey,
           payer,
+          granter,
           signTypedDataCallback = defaultSignTypedData,
         } = opts;
 
+        let signature,
+          pubKey = undefined;
         const types = mergeMultiEip712(txs.map((tx) => tx.MsgSDKTypeEIP712));
         const fee = generateFee(
           String(BigInt(gasLimit) * BigInt(gasPrice)),
           denom,
           String(gasLimit),
           payer,
-          '',
+          granter,
         );
         const wrapperTypes = generateTypes(types);
         const multiMessages = mergeMultiMessage(txs);
@@ -279,14 +285,25 @@ export class Basic implements IBasic {
         );
 
         const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
-        const signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
-        const messageHash = eip712Hash(JSON.stringify(eip712));
+        if (privateKey) {
+          pubKey = getPubKeyByPriKey(privateKey);
+          signature = signTypedData({
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            data: eip712,
+            version: SignTypedDataVersion.V4,
+            privateKey: Buffer.from(arrayify(privateKey)),
+          });
+        } else {
+          signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
+          const messageHash = eip712Hash(JSON.stringify(eip712));
 
-        const pk = recoverPk({
-          signature,
-          messageHash,
-        });
-        const pubKey = makeCosmsPubKey(pk);
+          const pk = recoverPk({
+            signature,
+            messageHash,
+          });
+          pubKey = makeCosmsPubKey(pk);
+        }
 
         const authInfoBytes = this.getAuthInfoBytes({
           denom,
@@ -294,12 +311,14 @@ export class Basic implements IBasic {
           gasLimit,
           gasPrice,
           pubKey,
+          granter,
+          payer,
         });
 
         const txRaw = TxRaw.fromPartial({
           bodyBytes: txBodyBytes,
           authInfoBytes,
-          signatures: [toBuffer(signature)],
+          signatures: [arrayify(signature)],
         });
         const txBytes = TxRaw.encode(txRaw).finish();
         return await this.broadcastRawTx(txBytes);
@@ -308,12 +327,12 @@ export class Basic implements IBasic {
   }
 
   private getAuthInfoBytes(
-    params: Pick<BroadcastOptions, 'denom' | 'gasLimit' | 'gasPrice'> & {
+    params: Pick<BroadcastOptions, 'denom' | 'gasLimit' | 'gasPrice' | 'granter' | 'payer'> & {
       pubKey: BaseAccount['pubKey'];
       sequence: string;
     },
   ) {
-    const { pubKey, denom = DEFAULT_DENOM, sequence, gasLimit, gasPrice } = params;
+    const { pubKey, denom = DEFAULT_DENOM, sequence, gasLimit, gasPrice, granter, payer } = params;
     if (!pubKey) throw new Error('pubKey is required');
 
     const feeAmount: Coin[] = [
@@ -322,8 +341,8 @@ export class Basic implements IBasic {
         amount: String(BigInt(gasLimit) * BigInt(gasPrice)),
       },
     ];
-    const feeGranter = undefined;
-    const feePayer = undefined;
+    const feeGranter = granter;
+    const feePayer = payer;
     const authInfoBytes = makeAuthInfoBytes(
       [{ pubkey: pubKey, sequence: Number(sequence) }],
       feeAmount,
@@ -355,16 +374,12 @@ export class Basic implements IBasic {
       gasPrice,
       privateKey,
       signTypedDataCallback = defaultSignTypedData,
+      granter,
+      payer,
     } = txOption;
-    const eip712 = this.getEIP712Struct(
-      typeUrl,
-      msgEIP712Structor,
-      accountInfo.accountNumber + '',
-      accountInfo.sequence + '',
-      this.chainId,
-      msgEIP712,
-      txOption,
-    );
+
+    // console.log('txOption', txOption);
+    // console.log('msgEIP712', msgEIP712);
 
     let signature,
       pubKey = undefined;
@@ -380,7 +395,17 @@ export class Basic implements IBasic {
         msgEIP712,
         txOption,
       );
+      // console.log('signature', signature);
     } else {
+      const eip712 = this.getEIP712Struct(
+        typeUrl,
+        msgEIP712Structor,
+        accountInfo.accountNumber + '',
+        accountInfo.sequence + '',
+        this.chainId,
+        msgEIP712,
+        txOption,
+      );
       signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
       const messageHash = eip712Hash(JSON.stringify(eip712));
       const pk = recoverPk({
@@ -396,12 +421,14 @@ export class Basic implements IBasic {
       gasLimit,
       gasPrice,
       pubKey,
+      granter,
+      payer,
     });
 
     const txRaw = TxRaw.fromPartial({
       bodyBytes,
       authInfoBytes,
-      signatures: [toBuffer(signature)],
+      signatures: [arrayify(signature)],
     });
 
     return TxRaw.encode(txRaw).finish();
@@ -426,14 +453,14 @@ export class Basic implements IBasic {
     msg: object,
     txOption: BroadcastOptions,
   ) {
-    const { gasLimit, gasPrice, denom = DEFAULT_DENOM, payer } = txOption;
+    const { gasLimit, gasPrice, denom = DEFAULT_DENOM, payer, granter } = txOption;
 
     const fee = generateFee(
       String(BigInt(gasLimit) * BigInt(gasPrice)),
       denom,
       String(gasLimit),
       payer,
-      '',
+      granter,
     );
     const wrapperTypes = generateTypes(types);
     const wrapperMsg = typeWrapper(typeUrl, msg);

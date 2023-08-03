@@ -1,5 +1,3 @@
-export const MsgUpdateGroupExtraTypeUrl = '/greenfield.storage.MsgUpdateGroupExtra';
-
 export const MsgUpdateGroupExtraSDKTypeEIP712 = {
   Msg1: [
     {
@@ -19,7 +17,7 @@ export const MsgUpdateGroupExtraSDKTypeEIP712 = {
       type: 'string',
     },
     {
-      name: 'Extra',
+      name: 'extra',
       type: 'string',
     },
   ],

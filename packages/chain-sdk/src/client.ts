@@ -13,6 +13,9 @@ import { ISp, Sp } from './api/sp';
 import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 import { IStorage, Storage } from './api/storage';
 import { Basic, IBasic } from './api/basic';
+import { Gashub, IGashub } from './api/gashub';
+import { RpcQueryClient } from './api/queryclient';
+import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
 
 @injectable()
 export class Client {
@@ -27,12 +30,15 @@ export class Client {
     const crosschain = container.resolve<CrossChain>(CrossChain);
     const distribution = container.resolve<Distribution>(Distribution);
     const feegrant = container.resolve<FeeGrant>(FeeGrant);
+    const gashub = container.resolve<Gashub>(Gashub);
     const group = container.resolve<Group>(Group);
     const objectt = container.resolve<Objectt>(Objectt);
     const payment = container.resolve<Payment>(Payment);
+    const queryClient = container.resolve<RpcQueryClient>(RpcQueryClient);
     const sp = container.resolve<Sp>(Sp);
     const storage = container.resolve<Storage>(Storage);
     const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
+    const virtualGroup = container.resolve<VirtualGroup>(VirtualGroup);
 
     return new Client(
       account,
@@ -42,12 +48,15 @@ export class Client {
       crosschain,
       distribution,
       feegrant,
+      gashub,
       group,
       objectt,
       payment,
+      queryClient,
       sp,
       storage,
       offchainauth,
+      virtualGroup,
     );
   }
 
@@ -59,11 +68,14 @@ export class Client {
     public crosschain: ICrossChain,
     public distribution: IDistribution,
     public feegrant: IFeeGrant,
+    public gashub: IGashub,
     public group: IGroup,
     public object: IObject,
     public payment: IPayment,
+    public queryClient: RpcQueryClient,
     public sp: ISp,
     public storage: IStorage,
     public offchainauth: IOffChainAuth,
+    public virtualGroup: IVirtualGroup,
   ) {}
 }

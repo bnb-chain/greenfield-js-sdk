@@ -1,4 +1,3 @@
-export const MsgLeaveGroupTypeUrl = '/greenfield.storage.MsgLeaveGroup';
 export const MsgLeaveGroupSDKTypeEIP712 = {
   Msg1: [
     {

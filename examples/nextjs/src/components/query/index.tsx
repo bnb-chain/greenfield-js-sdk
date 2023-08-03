@@ -24,6 +24,23 @@ export const QueryComponent = () => {
         </li>
       </ul>
 
+      <h3>tx</h3>
+      <ul>
+        <li>
+          <button
+            onClick={async () => {
+              const gasfeeList = await client.gashub.getMsgGasParams({
+                msgTypeUrls: [],
+              });
+
+              console.log('gasfeeList', gasfeeList);
+            }}
+          >
+            get gasfeeList
+          </button>
+        </li>
+      </ul>
+
       <h3>sp</h3>
       <ul>
         <li>
@@ -34,6 +51,16 @@ export const QueryComponent = () => {
             }}
           >
             get storage providers
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={async () => {
+              const res = await client.sp.getSPUrlByBucket('dfggdf');
+              console.log('res', res);
+            }}
+          >
+            getSPUrlByBucket
           </button>
         </li>
       </ul>

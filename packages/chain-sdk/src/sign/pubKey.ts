@@ -1,8 +1,8 @@
 import { PubKey } from '@bnb-chain/greenfield-cosmos-types/cosmos/crypto/secp256k1/keys';
-import { toBuffer } from '@ethereumjs/util';
+import { arrayify } from '@ethersproject/bytes';
 import { computePublicKey, recoverPublicKey } from '@ethersproject/signing-key';
-import { ISignature712 } from '.';
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
+import { ISignature712 } from '.';
 
 /**
  * recover public key from signature
@@ -23,7 +23,7 @@ export const recoverPk = ({ messageHash, signature }: ISignature712) => {
  */
 export const makeCosmsPubKey = (pk: string) => {
   const pubKey = PubKey.fromPartial({
-    key: toBuffer(pk),
+    key: arrayify(pk),
   });
 
   return {

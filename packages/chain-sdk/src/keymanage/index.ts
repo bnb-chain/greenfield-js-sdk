@@ -1,7 +1,7 @@
 import { createEIP712, generateFee, generateMessage, generateTypes } from '@/messages';
 import { typeWrapper } from '@/messages/utils';
-import { bufferToHex, toBuffer } from '@ethereumjs/util';
-import { SignTypedDataVersion, signTypedData } from '@metamask/eth-sig-util';
+import { arrayify, hexlify } from '@ethersproject/bytes';
+import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { publicKeyCreate } from 'ethereum-cryptography/secp256k1-compat';
 import { BroadcastOptions, makeCosmsPubKey } from '..';
 
@@ -9,9 +9,9 @@ import { BroadcastOptions, makeCosmsPubKey } from '..';
  * @priKey 0x prefix
  */
 export const getPubKeyByPriKey = (priKey: string) => {
-  const privateKeyBytes = toBuffer(priKey);
+  const privateKeyBytes = arrayify(priKey);
   const publicKeyBytes = publicKeyCreate(privateKeyBytes);
-  const pk = bufferToHex(toBuffer(publicKeyBytes));
+  const pk = hexlify(arrayify(publicKeyBytes));
   const pubKey = makeCosmsPubKey(pk);
   return pubKey;
 };
@@ -25,13 +25,13 @@ export const createEIP712Data = (
   MsgSDK: object,
   txOption: BroadcastOptions,
 ) => {
-  const { gasLimit, gasPrice, denom, payer } = txOption;
+  const { gasLimit, gasPrice, denom, payer, granter } = txOption;
   const fee = generateFee(
     String(BigInt(gasLimit) * BigInt(gasPrice)),
     denom,
     String(gasLimit),
     payer,
-    '',
+    granter,
   );
   const wrapperTypes = generateTypes(MsgSDKTypeEIP712);
   const wrapperMsg = typeWrapper(typeUrl, MsgSDK);
@@ -67,6 +67,6 @@ export const signEIP712Data = (
     // @ts-ignore
     data,
     version: SignTypedDataVersion.V4,
-    privateKey: toBuffer(txOption.privateKey),
+    privateKey: Buffer.from(arrayify(txOption.privateKey)),
   });
 };

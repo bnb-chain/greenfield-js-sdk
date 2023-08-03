@@ -52,9 +52,13 @@ NEXT_PUBLIC_GREENFIELD_RPC_URL=https://gnfd-testnet-fullnode-tendermint-us.bnbch
 NEXT_PUBLIC_GREEN_CHAIN_ID=5600
 NEXT_PUBLIC_BSC_RPC_URL=https://gnfd-bsc-testnet-dataseed1.bnbchain.org
 NEXT_PUBLIC_BSC_CHAIN_ID=97
-NEXT_PUBLIC_TOKEN_HUB_CONTRACT_ADDRESS=0xf5192b167d11ed87C02123801c0305ef072df04F
-NEXT_PUBLIC_CROSS_CHAIN_CONTRACT_ADDRESS=0x24e4b644DF338f9656843E2Ebf1b84715B8c58Ba
+
+# refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list
+NEXT_PUBLIC_TOKEN_HUB_CONTRACT_ADDRESS=
+NEXT_PUBLIC_CROSS_CHAIN_CONTRACT_ADDRESS=
 ```
+
+> The contract address may be outdated due to Greenfield reset, refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list get the latest contract address.
 
 
 abd then run example:

@@ -49,7 +49,7 @@ export class OffChainAuth implements IOffChainAuth {
         .filter((item: ISp) => item.nonce === null)
         .map((item: ISp) => item.address);
       if (fetchSpsNonceFailed.length === spsNonceRaw.length) {
-        throw new Error(`No Sp service available, Please try again later.`);
+        throw new Error(`No SP service is available. Please try again later.`);
       }
       const spsWithNonce = spsNonceRaw.filter((item: ISp) => item.nonce !== null);
       // 2. generate signature key pair
@@ -87,7 +87,7 @@ export class OffChainAuth implements IOffChainAuth {
         .filter((item: any) => item.code !== 0)
         .map((item: any) => item.data.address);
       if (uploadSpsPubkeyFailed.length === spsWithNonce.length) {
-        throw new Error(`No Sp service available, Please try again later.`);
+        throw new Error(`No SP service is available. Please try again later.`);
       }
       const successSps: string[] = [];
       res.forEach((item: any) => {
@@ -135,7 +135,7 @@ export class OffChainAuth implements IOffChainAuth {
       return {
         code: -1,
         message: error.message || 'Sign with seed string failed',
-        statusCode: error.status || NORMAL_ERROR_CODE,
+        statusCode: error?.status || NORMAL_ERROR_CODE,
       };
     }
   }

@@ -1,64 +1,12 @@
 import { describe, expect, test } from '@jest/globals';
-import {
-  GREENFIELD_CHAIN_ID,
-  GRPC_URL,
-  ACCOUNT,
-  ZERO_ACCOUNT_ADDRESS,
-  DEFAULT_SIMULATE_INFO,
-} from '../config.spec';
-import { Client } from '../client';
+import { ACCOUNT, client, DEFAULT_SIMULATE_INFO, ZERO_ACCOUNT_ADDRESS } from './config.spec';
 
-const client = Client.create(GRPC_URL, GREENFIELD_CHAIN_ID);
-
-describe('accountQuery', () => {
-  describe('getAccount', () => {
-    test('it works', async () => {
-      const res = await client.account.getAccount(ACCOUNT.address);
-
-      expect(res).not.toBeNull();
-    });
-  });
-
-  describe('getAccountBalance', () => {
-    test('it works', async () => {
-      const res = await client.account.getAccountBalance({
-        address: ACCOUNT.address,
-        denom: 'BNB',
-      });
-
-      expect(res).not.toBeNull();
-    });
-  });
-
-  describe('getPaymentAccount', () => {
-    test('it works', async () => {
-      const res = await client.account.getPaymentAccount({
-        addr: ACCOUNT.address,
-      });
-
-      expect(res).not.toBeNull();
-    });
-  });
-
-  describe('getModuleAccounts', () => {
-    test('it works', async () => {
-      const res = await client.account.getModuleAccounts();
-
-      expect(res).not.toBeNull();
-    });
-  });
-
-  // TODO: don't work
-  // describe('getPaymentAccountsByOwner', () => {
-  //   test('it works', async () => {
-  //     const res = await client.account.getPaymentAccountsByOwner(ACCOUNT.address);
-
-  //     expect(res).not.toBeNull();
-  //   });
-  // });
-});
-
-describe('accountTx', () => {
+/**
+ * test wallet transaction:
+ *
+ * include transfer and withdraw
+ */
+describe('walletTx', () => {
   let simulateInfo = DEFAULT_SIMULATE_INFO;
 
   describe('transfer', () => {
@@ -82,6 +30,36 @@ describe('accountTx', () => {
       });
 
       expect(broadcastInfo.code).toEqual(0);
+    });
+  });
+
+  describe('withdraw', () => {
+    test('it works', async () => {
+      const transferOutTx = await client.crosschain.transferOut({
+        from: ACCOUNT.address,
+        to: '0x0000000000000000000000000000000000000001',
+        amount: {
+          amount: '10000000000000000',
+          denom: 'BNB',
+        },
+      });
+
+      const simulateGasFee = await transferOutTx.simulate({
+        denom: 'BNB',
+      });
+
+      expect(simulateGasFee).not.toBeNull();
+
+      const res = await transferOutTx.broadcast({
+        denom: 'BNB',
+        gasLimit: Number(simulateGasFee.gasLimit),
+        gasPrice: simulateGasFee.gasPrice,
+        payer: ACCOUNT.address,
+        granter: '',
+        privateKey: ACCOUNT.privateKey,
+      });
+
+      expect(res.code).toEqual(0);
     });
   });
 

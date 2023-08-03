@@ -1,15 +1,6 @@
-import {
-  MsgDepositSDKTypeEIP712,
-  MsgDepositTypeUrl,
-} from '@/messages/greenfield/payment/MsgDeposit';
-import {
-  MsgDisableRefundSDKTypeEIP712,
-  MsgDisableRefundTypeUrl,
-} from '@/messages/greenfield/payment/MsgDisableRefund';
-import {
-  MsgWithdrawSDKTypeEIP712,
-  MsgWithdrawTypeUrl,
-} from '@/messages/greenfield/payment/MsgWithdraw';
+import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
+import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
+import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
   QueryGetStreamRecordResponse,
   QueryParamsResponse,
@@ -20,7 +11,7 @@ import {
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { container, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import { MsgDepositTypeUrl, MsgDisableRefundTypeUrl, MsgWithdrawTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 

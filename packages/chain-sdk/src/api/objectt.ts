@@ -1,22 +1,19 @@
+import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
+import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
+import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
+import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
 import {
-  MsgCancelCreateObjectSDKTypeEIP712,
-  MsgCancelCreateObjectTypeUrl,
-} from '@/messages/greenfield/storage/MsgCancelCreateObject';
+  EMPTY_STRING_SHA256,
+  fetchWithTimeout,
+  METHOD_GET,
+  METHOD_POST,
+  METHOD_PUT,
+  NORMAL_ERROR_CODE,
+  parseErrorXml,
+} from '@/utils/http';
 import {
-  MsgCreateObjectSDKTypeEIP712,
-  MsgCreateObjectTypeUrl,
-} from '@/messages/greenfield/storage/MsgCreateObject';
-import {
-  MsgDeleteObjectSDKTypeEIP712,
-  MsgDeleteObjectTypeUrl,
-} from '@/messages/greenfield/storage/MsgDeleteObject';
-import {
-  MsgUpdateObjectInfoSDKTypeEIP712,
-  MsgUpdateObjectInfoTypeUrl,
-} from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
-import { fetchWithTimeout, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/utils/http';
-import {
+  ActionType,
   Principal,
   PrincipalType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
@@ -28,6 +25,8 @@ import {
   QueryHeadObjectResponse,
   QueryNFTRequest,
   QueryObjectNFTResponse,
+  QueryPolicyForAccountResponse,
+  QueryVerifyPermissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
   MsgCancelCreateObject,
@@ -37,18 +36,25 @@ import {
   MsgPutPolicy,
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import {
-  bytesFromBase64,
-  fromJsonTimestamp,
-  toTimestamp,
-} from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { Headers } from 'cross-fetch';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { GRNToString, newObjectGRN } from '..';
+import {
+  GRNToString,
+  MsgCancelCreateObjectTypeUrl,
+  MsgCreateObjectTypeUrl,
+  MsgDeleteObjectTypeUrl,
+  MsgUpdateObjectInfoTypeUrl,
+  newObjectGRN,
+} from '..';
 import {
   ICreateObjectMsgType,
-  IObjectProps,
+  IObjectsProps,
   IObjectResultType,
   Long,
+  SignTypeOffChain,
+  SignTypeV1,
+  TBaseGetCreateObject,
   TCreateObject,
   TGetObject,
   TKeyValue,
@@ -64,8 +70,10 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
+import { Bucket } from './bucket';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
+import { Sp } from './sp';
 import { Storage } from './storage';
 
 export interface IObject {
@@ -91,10 +99,11 @@ export interface IObject {
 
   downloadFile(configParam: TGetObject): Promise<void>;
 
-  listObjects(configParam: TListObjects): Promise<IObjectResultType<Array<IObjectProps>>>;
+  listObjects(configParam: TListObjects): Promise<IObjectResultType<IObjectsProps>>;
 
   createFolder(
-    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    signParams: SignTypeOffChain | SignTypeV1,
   ): Promise<TxResponse>;
 
   putObjectPolicy(
@@ -111,7 +120,18 @@ export interface IObject {
     principalAddr: string,
   ): Promise<TxResponse>;
 
-  // TODO: IsObjectPermissionAllowed
+  isObjectPermissionAllowed(
+    bucketName: string,
+    objectName: string,
+    actionType: ActionType,
+    operator: string,
+  ): Promise<QueryVerifyPermissionResponse>;
+
+  getObjectPolicy(
+    bucketName: string,
+    objectName: string,
+    principalAddr: string,
+  ): Promise<QueryPolicyForAccountResponse>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }
@@ -121,6 +141,7 @@ export class Objectt implements IObject {
   constructor(
     @inject(delay(() => Basic)) private basic: Basic,
     @inject(delay(() => Storage)) private storage: Storage,
+    @inject(delay(() => Sp)) private sp: Sp,
   ) {}
 
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
@@ -132,7 +153,6 @@ export class Objectt implements IObject {
       creator,
       objectName,
       visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
-      spInfo,
       duration = 3000,
       fileType = 'application/octet-stream',
       redundancyType = 'REDUNDANCY_EC_TYPE',
@@ -141,10 +161,6 @@ export class Objectt implements IObject {
     } = configParam;
 
     try {
-      if (!isValidUrl(spInfo.endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
-
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
@@ -155,30 +171,61 @@ export class Objectt implements IObject {
         throw new Error('empty creator address');
       }
 
+      // must sort (Go SDK)
       const msg: ICreateObjectMsgType = {
-        creator: creator,
-        object_name: objectName,
-        content_type: fileType,
-        payload_size: contentLength.toString(),
         bucket_name: bucketName,
-        visibility,
-        primary_sp_approval: { expired_height: '0', sig: '' },
+        content_type: fileType,
+        // content_type: 'application/octet-stream',
+        creator: creator,
         expect_checksums: expectCheckSums,
+        object_name: objectName,
+        payload_size: contentLength.toString(),
+        primary_sp_approval: {
+          expired_height: '0',
+          global_virtual_group_family_id: 0,
+          sig: null,
+        },
         redundancy_type: redundancyType,
-        expect_secondary_sp_addresses: spInfo.secondarySpAddresses,
+        visibility,
       };
-      const url = spInfo.endpoint + '/greenfield/admin/v1/get-approval?action=CreateObject';
+
+      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      const path = '/greenfield/admin/v1/get-approval';
+      const query = 'action=CreateObject';
+      const url = `${endpoint}${path}?${query}`;
+
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
       let headerContent: TKeyValue = {
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
       };
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
+
+      if (configParam.signType === 'authTypeV1') {
+        // const date = new Date().toISOString();
+        const reqMeta: Partial<ReqMeta> = {
+          contentSHA256: EMPTY_STRING_SHA256,
+          txnMsg: unSignedMessageInHex,
+          method: METHOD_GET,
+          url: {
+            hostname: new URL(endpoint).hostname,
+            query,
+            path,
+          },
+          date: '',
+          contentType: fileType,
+        };
+
+        const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+
         headerContent = {
-          ...headerContent,
+          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+          'Content-Type': fileType,
+          // 'Content-Type': 'application/octet-stream',
+          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+          'X-Gnfd-Date': '',
           Authorization,
         };
+        // console.log(x)
       } else if (configParam.signType === 'offChainAuth') {
         const { seedString, domain } = configParam;
         const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
@@ -208,23 +255,12 @@ export class Objectt implements IObject {
 
       const { status } = result;
       if (!result.ok) {
+        const { code, message } = await parseErrorXml(result);
         throw {
-          code: -1,
-          message: 'Get create object approval error.',
+          code: code || -1,
+          message: message || 'Get create object approval error.',
           statusCode: status,
           error: result,
-        };
-      }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when get object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        throw {
-          code: -1,
-          xml,
-          message: 'Get create object approval error.',
-          statusCode: status,
         };
       }
 
@@ -239,7 +275,11 @@ export class Objectt implements IObject {
         signedMsg,
       };
     } catch (error: any) {
-      throw { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      throw {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -253,6 +293,8 @@ export class Objectt implements IObject {
         type: MsgCreateObjectTypeUrl,
         primary_sp_approval: {
           expired_height: signedMsg.primary_sp_approval.expired_height,
+          global_virtual_group_family_id:
+            signedMsg.primary_sp_approval.global_virtual_group_family_id,
           sig: signedMsg.primary_sp_approval.sig,
         },
       },
@@ -265,6 +307,7 @@ export class Objectt implements IObject {
     if (!signedMsg) {
       throw new Error('Get create object approval error');
     }
+
     const msg: MsgCreateObject = {
       bucketName: signedMsg.bucket_name,
       creator: signedMsg.creator,
@@ -273,11 +316,11 @@ export class Objectt implements IObject {
       payloadSize: Long.fromString(signedMsg.payload_size),
       visibility: visibilityTypeFromJSON(signedMsg.visibility),
       expectChecksums: signedMsg.expect_checksums.map((e: string) => bytesFromBase64(e)),
-      expectSecondarySpAddresses: signedMsg.expect_secondary_sp_addresses,
       redundancyType: redundancyTypeFromJSON(signedMsg.redundancy_type),
       primarySpApproval: {
         expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
+        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig || ''),
+        globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
       },
     };
 
@@ -285,12 +328,9 @@ export class Objectt implements IObject {
   }
 
   public async uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>> {
-    const { bucketName, objectName, txnHash, body, endpoint, duration = 30000 } = configParam;
+    const { bucketName, objectName, txnHash, body, duration = 30000 } = configParam;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
-    }
-    if (!isValidUrl(endpoint)) {
-      throw new Error('Invalid endpoint');
     }
     if (!isValidObjectName(objectName)) {
       throw new Error('Error object name');
@@ -298,15 +338,36 @@ export class Objectt implements IObject {
     if (!txnHash) {
       throw new Error('Transaction hash is empty, please check.');
     }
-    const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
+
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    const path = `/${objectName}`;
+    const query = '';
+    const url = generateUrlByBucketName(endpoint, bucketName) + path;
 
     let headerContent: TKeyValue = {
       'X-Gnfd-Txn-hash': txnHash,
     };
-    if (!configParam.signType || configParam.signType === 'authTypeV2') {
-      const Authorization = getAuthorizationAuthTypeV2();
+    if (!configParam.signType || configParam.signType === 'authTypeV1') {
+      const date = new Date().toISOString();
+      const reqMeta: Partial<ReqMeta> = {
+        contentSHA256: EMPTY_STRING_SHA256,
+        method: METHOD_PUT,
+        url: {
+          hostname: `${bucketName}.${new URL(endpoint).hostname}`,
+          query,
+          path,
+        },
+        date: date,
+        // contentType: '',
+        txnHash: txnHash,
+      };
+
+      const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
       headerContent = {
         ...headerContent,
+        'Content-Type': 'application/octet-stream',
+        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+        'X-Gnfd-Date': date,
         Authorization,
       };
     } else if (configParam.signType === 'offChainAuth') {
@@ -341,18 +402,21 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Put object error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        return {
+          code: +(code || 0) || -1,
+          message: message || 'Put object error.',
+          statusCode: status,
+        };
       }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when put object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
-        return { code: -1, message: 'Put object error.', xml, statusCode: status };
-      }
+
       return { code: 0, message: 'Put object success.', statusCode: status };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -435,7 +499,7 @@ export class Objectt implements IObject {
         if (code !== 0) {
           throw {
             code: -1,
-            message: message || 'Get create bucket approval error.',
+            message: message || 'Get create object approval error.',
             statusCode: statusCode,
           };
         }
@@ -459,20 +523,15 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'Get object error.', statusCode: status };
-      }
-      const resultContentType = result.headers.get('Content-Type');
-      // Will receive xml when get object met error
-      if (resultContentType === 'text/xml' || resultContentType === 'application/xml') {
-        const xmlText = await result.text();
-        const xml = await new window.DOMParser().parseFromString(xmlText, 'text/xml');
+        const { code, message } = await parseErrorXml(result);
+
         return {
-          code: -1,
-          xml,
-          message: 'Get object error.',
+          code: code || -1,
+          message: message || 'Get object error.',
           statusCode: status,
         };
       }
+
       const fileBlob = await result.blob();
       return {
         code: 0,
@@ -481,7 +540,11 @@ export class Objectt implements IObject {
         statusCode: status,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
@@ -522,30 +585,7 @@ export class Objectt implements IObject {
         throw new Error('Invalid endpoint');
       }
       const url = `${generateUrlByBucketName(endpoint, bucketName)}?${query?.toString()}`;
-      let headerContent: TKeyValue = {};
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString, address, domain } = configParam;
-        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          throw {
-            code: -1,
-            message: message || 'Get create bucket approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
-          'X-Gnfd-User-Address': address,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
+      const headerContent: TKeyValue = {};
       const headers = new Headers(headerContent);
 
       const result = await fetchWithTimeout(
@@ -558,7 +598,12 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        return { code: -1, message: 'List object error.', statusCode: status };
+        const { code, message } = await parseErrorXml(result);
+        return {
+          code: code || -1,
+          message: message || 'List object error.',
+          statusCode: status,
+        };
       }
       const body = await result.json();
       return {
@@ -568,12 +613,17 @@ export class Objectt implements IObject {
         body,
       };
     } catch (error: any) {
-      return { code: -1, message: error.message, statusCode: NORMAL_ERROR_CODE };
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
     }
   }
 
   public async createFolder(
-    getApprovalParams: Omit<TCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    signParams: SignTypeOffChain | SignTypeV1,
   ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
@@ -590,7 +640,7 @@ export class Objectt implements IObject {
       const { contentLength, expectCheckSums } = hashResult;
      */
 
-    return this.createObject({
+    const params: TCreateObject = {
       bucketName: getApprovalParams.bucketName,
       objectName: getApprovalParams.objectName,
       contentLength: 0,
@@ -605,8 +655,10 @@ export class Objectt implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
       ],
       creator: getApprovalParams.creator,
-      spInfo: getApprovalParams.spInfo,
-    });
+      ...signParams,
+    };
+
+    return this.createObject(params);
   }
 
   public async putObjectPolicy(
@@ -622,6 +674,32 @@ export class Objectt implements IObject {
       // expirationTime: fromJsonTimestamp(expirationTime),
     };
     return await this.storage.putPolicy(msg);
+  }
+
+  public async isObjectPermissionAllowed(
+    bucketName: string,
+    objectName: string,
+    actionType: ActionType,
+    operator: string,
+  ) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.VerifyPermission({
+      bucketName,
+      objectName,
+      actionType,
+      operator,
+    });
+  }
+
+  public async getObjectPolicy(bucketName: string, objectName: string, principalAddr: string) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+
+    const resource = GRNToString(newObjectGRN(bucketName, objectName));
+
+    return await rpc.QueryPolicyForAccount({
+      resource,
+      principalAddress: principalAddr,
+    });
   }
 
   public async deleteObjectPolicy(
