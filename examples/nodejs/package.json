@@ -10,7 +10,7 @@
     "build:qa": ""
   },
   "dependencies": {
-    "@bnb-chain/greenfield-chain-sdk": "workspace:*",
+    "@bnb-chain/greenfield-js-sdk": "workspace:*",
     "@bnb-chain/greenfiled-file-handle": "workspace:*"
   },
   "devDependencies": {

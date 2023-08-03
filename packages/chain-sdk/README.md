@@ -3,18 +3,14 @@
 ## Install
 
 ```bash
-# QA
-npm install @bnb-chain/greenfield-chain-sdk@alpha
-
-# TESTNET
-npm install @bnb-chain/greenfield-chain-sdk@beta
+npm install @bnb-chain/greenfield-js-sdk
 ```
 
 ## Usage
 
 ### create client
 ```js
-import {Client} from '@bnb-chain/greenfield-chain-sdk'
+import {Client} from '@bnb-chain/greenfield-js-sdk'
 const client = Client.create(GRPC_URL, GREEN_CHAIN_ID);
 ```
 

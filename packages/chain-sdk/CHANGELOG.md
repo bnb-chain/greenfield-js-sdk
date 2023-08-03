@@ -1,4 +1,4 @@
-# @bnb-chain/greenfield-chain-sdk
+# @bnb-chain/greenfield-js-sdk
 
 ## 0.2.2
 

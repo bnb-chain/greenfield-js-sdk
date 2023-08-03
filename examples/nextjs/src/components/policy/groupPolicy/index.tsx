@@ -1,5 +1,5 @@
 import { client } from '@/client';
-import { PermissionTypes } from '@bnb-chain/greenfield-chain-sdk';
+import { PermissionTypes } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
