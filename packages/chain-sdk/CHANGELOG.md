@@ -1,5 +1,164 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2
+
+### Patch Changes
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Feegrant `grantAllowance` API
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Export queryClient
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Change allowance value type as base64
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove listObjects api auth and update
+  response type
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - Revert "feat: Split approval and simulate"
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Replace V2 with V1 auth for create object sp
+  api
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Update BucketProps type
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add virtual group api
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove listGroup api auth
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Throw sp error code and message
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Query Lock Fee API
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add Gashub API
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - Sort EIP712 message field if send multi messages
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Multi tx support private key
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: bucket getApproval replace `return` with
+  `throw`
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove Create object and create bucket
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: No sp available error
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Return real statuscode when call metaservice
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: isomorphic-fetch
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upload object V1 auth
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: CreateObject Tx content type field
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - bump version
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `getObjectPolicy` and
+  `isObjectPermissionAllowed`
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upgrade types version to 0.4.0-alpha.16
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Compatiable net error
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - revert: create bucket and object need approval
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Extend response time to 3s
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove getUserBuckets auth
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Migrate bucket api
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: AuthInfoBytes add feePayer and feeGranter
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Compatibility createBucket and createObject
+  API for QA net new protobuf
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add AuthV1 for SP API (createObject)
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Replace @ethereumjs/util with
+  @ethersproject/bytes
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: getStorageProviderInfo params update
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Offchainauth timeout reduced to 2s
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sync Types greenfield-cosmos-sdk
+  v0.2.3-alpha.1 and greendfield v0.2.3-alpha.2
+
+- [#204](https://github.com/bnb-chain/greenfield-js-sdk/pull/204)
+  [`ded1922`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ded1922dc825b25055153acbb219fa79d99e1bb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: GetSpURLfrom bucket
+
 ## 0.2.2-alpha.18
 
 ### Patch Changes
