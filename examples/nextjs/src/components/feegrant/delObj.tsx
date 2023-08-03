@@ -4,7 +4,7 @@ import {
   MsgDeleteObjectTypeUrl,
   newObjectGRN,
   PermissionTypes,
-} from '@bnb-chain/greenfield-chain-sdk';
+} from '@bnb-chain/greenfield-js-sdk';
 import { Wallet } from '@ethersproject/wallet';
 import { useState } from 'react';
 import { parseEther } from 'viem';

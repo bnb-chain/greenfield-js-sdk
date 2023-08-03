@@ -11,7 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@bnb-chain/greenfield-chain-sdk": "workspace:*",
+    "@bnb-chain/greenfield-js-sdk": "workspace:*",
     "@bnb-chain/greenfiled-file-handle": "workspace:*",
     "@cosmjs/encoding": "^0.29.5",
     "@cosmjs/proto-signing": "^0.29.5",
