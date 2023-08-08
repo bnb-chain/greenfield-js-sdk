@@ -45,6 +45,17 @@ export const PaymentComponent = () => {
         onClick={async () => {
           if (!address) return;
 
+          const res = await client.payment.getStreamRecord(address);
+          console.log('res', res);
+        }}
+      >
+        getStreamRecord
+      </button>
+      <br />
+      <button
+        onClick={async () => {
+          if (!address) return;
+
           const res = await client.payment.getPaymentAccountsByOwner({
             owner: address,
           });
