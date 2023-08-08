@@ -1,5 +1,21 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.0
+
+### Patch Changes
+
+- [#210](https://github.com/bnb-chain/greenfield-js-sdk/pull/210)
+  [`3e0abf3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3e0abf34395a121e941bc3f378b01e7391a64e28)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Payment disableRefund api addr
+
+- [#210](https://github.com/bnb-chain/greenfield-js-sdk/pull/210)
+  [`3e0abf3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3e0abf34395a121e941bc3f378b01e7391a64e28)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add payment API
+
+- [#210](https://github.com/bnb-chain/greenfield-js-sdk/pull/210)
+  [`3e0abf3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3e0abf34395a121e941bc3f378b01e7391a64e28)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Create Payment Account eip712 struct
+
 ## 0.2.3
 
 ### Patch Changes
