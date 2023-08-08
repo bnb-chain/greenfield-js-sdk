@@ -176,7 +176,7 @@ export class Payment implements IPayment {
   public async disableRefund(msg: MsgDisableRefund) {
     return await this.basic.tx(
       MsgDisableRefundTypeUrl,
-      msg.addr,
+      msg.owner,
       MsgDisableRefundSDKTypeEIP712,
       MsgDisableRefund.toSDK(msg),
       MsgDisableRefund.encode(msg).finish(),
