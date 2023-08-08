@@ -12,6 +12,7 @@ import { WalletInfo } from '@/components/walletInfo';
 import { Withdraw } from '@/components/withdraw';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { useAccount } from 'wagmi';
+import { PaymentComponent } from '@/components/payment';
 
 export default function Tx() {
   const isMounted = useIsMounted();
@@ -38,6 +39,8 @@ export default function Tx() {
           <Bucket />
           <hr style={{ margin: '10px 0' }} />
           <ObjectComponent />
+          <hr style={{ margin: '10px 0' }} />
+          <PaymentComponent />
           <hr style={{ margin: '10px 0' }} />
           <Group />
           <hr style={{ margin: '10px 0' }} />
