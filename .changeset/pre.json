@@ -7,5 +7,9 @@
     "@bnb-chain/greenfield-js-sdk": "0.2.3",
     "@bnb-chain/greenfiled-file-handle": "0.2.0"
   },
-  "changesets": []
+  "changesets": [
+    "flat-mugs-collect",
+    "mean-horses-change",
+    "quiet-numbers-camp"
+  ]
 }
