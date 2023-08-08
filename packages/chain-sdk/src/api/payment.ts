@@ -2,7 +2,25 @@ import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposi
 import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
 import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
+  QueryAllAutoSettleRecordRequest,
+  QueryAllAutoSettleRecordResponse,
+  QueryAllPaymentAccountCountRequest,
+  QueryAllPaymentAccountCountResponse,
+  QueryAllPaymentAccountRequest,
+  QueryAllPaymentAccountResponse,
+  QueryAllStreamRecordRequest,
+  QueryAllStreamRecordResponse,
+  QueryDynamicBalanceRequest,
+  QueryDynamicBalanceResponse,
+  QueryGetPaymentAccountCountRequest,
+  QueryGetPaymentAccountCountResponse,
+  QueryGetPaymentAccountRequest,
+  QueryGetPaymentAccountResponse,
+  QueryGetPaymentAccountsByOwnerRequest,
+  QueryGetPaymentAccountsByOwnerResponse,
   QueryGetStreamRecordResponse,
+  QueryParamsByTimestampRequest,
+  QueryParamsByTimestampResponse,
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import {
@@ -21,6 +39,8 @@ export interface IPayment {
    */
   getStreamRecord(account: string): Promise<QueryGetStreamRecordResponse>;
 
+  getStreamRecordAll(request: QueryAllStreamRecordRequest): Promise<QueryAllStreamRecordResponse>;
+
   /**
    * deposits BNB to a stream account.
    */
@@ -37,6 +57,38 @@ export interface IPayment {
   disableRefund(msg: MsgDisableRefund): Promise<TxResponse>;
 
   params(): Promise<QueryParamsResponse>;
+
+  paramsByTimestamp(
+    request: QueryParamsByTimestampRequest,
+  ): Promise<QueryParamsByTimestampResponse>;
+
+  paymentAccount(request: QueryGetPaymentAccountRequest): Promise<QueryGetPaymentAccountResponse>;
+
+  paymentAccountAll(
+    request: QueryAllPaymentAccountRequest,
+  ): Promise<QueryAllPaymentAccountResponse>;
+
+  /** Queries a PaymentAccountCount by index. */
+  paymentAccountCount(
+    request: QueryGetPaymentAccountCountRequest,
+  ): Promise<QueryGetPaymentAccountCountResponse>;
+
+  /** Queries a list of PaymentAccountCount items. */
+  paymentAccountCountAll(
+    request: QueryAllPaymentAccountCountRequest,
+  ): Promise<QueryAllPaymentAccountCountResponse>;
+
+  /** Queries a list of DynamicBalance items. */
+  dynamicBalance(request: QueryDynamicBalanceRequest): Promise<QueryDynamicBalanceResponse>;
+
+  /** Queries a list of GetPaymentAccountsByOwner items. */
+  getPaymentAccountsByOwner(
+    request: QueryGetPaymentAccountsByOwnerRequest,
+  ): Promise<QueryGetPaymentAccountsByOwnerResponse>;
+
+  autoSettleRecordAll(
+    request: QueryAllAutoSettleRecordRequest,
+  ): Promise<QueryAllAutoSettleRecordResponse>;
 }
 
 @singleton()
@@ -51,9 +103,54 @@ export class Payment implements IPayment {
     });
   }
 
+  public async getStreamRecordAll(request: QueryAllStreamRecordRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.StreamRecordAll(request);
+  }
+
   public async params() {
     const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.Params();
+  }
+
+  public async paramsByTimestamp(request: QueryParamsByTimestampRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.ParamsByTimestamp(request);
+  }
+
+  public async paymentAccountCount(request: QueryGetPaymentAccountCountRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.PaymentAccountCount(request);
+  }
+
+  public async paymentAccountCountAll(request: QueryAllPaymentAccountCountRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.PaymentAccountCountAll(request);
+  }
+
+  public async paymentAccount(request: QueryGetPaymentAccountRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.PaymentAccount(request);
+  }
+
+  public async paymentAccountAll(request: QueryAllPaymentAccountRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.PaymentAccountAll(request);
+  }
+
+  public async dynamicBalance(request: QueryDynamicBalanceRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.DynamicBalance(request);
+  }
+
+  public async getPaymentAccountsByOwner(request: QueryGetPaymentAccountsByOwnerRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.GetPaymentAccountsByOwner(request);
+  }
+
+  public async autoSettleRecordAll(request: QueryAllAutoSettleRecordRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.AutoSettleRecordAll(request);
   }
 
   public async deposit(msg: MsgDeposit) {
