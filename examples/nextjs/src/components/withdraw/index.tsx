@@ -69,8 +69,8 @@ export const Withdraw = () => {
 
           const relayFee = relayFeeInfo.params
             ? getRelayFeeBySimulate(
-                relayFeeInfo.params.transferOutAckRelayerFee,
-                relayFeeInfo.params.transferOutRelayerFee,
+                relayFeeInfo.params.bscTransferOutAckRelayerFee,
+                relayFeeInfo.params.bscTransferOutRelayerFee,
               )
             : '0';
           setTransferOutRelayFee(relayFee.toString());
