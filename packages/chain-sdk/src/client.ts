@@ -19,9 +19,25 @@ import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
 
 @injectable()
 export class Client {
-  static create(rpcUrl: string, chainId: string): Client {
+  /**
+   * @rpcUrl string
+   * @chaidId string
+   * @wasmURL optional, need setting only used for browser
+   */
+  static create(
+    rpcUrl: string,
+    chainId: string,
+    wasmURL?: {
+      zkCryptoUrl?: string;
+    },
+  ): Client {
     container.register('RPC_URL', { useValue: rpcUrl });
     container.register('CHAIN_ID', { useValue: chainId });
+    container.register('ZK_CRYPTO', { useValue: wasmURL?.zkCryptoUrl });
+
+    if (wasmURL?.zkCryptoUrl) {
+      (globalThis as any).__PUBLIC_ZKCRYPTO_WASM_PATH__ = wasmURL.zkCryptoUrl;
+    }
 
     const account = container.resolve<Account>(Account);
     const basic = container.resolve<Basic>(Basic);

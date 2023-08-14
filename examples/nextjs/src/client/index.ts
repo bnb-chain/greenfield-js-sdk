@@ -1,7 +1,9 @@
 import { GREEN_CHAIN_ID, GRPC_URL } from '@/config';
 import { Client } from '@bnb-chain/greenfield-js-sdk';
 
-export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID));
+export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
+  zkCryptoUrl: 'https://dcellar.io/static/dcellar-web-ui/wasm/zk.wasm',
+});
 
 export const getSps = async () => {
   const sps = await client.sp.getStorageProviders();

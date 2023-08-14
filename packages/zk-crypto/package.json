@@ -1,0 +1,39 @@
+{
+  "name": "@bnb-chain/zk-crypto",
+  "version": "0.0.1",
+  "description": "Zk crypto wasm module",
+  "scripts": {
+    "predev": "rimraf ./dist",
+    "dev": "weboack -w",
+    "prebuild": "rimraf ./dist",
+    "build": "webpack",
+    "test": ""
+  },
+  "module": "./dist/browser/esm/index.js",
+  "main": "./dist/node/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/browser/esm/index.js",
+      "main": "./dist/node/index.js",
+      "default": "./dist/node/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./zk-crypto.wasm": "./dist/node/zk-crypto.wasm"
+  },
+  "files": [
+    "dist",
+    "types"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
+  }
+}
