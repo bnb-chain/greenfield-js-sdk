@@ -1,4 +1,4 @@
-const { Client } = require('@bnb-chain/greenfield-chain-sdk');
+const { Client } = require('@bnb-chain/greenfield-js-sdk');
 const { getCheckSums } = require('@bnb-chain/greenfiled-file-handle/files');
 const fs = require('fs');
 
