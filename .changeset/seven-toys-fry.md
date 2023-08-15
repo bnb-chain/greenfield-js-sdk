@@ -1,5 +1,5 @@
 ---
-'@bnb-chain/greenfield-chain-sdk': patch
+'@bnb-chain/greenfield-js-sdk': patch
 ---
 
 fix: Return Types
