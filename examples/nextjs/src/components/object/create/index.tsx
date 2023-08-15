@@ -1,11 +1,10 @@
-import { client, selectSp } from '@/client';
-import { ACCOUNT_PRIVATEKEY } from '@/config/env';
-import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
+import { client } from '@/client';
+import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 export const CreateObject = () => {
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const [file, setFile] = useState<File>();
   const [txHash, setTxHash] = useState<string>();
   const [createObjectInfo, setCreateObjectInfo] = useState({
@@ -52,9 +51,21 @@ export const CreateObject = () => {
               return;
             }
 
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
             const fileBytes = await file.arrayBuffer();
-            const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+            const hashResult = await (window as any).FileHandle.getCheckSums(
+              new Uint8Array(fileBytes),
+            );
             const { contentLength, expectCheckSums } = hashResult;
+
+            console.log('offChainData', offChainData);
+            console.log('hashResult', hashResult);
 
             const createObjectTx = await client.object.createObject({
               bucketName: createObjectInfo.bucketName,
@@ -64,9 +75,10 @@ export const CreateObject = () => {
               fileType: file.type,
               redundancyType: 'REDUNDANCY_EC_TYPE',
               contentLength,
-              expectCheckSums,
-              signType: 'authTypeV1',
-              privateKey: ACCOUNT_PRIVATEKEY,
+              expectCheckSums: JSON.parse(expectCheckSums),
+              signType: 'offChainAuth',
+              domain: window.location.origin,
+              seedString: offChainData.seedString,
             });
 
             const simulateInfo = await createObjectTx.simulate({
@@ -97,16 +109,25 @@ export const CreateObject = () => {
         <br />
         <button
           onClick={async () => {
-            if (!file || !txHash) return;
+            if (!address || !file || !txHash) return;
             console.log(file);
+
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
 
             const uploadRes = await client.object.uploadObject({
               bucketName: createObjectInfo.bucketName,
               objectName: createObjectInfo.objectName,
               body: file,
               txnHash: txHash,
-              signType: 'authTypeV1',
-              privateKey: ACCOUNT_PRIVATEKEY,
+              signType: 'offChainAuth',
+              domain: window.location.origin,
+              seedString: offChainData.seedString,
+              address,
             });
             console.log('uploadRes', uploadRes);
 
@@ -122,6 +143,13 @@ export const CreateObject = () => {
           onClick={async () => {
             if (!address) return;
 
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
             const createFolderTx = await client.object.createFolder(
               {
                 bucketName: createObjectInfo.bucketName,
@@ -129,8 +157,9 @@ export const CreateObject = () => {
                 creator: address,
               },
               {
-                signType: 'authTypeV1',
-                privateKey: ACCOUNT_PRIVATEKEY,
+                signType: 'offChainAuth',
+                domain: window.location.origin,
+                seedString: offChainData.seedString,
               },
             );
 

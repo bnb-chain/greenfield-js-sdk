@@ -36,6 +36,7 @@ import { RpcQueryClient } from './queryclient';
 export interface IPayment {
   /**
    * retrieves stream record information for a given stream address.
+   * the account must actions: deposit, withdraw
    */
   getStreamRecord(account: string): Promise<QueryGetStreamRecordResponse>;
 

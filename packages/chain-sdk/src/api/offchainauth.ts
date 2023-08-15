@@ -1,13 +1,3 @@
-import { NORMAL_ERROR_CODE } from '@/utils/http';
-import { singleton } from 'tsyringe';
-import { convertTimeStampToDate, getUtcZeroTimestamp } from '..';
-import {
-  IGenOffChainAuthKeyPairAndUpload,
-  IObjectResultType,
-  IReturnOffChainAuthKeyPairAndUpload,
-  IReturnSignWithSeedString,
-  ISp,
-} from '../types/storage';
 import {
   fetchNonces,
   genLocalSignMsg,
@@ -19,7 +9,17 @@ import {
   signSignatureByEddsa,
   updateSpsPubKey,
 } from '@/offchainauth';
+import { NORMAL_ERROR_CODE } from '@/utils/http';
 import { hexlify } from '@ethersproject/bytes';
+import { singleton } from 'tsyringe';
+import { convertTimeStampToDate, getUtcZeroTimestamp } from '..';
+import {
+  IGenOffChainAuthKeyPairAndUpload,
+  IObjectResultType,
+  IReturnOffChainAuthKeyPairAndUpload,
+  IReturnSignWithSeedString,
+  ISp,
+} from '../types/storage';
 
 export interface IOffChainAuth {
   /**

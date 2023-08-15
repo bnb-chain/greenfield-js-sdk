@@ -37,7 +37,6 @@ func hashFunc(this js.Value, args []js.Value) interface{} {
 }
 
 func main() {
-	done := make(chan int, 0)
 	js.Global().Set("getCheckSums", js.FuncOf(hashFunc))
-	<-done
+	<-make(chan struct{})
 }
