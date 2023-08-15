@@ -5,7 +5,6 @@ import { Group } from '@/components/group';
 import { Mirror } from '@/components/mirror';
 import { MultiMsg } from '@/components/multimsg';
 import { ObjectComponent } from '@/components/object';
-import { OffChainAuth } from '@/components/offchainauth';
 import { Policy } from '@/components/policy';
 import { Transfer } from '@/components/transfer';
 import { WalletInfo } from '@/components/walletInfo';
@@ -33,8 +32,6 @@ export default function Tx() {
           <Transfer />
           <hr style={{ margin: '10px 0' }} />
           <Withdraw />
-          <hr style={{ margin: '10px 0' }} />
-          <OffChainAuth />
           <hr style={{ margin: '10px 0' }} />
           <Bucket />
           <hr style={{ margin: '10px 0' }} />

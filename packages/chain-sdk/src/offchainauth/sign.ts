@@ -3,11 +3,19 @@ import { toUtf8Bytes } from '@ethersproject/strings';
 import { TGetCurrentSeedStringParams } from '../types/storage';
 import { getEddsaCompressedPublicKey, eddsaSign } from '@bnb-chain/zk-crypto';
 
-const getCurrentAccountPublicKey = async (seedString: string) =>
-  await getEddsaCompressedPublicKey(seedString);
+const getCurrentAccountPublicKey = async (seedString: string) => {
+  if ((window as any).getEddsaCompressedPublicKey) {
+    return (window as any).getEddsaCompressedPublicKey(seedString);
+  }
+  return await getEddsaCompressedPublicKey(seedString);
+};
 
-const signSignatureByEddsa = async (seedString: string, message: string) =>
-  await eddsaSign(seedString, message);
+const signSignatureByEddsa = async (seedString: string, message: string) => {
+  if ((window as any).eddsaSign) {
+    return (window as any).eddsaSign(seedString, message);
+  }
+  return await eddsaSign(seedString, message);
+};
 
 const signMessagePersonalAPI = async (
   provider: any,

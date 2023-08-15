@@ -7,9 +7,21 @@ export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
 
 export const getSps = async () => {
   const sps = await client.sp.getStorageProviders();
-  const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
+  const finalSps = (sps ?? []).filter((v: any) => v.endpoint.includes('bnbchain'));
 
   return finalSps;
+};
+
+export const getAllSps = async () => {
+  const sps = await getSps();
+
+  return sps.map((sp) => {
+    return {
+      address: sp.operatorAddress,
+      endpoint: sp.endpoint,
+      name: sp.description?.moniker,
+    };
+  });
 };
 
 export const selectSp = async () => {
