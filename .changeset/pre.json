@@ -5,11 +5,16 @@
     "@demo/wallet": "0.0.2",
     "@demo/nodejs": "0.0.5",
     "@bnb-chain/greenfield-js-sdk": "0.2.3",
-    "@bnb-chain/greenfiled-file-handle": "0.2.0"
+    "@bnb-chain/greenfiled-file-handle": "0.2.0",
+    "@bnb-chain/zk-crypto": "0.0.1"
   },
   "changesets": [
+    "five-mice-whisper",
     "flat-mugs-collect",
     "mean-horses-change",
-    "quiet-numbers-camp"
+    "plenty-squids-walk",
+    "quiet-numbers-camp",
+    "seven-toys-fry",
+    "soft-phones-give"
   ]
 }

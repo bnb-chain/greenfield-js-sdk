@@ -1,5 +1,21 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.1
+
+### Patch Changes
+
+- [#213](https://github.com/bnb-chain/greenfield-js-sdk/pull/213)
+  [`e586e77`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e586e7738e42581a9103e6157caad558896a8c63)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Return Types
+
+- [#212](https://github.com/bnb-chain/greenfield-js-sdk/pull/212)
+  [`ab9d200`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ab9d20036dda8e972db029025a6140e43c19464d)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Zk crypto package
+
+- Updated dependencies
+  [[`ab9d200`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ab9d20036dda8e972db029025a6140e43c19464d)]:
+  - @bnb-chain/zk-crypto@0.0.2-alpha.0
+
 ## 0.2.4-alpha.0
 
 ### Patch Changes
