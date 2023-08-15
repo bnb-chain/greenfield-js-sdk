@@ -61,7 +61,7 @@ module.exports = [
       path: path.resolve(__dirname, 'dist/browser/umd'),
       filename: 'index.js',
       library: {
-        name: 'CrossWasm',
+        name: 'ZkCrypto',
         type: 'umd',
       },
       wasmLoading: 'fetch',
