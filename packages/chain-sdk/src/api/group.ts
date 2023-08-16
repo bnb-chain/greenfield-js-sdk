@@ -8,8 +8,8 @@ import {
   QueryGroupNFTResponse,
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
-  QueryListGroupRequest,
-  QueryListGroupResponse,
+  QueryListGroupsRequest,
+  QueryListGroupsResponse,
   QueryNFTRequest,
   QueryPolicyForGroupRequest,
   QueryPolicyForGroupResponse,
@@ -24,6 +24,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
+  fromTimestamp,
   MsgCreateGroupTypeUrl,
   MsgDeleteGroupTypeUrl,
   MsgLeaveGroupTypeUrl,
@@ -72,7 +73,7 @@ export interface IGroup {
     member: string,
   ): Promise<QueryHeadGroupMemberResponse>;
 
-  listGroup(request: QueryListGroupRequest): Promise<QueryListGroupResponse>;
+  listGroup(request: QueryListGroupsRequest): Promise<QueryListGroupsResponse>;
 
   headGroupNFT(request: QueryNFTRequest): Promise<QueryGroupNFTResponse>;
 
@@ -142,7 +143,15 @@ export class Group implements IGroup {
         membersToAdd: msg.membersToAdd,
         membersToDelete: msg.membersToDelete,
       }),
-      MsgUpdateGroupMember.toSDK(msg),
+      {
+        ...MsgUpdateGroupMember.toSDK(msg),
+        members_to_add: msg.membersToAdd.map((x) => {
+          return {
+            member: x.member,
+            expiration_time: fromTimestamp(x.expirationTime),
+          };
+        }),
+      },
       MsgUpdateGroupMember.encode(msg).finish(),
     );
   }
@@ -189,9 +198,9 @@ export class Group implements IGroup {
     return await rpc.HeadGroupNFT(request);
   }
 
-  public async listGroup(request: QueryListGroupRequest) {
+  public async listGroup(request: QueryListGroupsRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
-    return await rpc.ListGroup(request);
+    return await rpc.ListGroups(request);
   }
 
   public async getPolicyOfGroup(request: QueryPolicyForGroupRequest) {

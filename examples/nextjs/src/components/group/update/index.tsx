@@ -1,4 +1,5 @@
 import { client } from '@/client';
+import { toTimestamp } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
@@ -20,11 +21,19 @@ export const GroupUpdate = () => {
         onClick={async () => {
           if (!address) return;
 
+          const date = new Date();
+          date.setDate(date.getDate() + 1);
+
           const updateGroupTx = await client.group.updateGroupMember({
             operator: address,
             groupOwner: address,
             groupName: groupName,
-            membersToAdd: ['0x903904936a4328fac5477c0d96acf2E2bCaCD33d'],
+            membersToAdd: [
+              {
+                expirationTime: toTimestamp(date),
+                member: '0x903904936a4328fac5477c0d96acf2E2bCaCD33d',
+              },
+            ],
             membersToDelete: [],
           });
 
@@ -51,6 +60,9 @@ export const GroupUpdate = () => {
       <button
         onClick={async () => {
           if (!address) return;
+
+          const date = new Date();
+          date.setDate(date.getDate() + 1);
 
           const updateGroupTx = await client.group.updateGroupMember({
             operator: address,

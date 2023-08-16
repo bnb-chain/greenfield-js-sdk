@@ -7,7 +7,7 @@ export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
 
 export const getSps = async () => {
   const sps = await client.sp.getStorageProviders();
-  const finalSps = (sps ?? []).filter((v: any) => v.endpoint.includes('bnbchain'));
+  const finalSps = (sps ?? []).filter((v: any) => v.endpoint.includes('https'));
 
   return finalSps;
 };
