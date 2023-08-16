@@ -1,7 +1,7 @@
 import { hexlify, arrayify } from '@ethersproject/bytes';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { TGetCurrentSeedStringParams } from '../types/storage';
-import { getEddsaCompressedPublicKey, eddsaSign } from '@bnb-chain/zk-crypto';
+import { getEddsaCompressedPublicKey, eddsaSign } from '@bnb-chain/greenfield-zk-crypto';
 
 const getCurrentAccountPublicKey = async (seedString: string) => {
   if ((window as any).getEddsaCompressedPublicKey) {
