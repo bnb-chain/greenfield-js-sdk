@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfield-js-sdk",
-  "version": "0.2.4-alpha.3",
+  "version": "0.2.4-alpha.4",
   "description": "greenfield js chain and sp sdk",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -67,6 +67,7 @@
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.3",
     "ethereum-cryptography": "^2.0.0",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.mapvalues": "^4.6.0",
     "lodash.sortby": "^4.7.0",
     "long": "^5.2.1",
@@ -76,6 +77,7 @@
   "devDependencies": {
     "@jest/globals": "^29.5.0",
     "@types/jest": "^29.5.1",
+    "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.mapvalues": "^4.6.7",
     "@types/lodash.sortby": "^4.7.7",
     "@types/mime": "^3.0.1",

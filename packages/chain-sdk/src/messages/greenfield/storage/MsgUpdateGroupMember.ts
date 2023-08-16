@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash.clonedeep';
+
 export const getMsgUpdateGroupMemberSDKTypeEIP712 = ({
   membersToAdd,
   membersToDelete,
@@ -5,7 +7,7 @@ export const getMsgUpdateGroupMemberSDKTypeEIP712 = ({
   membersToAdd: string[];
   membersToDelete: string[];
 }) => {
-  const res = MsgUpdateGroupMemberSDKTypeEIP712;
+  const res = cloneDeep(MsgUpdateGroupMemberSDKTypeEIP712);
   if (membersToAdd.length > 0) {
     res.Msg1.push({
       name: 'members_to_add',
