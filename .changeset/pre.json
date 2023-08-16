@@ -6,7 +6,7 @@
     "@demo/nodejs": "0.0.5",
     "@bnb-chain/greenfield-js-sdk": "0.2.3",
     "@bnb-chain/greenfiled-file-handle": "0.2.0",
-    "@bnb-chain/zk-crypto": "0.0.1"
+    "@bnb-chain/greenfield-zk-crypto": "0.0.1"
   },
   "changesets": [
     "five-mice-whisper",
