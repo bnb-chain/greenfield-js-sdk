@@ -4,6 +4,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/feegrant';
 import { MsgGrantAllowance } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import { Timestamp } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/timestamp';
 import { AllowedMsgAllowanceTypeUrl, BasicAllowanceTypeUrl, DEFAULT_DENOM } from '..';
 
 export interface IGrantAllowance {
@@ -12,11 +13,13 @@ export interface IGrantAllowance {
   allowedMessages: string[];
   granter: MsgGrantAllowance['granter'];
   grantee: MsgGrantAllowance['grantee'];
+  expirationTime: Timestamp;
 }
 
 export const newBasicAllowance = (
   amount: string,
   denom: string = DEFAULT_DENOM,
+  expirationTime: Timestamp,
 ): BasicAllowance => {
   return {
     spendLimit: [
@@ -25,7 +28,7 @@ export const newBasicAllowance = (
         denom,
       },
     ],
-    // expiration: null,
+    expiration: expirationTime,
   };
 };
 
