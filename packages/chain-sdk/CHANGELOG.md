@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.4
+
+### Patch Changes
+
+- [#223](https://github.com/bnb-chain/greenfield-js-sdk/pull/223)
+  [`2e44e95`](https://github.com/bnb-chain/greenfield-js-sdk/commit/2e44e9548712739c33cc98d82bfada1a06ef9472)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: DeepClone EIP712
+
 ## 0.2.4-alpha.3
 
 ### Patch Changes

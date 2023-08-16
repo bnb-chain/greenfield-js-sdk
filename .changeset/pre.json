@@ -9,6 +9,7 @@
     "@bnb-chain/greenfield-zk-crypto": "0.0.1"
   },
   "changesets": [
+    "clever-deers-turn",
     "five-mice-whisper",
     "flat-mugs-collect",
     "large-jokes-fly",
