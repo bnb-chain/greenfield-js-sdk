@@ -1,5 +1,5 @@
 {
-  "name": "@bnb-chain/zk-crypto",
+  "name": "@bnb-chain/greenfield-zk-crypto",
   "version": "0.0.2-alpha.0",
   "description": "Zk crypto wasm module",
   "scripts": {
