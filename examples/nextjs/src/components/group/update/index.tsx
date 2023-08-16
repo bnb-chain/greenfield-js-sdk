@@ -61,9 +61,6 @@ export const GroupUpdate = () => {
         onClick={async () => {
           if (!address) return;
 
-          const date = new Date();
-          date.setDate(date.getDate() + 1);
-
           const updateGroupTx = await client.group.updateGroupMember({
             operator: address,
             groupOwner: address,
