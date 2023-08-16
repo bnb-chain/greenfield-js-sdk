@@ -12,9 +12,9 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
 import {
-  QueryGetPaymentAccountRequest,
-  QueryGetPaymentAccountResponse,
-  QueryGetPaymentAccountsByOwnerResponse,
+  QueryPaymentAccountRequest,
+  QueryPaymentAccountResponse,
+  QueryPaymentAccountsByOwnerResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
@@ -41,9 +41,7 @@ export interface IAccount {
   /**
    * takes an address string as parameters and returns a pointer to a paymentTypes.
    */
-  getPaymentAccount(
-    request: QueryGetPaymentAccountRequest,
-  ): Promise<QueryGetPaymentAccountResponse>;
+  getPaymentAccount(request: QueryPaymentAccountRequest): Promise<QueryPaymentAccountResponse>;
 
   getModuleAccounts(): Promise<QueryModuleAccountsResponse>;
 
@@ -52,7 +50,7 @@ export interface IAccount {
   /**
    * retrieves all payment accounts owned by the given address
    */
-  getPaymentAccountsByOwner(owner: string): Promise<QueryGetPaymentAccountsByOwnerResponse>;
+  getPaymentAccountsByOwner(owner: string): Promise<QueryPaymentAccountsByOwnerResponse>;
 
   createPaymentAccount(msg: MsgCreatePaymentAccount): Promise<TxResponse>;
 
@@ -95,7 +93,7 @@ export class Account implements IAccount {
 
   public async getPaymentAccountsByOwner(owner: string) {
     const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.GetPaymentAccountsByOwner({
+    return await rpc.PaymentAccountsByOwner({
       owner,
     });
   }
@@ -113,8 +111,8 @@ export class Account implements IAccount {
   }
 
   public async getPaymentAccount(
-    request: QueryGetPaymentAccountRequest,
-  ): Promise<QueryGetPaymentAccountResponse> {
+    request: QueryPaymentAccountRequest,
+  ): Promise<QueryPaymentAccountResponse> {
     const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.PaymentAccount(request);
   }
