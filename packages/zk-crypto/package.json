@@ -9,6 +9,10 @@
     "build": "webpack",
     "test": ""
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "module": "./dist/browser/esm/index.js",
   "main": "./dist/node/index.js",
   "types": "./types/index.d.ts",
