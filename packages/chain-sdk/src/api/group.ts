@@ -2,7 +2,7 @@ import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCr
 import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
 import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
 import { MsgUpdateGroupExtraSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupExtra';
-import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
+import { getMsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
 import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '@/utils/grn';
 import {
   QueryGroupNFTResponse,
@@ -138,7 +138,10 @@ export class Group implements IGroup {
     return await this.basic.tx(
       MsgUpdateGroupMemberTypeUrl,
       msg.operator,
-      MsgUpdateGroupMemberSDKTypeEIP712,
+      getMsgUpdateGroupMemberSDKTypeEIP712({
+        membersToAdd: msg.membersToAdd,
+        membersToDelete: msg.membersToDelete,
+      }),
       MsgUpdateGroupMember.toSDK(msg),
       MsgUpdateGroupMember.encode(msg).finish(),
     );
