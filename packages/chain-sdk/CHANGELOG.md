@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.3
+
+### Patch Changes
+
+- [#221](https://github.com/bnb-chain/greenfield-js-sdk/pull/221)
+  [`8ba4cc7`](https://github.com/bnb-chain/greenfield-js-sdk/commit/8ba4cc735cbd72b07d8d0a9fadae2c4bda1dea53)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Zk crypto version
+
+- Updated dependencies
+  [[`8ba4cc7`](https://github.com/bnb-chain/greenfield-js-sdk/commit/8ba4cc735cbd72b07d8d0a9fadae2c4bda1dea53)]:
+  - @bnb-chain/greenfield-zk-crypto@0.0.2-alpha.3
+
 ## 0.2.4-alpha.2
 
 ### Patch Changes
