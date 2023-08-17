@@ -20,7 +20,7 @@ export const GreenfieldWasmSdk = async () => {
   let G = {};
 
   methods.map((method) => {
-    G[method] = window.greenfieldSdk[method];
+    G[method] = window[method];
   });
 
   WebAssembly.instantiate(module, go.importObject);

@@ -15,10 +15,56 @@ You can find some package documentation below:
 
 ## Examples
 
-Support use in browser and node.js
+There are runnable examples included in the [examples](./examples/) folder
 
-* [nextjs](./examples/nextjs/README.md)
+* [Next.js Example(TypeScript)](./examples/nextjs/README.md)
 * [Nodejs](./examples/nodejs/README.md)
+
+### Try in Stackblitz
+
+You can try out some examples directly in your browser through Stackblitz:
+
+* [Next.js Exmaple(Typescript)](https://stackblitz.com/edit/github-kikred?file=src%2Fpages%2Ftx.tsx)
+
+### Running Examples Locally
+
+Clone the project and install dependencies:
+```bash
+> git clone git@github.com:bnb-chain/greenfield-js-sdk.git
+> cd greenfield-js-sdk
+> pnpm install
+```
+
+and build package:
+```bash
+> pnpm run -r build
+```
+
+and then copy env template file:
+```bash
+> cp .env.simple .env
+```
+
+and then enter your own configuration. Take testnet, for example:
+```bash
+NEXT_PUBLIC_GRPC_URL=https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org
+NEXT_PUBLIC_GREENFIELD_RPC_URL=https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org
+NEXT_PUBLIC_GREEN_CHAIN_ID=5600
+NEXT_PUBLIC_BSC_RPC_URL=https://gnfd-bsc-testnet-dataseed1.bnbchain.org
+NEXT_PUBLIC_BSC_CHAIN_ID=97
+
+# refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list
+NEXT_PUBLIC_TOKEN_HUB_CONTRACT_ADDRESS=
+NEXT_PUBLIC_CROSS_CHAIN_CONTRACT_ADDRESS=
+```
+
+> The contract address may be outdated due to Greenfield reset, refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list get the latest contract address.
+
+
+abd then run example:
+```bash
+> npx next dev
+```
 
 ## Supported JS environments
 

@@ -1,5 +1,3 @@
-export const MsgCreatePaymentAccountTypeUrl = '/greenfield.payment';
-
 export const MsgCreatePaymentAccountSDKTypeEIP712 = {
   Msg: [
     {

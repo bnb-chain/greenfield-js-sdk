@@ -1,5 +1,5 @@
 import { createEIP712, generateFee, generateMessage, generateTypes } from '@/messages';
-import { typeWrapper } from '@/tx/utils';
+import { typeWrapper } from '@/messages/utils';
 import { bufferToHex, toBuffer } from '@ethereumjs/util';
 import { SignTypedDataVersion, signTypedData } from '@metamask/eth-sig-util';
 import { publicKeyCreate } from 'ethereum-cryptography/secp256k1-compat';
@@ -25,13 +25,13 @@ export const createEIP712Data = (
   MsgSDK: object,
   txOption: BroadcastOptions,
 ) => {
-  const { gasLimit, gasPrice, denom, payer } = txOption;
+  const { gasLimit, gasPrice, denom, payer, granter } = txOption;
   const fee = generateFee(
     String(BigInt(gasLimit) * BigInt(gasPrice)),
     denom,
     String(gasLimit),
     payer,
-    '',
+    granter,
   );
   const wrapperTypes = generateTypes(MsgSDKTypeEIP712);
   const wrapperMsg = typeWrapper(typeUrl, MsgSDK);

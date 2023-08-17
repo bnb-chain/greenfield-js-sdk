@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfiled-file-handle",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "greenfield js chain sdk",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -15,11 +15,16 @@
         "types": "./dist/cjs/**.d.ts",
         "default": "./dist/cjs/index.js"
       }
+    },
+    "./files": {
+      "default": "./dist/files-handle-wasm/cjs/node.js"
     }
   },
   "browser": {
     "./dist/cjs/index.js": "./dist/cjs/index.js",
-    "./dist/esm/index.js": "./dist/esm/index.js"
+    "./dist/esm/index.js": "./dist/esm/index.js",
+    "./dist/files-handle-wasm/cjs/node.js": "./dist/files-handle-wasm/web/index.js",
+    "./dist/files-handle-wasm/esm/node.js": "./dist/files-handle-wasm/web/index.js"
   },
   "scripts": {
     "predev": "rimraf ./dist",
@@ -59,6 +64,7 @@
     "jest": "^29.5.0",
     "rollup": "^2.79.1",
     "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-polyfill-node": "^0.10.2",
     "rollup-plugin-terser": "^7.0.2",

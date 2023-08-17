@@ -1,21 +1,15 @@
-export const MsgCreateBucketTypeUrl = '/greenfield.storage.MsgCreateBucket';
-
 export const MsgCreateBucketSDKTypeEIP712 = {
-  Msg: [
-    {
-      name: 'type',
-      type: 'string',
-    },
-    {
-      name: 'creator',
-      type: 'string',
-    },
+  Msg1: [
     {
       name: 'bucket_name',
       type: 'string',
     },
     {
-      name: 'visibility',
+      name: 'charged_read_quota',
+      type: 'uint64',
+    },
+    {
+      name: 'creator',
       type: 'string',
     },
     {
@@ -28,57 +22,29 @@ export const MsgCreateBucketSDKTypeEIP712 = {
     },
     {
       name: 'primary_sp_approval',
-      type: 'TypePrimarySpApproval',
+      type: 'TypeMsg1PrimarySpApproval',
     },
     {
-      name: 'charged_read_quota',
-      type: 'uint64',
+      name: 'type',
+      type: 'string',
+    },
+    {
+      name: 'visibility',
+      type: 'string',
     },
   ],
-  TypePrimarySpApproval: [
+  TypeMsg1PrimarySpApproval: [
     {
       name: 'expired_height',
       type: 'uint64',
+    },
+    {
+      name: 'global_virtual_group_family_id',
+      type: 'uint32',
     },
     {
       name: 'sig',
       type: 'bytes',
     },
   ],
-};
-
-export interface ICreateBucketMsg {
-  bucketName: string;
-  expiredHeight: string;
-  from: string;
-  visibility: string;
-  paymentAddress: string;
-  primarySpAddress: string;
-  chargedReadQuota: number;
-  sig: string;
-}
-
-export const newMsgCreateBucket = ({
-  bucketName,
-  expiredHeight,
-  from,
-  visibility,
-  paymentAddress,
-  primarySpAddress,
-  chargedReadQuota,
-  sig,
-}: ICreateBucketMsg) => {
-  return {
-    type: MsgCreateBucketTypeUrl,
-    bucket_name: bucketName,
-    creator: from,
-    visibility,
-    payment_address: paymentAddress,
-    primary_sp_address: primarySpAddress,
-    primary_sp_approval: {
-      expired_height: expiredHeight,
-      sig,
-    },
-    charged_read_quota: chargedReadQuota,
-  };
 };

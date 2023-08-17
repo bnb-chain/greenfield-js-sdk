@@ -11,7 +11,7 @@ import {
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { container, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import { MsgDepositTypeUrl, MsgDisableRefundTypeUrl, MsgWithdrawTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
@@ -58,7 +58,7 @@ export class Payment implements IPayment {
 
   public async deposit(msg: MsgDeposit) {
     return await this.basic.tx(
-      '/greenfield.payment.MsgDeposit',
+      MsgDepositTypeUrl,
       msg.creator,
       MsgDepositSDKTypeEIP712,
       MsgDeposit.toSDK(msg),
@@ -68,7 +68,7 @@ export class Payment implements IPayment {
 
   public async withdraw(msg: MsgWithdraw) {
     return await this.basic.tx(
-      '/greenfield.payment.MsgWithdraw',
+      MsgWithdrawTypeUrl,
       msg.creator,
       MsgWithdrawSDKTypeEIP712,
       MsgWithdraw.toSDK(msg),
@@ -78,7 +78,7 @@ export class Payment implements IPayment {
 
   public async disableRefund(msg: MsgDisableRefund) {
     return await this.basic.tx(
-      '/greenfield.payment.MsgDisableRefund',
+      MsgDisableRefundTypeUrl,
       msg.addr,
       MsgDisableRefundSDKTypeEIP712,
       MsgDisableRefund.toSDK(msg),

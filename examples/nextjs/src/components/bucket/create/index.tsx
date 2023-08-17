@@ -1,9 +1,11 @@
 import { client, selectSp } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 
 export const CreateBucket = () => {
   const { address } = useAccount();
+  const { chain } = useNetwork();
   const [createBucketInfo, setCreateBucketInfo] = useState<{
     bucketName: string;
   }>({
@@ -27,12 +29,18 @@ export const CreateBucket = () => {
           if (!address) return;
 
           const spInfo = await selectSp();
+          console.log('spInfo', spInfo);
+
           const createBucketTx = await client.bucket.createBucket({
             bucketName: createBucketInfo.bucketName,
             creator: address,
             visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
             chargedReadQuota: '0',
-            spInfo,
+            spInfo: {
+              primarySpAddress: spInfo.primarySpAddress,
+            },
+            signType: 'authTypeV1',
+            privateKey: ACCOUNT_PRIVATEKEY,
           });
 
           const simulateInfo = await createBucketTx.simulate({
@@ -54,9 +62,48 @@ export const CreateBucket = () => {
           }
         }}
       >
-        broadcast with simulate
+        broadcast with simulate with authTypeV1
       </button>
       <br />
+      <button
+        onClick={async () => {
+          if (!address) return;
+          const domain = window.location.origin;
+          const key = `${address}-${chain?.id}`;
+          const spInfo = await selectSp();
+          const { seedString } = JSON.parse(localStorage.getItem(key) || '{}');
+          const createBucketTx = await client.bucket.createBucket({
+            bucketName: createBucketInfo.bucketName,
+            creator: address,
+            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+            chargedReadQuota: '0',
+            spInfo,
+            signType: 'offChainAuth',
+            domain,
+            seedString,
+          });
+
+          const simulateInfo = await createBucketTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log('simulateInfo', simulateInfo);
+
+          const res = await createBucketTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
+            payer: address,
+            granter: '',
+          });
+
+          if (res.code === 0) {
+            alert('success');
+          }
+        }}
+      >
+        broadcast with simulate with offChainAuth
+      </button>
     </>
   );
 };

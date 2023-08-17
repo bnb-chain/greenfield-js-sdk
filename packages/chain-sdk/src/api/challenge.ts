@@ -3,19 +3,17 @@ import { MsgSubmitSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgSubmit
 import {
   QueryInturnAttestationSubmitterResponse,
   QueryLatestAttestedChallengesResponse,
+  QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import { MsgAttestTypeUrl, MsgSubmitTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
 export interface IChallenge {
-  /**
-   * sends request to challenge and get challenge result info
-   * The challenge info includes the piece data, piece hash roots and integrity hash corresponding to the accessed SP
-   */
-  // getChallengeInfo();
+  // TODO: getChallengeInfo();
+
   /**
    * challenges the service provider data integrity, used by off-chain service greenfield-challenger.
    */
@@ -32,6 +30,8 @@ export interface IChallenge {
   latestAttestedChallenges(): Promise<QueryLatestAttestedChallengesResponse>;
 
   inturnAttestationSubmitter(): Promise<QueryInturnAttestationSubmitterResponse>;
+
+  params(): Promise<QueryParamsResponse>;
 }
 
 @singleton()
@@ -41,7 +41,7 @@ export class Challenge implements IChallenge {
 
   public async submitChallenge(address: string, msg: MsgSubmit) {
     return await this.basic.tx(
-      '/greenfield.challenge.MsgSubmit',
+      MsgSubmitTypeUrl,
       address,
       MsgSubmitSDKTypeEIP712,
       MsgSubmit.toSDK(msg),
@@ -51,7 +51,7 @@ export class Challenge implements IChallenge {
 
   public async attestChallenge(address: string, msg: MsgAttest) {
     return await this.basic.tx(
-      '/greenfield.challenge.MsgAttest',
+      MsgAttestTypeUrl,
       address,
       MsgAttestSDKTypeEIP712,
       MsgAttest.toSDK(msg),
@@ -67,5 +67,10 @@ export class Challenge implements IChallenge {
   public async inturnAttestationSubmitter() {
     const rpc = await this.queryClient.getChallengeQueryClient();
     return await rpc.InturnAttestationSubmitter();
+  }
+
+  public async params() {
+    const rpc = await this.queryClient.getChallengeQueryClient();
+    return await rpc.Params();
   }
 }

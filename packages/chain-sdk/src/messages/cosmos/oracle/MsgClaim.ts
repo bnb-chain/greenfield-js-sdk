@@ -1,40 +1,28 @@
 export const MsgClaimSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
-      type: 'string',
       name: 'type',
-    },
-    {
       type: 'string',
+    },
+    {
       name: 'from_address',
+      type: 'string',
     },
     {
-      type: 'uint64',
       name: 'src_chain_id',
+      type: 'uint32',
     },
     {
-      type: 'uint64',
       name: 'dest_chain_id',
+      type: 'uint32',
     },
     {
-      type: 'uint64',
       name: 'sequence',
-    },
-    {
       type: 'uint64',
+    },
+    {
       name: 'timestamp',
-    },
-    {
-      type: 'bytes',
-      name: 'payload',
-    },
-    {
-      type: 'uint64[]',
-      name: 'vote_address_set',
-    },
-    {
-      type: 'bytes',
-      name: 'agg_signature',
+      type: 'uint64',
     },
   ],
 };

@@ -1,11 +1,5 @@
-import {
-  MsgGrantAllowanceSDKTypeEIP712,
-  MsgGrantAllowanceTypeUrl,
-} from '@/messages/feegrant/MsgGrantAllowance';
-import {
-  MsgRevokeAllowanceSDKTypeEIP712,
-  MsgRevokeAllowanceTypeUrl,
-} from '@/messages/feegrant/MsgRevokeAllowance';
+import { MsgGrantAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgGrantAllowance';
+import { MsgRevokeAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgRevokeAllowance';
 import {
   QueryAllowanceRequest,
   QueryAllowanceResponse,
@@ -16,13 +10,25 @@ import {
   MsgGrantAllowance,
   MsgRevokeAllowance,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
+import { base64FromBytes, bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { toBuffer } from '@ethereumjs/util';
 import { container, singleton } from 'tsyringe';
-import { TxResponse } from '..';
+import {
+  encodeToHex,
+  IGrantAllowance,
+  MsgGrantAllowanceTypeUrl,
+  MsgRevokeAllowanceTypeUrl,
+  newAllowedMsgAllowance,
+  newBasicAllowance,
+  newMarshal,
+  newMsgGrantAllowance,
+  TxResponse,
+} from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
 export interface IFeeGrant {
-  grantAllowance(msg: MsgGrantAllowance): Promise<TxResponse>;
+  grantAllowance(msg: IGrantAllowance): Promise<TxResponse>;
 
   revokeAllowance(msg: MsgRevokeAllowance): Promise<TxResponse>;
 
@@ -36,13 +42,26 @@ export class FeeGrant implements IFeeGrant {
   private basic: Basic = container.resolve(Basic);
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
-  public async grantAllowance(msg: MsgGrantAllowance) {
+  public async grantAllowance(params: IGrantAllowance) {
+    const { amount, denom, allowedMessages, grantee, granter } = params;
+
+    const basicAllowance = newBasicAllowance(amount, denom);
+    const allowedMsgAllowance = newAllowedMsgAllowance(allowedMessages, basicAllowance);
+    const grantAllowance = newMsgGrantAllowance(grantee, granter, allowedMsgAllowance);
+    const marshal = newMarshal(amount, denom, allowedMessages);
+
     return await this.basic.tx(
       MsgGrantAllowanceTypeUrl,
-      msg.granter,
+      granter,
       MsgGrantAllowanceSDKTypeEIP712,
-      MsgGrantAllowance.toSDK(msg),
-      MsgGrantAllowance.encode(msg).finish(),
+      {
+        ...MsgGrantAllowance.toSDK(grantAllowance),
+        allowance: {
+          type: grantAllowance.allowance?.typeUrl,
+          value: base64FromBytes(toBuffer('0x' + encodeToHex(JSON.stringify(marshal)))),
+        },
+      },
+      MsgGrantAllowance.encode(grantAllowance).finish(),
     );
   }
 

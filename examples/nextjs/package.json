@@ -1,6 +1,6 @@
 {
   "name": "@demo/wallet",
-  "version": "0.0.2-alpha.6",
+  "version": "0.0.3-alpha.16",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev",
@@ -12,13 +12,15 @@
   },
   "dependencies": {
     "@bnb-chain/greenfield-chain-sdk": "workspace:*",
-    "@bnb-chain/greenfield-cosmos-types": "0.3.0-alpha.8",
+    "@bnb-chain/greenfiled-file-handle": "workspace:*",
     "@cosmjs/encoding": "^0.29.5",
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
     "@ethersproject/signing-key": "^5.7.0",
+    "@ethersproject/wallet": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
     "@next/font": "13.1.6",
+    "@rainbow-me/rainbowkit": "^1.0.5",
     "@types/node": "^18.7.1",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
@@ -26,15 +28,14 @@
     "cors": "^2.8.5",
     "eslint": "^8.21.0",
     "eslint-config-next": "13.1.6",
-    "ethers": "^5",
     "evmosjs": "^0.2.17",
     "long": "^5.2.1",
     "next": "13.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "^4.7.4",
-    "viem": "^0.3.31",
-    "wagmi": "^1.0.5"
+    "viem": "^1.0.6",
+    "wagmi": "^1.2.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

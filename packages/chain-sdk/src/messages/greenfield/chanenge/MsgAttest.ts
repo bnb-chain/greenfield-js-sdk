@@ -1,64 +1,32 @@
 export const MsgAttestSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
-      type: 'string',
       name: 'type',
-    },
-    {
       type: 'string',
-      name: 'challenger',
     },
     {
-      type: 'string',
-      name: 'sp_operator_address',
-    },
-    {
-      type: 'string',
-      name: 'bucket_name',
-    },
-    {
-      type: 'string',
-      name: 'object_name',
-    },
-    {
-      type: 'uint64',
-      name: 'segment_index',
-    },
-    {
-      type: 'bool',
-      name: 'random_index',
-    },
-    {
-      type: 'string',
       name: 'submitter',
+      type: 'string',
     },
     {
-      type: 'uint64',
       name: 'challenge_id',
+      type: 'uint64',
     },
     {
-      type: 'string',
       name: 'object_id',
+      type: 'string',
     },
     {
-      type: 'string',
       name: 'sp_operator_address',
+      type: 'string',
     },
     {
-      type: 'string',
       name: 'vote_result',
-    },
-    {
       type: 'string',
+    },
+    {
       name: 'challenger_address',
-    },
-    {
-      type: 'uint64[]',
-      name: 'vote_validator_set',
-    },
-    {
-      type: 'bytes',
-      name: 'vote_agg_signature',
+      type: 'string',
     },
   ],
 };

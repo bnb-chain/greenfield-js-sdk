@@ -14,15 +14,29 @@ export const QueryComponent = () => {
             onClick={async () => {
               if (!address) return;
 
-              const balance = await client.account.getAccountBalance({
-                address: address,
-                denom: 'BNB',
-              });
+              const account = await client.account.getAccount(address);
 
-              console.log('balance', balance);
+              console.log('account', account);
             }}
           >
-            get balance
+            get account
+          </button>
+        </li>
+      </ul>
+
+      <h3>tx</h3>
+      <ul>
+        <li>
+          <button
+            onClick={async () => {
+              const gasfeeList = await client.gashub.getMsgGasParams({
+                msgTypeUrls: [],
+              });
+
+              console.log('gasfeeList', gasfeeList);
+            }}
+          >
+            get gasfeeList
           </button>
         </li>
       </ul>
@@ -37,6 +51,16 @@ export const QueryComponent = () => {
             }}
           >
             get storage providers
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={async () => {
+              const res = await client.sp.getSPUrlByBucket('dfggdf');
+              console.log('res', res);
+            }}
+          >
+            getSPUrlByBucket
           </button>
         </li>
       </ul>

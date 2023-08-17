@@ -1,7 +1,5 @@
-export const MsgCancelCreateObjectTypeUrl = '/greenfield.storage.MsgCancelCreateObject';
-
 export const MsgCancelCreateObjectSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',
@@ -19,23 +17,4 @@ export const MsgCancelCreateObjectSDKTypeEIP712 = {
       type: 'string',
     },
   ],
-};
-
-export interface ICancelCreateObjectMsg {
-  from: string;
-  bucketName: string;
-  objectName: string;
-}
-
-export const newMsgCancelCreateObject = ({
-  from,
-  bucketName,
-  objectName,
-}: ICancelCreateObjectMsg) => {
-  return {
-    type: MsgCancelCreateObjectTypeUrl,
-    operator: from,
-    bucket_name: bucketName,
-    object_name: objectName,
-  };
 };
