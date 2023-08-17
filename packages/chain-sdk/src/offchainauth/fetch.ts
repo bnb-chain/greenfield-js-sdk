@@ -10,6 +10,7 @@ export const fetchNonce = async ({
   domain,
 }: IFetchNonce) => {
   let result;
+  let res;
   const url = `${spEndpoint}/auth/request_nonce`;
   const headers = new Headers({
     'X-Gnfd-User-Address': address,
@@ -22,11 +23,10 @@ export const fetchNonce = async ({
     if (!result.ok) {
       return { code: -1, nonce: null };
     }
+    res = await result.json();
   } catch (error) {
     return { code: -1, nonce: null };
   }
-
-  const res = await result.json();
 
   return {
     endpoint: spEndpoint,
