@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-chain-sdk
 
+## 0.2.2-alpha.16
+
+### Patch Changes
+
+- [#225](https://github.com/bnb-chain/greenfield-js-sdk/pull/225)
+  [`9a7b0c7`](https://github.com/bnb-chain/greenfield-js-sdk/commit/9a7b0c7f95becfc8e059e281889527190e4584eb)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Multi tx support private key
+
 ## 0.2.2-alpha.15
 
 ### Patch Changes
