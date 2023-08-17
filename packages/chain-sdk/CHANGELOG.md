@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.5
+
+### Patch Changes
+
+- [#230](https://github.com/bnb-chain/greenfield-js-sdk/pull/230)
+  [`48521b3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/48521b39f1b1ab5bb806fbe525ca1cd4437b3cbc)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Error try catch
+
 ## 0.2.4-alpha.4
 
 ### Patch Changes
