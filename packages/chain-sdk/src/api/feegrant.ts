@@ -43,9 +43,9 @@ export class FeeGrant implements IFeeGrant {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async grantAllowance(params: IGrantAllowance) {
-    const { amount, denom, allowedMessages, grantee, granter } = params;
+    const { amount, denom, allowedMessages, grantee, granter, expirationTime } = params;
 
-    const basicAllowance = newBasicAllowance(amount, denom);
+    const basicAllowance = newBasicAllowance(amount, denom, expirationTime);
     const allowedMsgAllowance = newAllowedMsgAllowance(allowedMessages, basicAllowance);
     const grantAllowance = newMsgGrantAllowance(grantee, granter, allowedMsgAllowance);
     const marshal = newMarshal(amount, denom, allowedMessages);

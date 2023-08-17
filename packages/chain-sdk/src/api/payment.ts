@@ -2,26 +2,28 @@ import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposi
 import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
 import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
-  QueryAllAutoSettleRecordRequest,
-  QueryAllAutoSettleRecordResponse,
-  QueryAllPaymentAccountCountRequest,
-  QueryAllPaymentAccountCountResponse,
-  QueryAllPaymentAccountRequest,
-  QueryAllPaymentAccountResponse,
-  QueryAllStreamRecordRequest,
-  QueryAllStreamRecordResponse,
+  QueryAutoSettleRecordsRequest,
+  QueryAutoSettleRecordsResponse,
+  QueryPaymentAccountCountsRequest,
+  QueryPaymentAccountCountsResponse,
+  QueryPaymentAccountsRequest,
+  QueryPaymentAccountsResponse,
+  QueryStreamRecordsRequest,
+  QueryStreamRecordsResponse,
   QueryDynamicBalanceRequest,
   QueryDynamicBalanceResponse,
-  QueryGetPaymentAccountCountRequest,
-  QueryGetPaymentAccountCountResponse,
-  QueryGetPaymentAccountRequest,
-  QueryGetPaymentAccountResponse,
-  QueryGetPaymentAccountsByOwnerRequest,
-  QueryGetPaymentAccountsByOwnerResponse,
+  QueryPaymentAccountCountRequest,
+  QueryPaymentAccountCountResponse,
+  QueryPaymentAccountRequest,
+  QueryPaymentAccountResponse,
+  QueryPaymentAccountsByOwnerRequest,
+  QueryPaymentAccountsByOwnerResponse,
   QueryGetStreamRecordResponse,
   QueryParamsByTimestampRequest,
   QueryParamsByTimestampResponse,
   QueryParamsResponse,
+  QueryOutFlowsRequest,
+  QueryOutFlowsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import {
   MsgDeposit,
@@ -40,7 +42,7 @@ export interface IPayment {
    */
   getStreamRecord(account: string): Promise<QueryGetStreamRecordResponse>;
 
-  getStreamRecordAll(request: QueryAllStreamRecordRequest): Promise<QueryAllStreamRecordResponse>;
+  getStreamRecordAll(request: QueryStreamRecordsRequest): Promise<QueryStreamRecordsResponse>;
 
   /**
    * deposits BNB to a stream account.
@@ -63,33 +65,33 @@ export interface IPayment {
     request: QueryParamsByTimestampRequest,
   ): Promise<QueryParamsByTimestampResponse>;
 
-  paymentAccount(request: QueryGetPaymentAccountRequest): Promise<QueryGetPaymentAccountResponse>;
+  paymentAccount(request: QueryPaymentAccountRequest): Promise<QueryPaymentAccountResponse>;
 
-  paymentAccountAll(
-    request: QueryAllPaymentAccountRequest,
-  ): Promise<QueryAllPaymentAccountResponse>;
+  paymentAccountAll(request: QueryPaymentAccountsRequest): Promise<QueryPaymentAccountsResponse>;
 
   /** Queries a PaymentAccountCount by index. */
-  paymentAccountCount(
-    request: QueryGetPaymentAccountCountRequest,
-  ): Promise<QueryGetPaymentAccountCountResponse>;
+  getPaymentAccountCount(
+    request: QueryPaymentAccountCountRequest,
+  ): Promise<QueryPaymentAccountCountResponse>;
 
   /** Queries a list of PaymentAccountCount items. */
-  paymentAccountCountAll(
-    request: QueryAllPaymentAccountCountRequest,
-  ): Promise<QueryAllPaymentAccountCountResponse>;
+  getPaymentAccountCounts(
+    request: QueryPaymentAccountCountsRequest,
+  ): Promise<QueryPaymentAccountCountsResponse>;
 
   /** Queries a list of DynamicBalance items. */
   dynamicBalance(request: QueryDynamicBalanceRequest): Promise<QueryDynamicBalanceResponse>;
 
   /** Queries a list of GetPaymentAccountsByOwner items. */
   getPaymentAccountsByOwner(
-    request: QueryGetPaymentAccountsByOwnerRequest,
-  ): Promise<QueryGetPaymentAccountsByOwnerResponse>;
+    request: QueryPaymentAccountsByOwnerRequest,
+  ): Promise<QueryPaymentAccountsByOwnerResponse>;
 
-  autoSettleRecordAll(
-    request: QueryAllAutoSettleRecordRequest,
-  ): Promise<QueryAllAutoSettleRecordResponse>;
+  getAutoSettleRecords(
+    request: QueryAutoSettleRecordsRequest,
+  ): Promise<QueryAutoSettleRecordsResponse>;
+
+  getOutFlows(request: QueryOutFlowsRequest): Promise<QueryOutFlowsResponse>;
 }
 
 @singleton()
@@ -104,9 +106,9 @@ export class Payment implements IPayment {
     });
   }
 
-  public async getStreamRecordAll(request: QueryAllStreamRecordRequest) {
+  public async getStreamRecordAll(request: QueryStreamRecordsRequest) {
     const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.StreamRecordAll(request);
+    return await rpc.StreamRecords(request);
   }
 
   public async params() {
@@ -119,24 +121,24 @@ export class Payment implements IPayment {
     return await rpc.ParamsByTimestamp(request);
   }
 
-  public async paymentAccountCount(request: QueryGetPaymentAccountCountRequest) {
+  public async getPaymentAccountCount(request: QueryPaymentAccountCountRequest) {
     const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.PaymentAccountCount(request);
   }
 
-  public async paymentAccountCountAll(request: QueryAllPaymentAccountCountRequest) {
+  public async getPaymentAccountCounts(request: QueryPaymentAccountCountsRequest) {
     const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.PaymentAccountCountAll(request);
+    return await rpc.PaymentAccountCounts(request);
   }
 
-  public async paymentAccount(request: QueryGetPaymentAccountRequest) {
+  public async paymentAccount(request: QueryPaymentAccountRequest) {
     const rpc = await this.queryClient.getPaymentQueryClient();
     return await rpc.PaymentAccount(request);
   }
 
-  public async paymentAccountAll(request: QueryAllPaymentAccountRequest) {
+  public async paymentAccountAll(request: QueryPaymentAccountsRequest) {
     const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.PaymentAccountAll(request);
+    return await rpc.PaymentAccounts(request);
   }
 
   public async dynamicBalance(request: QueryDynamicBalanceRequest) {
@@ -144,14 +146,19 @@ export class Payment implements IPayment {
     return await rpc.DynamicBalance(request);
   }
 
-  public async getPaymentAccountsByOwner(request: QueryGetPaymentAccountsByOwnerRequest) {
+  public async getPaymentAccountsByOwner(request: QueryPaymentAccountsByOwnerRequest) {
     const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.GetPaymentAccountsByOwner(request);
+    return await rpc.PaymentAccountsByOwner(request);
   }
 
-  public async autoSettleRecordAll(request: QueryAllAutoSettleRecordRequest) {
+  public async getAutoSettleRecords(request: QueryAutoSettleRecordsRequest) {
     const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.AutoSettleRecordAll(request);
+    return await rpc.AutoSettleRecords(request);
+  }
+
+  public async getOutFlows(request: QueryOutFlowsRequest) {
+    const rpc = await this.queryClient.getPaymentQueryClient();
+    return await rpc.OutFlows(request);
   }
 
   public async deposit(msg: MsgDeposit) {

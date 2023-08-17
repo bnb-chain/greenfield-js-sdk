@@ -4,8 +4,8 @@ import {
   MsgCreateObjectTypeUrl,
   newBucketGRN,
   PermissionTypes,
+  toTimestamp,
 } from '@bnb-chain/greenfield-js-sdk';
-import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { Wallet } from '@ethersproject/wallet';
 import { ChangeEvent, useState } from 'react';
 import { parseEther } from 'viem';
@@ -62,12 +62,15 @@ export const CreateObj = () => {
           setWallet(wallet);
 
           // 2. allow temporary account to submit specified tx and amount
+          const date = new Date();
+          date.setDate(date.getDate() + 1);
           const grantAllowanceTx = await client.feegrant.grantAllowance({
             granter: address,
             grantee: wallet.address,
             allowedMessages: [MsgCreateObjectTypeUrl],
             amount: parseEther('0.09').toString(),
             denom: 'BNB',
+            expirationTime: toTimestamp(date),
           });
 
           // 3. Put bucket policy so that the temporary account can create objects within this bucket
@@ -120,7 +123,9 @@ export const CreateObj = () => {
           console.log('temp account', granteeAddr, privateKey);
 
           const fileBytes = await file.arrayBuffer();
-          const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+          const hashResult = await (window as any).FileHandle.getCheckSums(
+            new Uint8Array(fileBytes),
+          );
           const { contentLength, expectCheckSums } = hashResult;
 
           const createObjectTx = await client.object.createObject({

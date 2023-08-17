@@ -1,11 +1,11 @@
 export const MsgCreateGroupSDKTypeEIP712 = {
   Msg1: [
     {
-      name: 'type',
+      name: 'creator',
       type: 'string',
     },
     {
-      name: 'creator',
+      name: 'extra',
       type: 'string',
     },
     {
@@ -13,11 +13,7 @@ export const MsgCreateGroupSDKTypeEIP712 = {
       type: 'string',
     },
     {
-      name: 'members',
-      type: 'string[]',
-    },
-    {
-      name: 'extra',
+      name: 'type',
       type: 'string',
     },
   ],
