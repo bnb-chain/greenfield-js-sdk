@@ -1,5 +1,26 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.6
+
+### Patch Changes
+
+- [#232](https://github.com/bnb-chain/greenfield-js-sdk/pull/232)
+  [`4b9b4bc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4b9b4bc44063aee49f91c285f327819283bd6cee)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Compatibility new `updateGroupMember` api
+
+- [#232](https://github.com/bnb-chain/greenfield-js-sdk/pull/232)
+  [`4b9b4bc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4b9b4bc44063aee49f91c285f327819283bd6cee)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Feegrant api add timestamp
+
+- [#232](https://github.com/bnb-chain/greenfield-js-sdk/pull/232)
+  [`4b9b4bc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4b9b4bc44063aee49f91c285f327819283bd6cee)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Compatibility new payment api
+
+- Updated dependencies
+  [[`d0da019`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d0da0190216e5914e08cc8555be7375e72095b48),
+  [`4b9b4bc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4b9b4bc44063aee49f91c285f327819283bd6cee)]:
+  - @bnb-chain/greenfield-zk-crypto@0.0.2-alpha.4
+
 ## 0.2.4-alpha.5
 
 ### Patch Changes
