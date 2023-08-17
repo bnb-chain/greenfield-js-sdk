@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-beta.0
+
+### Patch Changes
+
+- [#228](https://github.com/bnb-chain/greenfield-js-sdk/pull/228)
+  [`76ead7f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/76ead7f48f0be0b2374d9b4f3344dcbe87610a22)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: throw sp error
+
 ## 0.2.3
 
 ### Patch Changes
