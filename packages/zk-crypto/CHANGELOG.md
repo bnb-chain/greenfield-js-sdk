@@ -1,5 +1,17 @@
 # @bnb-chain/zk-crypto
 
+## 0.0.2-alpha.4
+
+### Patch Changes
+
+- [#234](https://github.com/bnb-chain/greenfield-js-sdk/pull/234)
+  [`d0da019`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d0da0190216e5914e08cc8555be7375e72095b48)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Remove log
+
+- [#232](https://github.com/bnb-chain/greenfield-js-sdk/pull/232)
+  [`4b9b4bc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4b9b4bc44063aee49f91c285f327819283bd6cee)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sign EDDSA new API
+
 ## 0.0.2-alpha.3
 
 ### Patch Changes

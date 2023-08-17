@@ -9,17 +9,22 @@
     "@bnb-chain/greenfield-zk-crypto": "0.0.1"
   },
   "changesets": [
+    "blue-bugs-whisper",
     "clever-deers-turn",
     "five-mice-whisper",
     "flat-mugs-collect",
+    "grumpy-tables-drop",
     "large-jokes-fly",
     "mean-horses-change",
+    "mighty-deers-build",
     "nice-geckos-think",
     "plenty-squids-walk",
+    "proud-dragons-repair",
     "quiet-numbers-camp",
     "seven-toys-fry",
     "soft-phones-give",
     "stupid-spies-poke",
+    "swift-pigs-travel",
     "tender-sloths-shake",
     "yellow-plums-cheat"
   ]
