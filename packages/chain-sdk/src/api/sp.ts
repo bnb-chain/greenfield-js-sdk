@@ -1,17 +1,20 @@
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
 import { fetchWithTimeout, METHOD_GET, parseErrorXml } from '@/utils/http';
-import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import {
-  SecondarySpStorePrice,
-  SpStoragePrice,
-  Status,
-  StorageProvider,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
+  QueryGlobalSpStorePriceByTimeRequest,
+  QueryGlobalSpStorePriceByTimeResponse,
+  QueryParamsResponse,
+  QuerySpStoragePriceRequest,
+  QuerySpStoragePriceResponse,
+  QueryStorageProviderByOperatorAddressRequest,
+  QueryStorageProviderByOperatorAddressResponse,
+  QueryStorageProviderMaintenanceRecordsRequest,
+  QueryStorageProviderMaintenanceRecordsResponse,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
+import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import { SourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
 import { Headers } from 'cross-fetch';
-import Long from 'long';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, singleton } from 'tsyringe';
 import { Bucket } from './bucket';
 import { RpcQueryClient } from './queryclient';
 import { VirtualGroup } from './virtualGroup';
@@ -29,14 +32,30 @@ export interface ISp {
   getStorageProviderInfo(spId: number): Promise<StorageProvider | undefined>;
 
   /**
-   * returns the storage price for a particular storage provider, including update time, read price, store price and .etc.
+   * get the latest storage price of specific sp
    */
-  getStoragePriceByTime(spAddress: string): Promise<SpStoragePrice | undefined>;
+  getQuerySpStoragePrice(request: QuerySpStoragePriceRequest): Promise<QuerySpStoragePriceResponse>;
 
   /**
-   * returns the secondary storage price, including update time and store price
+   * get global store price by time
    */
-  getSecondarySpStorePrice(): Promise<SecondarySpStorePrice | undefined>;
+  getQueryGlobalSpStorePriceByTime(
+    request: QueryGlobalSpStorePriceByTimeRequest,
+  ): Promise<QueryGlobalSpStorePriceByTimeResponse>;
+
+  /**
+   * Queries a StorageProvider by specify operator address.
+   */
+  getStorageProviderByOperatorAddress(
+    request: QueryStorageProviderByOperatorAddressRequest,
+  ): Promise<QueryStorageProviderByOperatorAddressResponse>;
+
+  /**
+   * Queries a StorageProvider by specify operator address.
+   */
+  getStorageProviderMaintenanceRecordsByOperatorAddress(
+    request: QueryStorageProviderMaintenanceRecordsRequest,
+  ): Promise<QueryStorageProviderMaintenanceRecordsResponse>;
 
   params(): Promise<QueryParamsResponse>;
 
@@ -67,6 +86,30 @@ export class Sp implements ISp {
     return res.storageProvider;
   }
 
+  public async getQuerySpStoragePrice(request: QuerySpStoragePriceRequest) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.QuerySpStoragePrice(request);
+  }
+
+  public async getQueryGlobalSpStorePriceByTime(request: QueryGlobalSpStorePriceByTimeRequest) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.QueryGlobalSpStorePriceByTime(request);
+  }
+
+  public async getStorageProviderByOperatorAddress(
+    request: QueryStorageProviderByOperatorAddressRequest,
+  ) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.StorageProviderByOperatorAddress(request);
+  }
+
+  public async getStorageProviderMaintenanceRecordsByOperatorAddress(
+    request: QueryStorageProviderMaintenanceRecordsRequest,
+  ) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.StorageProviderMaintenanceRecordsByOperatorAddress(request);
+  }
+
   public async getSPUrlByBucket(bucketName: string) {
     const { bucketInfo } = await this.bucket.headBucket(bucketName);
 
@@ -85,23 +128,6 @@ export class Sp implements ISp {
   public async getSPUrlByPrimaryAddr(parimaryAddr: string) {
     const sps = await this.getStorageProviders();
     return sps.filter((sp) => sp.operatorAddress === parimaryAddr)[0].endpoint;
-  }
-
-  public async getStoragePriceByTime(spAddress: string) {
-    const rpc = await this.queryClient.getSpQueryClient();
-    const res = await rpc.QueryGetSpStoragePriceByTime({
-      timestamp: Long.fromNumber(0),
-      spAddr: spAddress,
-    });
-    return res.spStoragePrice;
-  }
-
-  public async getSecondarySpStorePrice() {
-    const rpc = await this.queryClient.getSpQueryClient();
-    const res = await rpc.QueryGetSecondarySpStorePriceByTime({
-      timestamp: Long.fromNumber(0),
-    });
-    return res.secondarySpStorePrice;
   }
 
   public async params() {

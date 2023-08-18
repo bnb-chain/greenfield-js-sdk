@@ -197,8 +197,8 @@ importers:
   packages/chain-sdk:
     dependencies:
       '@bnb-chain/greenfield-cosmos-types':
-        specifier: 0.4.0-alpha.21
-        version: 0.4.0-alpha.21
+        specifier: 0.4.0-alpha.22
+        version: 0.4.0-alpha.22
       '@bnb-chain/greenfield-zk-crypto':
         specifier: workspace:*
         version: link:../zk-crypto
@@ -2065,8 +2065,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.21:
-    resolution: {integrity: sha512-aXITAQTlN12E4BnAim1ReO+tWC61FT+KlcWOODPQjTWbGA/fbzY3/sKcicF7NoZkJ/8a+O3LjcFslMGWD132LA==}
+  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.22:
+    resolution: {integrity: sha512-j1UQRaw1sHzq+6x+l2dH1zP0bYAYySfJBgGtxgByl5tCWoNxRxuEOZ0JWrmO9w0dZwgzCKaIsGRqFyjmMliP+A==}
     dependencies:
       long: 4.0.0
       protobufjs: 6.11.4
@@ -6765,7 +6765,7 @@ packages:
     resolution: {integrity: sha512-I7E/cHkIgoJzMNQdFF0YVqPlaTqrqKHrskuSTIqlEyxfB5Lf3WKCajSXVK2yHOfOFfSux/RxEdpMzw/eO4DIog==}
     dependencies:
       long: 4.0.0
-      protobufjs: 6.11.3
+      protobufjs: 6.11.4
     dev: false
 
   /cosmjs-types@0.5.2:
@@ -6779,7 +6779,7 @@ packages:
     resolution: {integrity: sha512-vf2uLyktjr/XVAgEq0DjMxeAWh1yYREe7AMHDKd7EiHVqxBPCaBS+qEEQUkXbR9ndnckqr1sUG8BQhazh4X5lA==}
     dependencies:
       long: 4.0.0
-      protobufjs: 6.11.3
+      protobufjs: 6.11.4
     dev: false
 
   /create-ecdh@4.0.4:
