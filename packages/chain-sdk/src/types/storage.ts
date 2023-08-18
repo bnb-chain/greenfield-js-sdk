@@ -349,7 +349,7 @@ export interface TGetCurrentSeedStringParams {
 }
 
 export interface IBaseMigrateBucket {
-  params: MsgMigrateBucket;
+  params: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'>;
   spInfo: ISpInfo;
 }
 
