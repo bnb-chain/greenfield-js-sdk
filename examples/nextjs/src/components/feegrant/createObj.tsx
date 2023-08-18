@@ -68,7 +68,7 @@ export const CreateObj = () => {
             granter: address,
             grantee: wallet.address,
             allowedMessages: [MsgCreateObjectTypeUrl],
-            amount: parseEther('0.09').toString(),
+            amount: parseEther('0.01').toString(),
             denom: 'BNB',
             expirationTime: toTimestamp(date),
           });
