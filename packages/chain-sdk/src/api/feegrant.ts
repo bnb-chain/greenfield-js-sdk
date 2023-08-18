@@ -48,7 +48,7 @@ export class FeeGrant implements IFeeGrant {
     const basicAllowance = newBasicAllowance(amount, denom, expirationTime);
     const allowedMsgAllowance = newAllowedMsgAllowance(allowedMessages, basicAllowance);
     const grantAllowance = newMsgGrantAllowance(grantee, granter, allowedMsgAllowance);
-    const marshal = newMarshal(amount, denom, allowedMessages);
+    const marshal = newMarshal(amount, denom, allowedMessages, expirationTime);
 
     return await this.basic.tx(
       MsgGrantAllowanceTypeUrl,
