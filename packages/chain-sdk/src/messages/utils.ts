@@ -29,7 +29,7 @@ export const createEIP712 = (types: object, chainId: string, message: object) =>
       salt: '0',
     },
     message,
-  };
+  } as const;
 };
 
 export const generateMessage = (
