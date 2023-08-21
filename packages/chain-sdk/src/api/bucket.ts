@@ -2,7 +2,12 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
+import {
+  getAuthorization,
+  getAuthorizationAuthTypeV2,
+  newRequestHeadersByMeta,
+  ReqMeta,
+} from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import {
   EMPTY_STRING_SHA256,
@@ -50,6 +55,7 @@ import {
 } from '..';
 import {
   BucketProps,
+  IBaseGetCreateBucket,
   ICreateBucketMsgType,
   IMigrateBucket,
   IMigrateBucketMsgType,
@@ -63,19 +69,22 @@ import { Basic } from './basic';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
 import { Sp } from './sp';
+import { AuthType, SpClient } from './spclient';
 import { Storage } from './storage';
-import { VirtualGroup } from './virtualGroup';
 
 export interface IBucket {
   /**
    * returns the signature info for the approval of preCreating resources
    */
-  getCreateBucketApproval(params: TCreateBucket): Promise<IObjectResultType<string>>;
+  getCreateBucketApproval(
+    configParam: IBaseGetCreateBucket,
+    authType: AuthType,
+  ): Promise<IObjectResultType<string>>;
 
   /**
    * get approval of creating bucket and send createBucket txn to greenfield chain
    */
-  createBucket(params: TCreateBucket): Promise<TxResponse>;
+  createBucket(params: IBaseGetCreateBucket, authType: AuthType): Promise<TxResponse>;
 
   /**
    * query the bucketInfo on chain, return the bucket info if exists
@@ -109,10 +118,7 @@ export interface IBucket {
 
   updateBucketInfo(msg: MsgUpdateBucketInfo): Promise<TxResponse>;
 
-  putBucketPolicy(
-    bucketName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
-  ): Promise<TxResponse>;
+  putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
 
   deleteBucketPolicy(
     operator: string,
@@ -137,8 +143,9 @@ export class Bucket implements IBucket {
 
   private queryClient = container.resolve(RpcQueryClient);
   private offChainAuthClient = container.resolve(OffChainAuth);
+  private spClient = container.resolve(SpClient);
 
-  public async getCreateBucketApproval(configParam: TCreateBucket) {
+  public async getCreateBucketApproval(params: IBaseGetCreateBucket, authType: AuthType) {
     const {
       bucketName,
       creator,
@@ -146,7 +153,7 @@ export class Bucket implements IBucket {
       chargedReadQuota,
       spInfo,
       duration,
-    } = configParam;
+    } = params;
 
     try {
       if (!spInfo.primarySpAddress) {
@@ -178,71 +185,61 @@ export class Bucket implements IBucket {
       const url = `${endpoint}${path}?${query}`;
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
-      let headerContent: TKeyValue = {
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+      const reqMeta: Partial<ReqMeta> = {
+        contentSHA256: EMPTY_STRING_SHA256,
+        txnMsg: unSignedMessageInHex,
+        method: METHOD_GET,
+        url: {
+          hostname: new URL(endpoint).hostname,
+          query,
+          path,
+        },
+        contentType: '',
       };
 
-      if (configParam.signType === 'authTypeV1') {
-        const reqMeta: Partial<ReqMeta> = {
-          contentSHA256: EMPTY_STRING_SHA256,
-          txnMsg: unSignedMessageInHex,
-          method: METHOD_GET,
-          url: {
-            hostname: new URL(endpoint).hostname,
-            query,
-            path,
-          },
-          date: '',
-          // contentType: fileType,
-        };
-        const v1Auth = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
-        headerContent = {
-          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-          // 'Content-Type': fileType,
-          'Content-Type': 'application/octet-stream',
-          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-          'X-Gnfd-Date': '',
-          Authorization: v1Auth,
-        };
-      }
-      if (configParam.signType === 'offChainAuth') {
-        const { seedString, domain } = configParam;
-        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          throw {
-            code: -1,
-            message: message || 'Get create bucket approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
+      let headerObj: Record<string, any> = {
+        'Content-Type': '',
+        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
+        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
+        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+      };
+
+      if (authType.type === 'OffChainAuth') {
+        const { domain } = authType;
+        metaHeaders.append('X-Gnfd-User-Address', creator);
+        metaHeaders.append('X-Gnfd-App-Domain', domain);
+
+        headerObj = {
+          ...headerObj,
           'X-Gnfd-User-Address': creator,
           'X-Gnfd-App-Domain': domain,
         };
       }
 
-      const headers = new Headers(headerContent);
-      const result = await fetchWithTimeout(
+      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
+
+      headerObj = {
+        ...headerObj,
+        Authorization: auth,
+      };
+
+      const headers = new Headers(headerObj);
+
+      const result = await this.spClient.callApi(
         url,
         {
           headers,
           method: METHOD_GET,
         },
         duration,
+        {
+          code: -1,
+          message: 'Get create bucket approval error.',
+        },
       );
-
-      const { status } = result;
-      if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
-        throw {
-          code: code || -1,
-          message: message || 'Get create bucket approval error.',
-          statusCode: status,
-        };
-      }
 
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
       const signedMsg = decodeObjectFromHexString(signedMsgString) as ICreateBucketMsgType;
@@ -251,7 +248,7 @@ export class Bucket implements IBucket {
         code: 0,
         message: 'Get create bucket approval success.',
         body: signedMsgString,
-        statusCode: status,
+        statusCode: result.status,
         signedMsg: signedMsg,
       };
     } catch (error: any) {
@@ -279,8 +276,8 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async createBucket(params: TCreateBucket) {
-    const { signedMsg } = await this.getCreateBucketApproval(params);
+  public async createBucket(params: TCreateBucket, authType: AuthType) {
+    const { signedMsg } = await this.getCreateBucketApproval(params, authType);
 
     if (!signedMsg) {
       throw new Error('Get create bucket approval error');
@@ -504,10 +501,7 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async putBucketPolicy(
-    bucketName: string,
-    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
-  ) {
+  public async putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>) {
     const resource = GRNToString(newBucketGRN(bucketName));
     const msg: MsgPutPolicy = {
       ...srcMsg,

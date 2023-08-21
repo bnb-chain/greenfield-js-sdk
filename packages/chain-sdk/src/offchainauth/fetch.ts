@@ -1,7 +1,16 @@
 import { fetchWithTimeout } from '@/utils/http';
 import { Headers } from 'cross-fetch';
 import { IFetchNonce, IUpdateOneSpPubKeyParams } from '../types/storage';
+import { XMLParser } from 'fast-xml-parser';
 
+interface RequestNonceResponse {
+  RequestNonceResp: {
+    CurrentNonce: number;
+    CurrentPublicKey: string;
+    ExpiryDate: string;
+    NextNonce: number;
+  };
+}
 export const fetchNonce = async ({
   spEndpoint,
   spName,
@@ -23,7 +32,12 @@ export const fetchNonce = async ({
     if (!result.ok) {
       return { code: -1, nonce: null };
     }
-    res = await result.json();
+
+    const xmlParser = new XMLParser();
+    const xmlData = await result.text();
+    res = xmlParser.parse(xmlData) as RequestNonceResponse;
+
+    // res = await result.json();
   } catch (error) {
     return { code: -1, nonce: null };
   }
@@ -32,7 +46,7 @@ export const fetchNonce = async ({
     endpoint: spEndpoint,
     address: spAddress,
     name: spName,
-    nonce: res.next_nonce,
+    nonce: res.RequestNonceResp.NextNonce,
   };
 };
 
@@ -52,7 +66,7 @@ export const updateOneSpPubKey = async ({
     'X-Gnfd-App-Domain': domain,
     'X-Gnfd-App-Reg-Nonce': nonce,
     'X-Gnfd-App-Reg-Public-Key': pubKey,
-    'X-Gnfd-App-Reg-Expiry-Date': expireDate,
+    'X-Gnfd-Expiry-Timestamp': expireDate,
     Authorization: authorization,
   });
 

@@ -1,6 +1,11 @@
 import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
 import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
 import {
+  QueryGroupMembersExistRequest,
+  QueryGroupMembersExistResponse,
+  QueryGroupsExistByIdRequest,
+  QueryGroupsExistRequest,
+  QueryGroupsExistResponse,
   QueryLockFeeRequest,
   QueryLockFeeResponse,
   QueryParamsResponse,
@@ -38,6 +43,14 @@ export interface IStorage {
   getQueryPolicyById(request: QueryPolicyByIdRequest): Promise<QueryPolicyByIdResponse>;
 
   queryLockFee(request: QueryLockFeeRequest): Promise<QueryLockFeeResponse>;
+
+  queryGroupMembersExist(
+    request: QueryGroupMembersExistRequest,
+  ): Promise<QueryGroupMembersExistResponse>;
+
+  queryGroupExist(request: QueryGroupsExistRequest): Promise<QueryGroupsExistResponse>;
+
+  queryGroupsExistById(request: QueryGroupsExistByIdRequest): Promise<QueryGroupsExistResponse>;
 }
 
 @singleton()
@@ -102,5 +115,20 @@ export class Storage implements IStorage {
   public async queryLockFee(request: QueryLockFeeRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.QueryLockFee(request);
+  }
+
+  public async queryGroupMembersExist(request: QueryGroupMembersExistRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryGroupMembersExist(request);
+  }
+
+  public async queryGroupExist(request: QueryGroupsExistRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryGroupsExist(request);
+  }
+
+  public async queryGroupsExistById(request: QueryGroupsExistByIdRequest) {
+    const rpc = await this.queryClient.getStorageQueryClient();
+    return await rpc.QueryGroupsExistById(request);
   }
 }

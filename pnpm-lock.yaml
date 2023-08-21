@@ -197,8 +197,8 @@ importers:
   packages/chain-sdk:
     dependencies:
       '@bnb-chain/greenfield-cosmos-types':
-        specifier: 0.4.0-alpha.21
-        version: 0.4.0-alpha.21
+        specifier: 0.4.0-alpha.22
+        version: 0.4.0-alpha.22
       '@bnb-chain/greenfield-zk-crypto':
         specifier: workspace:*
         version: link:../zk-crypto
@@ -238,6 +238,9 @@ importers:
       ethereum-cryptography:
         specifier: ^2.0.0
         version: 2.0.0
+      fast-xml-parser:
+        specifier: ^4.2.7
+        version: 4.2.7
       lodash.clonedeep:
         specifier: ^4.5.0
         version: 4.5.0
@@ -2065,8 +2068,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.21:
-    resolution: {integrity: sha512-aXITAQTlN12E4BnAim1ReO+tWC61FT+KlcWOODPQjTWbGA/fbzY3/sKcicF7NoZkJ/8a+O3LjcFslMGWD132LA==}
+  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.22:
+    resolution: {integrity: sha512-j1UQRaw1sHzq+6x+l2dH1zP0bYAYySfJBgGtxgByl5tCWoNxRxuEOZ0JWrmO9w0dZwgzCKaIsGRqFyjmMliP+A==}
     dependencies:
       long: 4.0.0
       protobufjs: 6.11.4
@@ -6765,7 +6768,7 @@ packages:
     resolution: {integrity: sha512-I7E/cHkIgoJzMNQdFF0YVqPlaTqrqKHrskuSTIqlEyxfB5Lf3WKCajSXVK2yHOfOFfSux/RxEdpMzw/eO4DIog==}
     dependencies:
       long: 4.0.0
-      protobufjs: 6.11.3
+      protobufjs: 6.11.4
     dev: false
 
   /cosmjs-types@0.5.2:
@@ -6779,7 +6782,7 @@ packages:
     resolution: {integrity: sha512-vf2uLyktjr/XVAgEq0DjMxeAWh1yYREe7AMHDKd7EiHVqxBPCaBS+qEEQUkXbR9ndnckqr1sUG8BQhazh4X5lA==}
     dependencies:
       long: 4.0.0
-      protobufjs: 6.11.3
+      protobufjs: 6.11.4
     dev: false
 
   /create-ecdh@4.0.4:
@@ -8183,6 +8186,13 @@ packages:
 
   /fast-stable-stringify@1.0.0:
     resolution: {integrity: sha512-wpYMUmFu5f00Sm0cj2pfivpmawLZ0NKdviQ4w9zJeR8JVtOpOxHmLaJuj0vxvGqMJQWyP/COUkF75/57OKyRag==}
+    dev: false
+
+  /fast-xml-parser@4.2.7:
+    resolution: {integrity: sha512-J8r6BriSLO1uj2miOk1NW0YVm8AGOOu3Si2HQp/cSmo6EA4m3fcwu2WKjJ4RK9wMLBtg69y1kS8baDiQBR41Ig==}
+    hasBin: true
+    dependencies:
+      strnum: 1.0.5
     dev: false
 
   /fastest-levenshtein@1.0.16:
@@ -11929,6 +11939,10 @@ packages:
   /strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
+
+  /strnum@1.0.5:
+    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
+    dev: false
 
   /styled-jsx@5.1.1(@babel/core@7.22.5)(react@18.2.0):
     resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}

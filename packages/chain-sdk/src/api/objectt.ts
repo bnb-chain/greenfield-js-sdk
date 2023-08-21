@@ -2,7 +2,13 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
+import {
+  getAuthorization,
+  getAuthorizationAuthTypeV1,
+  getAuthorizationAuthTypeV2,
+  newRequestHeadersByMeta,
+  ReqMeta,
+} from '@/utils/auth';
 import {
   EMPTY_STRING_SHA256,
   fetchWithTimeout,
@@ -74,12 +80,16 @@ import { Bucket } from './bucket';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
 import { Sp } from './sp';
+import { AuthType, SpClient } from './spclient';
 import { Storage } from './storage';
 
 export interface IObject {
-  getCreateObjectApproval(getApprovalParams: TCreateObject): Promise<IObjectResultType<string>>;
+  getCreateObjectApproval(
+    configParam: TBaseGetCreateObject,
+    authType: AuthType,
+  ): Promise<IObjectResultType<string>>;
 
-  createObject(getApprovalParams: TCreateObject): Promise<TxResponse>;
+  createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType): Promise<TxResponse>;
 
   uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>>;
 
@@ -103,7 +113,7 @@ export interface IObject {
 
   createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
-    signParams: SignTypeOffChain | SignTypeV1,
+    authType: AuthType,
   ): Promise<TxResponse>;
 
   putObjectPolicy(
@@ -146,8 +156,9 @@ export class Objectt implements IObject {
 
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
   private offChainAuthClient = container.resolve(OffChainAuth);
+  private spClient = container.resolve(SpClient);
 
-  public async getCreateObjectApproval(configParam: TCreateObject) {
+  public async getCreateObjectApproval(configParam: TBaseGetCreateObject, authType: AuthType) {
     const {
       bucketName,
       creator,
@@ -196,73 +207,59 @@ export class Objectt implements IObject {
 
       const unSignedMessageInHex = encodeObjectToHexString(msg);
 
-      let headerContent: TKeyValue = {
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+      const reqMeta: Partial<ReqMeta> = {
+        contentSHA256: EMPTY_STRING_SHA256,
+        txnMsg: unSignedMessageInHex,
+        method: METHOD_GET,
+        url: {
+          hostname: new URL(endpoint).hostname,
+          query,
+          path,
+        },
+        contentType: fileType,
       };
 
-      if (configParam.signType === 'authTypeV1') {
-        // const date = new Date().toISOString();
-        const reqMeta: Partial<ReqMeta> = {
-          contentSHA256: EMPTY_STRING_SHA256,
-          txnMsg: unSignedMessageInHex,
-          method: METHOD_GET,
-          url: {
-            hostname: new URL(endpoint).hostname,
-            query,
-            path,
-          },
-          date: '',
-          contentType: fileType,
-        };
+      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
-        const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+      let headerObj: Record<string, any> = {
+        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
+        'Content-Type': fileType,
+        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
+        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
+      };
 
-        headerContent = {
-          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-          'Content-Type': fileType,
-          // 'Content-Type': 'application/octet-stream',
-          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-          'X-Gnfd-Date': '',
-          Authorization,
-        };
-        // console.log(x)
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString, domain } = configParam;
-        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          throw {
-            code: -1,
-            message: 'Get create bucket approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
+      if (authType.type === 'EDDSA') {
+        const { domain } = authType;
+        metaHeaders.append('X-Gnfd-User-Address', creator);
+        metaHeaders.append('X-Gnfd-App-Domain', domain);
+
+        headerObj = {
+          ...headerObj,
           'X-Gnfd-User-Address': creator,
           'X-Gnfd-App-Domain': domain,
         };
       }
-      const headers = new Headers(headerContent);
-      const result = await fetchWithTimeout(
+
+      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
+      headerObj = {
+        ...headerObj,
+        Authorization: auth,
+      };
+
+      const headers = new Headers(headerObj);
+      const result = await this.spClient.callApi(
         url,
         {
           headers,
           method: METHOD_GET,
         },
         duration,
+        {
+          code: -1,
+          message: 'Get create object approval error.',
+        },
       );
-
-      const { status } = result;
-      if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
-        throw {
-          code: code || -1,
-          message: message || 'Get create object approval error.',
-          statusCode: status,
-          error: result,
-        };
-      }
 
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
       const signedMsg = decodeObjectFromHexString(signedMsgString) as ICreateObjectMsgType;
@@ -271,7 +268,7 @@ export class Objectt implements IObject {
         code: 0,
         message: 'Get create object approval success.',
         body: result.headers.get('X-Gnfd-Signed-Msg') ?? '',
-        statusCode: status,
+        statusCode: result.status,
         signedMsg,
       };
     } catch (error: any) {
@@ -302,8 +299,8 @@ export class Objectt implements IObject {
     );
   }
 
-  public async createObject(getApprovalParams: TCreateObject) {
-    const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams);
+  public async createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType) {
+    const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams, authType);
     if (!signedMsg) {
       throw new Error('Get create object approval error');
     }
@@ -357,12 +354,12 @@ export class Objectt implements IObject {
           query,
           path,
         },
-        date: date,
+        // date: date,
         // contentType: '',
         txnHash: txnHash,
       };
 
-      const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+      const Authorization = getAuthorizationAuthTypeV1(reqMeta, null, configParam.privateKey);
       headerContent = {
         ...headerContent,
         'Content-Type': 'application/octet-stream',
@@ -623,7 +620,7 @@ export class Objectt implements IObject {
 
   public async createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
-    signParams: SignTypeOffChain | SignTypeV1,
+    authType: AuthType,
   ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
@@ -640,7 +637,7 @@ export class Objectt implements IObject {
       const { contentLength, expectCheckSums } = hashResult;
      */
 
-    const params: TCreateObject = {
+    const params: TBaseGetCreateObject = {
       bucketName: getApprovalParams.bucketName,
       objectName: getApprovalParams.objectName,
       contentLength: 0,
@@ -655,10 +652,9 @@ export class Objectt implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
       ],
       creator: getApprovalParams.creator,
-      ...signParams,
     };
 
-    return this.createObject(params);
+    return this.createObject(params, authType);
   }
 
   public async putObjectPolicy(

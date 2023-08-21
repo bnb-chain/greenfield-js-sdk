@@ -1,8 +1,9 @@
+import { AuthType } from '@/api/spclient';
+import { signSignatureByEddsa } from '@/offchainauth';
 import { hexlify, joinSignature } from '@ethersproject/bytes';
 import { SigningKey } from '@ethersproject/signing-key';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
-import { sha256 } from 'ethereum-cryptography/sha256.js';
 import { utf8ToBytes } from 'ethereum-cryptography/utils.js';
 import { METHOD_GET, METHOD_POST, METHOD_PUT, MOCK_SIGNATURE } from './http';
 
@@ -41,11 +42,46 @@ const getSignedHeaders = (reqHeaders: Headers) => {
   return sortedHeaders.join(';');
 };
 
-export const getAuthorizationAuthTypeV1 = (reqMeta: Partial<ReqMeta>, privateKey: string) => {
-  const reqHeaders = newRequestHeadersByMeta(reqMeta);
-
+export const getAuthorization = async (
+  reqMeta: Partial<ReqMeta>,
+  reqHeaders: Headers,
+  authType: AuthType,
+) => {
   const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);
+  const signedHeaders = getSignedHeaders(reqHeaders);
 
+  const canonicalRequestArr = [
+    reqMeta.method,
+    reqMeta.url?.path,
+    reqMeta.url?.query,
+    canonicalHeaders,
+    signedHeaders,
+  ];
+
+  const canonicalRequest = canonicalRequestArr.join('\n');
+  // console.log('canonicalRequest', canonicalRequest);
+
+  const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
+  let authorization = '';
+  if (authType.type === 'ECDSA') {
+    const sig = secpSign(unsignedMsg, authType.privateKey);
+    authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
+  } else {
+    const sig = await signSignatureByEddsa(authType.seed, hexlify(unsignedMsg).slice(2));
+    authorization = `GNFD1-EDDSA,Signature=${sig}`;
+  }
+
+  // console.log('authorization', authorization);
+  return authorization;
+};
+
+// TO BE deprecated
+export const getAuthorizationAuthTypeV1 = (
+  reqMeta: Partial<ReqMeta>,
+  reqHeaders: Headers | null,
+  privateKey: string,
+) => {
+  const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);
   const signedHeaders = getSignedHeaders(reqHeaders);
 
   const canonicalRequestArr = [
@@ -62,21 +98,14 @@ export const getAuthorizationAuthTypeV1 = (reqMeta: Partial<ReqMeta>, privateKey
   const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
   const sig = secpSign(unsignedMsg, privateKey);
 
-  const authorization = `authTypeV1 ECDSA-secp256k1,  SignedMsg=${hexlify(
-    Buffer.from(unsignedMsg),
-  ).slice(2)}, Signature=${sig.slice(2)}`;
+  const authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
   return authorization;
 };
 
-const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
+export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
   const headers = new Headers();
-
   // console.log('meta', meta);
-  if (meta.contentType || meta.contentType === '') {
-    headers.set(HTTPHeaderContentType, meta.contentType);
-  } else {
-    headers.set(HTTPHeaderContentType, 'application/octet-stream');
-  }
+  headers.set(HTTPHeaderContentType, meta.contentType || '');
 
   if (meta.txnHash && meta.txnHash !== '') {
     headers.set(HTTPHeaderTransactionHash, meta.txnHash);
@@ -90,10 +119,25 @@ const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
     headers.set(HTTPHeaderUnsignedMsg, meta.txnMsg);
   }
 
-  headers.set(HTTPHeaderDate, meta.date!);
+  const date = new Date();
+  // console.log('date', formatDate(date));
+  headers.set(HTTPHeaderDate, formatDate(date));
+
+  // date.setSeconds(date.getSeconds() + 1000);
+  date.setDate(date.getDate() + 6);
+  headers.set(HTTPHeaderExpiryTimestamp, formatDate(date));
 
   return headers;
 };
+
+function formatDate(date: Date): string {
+  const res = date.toISOString();
+  // console.log(res);
+
+  return res.replace(/\.\d{3}/gi, '');
+
+  // return res.slice(0, 18) + 'Z';
+}
 
 export const getAuthorizationAuthTypeV2 = () => {
   const signature = MOCK_SIGNATURE;
@@ -108,12 +152,14 @@ const HTTPHeaderObjectID = 'X-Gnfd-Object-ID'.toLocaleLowerCase();
 const HTTPHeaderRedundancyIndex = 'X-Gnfd-Redundancy-Index'.toLocaleLowerCase();
 const HTTPHeaderResource = 'X-Gnfd-Resource'.toLocaleLowerCase();
 const HTTPHeaderDate = 'X-Gnfd-Date'.toLocaleLowerCase();
+const HTTPHeaderExpiryTimestamp = 'X-Gnfd-Expiry-Timestamp'.toLocaleLowerCase();
 const HTTPHeaderRange = 'Range'.toLocaleLowerCase();
 const HTTPHeaderPieceIndex = 'X-Gnfd-Piece-Index'.toLocaleLowerCase();
 const HTTPHeaderContentType = 'Content-Type'.toLocaleLowerCase();
 const HTTPHeaderContentMD5 = 'Content-MD5'.toLocaleLowerCase();
 const HTTPHeaderUnsignedMsg = 'X-Gnfd-Unsigned-Msg'.toLocaleLowerCase();
 const HTTPHeaderUserAddress = 'X-Gnfd-User-Address'.toLocaleLowerCase();
+const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain'.toLocaleLowerCase();
 
 const SUPPORTED_HEADERS = [
   HTTPHeaderContentSHA256,
@@ -122,12 +168,14 @@ const SUPPORTED_HEADERS = [
   HTTPHeaderRedundancyIndex,
   HTTPHeaderResource,
   HTTPHeaderDate,
+  HTTPHeaderExpiryTimestamp,
   HTTPHeaderRange,
   HTTPHeaderPieceIndex,
   HTTPHeaderContentType,
   HTTPHeaderContentMD5,
   HTTPHeaderUnsignedMsg,
   HTTPHeaderUserAddress,
+  // HTTPHeaderAppDomain,
 ];
 
 const secpSign = (digestBz: Uint8Array, privateKey: string) => {
@@ -142,10 +190,14 @@ const secpSign = (digestBz: Uint8Array, privateKey: string) => {
   return res;
 };
 
-const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
-  const signBytes = sha256(unsignedBytes);
-  const res = keccak256(signBytes);
+export const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
+  // const signBytes = sha256(unsignedBytes);
+  const res = keccak256(unsignedBytes);
   return res;
+
+  // const signBytes = sha256(unsignedBytes);
+  // const res = keccak256(signBytes);
+  // return res;
 };
 
 export interface ReqMeta {
@@ -158,7 +210,7 @@ export interface ReqMeta {
     query: string;
     path: string;
   };
-  date: string;
+  // date: string;
   contentSHA256: string;
   txnMsg: string;
   txnHash: string;
