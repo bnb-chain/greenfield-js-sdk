@@ -19,7 +19,7 @@ export function delayMs(duration: number) {
 const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration = 30000) => {
   try {
     const response = (await Promise.race([
-      delay(duration),
+      delayMs(duration),
       fetch(fetchUrl, fetchOptions),
     ])) as Response;
     return response;
@@ -29,8 +29,10 @@ const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration 
 };
 
 export interface RequestErrorResponse {
-  Code: string;
-  Message: string;
+  Error: {
+    Code: string;
+    Message: string;
+  };
 }
 export const parseErrorXML = async (result: Response) => {
   const xmlParser = new XMLParser();
@@ -38,8 +40,8 @@ export const parseErrorXML = async (result: Response) => {
   const res = xmlParser.parse(xmlData) as RequestErrorResponse;
 
   return {
-    code: res.Code,
-    message: res.Message,
+    code: res.Error.Code,
+    message: res.Error.Message,
   };
 };
 

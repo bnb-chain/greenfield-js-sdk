@@ -1,4 +1,5 @@
 import { client } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -67,19 +68,25 @@ export const CreateObject = () => {
             console.log('offChainData', offChainData);
             console.log('hashResult', hashResult);
 
-            const createObjectTx = await client.object.createObject({
-              bucketName: createObjectInfo.bucketName,
-              objectName: createObjectInfo.objectName,
-              creator: address,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              fileType: file.type,
-              redundancyType: 'REDUNDANCY_EC_TYPE',
-              contentLength,
-              expectCheckSums: JSON.parse(expectCheckSums),
-              signType: 'offChainAuth',
-              domain: window.location.origin,
-              seedString: offChainData.seedString,
-            });
+            const createObjectTx = await client.object.createObject(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName,
+                creator: address,
+                visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+                fileType: file.type,
+                redundancyType: 'REDUNDANCY_EC_TYPE',
+                contentLength,
+                expectCheckSums: JSON.parse(expectCheckSums),
+              },
+              {
+                type: 'OffChainAuth',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                // type: 'AuthV1',
+                // privateKey: ACCOUNT_PRIVATEKEY,
+              },
+            );
 
             const simulateInfo = await createObjectTx.simulate({
               denom: 'BNB',
