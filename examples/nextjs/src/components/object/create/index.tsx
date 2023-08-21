@@ -80,10 +80,10 @@ export const CreateObject = () => {
                 expectCheckSums: JSON.parse(expectCheckSums),
               },
               {
-                type: 'OffChainAuth',
+                type: 'EDDSA',
                 domain: window.location.origin,
                 seed: offChainData.seedString,
-                // type: 'AuthV1',
+                // type: 'ECDSA',
                 // privateKey: ACCOUNT_PRIVATEKEY,
               },
             );
@@ -164,9 +164,9 @@ export const CreateObject = () => {
                 creator: address,
               },
               {
-                signType: 'offChainAuth',
+                type: 'EDDSA',
                 domain: window.location.origin,
-                seedString: offChainData.seedString,
+                seed: offChainData.seedString,
               },
             );
 

@@ -1,18 +1,22 @@
-import { newRequestHeadersByMeta, ReqMeta } from '@/utils/auth';
-import { XMLParser } from 'fast-xml-parser';
 import { delayMs, parseErrorXML } from '@/utils/http';
 import { singleton } from 'tsyringe';
 
-export type AuthType =
-  | {
-      type: 'AuthV1';
-      privateKey: string;
-    }
-  | {
-      type: 'OffChainAuth';
-      seed: string;
-      domain: string;
-    };
+/**
+ * V1
+ */
+export type ECDSA = {
+  type: 'ECDSA';
+  privateKey: string;
+};
+/**
+ * OffChainAuth
+ */
+export type EDDSA = {
+  type: 'EDDSA';
+  seed: string;
+  domain: string;
+};
+export type AuthType = ECDSA | EDDSA;
 
 @singleton()
 export class SpClient {

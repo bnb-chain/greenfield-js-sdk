@@ -63,7 +63,7 @@ export const getAuthorization = async (
 
   const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
   let authorization = '';
-  if (authType.type === 'AuthV1') {
+  if (authType.type === 'ECDSA') {
     const sig = secpSign(unsignedMsg, authType.privateKey);
     authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
   } else {

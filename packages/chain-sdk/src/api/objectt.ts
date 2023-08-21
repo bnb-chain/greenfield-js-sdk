@@ -229,7 +229,7 @@ export class Objectt implements IObject {
         'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
       };
 
-      if (authType.type === 'OffChainAuth') {
+      if (authType.type === 'EDDSA') {
         const { domain } = authType;
         metaHeaders.append('X-Gnfd-User-Address', creator);
         metaHeaders.append('X-Gnfd-App-Domain', domain);

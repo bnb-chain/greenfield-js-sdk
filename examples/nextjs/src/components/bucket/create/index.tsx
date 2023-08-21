@@ -49,9 +49,9 @@ export const CreateBucket = () => {
               },
             },
             {
-              // type: 'AuthV1',
+              // type: 'ECDSA',
               // privateKey: ACCOUNT_PRIVATEKEY,
-              type: 'OffChainAuth',
+              type: 'EDDSA',
               domain: window.location.origin,
               seed: offChainData.seedString,
             },
