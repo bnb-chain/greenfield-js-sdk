@@ -1,4 +1,4 @@
-import { getPubKeyByPriKey, signEIP712Data } from '@/keymanage';
+import { getPubKeyByPriKey } from '@/keymanage';
 import { defaultSignTypedData } from '@/sign/signTx';
 import { getGasFeeBySimulate } from '@/utils/units';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
@@ -23,7 +23,7 @@ import {
 import { makeAuthInfoBytes } from '@cosmjs/proto-signing';
 import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { arrayify, hexlify } from '@ethersproject/bytes';
+import { arrayify } from '@ethersproject/bytes';
 import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
@@ -32,7 +32,6 @@ import {
   ISimulateGasFee,
   MetaTxInfo,
   SignOptions,
-  SignType,
   SimulateOptions,
   TxResponse,
 } from '..';
@@ -45,7 +44,7 @@ import {
   mergeMultiEip712,
   mergeMultiMessage,
 } from '../messages';
-import { generateMsg, typeWrapper } from '../messages/utils';
+import { generateMsg } from '../messages/utils';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 import { Account } from './account';
 import { RpcQueryClient } from './queryclient';

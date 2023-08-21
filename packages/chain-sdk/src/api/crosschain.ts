@@ -4,8 +4,11 @@ import { MsgMirrorBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgM
 import { MsgMirrorGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorGroup';
 import { MsgMirrorObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorObject';
 import {
+  QueryCrossChainPackageRequest,
   QueryCrossChainPackageResponse,
+  QueryReceiveSequenceRequest,
   QueryReceiveSequenceResponse,
+  QuerySendSequenceRequest,
   QuerySendSequenceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/crosschain/v1/query';
 import { QueryInturnRelayerResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
@@ -17,7 +20,6 @@ import {
   MsgMirrorGroup,
   MsgMirrorObject,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import Long from 'long';
 import { container, singleton } from 'tsyringe';
 import {
   MsgClaimTypeUrl,
@@ -44,12 +46,14 @@ export interface ICrossChain {
   /**
    * gets the next send sequence for a channel
    */
-  getChannelSendSequence(channelId: number): Promise<QuerySendSequenceResponse>;
+  getChannelSendSequence(request: QuerySendSequenceRequest): Promise<QuerySendSequenceResponse>;
 
   /**
    * gets the next receive sequence for a channel
    */
-  getChannelReceiveSequence(channelId: number): Promise<QueryReceiveSequenceResponse>;
+  getChannelReceiveSequence(
+    request: QueryReceiveSequenceRequest,
+  ): Promise<QueryReceiveSequenceResponse>;
 
   /**
    * gets the in-turn relayer bls public key and its relay interval
@@ -57,8 +61,7 @@ export interface ICrossChain {
   getInturnRelayer(): Promise<QueryInturnRelayerResponse>;
 
   getCrosschainPackage(
-    channelId: number,
-    sequence: number,
+    request: QueryCrossChainPackageRequest,
   ): Promise<QueryCrossChainPackageResponse>;
 
   /**
@@ -104,18 +107,14 @@ export class CrossChain implements ICrossChain {
     );
   }
 
-  public async getChannelSendSequence(channelId: number) {
+  public async getChannelSendSequence(request: QuerySendSequenceRequest) {
     const rpc = await this.queryClient.getCrosschainQueryClient();
-    return await rpc.SendSequence({
-      channelId,
-    });
+    return await rpc.SendSequence(request);
   }
 
-  public async getChannelReceiveSequence(channelId: number) {
+  public async getChannelReceiveSequence(request: QueryReceiveSequenceRequest) {
     const rpc = await this.queryClient.getCrosschainQueryClient();
-    return await rpc.ReceiveSequence({
-      channelId,
-    });
+    return await rpc.ReceiveSequence(request);
   }
 
   public async getInturnRelayer() {
@@ -123,12 +122,9 @@ export class CrossChain implements ICrossChain {
     return await rpc.InturnRelayer();
   }
 
-  public async getCrosschainPackage(channelId: number, sequence: number) {
+  public async getCrosschainPackage(request: QueryCrossChainPackageRequest) {
     const rpc = await this.queryClient.getCrosschainQueryClient();
-    return await rpc.CrossChainPackage({
-      channelId,
-      sequence: Long.fromNumber(sequence),
-    });
+    return await rpc.CrossChainPackage(request);
   }
 
   public async mirrorGroup(msg: MsgMirrorGroup) {

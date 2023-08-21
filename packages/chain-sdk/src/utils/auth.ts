@@ -78,7 +78,7 @@ export const getAuthorization = async (
 // TO BE deprecated
 export const getAuthorizationAuthTypeV1 = (
   reqMeta: Partial<ReqMeta>,
-  reqHeaders: Headers,
+  reqHeaders: Headers | null,
   privateKey: string,
 ) => {
   const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);

@@ -113,7 +113,7 @@ export interface IObject {
 
   createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
-    signParams: SignTypeOffChain | SignTypeV1,
+    authType: AuthType,
   ): Promise<TxResponse>;
 
   putObjectPolicy(
@@ -354,12 +354,12 @@ export class Objectt implements IObject {
           query,
           path,
         },
-        date: date,
+        // date: date,
         // contentType: '',
         txnHash: txnHash,
       };
 
-      const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
+      const Authorization = getAuthorizationAuthTypeV1(reqMeta, null, configParam.privateKey);
       headerContent = {
         ...headerContent,
         'Content-Type': 'application/octet-stream',
@@ -620,7 +620,7 @@ export class Objectt implements IObject {
 
   public async createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
-    signParams: SignTypeOffChain | SignTypeV1,
+    authType: AuthType,
   ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
@@ -637,7 +637,7 @@ export class Objectt implements IObject {
       const { contentLength, expectCheckSums } = hashResult;
      */
 
-    const params: TCreateObject = {
+    const params: TBaseGetCreateObject = {
       bucketName: getApprovalParams.bucketName,
       objectName: getApprovalParams.objectName,
       contentLength: 0,
@@ -652,10 +652,9 @@ export class Objectt implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
       ],
       creator: getApprovalParams.creator,
-      ...signParams,
     };
 
-    return this.createObject(params);
+    return this.createObject(params, authType);
   }
 
   public async putObjectPolicy(
