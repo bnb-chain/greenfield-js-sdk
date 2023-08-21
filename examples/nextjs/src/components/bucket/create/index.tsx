@@ -1,4 +1,5 @@
 import { client, selectSp } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -37,18 +38,24 @@ export const CreateBucket = () => {
             return;
           }
 
-          const createBucketTx = await client.bucket.createBucket({
-            bucketName: createBucketInfo.bucketName,
-            creator: address,
-            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-            chargedReadQuota: '0',
-            spInfo: {
-              primarySpAddress: spInfo.primarySpAddress,
+          const createBucketTx = await client.bucket.createBucket(
+            {
+              bucketName: createBucketInfo.bucketName,
+              creator: address,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              chargedReadQuota: '0',
+              spInfo: {
+                primarySpAddress: spInfo.primarySpAddress,
+              },
             },
-            signType: 'offChainAuth',
-            domain: window.location.origin,
-            seedString: offChainData.seedString,
-          });
+            {
+              // type: 'AuthV1',
+              // privateKey: ACCOUNT_PRIVATEKEY,
+              type: 'OffChainAuth',
+              domain: window.location.origin,
+              seed: offChainData.seedString,
+            },
+          );
 
           const simulateInfo = await createBucketTx.simulate({
             denom: 'BNB',

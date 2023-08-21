@@ -9,8 +9,10 @@ import {
   signSignatureByEddsa,
   updateSpsPubKey,
 } from '@/offchainauth';
+import { getMsgToSign } from '@/utils/auth';
 import { NORMAL_ERROR_CODE } from '@/utils/http';
 import { hexlify } from '@ethersproject/bytes';
+import { utf8ToBytes } from 'ethereum-cryptography/utils';
 import { singleton } from 'tsyringe';
 import { convertTimeStampToDate, getUtcZeroTimestamp } from '..';
 import {
@@ -54,9 +56,11 @@ export class OffChainAuth implements IOffChainAuth {
       const spsWithNonce = spsNonceRaw.filter((item: ISp) => item.nonce !== null);
       // 2. generate signature key pair
       const seedMsg = genLocalSignMsg(spsWithNonce, domain);
+      // Uint8Array
       const seed = await getCurrentSeedString({ message: seedMsg, address, chainId, provider });
       const seedString = hexlify(seed);
       const pubKey = await getCurrentAccountPublicKey(seedString);
+
       // 3. second sign for upload public key to server
       const curUtcZeroTimestamp = getUtcZeroTimestamp();
       const expirationTime = curUtcZeroTimestamp + expirationMs;
@@ -73,7 +77,7 @@ export class OffChainAuth implements IOffChainAuth {
       });
       const signRes = await personalSign({ message: signMsg, address, provider });
       const jsonSignMsg = JSON.stringify(signMsg).replace(/\"/g, '');
-      const authorization = `PersonalSign ECDSA-secp256k1,SignedMsg=${jsonSignMsg},Signature=${signRes}`;
+      const authorization = `GNFD1-ETH-PERSONAL_SIGN,SignedMsg=${jsonSignMsg},Signature=${signRes}`;
       // 4. upload signature and pubKey to server
       const res = await updateSpsPubKey({
         address,
@@ -115,17 +119,20 @@ export class OffChainAuth implements IOffChainAuth {
   public async sign(seedString: string) {
     try {
       // NOTICE: Smoothing local and server time gap
-      const expirationMs = 300000 - 100000;
-      const timestamp = getUtcZeroTimestamp();
-      const expireTimestamp = timestamp + expirationMs;
-      const signMsg = genSeedSignMsg(expireTimestamp);
-      const signRes = await signSignatureByEddsa(seedString, signMsg);
-      const authorization = `OffChainAuth EDDSA,SignedMsg=${signMsg},Signature=${signRes}`;
+      // const expirationMs = 300000 - 100000;
+      // const timestamp = getUtcZeroTimestamp();
+      // const expireTimestamp = timestamp + expirationMs;
+      // const signMsg = genSeedSignMsg(expireTimestamp);
+
+      const unsignedMsg = '';
+
+      const signRes = await signSignatureByEddsa(seedString, unsignedMsg);
+      const authorization = `GNFD1-EDDSA,Signature=${signRes}`;
 
       return {
         code: 0,
         body: {
-          unSignedMsg: signMsg,
+          unSignedMsg: unsignedMsg,
           signature: signRes,
           authorization,
         },
