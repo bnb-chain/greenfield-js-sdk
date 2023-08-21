@@ -63,12 +63,12 @@ export const CreateObj = () => {
 
           // 2. allow temporary account to submit specified tx and amount
           const date = new Date();
-          date.setDate(date.getDate() + 1);
+          date.setDate(date.getMinutes() + 10);
           const grantAllowanceTx = await client.feegrant.grantAllowance({
             granter: address,
             grantee: wallet.address,
             allowedMessages: [MsgCreateObjectTypeUrl],
-            amount: parseEther('0.09').toString(),
+            amount: parseEther('0.01').toString(),
             denom: 'BNB',
             expirationTime: toTimestamp(date),
           });
@@ -86,6 +86,7 @@ export const CreateObj = () => {
               type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
               value: wallet.address,
             },
+            expirationTime: toTimestamp(date),
           });
 
           // 4. broadcast txs include 2 msg

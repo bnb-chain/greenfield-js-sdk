@@ -16,7 +16,7 @@ import {
   MsgPutPolicy,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
+import { fromTimestamp, MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from './queryclient';
 
@@ -58,7 +58,7 @@ export class Storage implements IStorage {
       MsgPutPolicySDKTypeEIP712,
       {
         ...toSdk,
-        expiration_time: '',
+        expiration_time: msg.expirationTime ? fromTimestamp(msg.expirationTime) : '',
         statements: toSdk.statements.map((e) => {
           // @ts-ignore
           e.expiration_time = '';
