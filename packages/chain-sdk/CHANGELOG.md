@@ -1,5 +1,42 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.7
+
+### Patch Changes
+
+- [#236](https://github.com/bnb-chain/greenfield-js-sdk/pull/236)
+  [`41581f4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/41581f4e684ff7a3e6738e3477e295968af45b4a)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Tx
+
+- [#236](https://github.com/bnb-chain/greenfield-js-sdk/pull/236)
+  [`41581f4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/41581f4e684ff7a3e6738e3477e295968af45b4a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Changet auth type: `OffChainAuth` -> `EDDSA`,
+  `V1` -> `ECDSA`
+
+- [#235](https://github.com/bnb-chain/greenfield-js-sdk/pull/235)
+  [`53fa253`](https://github.com/bnb-chain/greenfield-js-sdk/commit/53fa253423a47ef190457eec980c895a1d035ab0)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Feegrant add expiration time
+
+- [#236](https://github.com/bnb-chain/greenfield-js-sdk/pull/236)
+  [`41581f4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/41581f4e684ff7a3e6738e3477e295968af45b4a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upgrade types and update SP API:
+  `getQueryGlobalSpStorePriceByTime` `getQuerySpStoragePrice`
+
+- [#236](https://github.com/bnb-chain/greenfield-js-sdk/pull/236)
+  [`41581f4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/41581f4e684ff7a3e6738e3477e295968af45b4a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: `getCreateBucketApproval` and `createBucket`
+  add `authType` params
+
+- [#236](https://github.com/bnb-chain/greenfield-js-sdk/pull/236)
+  [`41581f4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/41581f4e684ff7a3e6738e3477e295968af45b4a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: `getCreateObjectApproval` and `createObject`
+  add `authType` params
+
+- [#236](https://github.com/bnb-chain/greenfield-js-sdk/pull/236)
+  [`41581f4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/41581f4e684ff7a3e6738e3477e295968af45b4a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Group Exist API: `queryGroupMembersExist`
+  `queryGroupExist` `queryGroupsExistById`
+
 ## 0.2.4-alpha.6
 
 ### Patch Changes
