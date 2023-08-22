@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.8
+
+### Patch Changes
+
+- [#238](https://github.com/bnb-chain/greenfield-js-sdk/pull/238)
+  [`a823e61`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a823e615266973639ff3101e6bec7e3cf88891db)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: ReadQuota
+
+- [#238](https://github.com/bnb-chain/greenfield-js-sdk/pull/238)
+  [`a823e61`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a823e615266973639ff3101e6bec7e3cf88891db)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: CreateBucketApproval
+
 ## 0.2.4-alpha.7
 
 ### Patch Changes
