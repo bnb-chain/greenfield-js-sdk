@@ -81,6 +81,7 @@ export const getAuthorizationAuthTypeV1 = (
   reqHeaders: Headers | null,
   privateKey: string,
 ) => {
+  if (!reqHeaders) return;
   const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);
   const signedHeaders = getSignedHeaders(reqHeaders);
 
@@ -105,7 +106,9 @@ export const getAuthorizationAuthTypeV1 = (
 export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
   const headers = new Headers();
   // console.log('meta', meta);
-  headers.set(HTTPHeaderContentType, meta.contentType || '');
+  if (meta.contentType) {
+    headers.set(HTTPHeaderContentType, meta.contentType);
+  }
 
   if (meta.txnHash && meta.txnHash !== '') {
     headers.set(HTTPHeaderTransactionHash, meta.txnHash);

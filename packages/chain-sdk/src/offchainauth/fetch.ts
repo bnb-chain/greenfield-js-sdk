@@ -2,15 +2,8 @@ import { fetchWithTimeout } from '@/utils/http';
 import { Headers } from 'cross-fetch';
 import { IFetchNonce, IUpdateOneSpPubKeyParams } from '../types/storage';
 import { XMLParser } from 'fast-xml-parser';
+import { RequestNonceResponse } from '@/types/spXML';
 
-interface RequestNonceResponse {
-  RequestNonceResp: {
-    CurrentNonce: number;
-    CurrentPublicKey: string;
-    ExpiryDate: string;
-    NextNonce: number;
-  };
-}
 export const fetchNonce = async ({
   spEndpoint,
   spName,

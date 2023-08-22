@@ -91,7 +91,7 @@ export type BucketProps = {
 
 export type TBaseGetBucketReadQuota = {
   bucketName: string;
-  endpoint: string;
+  // endpoint: string;
   duration?: number;
   year?: number;
   month?: number;

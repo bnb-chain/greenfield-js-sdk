@@ -15,6 +15,7 @@ export type EDDSA = {
   type: 'EDDSA';
   seed: string;
   domain: string;
+  address: string;
 };
 export type AuthType = ECDSA | EDDSA;
 
