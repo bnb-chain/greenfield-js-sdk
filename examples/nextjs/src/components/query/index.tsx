@@ -1,4 +1,5 @@
 import { client } from '@/client';
+import { Long } from '@bnb-chain/greenfield-js-sdk';
 import { useAccount } from 'wagmi';
 
 export const QueryComponent = () => {
@@ -31,6 +32,13 @@ export const QueryComponent = () => {
             onClick={async () => {
               const gasfeeList = await client.gashub.getMsgGasParams({
                 msgTypeUrls: [],
+                pagination: {
+                  countTotal: true,
+                  key: Uint8Array.from([]),
+                  limit: Long.fromInt(10),
+                  offset: Long.fromInt(0),
+                  reverse: false,
+                },
               });
 
               console.log('gasfeeList', gasfeeList);

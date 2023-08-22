@@ -359,7 +359,7 @@ export class Objectt implements IObject {
         txnHash: txnHash,
       };
 
-      const Authorization = getAuthorizationAuthTypeV1(reqMeta, null, configParam.privateKey);
+      const Authorization = getAuthorizationAuthTypeV1(reqMeta, null, configParam.privateKey) || '';
       headerContent = {
         ...headerContent,
         'Content-Type': 'application/octet-stream',

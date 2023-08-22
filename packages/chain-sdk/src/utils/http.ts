@@ -1,3 +1,4 @@
+import { RequestErrorResponse } from '@/types/spXML';
 import fetch from 'cross-fetch';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -28,12 +29,6 @@ const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration 
   }
 };
 
-export interface RequestErrorResponse {
-  Error: {
-    Code: string;
-    Message: string;
-  };
-}
 export const parseErrorXML = async (result: Response) => {
   const xmlParser = new XMLParser();
   const xmlData = await result.text();

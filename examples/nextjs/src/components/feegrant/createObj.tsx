@@ -1,4 +1,5 @@
 import { client } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import {
   GRNToString,
   MsgCreateObjectTypeUrl,
@@ -129,18 +130,22 @@ export const CreateObj = () => {
           );
           const { contentLength, expectCheckSums } = hashResult;
 
-          const createObjectTx = await client.object.createObject({
-            bucketName: bucketName,
-            objectName: objectName,
-            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-            redundancyType: 'REDUNDANCY_EC_TYPE',
-            contentLength,
-            expectCheckSums,
-            fileType: file.type,
-            signType: 'authTypeV1',
-            creator: granteeAddr,
-            privateKey: privateKey,
-          });
+          const createObjectTx = await client.object.createObject(
+            {
+              creator: granteeAddr,
+              bucketName: bucketName,
+              objectName: objectName,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              redundancyType: 'REDUNDANCY_EC_TYPE',
+              contentLength,
+              expectCheckSums,
+              fileType: file.type,
+            },
+            {
+              type: 'ECDSA',
+              privateKey: ACCOUNT_PRIVATEKEY,
+            },
+          );
 
           const simulateInfo = await createObjectTx.simulate({
             denom: 'BNB',

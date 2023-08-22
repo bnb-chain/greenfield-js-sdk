@@ -2,6 +2,7 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { ReadQuotaResponse } from '@/types/spXML';
 import {
   getAuthorization,
   getAuthorizationAuthTypeV2,
@@ -41,6 +42,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
+import { XMLParser } from 'fast-xml-parser';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
@@ -61,6 +63,7 @@ import {
   IMigrateBucketMsgType,
   IObjectResultType,
   IQuotaProps,
+  TBaseGetBucketReadQuota,
   TCreateBucket,
   TGetBucketReadQuota,
   TGetUserBuckets,
@@ -112,7 +115,10 @@ export interface IBucket {
   /**
    * return quota info of bucket of current month, include chain quota, free quota and consumed quota
    */
-  getBucketReadQuota(configParam: TGetBucketReadQuota): Promise<IObjectResultType<IQuotaProps>>;
+  getBucketReadQuota(
+    configParam: TBaseGetBucketReadQuota,
+    authType: AuthType,
+  ): Promise<IObjectResultType<IQuotaProps>>;
 
   deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
 
@@ -207,7 +213,7 @@ export class Bucket implements IBucket {
         'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
       };
 
-      if (authType.type === 'OffChainAuth') {
+      if (authType.type === 'EDDSA') {
         const { domain } = authType;
         metaHeaders.append('X-Gnfd-User-Address', creator);
         metaHeaders.append('X-Gnfd-App-Domain', domain);
@@ -391,20 +397,100 @@ export class Bucket implements IBucket {
   }
 
   public async getBucketReadQuota(
-    configParam: TGetBucketReadQuota,
+    configParam: TBaseGetBucketReadQuota,
+    authType: AuthType,
   ): Promise<IObjectResultType<IQuotaProps>> {
     try {
-      const { bucketName, endpoint, duration = 30000, year, month, signType } = configParam;
-      if (!isValidUrl(endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
-      if (!isValidBucketName(bucketName)) {
-        throw new Error('Error bucket name');
-      }
+      const { bucketName, duration = 30000, year, month } = configParam;
       const currentDate = new Date();
       const finalYear = year ? year : currentDate.getFullYear();
       const finalMonth = month ? month : currentDate.getMonth() + 1;
       const formattedMonth = finalMonth.toString().padStart(2, '0'); // format month to 2 digits, like "01"
+      if (!isValidBucketName(bucketName)) {
+        throw new Error('Error bucket name');
+      }
+
+      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      const path = '/';
+      const query = `read-quota=null&year-month=${finalYear}-${formattedMonth}`;
+      const url = `${generateUrlByBucketName(endpoint, bucketName)}${path}?${query}`;
+
+      const reqMeta: Partial<ReqMeta> = {
+        contentSHA256: EMPTY_STRING_SHA256,
+        method: METHOD_GET,
+        url: {
+          hostname: new URL(url).hostname,
+          query,
+          path,
+        },
+      };
+      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
+
+      let headerObj: Record<string, any> = {
+        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
+        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
+        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+      };
+
+      if (authType.type === 'EDDSA') {
+        const { domain, address } = authType;
+        metaHeaders.append('X-Gnfd-User-Address', address);
+        metaHeaders.append('X-Gnfd-App-Domain', domain);
+
+        headerObj = {
+          ...headerObj,
+          'X-Gnfd-User-Address': address,
+          'X-Gnfd-App-Domain': domain,
+        };
+      }
+
+      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
+
+      headerObj = {
+        ...headerObj,
+        Authorization: auth,
+      };
+
+      const headers = new Headers(headerObj);
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        duration,
+        {
+          code: -1,
+          message: 'Get Bucket Quota error.',
+        },
+      );
+
+      const xmlParser = new XMLParser();
+      const xmlData = await result.text();
+      const res = xmlParser.parse(xmlData) as ReadQuotaResponse;
+
+      return {
+        code: 0,
+        body: {
+          readQuota: Number(res.GetReadQuotaResult.ReadQuotaSize ?? '0'),
+          freeQuota: Number(res.GetReadQuotaResult.SPFreeReadQuotaSize ?? '0'),
+          consumedQuota: Number(res.GetReadQuotaResult.ReadConsumedSize ?? '0'),
+        },
+        message: 'Get bucket read quota.',
+        statusCode: result.status,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+
+    /*     try {
+      const { bucketName, endpoint, duration = 30000, year, month, signType } = configParam;
+
       const url =
         generateUrlByBucketName(endpoint, bucketName) +
         `/?read-quota&year-month=${finalYear}-${formattedMonth}`;
@@ -488,7 +574,7 @@ export class Bucket implements IBucket {
         message: error.message,
         statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };
-    }
+    } */
   }
 
   public async updateBucketInfo(msg: MsgUpdateBucketInfo) {
