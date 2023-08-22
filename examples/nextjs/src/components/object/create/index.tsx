@@ -83,6 +83,7 @@ export const CreateObject = () => {
                 type: 'EDDSA',
                 domain: window.location.origin,
                 seed: offChainData.seedString,
+                address,
                 // type: 'ECDSA',
                 // privateKey: ACCOUNT_PRIVATEKEY,
               },
@@ -167,6 +168,7 @@ export const CreateObject = () => {
                 type: 'EDDSA',
                 domain: window.location.origin,
                 seed: offChainData.seedString,
+                address,
               },
             );
 

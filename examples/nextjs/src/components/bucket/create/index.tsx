@@ -54,6 +54,7 @@ export const CreateBucket = () => {
               type: 'EDDSA',
               domain: window.location.origin,
               seed: offChainData.seedString,
+              address,
             },
           );
 
