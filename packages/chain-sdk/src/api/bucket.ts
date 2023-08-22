@@ -207,7 +207,7 @@ export class Bucket implements IBucket {
         'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
       };
 
-      if (authType.type === 'OffChainAuth') {
+      if (authType.type === 'EDDSA') {
         const { domain } = authType;
         metaHeaders.append('X-Gnfd-User-Address', creator);
         metaHeaders.append('X-Gnfd-App-Domain', domain);
