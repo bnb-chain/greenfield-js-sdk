@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.10
+
+### Patch Changes
+
+- [#243](https://github.com/bnb-chain/greenfield-js-sdk/pull/243)
+  [`cbbb4aa`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cbbb4aa2d0f1e76b9f367b95355590370d35d684)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: XML force convert array not object
+
 ## 0.2.4-alpha.9
 
 ### Patch Changes
