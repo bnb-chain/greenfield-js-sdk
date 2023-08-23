@@ -2,8 +2,9 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { ReqMeta } from '@/types/auth';
 import { GetSpListObjectsByBucketNameResponse } from '@/types/spXML';
-import { getAuthorization, newRequestHeadersByMeta, ReqMeta } from '@/utils/auth';
+import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import {
   EMPTY_STRING_SHA256,
   fetchWithTimeout,
@@ -353,7 +354,9 @@ export class Objectt implements IObject {
       },
       contentType: body.type,
     };
-    const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
+    const headers = await this.spClient.makeHeaders(reqMeta, authType);
+
+    /* const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
     let headerObj: Record<string, any> = {
       'X-Gnfd-Txn-hash': txnHash,
@@ -380,7 +383,7 @@ export class Objectt implements IObject {
       ...headerObj,
       Authorization: auth,
     };
-    const headers = new Headers(headerObj);
+    const headers = new Headers(headerObj); */
 
     try {
       const result = await fetchWithTimeout(
@@ -488,7 +491,10 @@ export class Objectt implements IObject {
         },
         contentType: 'application/octet-stream',
       };
-      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
+
+      const headers = await this.spClient.makeHeaders(reqMeta, authType);
+
+      /* const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
       let headerObj: Record<string, any> = {
         'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
@@ -515,7 +521,7 @@ export class Objectt implements IObject {
         Authorization: auth,
       };
 
-      const headers = new Headers(headerObj);
+      const headers = new Headers(headerObj); */
 
       const result = await fetchWithTimeout(
         url,

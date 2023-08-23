@@ -1,11 +1,11 @@
 import { AuthType } from '@/api/spclient';
 import { signSignatureByEddsa } from '@/offchainauth';
+import { ReqMeta } from '@/types/auth';
 import { hexlify, joinSignature } from '@ethersproject/bytes';
 import { SigningKey } from '@ethersproject/signing-key';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
 import { utf8ToBytes } from 'ethereum-cryptography/utils.js';
-import { METHOD_GET, METHOD_POST, METHOD_PUT } from './http';
 
 export const getCanonicalHeaders = (reqMeta: Partial<ReqMeta>, reqHeaders: Headers) => {
   const sortedHeaders = getSortedHeaders(reqHeaders, SUPPORTED_HEADERS);
@@ -163,19 +163,3 @@ export const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
   // const res = keccak256(signBytes);
   // return res;
 };
-
-export interface ReqMeta {
-  method: typeof METHOD_GET | typeof METHOD_POST | typeof METHOD_PUT;
-  bucketName: string;
-  objectName: string;
-  contentType: string;
-  url: {
-    hostname: string;
-    query: string;
-    path: string;
-  };
-  // date: string;
-  contentSHA256: string;
-  txnMsg: string;
-  txnHash: string;
-}

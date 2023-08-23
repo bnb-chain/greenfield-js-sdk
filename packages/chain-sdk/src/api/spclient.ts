@@ -1,4 +1,7 @@
-import { delayMs, parseErrorXML } from '@/utils/http';
+import { Headers, Response } from 'cross-fetch';
+import { ReqMeta } from '@/types/auth';
+import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
+import { delayMs, EMPTY_STRING_SHA256, parseErrorXML } from '@/utils/http';
 import { singleton } from 'tsyringe';
 
 /**
@@ -19,8 +22,22 @@ export type EDDSA = {
 };
 export type AuthType = ECDSA | EDDSA;
 
+export interface ISpClient {
+  callApi(
+    url: string,
+    options: RequestInit,
+    duration: number,
+    customError?: {
+      message: string;
+      code: number;
+    },
+  ): Promise<Response>;
+
+  makeHeaders(reqMeta: Partial<ReqMeta>, authType: AuthType): Promise<Headers>;
+}
+
 @singleton()
-export class SpClient {
+export class SpClient implements ISpClient {
   public async callApi(
     url: string,
     options: RequestInit,
@@ -53,18 +70,34 @@ export class SpClient {
     // 4. return response
   }
 
-  /* public makeAuthHeader(type: AuthType, meta: Partial<ReqMeta>) {
-    // TODO
-    const auth = 'some operates';
-    // if (type === 'AuthV1') {
-    //   return auth
-    // }
+  public async makeHeaders(reqMeta: Partial<ReqMeta>, authType: AuthType) {
+    const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
-    // if (type === 'OffChainAuth') {
-    //   // 1. Add two headers
-    //   // 2. offchain.sign
-    // }
+    let headerObj: Record<string, any> = {
+      'X-Gnfd-Txn-hash': metaHeaders.get('X-Gnfd-Txn-hash'),
+      'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+      'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
+      'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
+      'Content-Type': metaHeaders.get('Content-Type'),
+    };
 
-    return auth;
-  } */
+    if (authType.type === 'EDDSA') {
+      const { domain, address } = authType;
+      metaHeaders.append('X-Gnfd-User-Address', address);
+      metaHeaders.append('X-Gnfd-App-Domain', domain);
+      headerObj = {
+        ...headerObj,
+        'X-Gnfd-User-Address': address,
+        'X-Gnfd-App-Domain': domain,
+      };
+    }
+
+    const auth = await getAuthorization(reqMeta, metaHeaders, authType);
+    headerObj = {
+      ...headerObj,
+      Authorization: auth,
+    };
+
+    return new Headers(headerObj);
+  }
 }

@@ -2,8 +2,9 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { ReqMeta } from '@/types/auth';
 import { GetUserBucketsResponse, ReadQuotaResponse } from '@/types/spXML';
-import { getAuthorization, newRequestHeadersByMeta, ReqMeta } from '@/utils/auth';
+import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import {
   EMPTY_STRING_SHA256,
