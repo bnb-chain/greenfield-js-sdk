@@ -2,7 +2,6 @@ import {
   RedundancyType,
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { MsgMigrateBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 
 export interface IBaseGetCreateBucket {
   bucketName: string;
@@ -15,19 +14,6 @@ export interface IBaseGetCreateBucket {
   duration?: number;
   paymentAddress: string;
 }
-
-export interface ICreateBucketByOffChainAuth extends IBaseGetCreateBucket {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-}
-
-export interface ICreateBucketByAuthV1 extends IBaseGetCreateBucket {
-  signType?: 'authTypeV1';
-  privateKey: string;
-}
-
-export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthV1;
 
 export interface ISpInfo {
   id: number;
@@ -97,21 +83,6 @@ export type TBaseGetBucketReadQuota = {
   year?: number;
   month?: number;
 };
-
-export type TGetBucketReadQuotaByAuthTypeV2 = TBaseGetBucketReadQuota & {
-  signType?: 'authTypeV2';
-};
-
-export type TGetBucketReadQuotaByOffChainAuth = TBaseGetBucketReadQuota & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TGetBucketReadQuota =
-  | TGetBucketReadQuotaByAuthTypeV2
-  | TGetBucketReadQuotaByOffChainAuth;
 
 export interface IQuotaProps {
   readQuota: number;
@@ -194,19 +165,6 @@ export type TBaseGetObject = {
   duration?: number;
 };
 
-export type TGetObjectByAuthTypeV2 = TBaseGetObject & {
-  signType?: 'authTypeV2';
-};
-
-export type TGetObjectByOffChainAuth = TBaseGetObject & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TGetObject = TGetObjectByAuthTypeV2 | TGetObjectByOffChainAuth;
-
 export type TListObjects = {
   bucketName: string;
   duration?: number;
@@ -222,46 +180,6 @@ export type TDownloadFile = {
   year?: number;
   month?: number;
 };
-
-export interface IObjectResponse {
-  create_tx_hash: string;
-  delete_at: string;
-  delete_reason: string;
-  locked_balance: string;
-  operator: string;
-  removed: boolean;
-  seal_tx_hash: string;
-  update_at: string;
-  update_tx_hash: string;
-  object_info: {
-    bucket_name: string;
-    checksums: Array<string>;
-    content_type: string;
-    create_at: string;
-    creator: string;
-    id: string;
-    local_virtual_group_id: number;
-    object_name: string;
-    object_status: number;
-    owner: string;
-    payload_size: string;
-    redundancy_type: string;
-    source_type: string;
-    visibility: number;
-  };
-}
-export interface IObjectsProps {
-  common_prefixes: Array<string>;
-  continuation_token: string;
-  delimiter: string;
-  is_truncated: boolean;
-  key_count: string;
-  max_keys: string;
-  name: string;
-  next_continuation_token: string;
-  objects: IObjectResponse[];
-  prefix: string;
-}
 
 export interface IGetObjectStaus {
   bucketName: string;
@@ -347,23 +265,6 @@ export interface TGetCurrentSeedStringParams {
   chainId: number;
   provider: any;
 }
-
-export interface IBaseMigrateBucket {
-  params: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'>;
-  spInfo: ISpInfo;
-}
-
-export interface IMigrateBucketByOffChainAuth extends IBaseMigrateBucket {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-}
-
-export interface IMigrateBucketByAuthTypeV2 extends IBaseMigrateBucket {
-  signType?: 'authTypeV2';
-}
-
-export type IMigrateBucket = IMigrateBucketByOffChainAuth | IMigrateBucketByAuthTypeV2;
 
 export interface IMigrateBucketMsgType {
   operator: string;
