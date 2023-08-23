@@ -1,4 +1,4 @@
-import { METHOD_GET, METHOD_POST, METHOD_PUT } from '@/utils/http';
+import { METHOD_GET, METHOD_POST, METHOD_PUT } from '@/constants/http';
 
 export interface ReqMeta {
   method: typeof METHOD_GET | typeof METHOD_POST | typeof METHOD_PUT;

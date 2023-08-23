@@ -1,8 +1,9 @@
 import { Headers, Response } from 'cross-fetch';
 import { ReqMeta } from '@/types/auth';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
-import { delayMs, EMPTY_STRING_SHA256, parseErrorXML } from '@/utils/http';
+import { delayMs, parseErrorXML } from '@/utils/http';
 import { singleton } from 'tsyringe';
+import { EMPTY_STRING_SHA256 } from '@/constants/http';
 
 /**
  * V1

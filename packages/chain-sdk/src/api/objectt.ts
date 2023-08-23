@@ -1,3 +1,4 @@
+import { EMPTY_STRING_SHA256, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
@@ -5,14 +6,7 @@ import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/
 import { ReqMeta } from '@/types/auth';
 import { GetSpListObjectsByBucketNameResponse } from '@/types/spXML';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
-import {
-  EMPTY_STRING_SHA256,
-  fetchWithTimeout,
-  METHOD_GET,
-  METHOD_PUT,
-  NORMAL_ERROR_CODE,
-  parseErrorXml,
-} from '@/utils/http';
+import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
 import {
   ActionType,
   Principal,

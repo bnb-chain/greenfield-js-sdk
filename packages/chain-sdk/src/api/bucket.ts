@@ -1,3 +1,4 @@
+import { EMPTY_STRING_SHA256, METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateBucket';
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
@@ -6,13 +7,7 @@ import { ReqMeta } from '@/types/auth';
 import { GetUserBucketsResponse, ReadQuotaResponse } from '@/types/spXML';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import {
-  EMPTY_STRING_SHA256,
-  fetchWithTimeout,
-  METHOD_GET,
-  NORMAL_ERROR_CODE,
-  parseErrorXml,
-} from '@/utils/http';
+import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,

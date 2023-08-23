@@ -1,4 +1,5 @@
-import { fetchWithTimeout, METHOD_GET, parseErrorXml } from '@/utils/http';
+import { METHOD_GET } from '@/constants/http';
+import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
   QueryGlobalSpStorePriceByTimeResponse,
