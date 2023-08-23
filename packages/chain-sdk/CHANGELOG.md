@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.11
+
+### Patch Changes
+
+- [#245](https://github.com/bnb-chain/greenfield-js-sdk/pull/245)
+  [`8782a21`](https://github.com/bnb-chain/greenfield-js-sdk/commit/8782a21a9dcae1f9b83062877ff92540534fa40c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Export types
+
+- [#247](https://github.com/bnb-chain/greenfield-js-sdk/pull/247)
+  [`d388940`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d388940e821e7fc3cb9671ffae4753d63a3189b9)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Hex don't convert number
+
 ## 0.2.4-alpha.10
 
 ### Patch Changes
