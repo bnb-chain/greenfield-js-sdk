@@ -170,7 +170,7 @@ export type TBasePutObject = {
   bucketName: string;
   objectName: string;
   txnHash: string;
-  body: Blob;
+  body: File;
   duration?: number;
 };
 

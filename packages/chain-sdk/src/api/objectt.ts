@@ -59,6 +59,7 @@ import {
   IObjectResultType,
   Long,
   TBaseGetCreateObject,
+  TBasePutObject,
   TGetObject,
   TKeyValue,
   TListObjects,
@@ -87,7 +88,7 @@ export interface IObject {
 
   createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType): Promise<TxResponse>;
 
-  uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>>;
+  uploadObject(configParam: TBasePutObject, authType: AuthType): Promise<IObjectResultType<null>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
@@ -322,7 +323,10 @@ export class Objectt implements IObject {
     return await this.createObjectTx(msg, signedMsg);
   }
 
-  public async uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>> {
+  public async uploadObject(
+    configParam: TBasePutObject,
+    authType: AuthType,
+  ): Promise<IObjectResultType<null>> {
     const { bucketName, objectName, txnHash, body, duration = 30000 } = configParam;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
@@ -337,53 +341,47 @@ export class Objectt implements IObject {
     const endpoint = await this.sp.getSPUrlByBucket(bucketName);
     const path = `/${objectName}`;
     const query = '';
-    const url = generateUrlByBucketName(endpoint, bucketName) + path;
+    const url = `${generateUrlByBucketName(endpoint, bucketName)}${path}`;
 
-    let headerContent: TKeyValue = {
-      'X-Gnfd-Txn-hash': txnHash,
+    const reqMeta: Partial<ReqMeta> = {
+      contentSHA256: EMPTY_STRING_SHA256,
+      txnHash: txnHash,
+      method: METHOD_PUT,
+      url: {
+        hostname: new URL(url).hostname,
+        query,
+        path,
+      },
+      contentType: body.type,
     };
-    if (!configParam.signType || configParam.signType === 'authTypeV1') {
-      const date = new Date().toISOString();
-      const reqMeta: Partial<ReqMeta> = {
-        contentSHA256: EMPTY_STRING_SHA256,
-        method: METHOD_PUT,
-        url: {
-          hostname: `${bucketName}.${new URL(endpoint).hostname}`,
-          query,
-          path,
-        },
-        // date: date,
-        // contentType: '',
-        txnHash: txnHash,
-      };
+    const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
-      const Authorization = getAuthorizationAuthTypeV1(reqMeta, null, configParam.privateKey) || '';
-      headerContent = {
-        ...headerContent,
-        'Content-Type': 'application/octet-stream',
-        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-        'X-Gnfd-Date': date,
-        Authorization,
-      };
-    } else if (configParam.signType === 'offChainAuth') {
-      const { seedString, address, domain } = configParam;
-      const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-      if (code !== 0) {
-        return {
-          code: -1,
-          message: message || 'Get create object approval error.',
-          statusCode: statusCode,
-        };
-      }
-      headerContent = {
-        ...headerContent,
-        Authorization: body?.authorization as string,
+    let headerObj: Record<string, any> = {
+      'X-Gnfd-Txn-hash': txnHash,
+      'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+      'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
+      'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
+      'Content-Type': body.type,
+    };
+
+    if (authType.type === 'EDDSA') {
+      const { domain, address } = authType;
+      metaHeaders.append('X-Gnfd-User-Address', address);
+      metaHeaders.append('X-Gnfd-App-Domain', domain);
+      headerObj = {
+        ...headerObj,
         'X-Gnfd-User-Address': address,
         'X-Gnfd-App-Domain': domain,
       };
     }
 
-    const headers = new Headers(headerContent);
+    const auth = await getAuthorization(reqMeta, metaHeaders, authType);
+
+    headerObj = {
+      ...headerObj,
+      Authorization: auth,
+    };
+    const headers = new Headers(headerObj);
 
     try {
       const result = await fetchWithTimeout(
