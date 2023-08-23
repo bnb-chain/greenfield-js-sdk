@@ -159,6 +159,7 @@ export class Bucket implements IBucket {
       chargedReadQuota,
       spInfo,
       duration,
+      paymentAddress,
     } = params;
 
     try {
@@ -184,7 +185,7 @@ export class Bucket implements IBucket {
           global_virtual_group_family_id: 0,
         },
         charged_read_quota: chargedReadQuota,
-        payment_address: '',
+        payment_address: paymentAddress,
       };
       const path = '/greenfield/admin/v1/get-approval';
       const query = 'action=CreateBucket';
@@ -302,7 +303,7 @@ export class Bucket implements IBucket {
       chargedReadQuota: signedMsg.charged_read_quota
         ? Long.fromString('0')
         : Long.fromString(signedMsg.charged_read_quota),
-      paymentAddress: '',
+      paymentAddress: signedMsg.payment_address,
     };
 
     return await this.createBucketTx(msg, signedMsg);
