@@ -3,13 +3,7 @@ import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
 import { GetSpListObjectsByBucketNameResponse } from '@/types/spXML';
-import {
-  getAuthorization,
-  getAuthorizationAuthTypeV1,
-  getAuthorizationAuthTypeV2,
-  newRequestHeadersByMeta,
-  ReqMeta,
-} from '@/utils/auth';
+import { getAuthorization, newRequestHeadersByMeta, ReqMeta } from '@/utils/auth';
 import {
   EMPTY_STRING_SHA256,
   fetchWithTimeout,
@@ -59,11 +53,10 @@ import {
   IObjectResultType,
   Long,
   TBaseGetCreateObject,
+  TBaseGetObject,
   TBasePutObject,
-  TGetObject,
   TKeyValue,
   TListObjects,
-  TPutObject,
   TxResponse,
 } from '../types';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
@@ -102,9 +95,15 @@ export interface IObject {
 
   headObjectNFT(request: QueryNFTRequest): Promise<QueryObjectNFTResponse>;
 
-  getObject(configParam: TGetObject): Promise<IObjectResultType<Blob>>;
+  /**
+   * get s3 object's blob
+   */
+  getObject(configParam: TBaseGetObject, authType: AuthType): Promise<IObjectResultType<Blob>>;
 
-  downloadFile(configParam: TGetObject): Promise<void>;
+  /**
+   * download s3 object
+   */
+  downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void>;
 
   listObjects(
     configParam: TListObjects,
@@ -465,46 +464,58 @@ export class Objectt implements IObject {
     return await rpc.HeadObjectNFT(request);
   }
 
-  public async getObject(configParam: TGetObject) {
+  public async getObject(configParam: TBaseGetObject, authType: AuthType) {
     try {
-      const { bucketName, objectName, endpoint, duration = 30000 } = configParam;
-      if (!isValidUrl(endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
+      const { bucketName, objectName, duration = 30000 } = configParam;
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
       if (!isValidObjectName(objectName)) {
         throw new Error('Error object name');
       }
+      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      const path = `/${objectName}`;
+      const query = '';
       const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
 
-      let headerContent: TKeyValue = {};
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString, address, domain } = configParam;
-        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          throw {
-            code: -1,
-            message: message || 'Get create object approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
+      const reqMeta: Partial<ReqMeta> = {
+        contentSHA256: EMPTY_STRING_SHA256,
+        method: METHOD_PUT,
+        url: {
+          hostname: new URL(url).hostname,
+          query,
+          path,
+        },
+        contentType: 'application/octet-stream',
+      };
+      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
+
+      let headerObj: Record<string, any> = {
+        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
+        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
+        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
+        'Content-Type': 'application/octet-stream',
+      };
+
+      if (authType.type === 'EDDSA') {
+        const { domain, address } = authType;
+        metaHeaders.append('X-Gnfd-User-Address', address);
+        metaHeaders.append('X-Gnfd-App-Domain', domain);
+        headerObj = {
+          ...headerObj,
           'X-Gnfd-User-Address': address,
           'X-Gnfd-App-Domain': domain,
         };
       }
 
-      const headers = new Headers(headerContent);
+      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
+
+      headerObj = {
+        ...headerObj,
+        Authorization: auth,
+      };
+
+      const headers = new Headers(headerObj);
 
       const result = await fetchWithTimeout(
         url,
@@ -541,10 +552,10 @@ export class Objectt implements IObject {
     }
   }
 
-  public async downloadFile(configParam: TGetObject): Promise<void> {
+  public async downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void> {
     try {
       const { objectName } = configParam;
-      const getObjectResult = await this.getObject(configParam);
+      const getObjectResult = await this.getObject(configParam, authType);
 
       if (getObjectResult.code !== 0) {
         throw new Error(getObjectResult.message);

@@ -191,7 +191,6 @@ export type TPutObject = TPutObjectByAuthTypeV1 | TPutObjectByOffChainAuth;
 export type TBaseGetObject = {
   bucketName: string;
   objectName: string;
-  endpoint?: string;
   duration?: number;
 };
 

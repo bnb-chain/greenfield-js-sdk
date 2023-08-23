@@ -1,7 +1,10 @@
 import { client, selectSp } from '@/client';
+import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { useState } from 'react';
+import { useAccount } from 'wagmi';
 
 export const ObjectInfo = () => {
+  const { address, connector } = useAccount();
   const [bucketName, setBucketName] = useState('');
   const [objectName, setObjectName] = useState('');
 
@@ -23,13 +26,44 @@ export const ObjectInfo = () => {
             console.log(objInfo);
           }}
         >
-          get obj info
+          get object info (headObject)
+        </button>
+
+        <br />
+
+        <button
+          onClick={async () => {
+            if (!address) return;
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
+            const res = await client.object.downloadFile(
+              {
+                bucketName,
+                objectName,
+              },
+              {
+                type: 'EDDSA',
+                address,
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+              },
+            );
+
+            console.log(res);
+          }}
+        >
+          download object info
         </button>
 
         <br />
 
         <div>
-          get object by bucket name
+          get objects list by bucket name
           <br />
           <button
             onClick={async () => {
