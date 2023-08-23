@@ -1,5 +1,25 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.12
+
+### Patch Changes
+
+- [#248](https://github.com/bnb-chain/greenfield-js-sdk/pull/248)
+  [`a3e2210`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a3e2210805780a691f796caca32295ed8f8903a7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upload Object add AuthType
+
+- [#248](https://github.com/bnb-chain/greenfield-js-sdk/pull/248)
+  [`a3e2210`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a3e2210805780a691f796caca32295ed8f8903a7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: download s3 object
+
+- [#248](https://github.com/bnb-chain/greenfield-js-sdk/pull/248)
+  [`a3e2210`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a3e2210805780a691f796caca32295ed8f8903a7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Migrate bucket
+
+- [#248](https://github.com/bnb-chain/greenfield-js-sdk/pull/248)
+  [`a3e2210`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a3e2210805780a691f796caca32295ed8f8903a7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Export SpClient
+
 ## 0.2.4-alpha.11
 
 ### Patch Changes
