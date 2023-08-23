@@ -1,3 +1,4 @@
+import { NORMAL_ERROR_CODE } from '@/constants/http';
 import {
   fetchNonces,
   genLocalSignMsg,
@@ -10,7 +11,6 @@ import {
   updateSpsPubKey,
 } from '@/offchainauth';
 import { getMsgToSign } from '@/utils/auth';
-import { NORMAL_ERROR_CODE } from '@/utils/http';
 import { hexlify } from '@ethersproject/bytes';
 import { utf8ToBytes } from 'ethereum-cryptography/utils';
 import { singleton } from 'tsyringe';

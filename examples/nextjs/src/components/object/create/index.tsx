@@ -127,16 +127,20 @@ export const CreateObject = () => {
               return;
             }
 
-            const uploadRes = await client.object.uploadObject({
-              bucketName: createObjectInfo.bucketName,
-              objectName: createObjectInfo.objectName,
-              body: file,
-              txnHash: txHash,
-              signType: 'offChainAuth',
-              domain: window.location.origin,
-              seedString: offChainData.seedString,
-              address,
-            });
+            const uploadRes = await client.object.uploadObject(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName,
+                body: file,
+                txnHash: txHash,
+              },
+              {
+                type: 'EDDSA',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                address,
+              },
+            );
             console.log('uploadRes', uploadRes);
 
             if (uploadRes.code === 0) {

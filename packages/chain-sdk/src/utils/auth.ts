@@ -1,11 +1,11 @@
 import { AuthType } from '@/api/spclient';
 import { signSignatureByEddsa } from '@/offchainauth';
+import { ReqMeta } from '@/types/auth';
 import { hexlify, joinSignature } from '@ethersproject/bytes';
 import { SigningKey } from '@ethersproject/signing-key';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
 import { utf8ToBytes } from 'ethereum-cryptography/utils.js';
-import { METHOD_GET, METHOD_POST, METHOD_PUT, MOCK_SIGNATURE } from './http';
 
 export const getCanonicalHeaders = (reqMeta: Partial<ReqMeta>, reqHeaders: Headers) => {
   const sortedHeaders = getSortedHeaders(reqHeaders, SUPPORTED_HEADERS);
@@ -75,34 +75,6 @@ export const getAuthorization = async (
   return authorization;
 };
 
-// TO BE deprecated
-export const getAuthorizationAuthTypeV1 = (
-  reqMeta: Partial<ReqMeta>,
-  reqHeaders: Headers | null,
-  privateKey: string,
-) => {
-  if (!reqHeaders) return;
-  const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);
-  const signedHeaders = getSignedHeaders(reqHeaders);
-
-  const canonicalRequestArr = [
-    reqMeta.method!,
-    reqMeta.url?.path,
-    reqMeta.url?.query,
-    canonicalHeaders,
-    signedHeaders,
-  ];
-
-  const canonicalRequest = canonicalRequestArr.join('\n');
-  // console.log('canonicalRequest', canonicalRequest);
-
-  const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
-  const sig = secpSign(unsignedMsg, privateKey);
-
-  const authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
-  return authorization;
-};
-
 export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
   const headers = new Headers();
   // console.log('meta', meta);
@@ -135,19 +107,8 @@ export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
 
 function formatDate(date: Date): string {
   const res = date.toISOString();
-  // console.log(res);
-
   return res.replace(/\.\d{3}/gi, '');
-
-  // return res.slice(0, 18) + 'Z';
 }
-
-export const getAuthorizationAuthTypeV2 = () => {
-  const signature = MOCK_SIGNATURE;
-  const authorization = `authTypeV2 ECDSA-secp256k1, Signature=${signature}`;
-
-  return authorization;
-};
 
 const HTTPHeaderContentSHA256 = 'X-Gnfd-Content-Sha256'.toLocaleLowerCase();
 const HTTPHeaderTransactionHash = 'X-Gnfd-Txn-Hash'.toLocaleLowerCase();
@@ -202,19 +163,3 @@ export const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
   // const res = keccak256(signBytes);
   // return res;
 };
-
-export interface ReqMeta {
-  method: typeof METHOD_GET | typeof METHOD_POST | typeof METHOD_PUT;
-  bucketName: string;
-  objectName: string;
-  contentType: string;
-  url: {
-    hostname: string;
-    query: string;
-    path: string;
-  };
-  // date: string;
-  contentSHA256: string;
-  txnMsg: string;
-  txnHash: string;
-}
