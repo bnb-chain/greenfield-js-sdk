@@ -9,11 +9,14 @@
     "@bnb-chain/greenfield-zk-crypto": "0.0.1"
   },
   "changesets": [
+    "angry-lies-beam",
     "blue-bugs-whisper",
     "brave-avocados-impress",
     "clever-deers-turn",
+    "cuddly-radios-wink",
     "eighty-parrots-tap",
     "eleven-numbers-cover",
+    "fair-impalas-approve",
     "five-mice-whisper",
     "flat-mugs-collect",
     "gold-bugs-occur",
@@ -38,6 +41,7 @@
     "swift-pigs-travel",
     "tender-sloths-shake",
     "twelve-mangos-scream",
+    "unlucky-suns-look",
     "wet-trainers-whisper",
     "yellow-plums-cheat"
   ]
