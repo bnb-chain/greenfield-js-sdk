@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.9
+
+### Patch Changes
+
+- [#240](https://github.com/bnb-chain/greenfield-js-sdk/pull/240)
+  [`db61ff6`](https://github.com/bnb-chain/greenfield-js-sdk/commit/db61ff671f7ccc1be9ed6b1a229596916e1ae5ab)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Create Bucket add Payment address
+
 ## 0.2.4-alpha.8
 
 ### Patch Changes
