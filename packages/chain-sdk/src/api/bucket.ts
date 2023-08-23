@@ -2,7 +2,11 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { GetUserBucketsResponse, ReadQuotaResponse } from '@/types/spXML';
+import {
+  GetSpListObjectsByBucketNameResponse,
+  GetUserBucketsResponse,
+  ReadQuotaResponse,
+} from '@/types/spXML';
 import {
   getAuthorization,
   getAuthorizationAuthTypeV2,
@@ -382,7 +386,12 @@ export class Bucket implements IBucket {
         };
       }
 
-      const xmlParser = new XMLParser();
+      const xmlParser = new XMLParser({
+        isArray: (tagName: string) => {
+          if (tagName === 'Buckets') return true;
+          return false;
+        },
+      });
       const xmlData = await result.text();
       const res = xmlParser.parse(xmlData) as GetUserBucketsResponse;
 

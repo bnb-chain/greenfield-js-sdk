@@ -601,7 +601,12 @@ export class Objectt implements IObject {
         };
       }
 
-      const xmlParser = new XMLParser();
+      const xmlParser = new XMLParser({
+        isArray: (tagName: string) => {
+          if (tagName === 'Objects') return true;
+          return false;
+        },
+      });
       const xmlData = await result.text();
       const res = xmlParser.parse(xmlData) as GetSpListObjectsByBucketNameResponse;
 
