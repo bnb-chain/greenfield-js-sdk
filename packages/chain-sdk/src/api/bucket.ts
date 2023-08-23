@@ -2,7 +2,7 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { ReadQuotaResponse } from '@/types/spXML';
+import { GetUserBucketsResponse, ReadQuotaResponse } from '@/types/spXML';
 import {
   getAuthorization,
   getAuthorizationAuthTypeV2,
@@ -56,7 +56,6 @@ import {
   TxResponse,
 } from '..';
 import {
-  BucketProps,
   IBaseGetCreateBucket,
   ICreateBucketMsgType,
   IMigrateBucket,
@@ -65,7 +64,6 @@ import {
   IQuotaProps,
   TBaseGetBucketReadQuota,
   TCreateBucket,
-  TGetBucketReadQuota,
   TGetUserBuckets,
 } from '../types/storage';
 import { Basic } from './basic';
@@ -110,7 +108,9 @@ export interface IBucket {
     actionType: ActionType,
   ): Promise<QueryVerifyPermissionResponse>;
 
-  getUserBuckets(configParam: TGetUserBuckets): Promise<IObjectResultType<Array<BucketProps>>>;
+  getUserBuckets(
+    configParam: TGetUserBuckets,
+  ): Promise<IObjectResultType<GetUserBucketsResponse['GfSpGetUserBucketsResponse']['Buckets']>>;
 
   /**
    * return quota info of bucket of current month, include chain quota, free quota and consumed quota
@@ -159,6 +159,7 @@ export class Bucket implements IBucket {
       chargedReadQuota,
       spInfo,
       duration,
+      paymentAddress,
     } = params;
 
     try {
@@ -184,7 +185,7 @@ export class Bucket implements IBucket {
           global_virtual_group_family_id: 0,
         },
         charged_read_quota: chargedReadQuota,
-        payment_address: '',
+        payment_address: paymentAddress,
       };
       const path = '/greenfield/admin/v1/get-approval';
       const query = 'action=CreateBucket';
@@ -200,13 +201,13 @@ export class Bucket implements IBucket {
           query,
           path,
         },
-        contentType: '',
+        // contentType: '',
       };
 
       const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
       let headerObj: Record<string, any> = {
-        'Content-Type': '',
+        // 'Content-Type': '',
         'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
         'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
         'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
@@ -302,7 +303,7 @@ export class Bucket implements IBucket {
       chargedReadQuota: signedMsg.charged_read_quota
         ? Long.fromString('0')
         : Long.fromString(signedMsg.charged_read_quota),
-      paymentAddress: '',
+      paymentAddress: signedMsg.payment_address,
     };
 
     return await this.createBucketTx(msg, signedMsg);
@@ -371,6 +372,7 @@ export class Bucket implements IBucket {
         duration,
       );
       const { status } = result;
+
       if (!result.ok) {
         const { code, message } = await parseErrorXml(result);
         throw {
@@ -379,13 +381,16 @@ export class Bucket implements IBucket {
           statusCode: status,
         };
       }
-      const { buckets } = await result.json();
+
+      const xmlParser = new XMLParser();
+      const xmlData = await result.text();
+      const res = xmlParser.parse(xmlData) as GetUserBucketsResponse;
 
       return {
         code: 0,
         message: 'Get bucket success.',
         statusCode: status,
-        body: buckets,
+        body: res.GfSpGetUserBucketsResponse.Buckets,
       };
     } catch (error: any) {
       return {

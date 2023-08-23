@@ -13,6 +13,7 @@ export interface IBaseGetCreateBucket {
     primarySpAddress: string;
   };
   duration?: number;
+  paymentAddress: string;
 }
 
 export interface ICreateBucketByOffChainAuth extends IBaseGetCreateBucket {
