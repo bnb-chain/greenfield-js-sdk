@@ -2,6 +2,7 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { GetSpListObjectsByBucketNameResponse } from '@/types/spXML';
 import {
   getAuthorization,
   getAuthorizationAuthTypeV1,
@@ -13,7 +14,6 @@ import {
   EMPTY_STRING_SHA256,
   fetchWithTimeout,
   METHOD_GET,
-  METHOD_POST,
   METHOD_PUT,
   NORMAL_ERROR_CODE,
   parseErrorXml,
@@ -44,6 +44,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
+import { XMLParser } from 'fast-xml-parser';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -55,13 +56,9 @@ import {
 } from '..';
 import {
   ICreateObjectMsgType,
-  IObjectsProps,
   IObjectResultType,
   Long,
-  SignTypeOffChain,
-  SignTypeV1,
   TBaseGetCreateObject,
-  TCreateObject,
   TGetObject,
   TKeyValue,
   TListObjects,
@@ -76,7 +73,6 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
-import { Bucket } from './bucket';
 import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
 import { Sp } from './sp';
@@ -109,7 +105,9 @@ export interface IObject {
 
   downloadFile(configParam: TGetObject): Promise<void>;
 
-  listObjects(configParam: TListObjects): Promise<IObjectResultType<IObjectsProps>>;
+  listObjects(
+    configParam: TListObjects,
+  ): Promise<IObjectResultType<GetSpListObjectsByBucketNameResponse>>;
 
   createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
@@ -602,12 +600,16 @@ export class Objectt implements IObject {
           statusCode: status,
         };
       }
-      const body = await result.json();
+
+      const xmlParser = new XMLParser();
+      const xmlData = await result.text();
+      const res = xmlParser.parse(xmlData) as GetSpListObjectsByBucketNameResponse;
+
       return {
         code: 0,
         message: 'List object success.',
         statusCode: status,
-        body,
+        body: res,
       };
     } catch (error: any) {
       return {
