@@ -1,7 +1,7 @@
-import { GetUserBucketsResponse } from '@/types';
+import { GetBucketMetaResponse } from '@/types';
 import { XMLParser } from 'fast-xml-parser';
 
-export const parseGetUserBucketsResponse = (data: string) => {
+export const parseGetBucketMetaResponse = (data: string) => {
   const xmlParser = new XMLParser({
     isArray: (tagName: string) => {
       if (tagName === 'Buckets') return true;
@@ -15,11 +15,7 @@ export const parseGetUserBucketsResponse = (data: string) => {
     },
   });
 
-  const res = xmlParser.parse(data) as GetUserBucketsResponse;
-
-  if (!res.GfSpGetUserBucketsResponse?.Buckets) {
-    res.GfSpGetUserBucketsResponse.Buckets = [];
-  }
+  const res = xmlParser.parse(data) as GetBucketMetaResponse;
 
   return res;
 };

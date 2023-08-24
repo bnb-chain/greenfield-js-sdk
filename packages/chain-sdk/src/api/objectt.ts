@@ -3,8 +3,10 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { parseGetObjectMetaResponse } from '@/parseXML/parseGetObjectMetaResponse';
 import { parseListObjectsByBucketNameResponse } from '@/parseXML/parseListObjectsByBucketNameResponse';
 import { ReqMeta } from '@/types/auth';
+import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
 import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
@@ -56,6 +58,7 @@ import {
 } from '../types';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
+  encodeObjectName,
   generateUrlByBucketName,
   isValidBucketName,
   isValidObjectName,
@@ -134,6 +137,8 @@ export interface IObject {
     objectName: string,
     principalAddr: string,
   ): Promise<QueryPolicyForAccountResponse>;
+
+  getObjectMeta(params: GetObjectMetaRequest): Promise<IObjectResultType<GetObjectMetaResponse>>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }
@@ -724,6 +729,26 @@ export class Objectt implements IObject {
       operator: operator,
     };
     return await this.storage.deletePolicy(msg);
+  }
+
+  public async getObjectMeta(params: GetObjectMetaRequest) {
+    const { bucketName, objectName, endpoint } = params;
+    const query = 'object-meta';
+    const path = encodeObjectName(objectName);
+    const url = `${generateUrlByBucketName(endpoint, bucketName)}/${path}?${query}`;
+    const result = await this.spClient.callApi(url, {
+      method: METHOD_GET,
+    });
+
+    const xml = await result.text();
+    const res = parseGetObjectMetaResponse(xml);
+
+    return {
+      code: 0,
+      message: 'get bucket meta success.',
+      statusCode: result.status,
+      body: res,
+    };
   }
 
   // private async getObjectStatusFromSP(params: IGetObjectStaus) {

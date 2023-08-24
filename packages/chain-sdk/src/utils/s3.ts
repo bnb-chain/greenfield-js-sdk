@@ -125,6 +125,10 @@ const generateUrlByBucketName = (endpoint = '', bucketName: string) => {
   return endpoint.replace(`${protocol}//`, `${protocol}//${bucketName}.`);
 };
 
+const encodeObjectName = (obj: string) => {
+  return obj.split('/').map(encodeURIComponent).join('/');
+};
+
 export {
   isValidBucketName,
   isValidObjectName,
@@ -132,4 +136,5 @@ export {
   trimString,
   isValidUrl,
   generateUrlByBucketName,
+  encodeObjectName,
 };

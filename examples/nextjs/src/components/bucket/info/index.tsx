@@ -22,6 +22,18 @@ export const BucketInfo = () => {
         >
           get bucket info by name
         </button>
+        <button
+          onClick={async () => {
+            const sp = await selectSp();
+            const bucketInfo = await client.bucket.getBucketMeta({
+              bucketName,
+              endpoint: sp.endpoint,
+            });
+            console.log(bucketInfo);
+          }}
+        >
+          get bucket meta info by name
+        </button>
       </div>
 
       <div>

@@ -18,11 +18,11 @@ export const parseListObjectsByBucketNameResponse = (data: string) => {
 
   const res = xmlParser.parse(data) as ListObjectsByBucketNameResponse;
 
-  if (res.GfSpListObjectsByBucketNameResponse.CommonPrefixes.length === 0) {
+  if (!res.GfSpListObjectsByBucketNameResponse?.CommonPrefixes) {
     res.GfSpListObjectsByBucketNameResponse.CommonPrefixes = [];
   }
 
-  if (res.GfSpListObjectsByBucketNameResponse.Objects.length === 0) {
+  if (!res.GfSpListObjectsByBucketNameResponse?.Objects) {
     res.GfSpListObjectsByBucketNameResponse.Objects = [];
   }
 

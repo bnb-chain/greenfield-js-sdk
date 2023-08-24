@@ -29,6 +29,20 @@ export const ObjectInfo = () => {
           get object info (headObject)
         </button>
 
+        <button
+          onClick={async () => {
+            const sp = await selectSp();
+            const objInfo = await client.object.getObjectMeta({
+              bucketName,
+              objectName,
+              endpoint: sp.endpoint,
+            });
+            console.log(objInfo);
+          }}
+        >
+          get object meta info
+        </button>
+
         <br />
 
         <button

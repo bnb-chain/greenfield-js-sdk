@@ -3,10 +3,15 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { parseGetBucketMetaResponse } from '@/parseXML/parseGetBucketMetaResponse';
 import { parseGetUserBucketsResponse } from '@/parseXML/parseGetUserBucketsResponse';
 import { parseReadQuotaResponse } from '@/parseXML/parseReadQuotaResponse';
 import { ReqMeta } from '@/types/auth';
-import { GetUserBucketsResponse } from '@/types/sp-xml';
+import {
+  GetBucketMetaRequest,
+  GetBucketMetaResponse,
+  GetUserBucketsResponse,
+} from '@/types/sp-xml';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
@@ -133,6 +138,8 @@ export interface IBucket {
     configParams: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'>,
     authType: AuthType,
   ): Promise<TxResponse>;
+
+  getBucketMeta(params: GetBucketMetaRequest): Promise<IObjectResultType<GetBucketMetaResponse>>;
 }
 
 @singleton()
@@ -144,7 +151,6 @@ export class Bucket implements IBucket {
   ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
-  private offChainAuthClient = container.resolve(OffChainAuth);
   private spClient = container.resolve(SpClient);
 
   public async getCreateBucketApproval(params: IBaseGetCreateBucket, authType: AuthType) {
@@ -667,5 +673,25 @@ export class Bucket implements IBucket {
       },
       MsgMigrateBucket.encode(msg).finish(),
     );
+  }
+
+  public async getBucketMeta(params: GetBucketMetaRequest) {
+    const { bucketName, endpoint } = params;
+    const query = 'bucket-meta';
+    const path = bucketName;
+    const url = `${endpoint}/${path}?${query}`;
+    const result = await this.spClient.callApi(url, {
+      method: METHOD_GET,
+    });
+
+    const xml = await result.text();
+    const res = parseGetBucketMetaResponse(xml);
+
+    return {
+      code: 0,
+      message: 'get bucket meta success.',
+      statusCode: result.status,
+      body: res,
+    };
   }
 }
