@@ -1,14 +1,9 @@
+export * from './RequestErrorResponse';
+export * from './GetBucketMetaResponse';
+export * from './GetObjectMetaResponse';
 export * from './GetUserBucketsResponse';
 export * from './ListObjectsByBucketNameResponse';
 export * from './ReadQuotaResponse';
-export * from './GetBucketMetaResponse';
-
-export interface RequestErrorResponse {
-  Error: {
-    Code: string;
-    Message: string;
-  };
-}
 
 export interface RequestNonceResponse {
   RequestNonceResp: {

@@ -3,23 +3,18 @@ import {
   fetchNonces,
   genLocalSignMsg,
   genSecondSignMsg,
-  genSeedSignMsg,
   getCurrentAccountPublicKey,
   getCurrentSeedString,
   personalSign,
-  signSignatureByEddsa,
   updateSpsPubKey,
 } from '@/offchainauth';
-import { getMsgToSign } from '@/utils/auth';
 import { hexlify } from '@ethersproject/bytes';
-import { utf8ToBytes } from 'ethereum-cryptography/utils';
 import { singleton } from 'tsyringe';
 import { convertTimeStampToDate, getUtcZeroTimestamp } from '..';
 import {
   IGenOffChainAuthKeyPairAndUpload,
   IObjectResultType,
   IReturnOffChainAuthKeyPairAndUpload,
-  IReturnSignWithSeedString,
   ISp,
 } from '../types/storage';
 
@@ -31,11 +26,6 @@ export interface IOffChainAuth {
     params: IGenOffChainAuthKeyPairAndUpload,
     provider: any,
   ): Promise<IObjectResultType<IReturnOffChainAuthKeyPairAndUpload>>;
-
-  /**
-   * Sign a message with a seed string, return the authorization for sp authorizing the user.
-   */
-  sign(seedString: string): Promise<IObjectResultType<IReturnSignWithSeedString>>;
 }
 
 @singleton()
@@ -113,37 +103,6 @@ export class OffChainAuth implements IOffChainAuth {
       };
     } catch (error: any) {
       return { code: -1, message: error.message, statusCode: error?.status || NORMAL_ERROR_CODE };
-    }
-  }
-
-  public async sign(seedString: string) {
-    try {
-      // NOTICE: Smoothing local and server time gap
-      // const expirationMs = 300000 - 100000;
-      // const timestamp = getUtcZeroTimestamp();
-      // const expireTimestamp = timestamp + expirationMs;
-      // const signMsg = genSeedSignMsg(expireTimestamp);
-
-      const unsignedMsg = '';
-
-      const signRes = await signSignatureByEddsa(seedString, unsignedMsg);
-      const authorization = `GNFD1-EDDSA,Signature=${signRes}`;
-
-      return {
-        code: 0,
-        body: {
-          unSignedMsg: unsignedMsg,
-          signature: signRes,
-          authorization,
-        },
-        message: 'Sign with seed string success',
-      };
-    } catch (error: any) {
-      return {
-        code: -1,
-        message: error.message || 'Sign with seed string failed',
-        statusCode: error?.status || NORMAL_ERROR_CODE,
-      };
     }
   }
 }

@@ -3,6 +3,7 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { parseError } from '@/parseXML/parseError';
 import { parseGetBucketMetaResponse } from '@/parseXML/parseGetBucketMetaResponse';
 import { parseGetUserBucketsResponse } from '@/parseXML/parseGetUserBucketsResponse';
 import { parseReadQuotaResponse } from '@/parseXML/parseReadQuotaResponse';
@@ -14,7 +15,7 @@ import {
 } from '@/types/sp-xml';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
+import { fetchWithTimeout } from '@/utils/http';
 import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,
@@ -376,7 +377,8 @@ export class Bucket implements IBucket {
       const { status } = result;
 
       if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
+        const xmlError = await result.text();
+        const { code, message } = parseError(xmlError);
         throw {
           code: code || -1,
           message: message || 'Get bucket error.',
@@ -605,7 +607,8 @@ export class Bucket implements IBucket {
       );
       const { status } = result;
       if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
+        const xmlError = await result.text();
+        const { code, message } = parseError(xmlError);
         throw {
           code: code || -1,
           message: message || 'Get migrate bucket approval error.',

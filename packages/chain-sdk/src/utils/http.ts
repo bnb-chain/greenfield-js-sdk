@@ -22,15 +22,4 @@ const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration 
   }
 };
 
-export const parseErrorXML = async (result: Response) => {
-  const xmlParser = new XMLParser();
-  const xmlData = await result.text();
-  const res = xmlParser.parse(xmlData) as RequestErrorResponse;
-
-  return {
-    code: res.Error.Code,
-    message: res.Error.Message,
-  };
-};
-
-export { fetchWithTimeout, parseErrorXML as parseErrorXml };
+export { fetchWithTimeout };

@@ -1,7 +1,7 @@
 import { EMPTY_STRING_SHA256 } from '@/constants/http';
+import { parseError } from '@/parseXML/parseError';
 import { ReqMeta } from '@/types/auth';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
-import { delayMs, parseErrorXML } from '@/utils/http';
 import { Headers } from 'cross-fetch';
 import { singleton } from 'tsyringe';
 
@@ -42,18 +42,26 @@ export class SpClient implements ISpClient {
   public async callApi(
     url: string,
     options: RequestInit,
-    duration = 30000,
+    timeout = 30000,
     customError?: {
       message: string;
       code: number;
     },
   ) {
     try {
-      const response = (await Promise.race([delayMs(duration), fetch(url, options)])) as Response;
+      const controller = new AbortController();
+      const _id = setTimeout(() => controller.abort(), timeout);
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      clearTimeout(_id);
+
       const { status } = response;
 
       if (!response.ok) {
-        const { code, message } = await parseErrorXML(response);
+        const xmlError = await response.text();
+        const { code, message } = parseError(xmlError);
         throw {
           code: code || customError?.code,
           message: message || customError?.message,

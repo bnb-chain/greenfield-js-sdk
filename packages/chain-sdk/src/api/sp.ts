@@ -1,5 +1,6 @@
 import { METHOD_GET } from '@/constants/http';
-import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
+import { parseError } from '@/parseXML/parseError';
+import { fetchWithTimeout } from '@/utils/http';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
   QueryGlobalSpStorePriceByTimeResponse,
@@ -184,7 +185,8 @@ export class Sp implements ISp {
 
     const { status } = result;
     if (!result.ok) {
-      const { code, message } = await parseErrorXml(result);
+      const xmlError = await result.text();
+      const { code, message } = parseError(xmlError);
       throw {
         code: code || -1,
         message: message || 'Get group list error.',

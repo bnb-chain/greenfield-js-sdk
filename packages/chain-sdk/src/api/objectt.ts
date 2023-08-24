@@ -3,13 +3,14 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { parseError } from '@/parseXML/parseError';
 import { parseGetObjectMetaResponse } from '@/parseXML/parseGetObjectMetaResponse';
 import { parseListObjectsByBucketNameResponse } from '@/parseXML/parseListObjectsByBucketNameResponse';
 import { ReqMeta } from '@/types/auth';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
 import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
-import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
+import { fetchWithTimeout } from '@/utils/http';
 import {
   ActionType,
   Principal,
@@ -394,7 +395,8 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
+        const xmlError = await result.text();
+        const { code, message } = parseError(xmlError);
         return {
           code: +(code || 0) || -1,
           message: message || 'Put object error.',
@@ -530,7 +532,8 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
+        const xmlError = await result.text();
+        const { code, message } = parseError(xmlError);
 
         return {
           code: code || -1,
@@ -605,7 +608,8 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
+        const xmlError = await result.text();
+        const { code, message } = parseError(xmlError);
         return {
           code: code || -1,
           message: message || 'List object error.',
