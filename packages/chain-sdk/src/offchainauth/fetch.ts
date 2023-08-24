@@ -2,7 +2,7 @@ import { fetchWithTimeout } from '@/utils/http';
 import { Headers } from 'cross-fetch';
 import { IFetchNonce, IUpdateOneSpPubKeyParams } from '../types/storage';
 import { XMLParser } from 'fast-xml-parser';
-import { RequestNonceResponse } from '@/types/spXML';
+import { RequestNonceResponse } from '@/types/sp-xml';
 
 export const fetchNonce = async ({
   spEndpoint,
