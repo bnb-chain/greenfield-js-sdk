@@ -1,22 +1,30 @@
+import {
+  getAuthorization,
+  HTTPHeaderUserAddress,
+  newRequestHeadersByMeta,
+} from '@/clients/spclient/auth';
+import { getBucketApprovalMetaInfo } from '@/clients/spclient/spApis/bucketApproval';
+import { parseGetBucketMetaResponse } from '@/clients/spclient/spApis/getBucketMeta';
+import { parseGetUserBucketsResponse } from '@/clients/spclient/spApis/getUserBuckets';
+import { parseError } from '@/clients/spclient/spApis/parseError';
+import {
+  getQueryBucketReadQuotaMetaInfo,
+  parseReadQuotaResponse,
+} from '@/clients/spclient/spApis/queryBucketReadQuota';
 import { EMPTY_STRING_SHA256, METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateBucket';
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { parseError } from '@/clients/spclient/parseXML/parseError';
-import { parseGetBucketMetaResponse } from '@/clients/spclient/parseXML/parseGetBucketMetaResponse';
-import { parseGetUserBucketsResponse } from '@/clients/spclient/parseXML/parseGetUserBucketsResponse';
-import { parseReadQuotaResponse } from '@/clients/spclient/parseXML/parseReadQuotaResponse';
 import { ReqMeta } from '@/types/auth';
 import {
   GetBucketMetaRequest,
   GetBucketMetaResponse,
   GetUserBucketsResponse,
 } from '@/types/sp-xml';
-import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout } from '@/utils/http';
-import { generateUrlByBucketName, isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
+import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,
   Principal,
@@ -41,6 +49,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
+import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
@@ -50,9 +59,10 @@ import {
   MsgMigrateBucketTypeUrl,
   MsgUpdateBucketInfoTypeUrl,
   newBucketGRN,
-  TKeyValue,
   TxResponse,
 } from '..';
+import { RpcQueryClient } from '../clients/queryclient';
+import { AuthType, SpClient } from '../clients/spclient/spClient';
 import {
   IBaseGetCreateBucket,
   ICreateBucketMsgType,
@@ -63,9 +73,7 @@ import {
   TGetUserBuckets,
 } from '../types/storage';
 import { Basic } from './basic';
-import { RpcQueryClient } from '../clients/queryclient';
 import { Sp } from './sp';
-import { AuthType, SpClient } from '../clients/spclient';
 import { Storage } from './storage';
 
 export interface IBucket {
@@ -176,7 +184,8 @@ export class Bucket implements IBucket {
       }
 
       const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
-      const msg: ICreateBucketMsgType = {
+
+      const { reqMeta, url } = await getBucketApprovalMetaInfo(endpoint, {
         bucket_name: bucketName,
         creator,
         visibility,
@@ -188,59 +197,14 @@ export class Bucket implements IBucket {
         },
         charged_read_quota: chargedReadQuota,
         payment_address: paymentAddress,
-      };
-      const path = '/greenfield/admin/v1/get-approval';
-      const query = 'action=CreateBucket';
-      const url = `${endpoint}${path}?${query}`;
-      const unSignedMessageInHex = encodeObjectToHexString(msg);
+      });
 
-      const reqMeta: Partial<ReqMeta> = {
-        contentSHA256: EMPTY_STRING_SHA256,
-        txnMsg: unSignedMessageInHex,
-        method: METHOD_GET,
-        url: {
-          hostname: new URL(endpoint).hostname,
-          query,
-          path,
-        },
-        // contentType: '',
-      };
-
-      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
-
-      let headerObj: Record<string, any> = {
-        // 'Content-Type': '',
-        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
-        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-      };
-
-      if (authType.type === 'EDDSA') {
-        const { domain } = authType;
-        metaHeaders.append('X-Gnfd-User-Address', creator);
-        metaHeaders.append('X-Gnfd-App-Domain', domain);
-
-        headerObj = {
-          ...headerObj,
-          'X-Gnfd-User-Address': creator,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
-
-      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
-
-      headerObj = {
-        ...headerObj,
-        Authorization: auth,
-      };
-
-      const headers = new Headers(headerObj);
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
       const result = await this.spClient.callApi(
         url,
         {
-          headers,
+          headers: signHeaders,
           method: METHOD_GET,
         },
         duration,
@@ -251,7 +215,9 @@ export class Bucket implements IBucket {
       );
 
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-      const signedMsg = decodeObjectFromHexString(signedMsgString) as ICreateBucketMsgType;
+      const signedMsg = JSON.parse(
+        bytesToUtf8(hexToBytes(signedMsgString)),
+      ) as ICreateBucketMsgType;
 
       return {
         code: 0,
@@ -360,12 +326,11 @@ export class Bucket implements IBucket {
         throw new Error('Invalid endpoint');
       }
       const url = endpoint;
-      const headerContent: TKeyValue = {
-        'X-Gnfd-User-Address': address,
-      };
 
-      const headers = new Headers(headerContent);
-      const result = await fetchWithTimeout(
+      const headers = new Headers({
+        [HTTPHeaderUserAddress]: address,
+      });
+      const result = await this.spClient.callApi(
         url,
         {
           headers,
@@ -404,66 +369,23 @@ export class Bucket implements IBucket {
   }
 
   public async getBucketReadQuota(
-    configParam: TBaseGetBucketReadQuota,
+    params: TBaseGetBucketReadQuota,
     authType: AuthType,
   ): Promise<IObjectResultType<IQuotaProps>> {
     try {
-      const { bucketName, duration = 30000, year, month } = configParam;
-      const currentDate = new Date();
-      const finalYear = year ? year : currentDate.getFullYear();
-      const finalMonth = month ? month : currentDate.getMonth() + 1;
-      const formattedMonth = finalMonth.toString().padStart(2, '0'); // format month to 2 digits, like "01"
+      const { bucketName, duration = 30000 } = params;
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
-
       const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-      const path = '/';
-      const query = `read-quota=null&year-month=${finalYear}-${formattedMonth}`;
-      const url = `${generateUrlByBucketName(endpoint, bucketName)}${path}?${query}`;
 
-      const reqMeta: Partial<ReqMeta> = {
-        contentSHA256: EMPTY_STRING_SHA256,
-        method: METHOD_GET,
-        url: {
-          hostname: new URL(url).hostname,
-          query,
-          path,
-        },
-      };
-      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
-
-      let headerObj: Record<string, any> = {
-        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
-        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
-        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-      };
-
-      if (authType.type === 'EDDSA') {
-        const { domain, address } = authType;
-        metaHeaders.append('X-Gnfd-User-Address', address);
-        metaHeaders.append('X-Gnfd-App-Domain', domain);
-
-        headerObj = {
-          ...headerObj,
-          'X-Gnfd-User-Address': address,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
-
-      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
-
-      headerObj = {
-        ...headerObj,
-        Authorization: auth,
-      };
-
-      const headers = new Headers(headerObj);
+      const { url, reqMeta } = await getQueryBucketReadQuotaMetaInfo(endpoint, params);
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
       const result = await this.spClient.callApi(
         url,
         {
-          headers,
+          headers: signHeaders,
           method: METHOD_GET,
         },
         duration,
@@ -566,7 +488,7 @@ export class Bucket implements IBucket {
           query,
           path,
         },
-        txnMsg: unSignedMessageInHex,
+        unsignMsg: unSignedMessageInHex,
       };
       const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
       let headerObj: Record<string, any> = {

@@ -1,5 +1,5 @@
 import { METHOD_GET } from '@/constants/http';
-import { parseError } from '@/clients/spclient/parseXML/parseError';
+import { parseError } from '@/clients/spclient/spApis/parseError';
 import { fetchWithTimeout } from '@/utils/http';
 import {
   QueryGlobalSpStorePriceByTimeRequest,

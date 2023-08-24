@@ -1,6 +1,7 @@
 import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
 import { XMLParser } from 'fast-xml-parser';
 
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_objects_by_bucket
 export const parseListObjectsByBucketNameResponse = (data: string) => {
   const arrayFields = ['Objects', 'CommonPrefixes'];
   const xmlParser = new XMLParser({

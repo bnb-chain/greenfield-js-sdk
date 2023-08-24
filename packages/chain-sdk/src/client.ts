@@ -16,7 +16,7 @@ import { Basic, IBasic } from './api/basic';
 import { Gashub, IGashub } from './api/gashub';
 import { RpcQueryClient } from './clients/queryclient';
 import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
-import { ISpClient, SpClient } from './clients/spclient';
+import { ISpClient, SpClient } from './clients/spclient/spClient';
 
 @injectable()
 export class Client {

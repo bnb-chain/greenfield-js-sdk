@@ -1,16 +1,16 @@
-import { EMPTY_STRING_SHA256, METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/constants/http';
+import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
+import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
+import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
+import { getObjectApprovalMetaInfo } from '@/clients/spclient/spApis/objectApproval';
+import { parseError } from '@/clients/spclient/spApis/parseError';
+import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
+import { METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { parseError } from '@/clients/spclient/parseXML/parseError';
-import { parseGetObjectMetaResponse } from '@/clients/spclient/parseXML/parseGetObjectMetaResponse';
-import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/parseXML/parseListObjectsByBucketNameResponse';
-import { ReqMeta } from '@/types/auth';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
 import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
-import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
-import { fetchWithTimeout } from '@/utils/http';
 import {
   ActionType,
   Principal,
@@ -37,6 +37,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
+import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -46,6 +47,8 @@ import {
   MsgUpdateObjectInfoTypeUrl,
   newObjectGRN,
 } from '..';
+import { RpcQueryClient } from '../clients/queryclient';
+import { AuthType, SpClient } from '../clients/spclient/spClient';
 import {
   ICreateObjectMsgType,
   IObjectResultType,
@@ -53,11 +56,9 @@ import {
   TBaseGetCreateObject,
   TBaseGetObject,
   TBasePutObject,
-  TKeyValue,
   TListObjects,
   TxResponse,
 } from '../types';
-import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
   encodeObjectName,
   generateUrlByBucketName,
@@ -66,9 +67,7 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
-import { RpcQueryClient } from '../clients/queryclient';
 import { Sp } from './sp';
-import { AuthType, SpClient } from '../clients/spclient';
 import { Storage } from './storage';
 
 export interface IObject {
@@ -179,11 +178,10 @@ export class Objectt implements IObject {
         throw new Error('empty creator address');
       }
 
-      // must sort (Go SDK)
-      const msg: ICreateObjectMsgType = {
+      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      const { reqMeta, url } = await getObjectApprovalMetaInfo(endpoint, {
         bucket_name: bucketName,
         content_type: fileType,
-        // content_type: 'application/octet-stream',
         creator: creator,
         expect_checksums: expectCheckSums,
         object_name: objectName,
@@ -195,60 +193,14 @@ export class Objectt implements IObject {
         },
         redundancy_type: redundancyType,
         visibility,
-      };
+      });
 
-      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-      const path = '/greenfield/admin/v1/get-approval';
-      const query = 'action=CreateObject';
-      const url = `${endpoint}${path}?${query}`;
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
-      const unSignedMessageInHex = encodeObjectToHexString(msg);
-
-      const reqMeta: Partial<ReqMeta> = {
-        contentSHA256: EMPTY_STRING_SHA256,
-        txnMsg: unSignedMessageInHex,
-        method: METHOD_GET,
-        url: {
-          hostname: new URL(endpoint).hostname,
-          query,
-          path,
-        },
-        contentType: fileType,
-      };
-
-      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
-
-      let headerObj: Record<string, any> = {
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-        'Content-Type': fileType,
-        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
-        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
-      };
-
-      if (authType.type === 'EDDSA') {
-        const { domain } = authType;
-        metaHeaders.append('X-Gnfd-User-Address', creator);
-        metaHeaders.append('X-Gnfd-App-Domain', domain);
-
-        headerObj = {
-          ...headerObj,
-          'X-Gnfd-User-Address': creator,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
-
-      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
-      headerObj = {
-        ...headerObj,
-        Authorization: auth,
-      };
-
-      const headers = new Headers(headerObj);
       const result = await this.spClient.callApi(
         url,
         {
-          headers,
+          headers: signHeaders,
           method: METHOD_GET,
         },
         duration,
@@ -259,7 +211,9 @@ export class Objectt implements IObject {
       );
 
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-      const signedMsg = decodeObjectFromHexString(signedMsgString) as ICreateObjectMsgType;
+      const signedMsg = JSON.parse(
+        bytesToUtf8(hexToBytes(signedMsgString)),
+      ) as ICreateObjectMsgType;
 
       return {
         code: 0,
@@ -337,72 +291,25 @@ export class Objectt implements IObject {
     }
 
     const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-    const path = `/${objectName}`;
-    const query = '';
-    const url = `${generateUrlByBucketName(endpoint, bucketName)}${path}`;
-
-    const reqMeta: Partial<ReqMeta> = {
-      contentSHA256: EMPTY_STRING_SHA256,
-      txnHash: txnHash,
-      method: METHOD_PUT,
-      url: {
-        hostname: new URL(url).hostname,
-        query,
-        path,
-      },
+    const { reqMeta, url } = await getPutObjectMetaInfo(endpoint, {
+      bucketName,
+      objectName,
       contentType: body.type,
-    };
-    const headers = await this.spClient.makeHeaders(reqMeta, authType);
-
-    /* const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
-
-    let headerObj: Record<string, any> = {
-      'X-Gnfd-Txn-hash': txnHash,
-      'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-      'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
-      'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
-      'Content-Type': body.type,
-    };
-
-    if (authType.type === 'EDDSA') {
-      const { domain, address } = authType;
-      metaHeaders.append('X-Gnfd-User-Address', address);
-      metaHeaders.append('X-Gnfd-App-Domain', domain);
-      headerObj = {
-        ...headerObj,
-        'X-Gnfd-User-Address': address,
-        'X-Gnfd-App-Domain': domain,
-      };
-    }
-
-    const auth = await getAuthorization(reqMeta, metaHeaders, authType);
-
-    headerObj = {
-      ...headerObj,
-      Authorization: auth,
-    };
-    const headers = new Headers(headerObj); */
+      txnHash,
+    });
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
     try {
-      const result = await fetchWithTimeout(
+      const result = await this.spClient.callApi(
         url,
         {
-          headers,
+          headers: signHeaders,
           method: METHOD_PUT,
           body,
         },
         duration,
       );
       const { status } = result;
-      if (!result.ok) {
-        const xmlError = await result.text();
-        const { code, message } = parseError(xmlError);
-        return {
-          code: +(code || 0) || -1,
-          message: message || 'Put object error.',
-          statusCode: status,
-        };
-      }
 
       return { code: 0, message: 'Put object success.', statusCode: status };
     } catch (error: any) {
@@ -476,53 +383,15 @@ export class Objectt implements IObject {
         throw new Error('Error object name');
       }
       const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-      const path = `/${objectName}`;
-      const query = '';
-      const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
 
-      const reqMeta: Partial<ReqMeta> = {
-        contentSHA256: EMPTY_STRING_SHA256,
-        method: METHOD_PUT,
-        url: {
-          hostname: new URL(url).hostname,
-          query,
-          path,
-        },
-        contentType: 'application/octet-stream',
-      };
+      const { reqMeta, url } = await getGetObjectMetaInfo(endpoint, {
+        bucketName,
+        objectName,
+      });
 
-      const headers = await this.spClient.makeHeaders(reqMeta, authType);
+      const headers = await this.spClient.signHeaders(reqMeta, authType);
 
-      /* const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
-
-      let headerObj: Record<string, any> = {
-        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
-        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
-        'Content-Type': 'application/octet-stream',
-      };
-
-      if (authType.type === 'EDDSA') {
-        const { domain, address } = authType;
-        metaHeaders.append('X-Gnfd-User-Address', address);
-        metaHeaders.append('X-Gnfd-App-Domain', domain);
-        headerObj = {
-          ...headerObj,
-          'X-Gnfd-User-Address': address,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
-
-      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
-
-      headerObj = {
-        ...headerObj,
-        Authorization: auth,
-      };
-
-      const headers = new Headers(headerObj); */
-
-      const result = await fetchWithTimeout(
+      const result = await this.spClient.callApi(
         url,
         {
           headers,
@@ -595,10 +464,9 @@ export class Objectt implements IObject {
         throw new Error('Invalid endpoint');
       }
       const url = `${generateUrlByBucketName(endpoint, bucketName)}?${query?.toString()}`;
-      const headerContent: TKeyValue = {};
-      const headers = new Headers(headerContent);
+      const headers = new Headers();
 
-      const result = await fetchWithTimeout(
+      const result = await this.spClient.callApi(
         url,
         {
           headers,

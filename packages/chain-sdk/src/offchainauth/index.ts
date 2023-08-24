@@ -1,3 +1,2 @@
-export * from './sign';
-export * from './fetch';
+export * from '../clients/spclient/sign';
 export * from './utils';
