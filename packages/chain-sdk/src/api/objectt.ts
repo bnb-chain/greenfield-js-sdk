@@ -3,8 +3,9 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { parseListObjectsByBucketNameResponse } from '@/parseXML/parseListObjectsByBucketNameResponse';
 import { ReqMeta } from '@/types/auth';
-import { GetSpListObjectsByBucketNameResponse } from '@/types/spXML';
+import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
 import {
@@ -33,7 +34,6 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
-import { XMLParser } from 'fast-xml-parser';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -62,7 +62,6 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
-import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
 import { Sp } from './sp';
 import { AuthType, SpClient } from './spclient';
@@ -102,7 +101,7 @@ export interface IObject {
 
   listObjects(
     configParam: TListObjects,
-  ): Promise<IObjectResultType<GetSpListObjectsByBucketNameResponse>>;
+  ): Promise<IObjectResultType<ListObjectsByBucketNameResponse>>;
 
   createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
@@ -148,7 +147,6 @@ export class Objectt implements IObject {
   ) {}
 
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
-  private offChainAuthClient = container.resolve(OffChainAuth);
   private spClient = container.resolve(SpClient);
 
   public async getCreateObjectApproval(configParam: TBaseGetCreateObject, authType: AuthType) {
@@ -610,20 +608,8 @@ export class Objectt implements IObject {
         };
       }
 
-      const xmlParser = new XMLParser({
-        isArray: (tagName: string) => {
-          if (tagName === 'Objects') return true;
-          return false;
-        },
-        numberParseOptions: {
-          hex: false,
-          leadingZeros: true,
-          skipLike: undefined,
-          eNotation: false,
-        },
-      });
       const xmlData = await result.text();
-      const res = xmlParser.parse(xmlData) as GetSpListObjectsByBucketNameResponse;
+      const res = parseListObjectsByBucketNameResponse(xmlData);
 
       return {
         code: 0,

@@ -3,8 +3,10 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
+import { parseGetUserBucketsResponse } from '@/parseXML/parseGetUserBucketsResponse';
+import { parseReadQuotaResponse } from '@/parseXML/parseReadQuotaResponse';
 import { ReqMeta } from '@/types/auth';
-import { GetUserBucketsResponse, ReadQuotaResponse } from '@/types/spXML';
+import { GetUserBucketsResponse } from '@/types/sp-xml';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
@@ -33,7 +35,6 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
-import { XMLParser } from 'fast-xml-parser';
 import Long from 'long';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
@@ -377,20 +378,8 @@ export class Bucket implements IBucket {
         };
       }
 
-      const xmlParser = new XMLParser({
-        isArray: (tagName: string) => {
-          if (tagName === 'Buckets') return true;
-          return false;
-        },
-        numberParseOptions: {
-          hex: false,
-          leadingZeros: true,
-          skipLike: undefined,
-          eNotation: false,
-        },
-      });
       const xmlData = await result.text();
-      const res = xmlParser.parse(xmlData) as GetUserBucketsResponse;
+      const res = parseGetUserBucketsResponse(xmlData);
 
       return {
         code: 0,
@@ -477,9 +466,8 @@ export class Bucket implements IBucket {
         },
       );
 
-      const xmlParser = new XMLParser();
       const xmlData = await result.text();
-      const res = xmlParser.parse(xmlData) as ReadQuotaResponse;
+      const res = parseReadQuotaResponse(xmlData);
 
       return {
         code: 0,

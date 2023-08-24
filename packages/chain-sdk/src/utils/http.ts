@@ -1,4 +1,4 @@
-import { RequestErrorResponse } from '@/types/spXML';
+import { RequestErrorResponse } from '@/types/sp-xml';
 import fetch from 'cross-fetch';
 import { XMLParser } from 'fast-xml-parser';
 
