@@ -14,9 +14,9 @@ import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 import { IStorage, Storage } from './api/storage';
 import { Basic, IBasic } from './api/basic';
 import { Gashub, IGashub } from './api/gashub';
-import { RpcQueryClient } from './api/queryclient';
+import { RpcQueryClient } from './clients/queryclient';
 import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
-import { ISpClient, SpClient } from './api/spclient';
+import { ISpClient, SpClient } from './clients/spclient/spClient';
 
 @injectable()
 export class Client {

@@ -25,7 +25,7 @@ import {
   TxResponse,
 } from '..';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IFeeGrant {
   grantAllowance(msg: IGrantAllowance): Promise<TxResponse>;

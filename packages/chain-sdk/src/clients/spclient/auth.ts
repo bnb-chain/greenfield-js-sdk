@@ -1,4 +1,3 @@
-import { AuthType } from '@/api/spclient';
 import { signSignatureByEddsa } from '@/offchainauth';
 import { ReqMeta } from '@/types/auth';
 import { hexlify, joinSignature } from '@ethersproject/bytes';
@@ -6,6 +5,7 @@ import { SigningKey } from '@ethersproject/signing-key';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
 import { utf8ToBytes } from 'ethereum-cryptography/utils.js';
+import { AuthType } from './spClient';
 
 export const getCanonicalHeaders = (reqMeta: Partial<ReqMeta>, reqHeaders: Headers) => {
   const sortedHeaders = getSortedHeaders(reqHeaders, SUPPORTED_HEADERS);
@@ -71,36 +71,34 @@ export const getAuthorization = async (
     authorization = `GNFD1-EDDSA,Signature=${sig}`;
   }
 
-  // console.log('authorization', authorization);
   return authorization;
 };
 
 export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
   const headers = new Headers();
-  // console.log('meta', meta);
   if (meta.contentType) {
-    headers.set(HTTPHeaderContentType, meta.contentType);
+    headers.set(HTTPHeaderContentType.toLocaleLowerCase(), meta.contentType);
   }
 
   if (meta.txnHash && meta.txnHash !== '') {
-    headers.set(HTTPHeaderTransactionHash, meta.txnHash);
+    headers.set(HTTPHeaderTransactionHash.toLocaleLowerCase(), meta.txnHash);
   }
 
   if (meta.contentSHA256) {
-    headers.set(HTTPHeaderContentSHA256, meta.contentSHA256);
+    headers.set(HTTPHeaderContentSHA256.toLocaleLowerCase(), meta.contentSHA256);
   }
 
-  if (meta.txnMsg) {
-    headers.set(HTTPHeaderUnsignedMsg, meta.txnMsg);
+  if (meta.unsignMsg) {
+    headers.set(HTTPHeaderUnsignedMsg.toLocaleLowerCase(), meta.unsignMsg);
   }
 
   const date = new Date();
   // NOTICE: Smoothing local and server time gap
   date.setSeconds(date.getSeconds() + 200);
-  headers.set(HTTPHeaderDate, formatDate(date));
+  headers.set(HTTPHeaderDate.toLocaleLowerCase(), formatDate(date));
 
   date.setDate(date.getDate() + 6);
-  headers.set(HTTPHeaderExpiryTimestamp, formatDate(date));
+  headers.set(HTTPHeaderExpiryTimestamp.toLocaleLowerCase(), formatDate(date));
 
   return headers;
 };
@@ -110,36 +108,37 @@ function formatDate(date: Date): string {
   return res.replace(/\.\d{3}/gi, '');
 }
 
-const HTTPHeaderContentSHA256 = 'X-Gnfd-Content-Sha256'.toLocaleLowerCase();
-const HTTPHeaderTransactionHash = 'X-Gnfd-Txn-Hash'.toLocaleLowerCase();
-const HTTPHeaderObjectID = 'X-Gnfd-Object-ID'.toLocaleLowerCase();
-const HTTPHeaderRedundancyIndex = 'X-Gnfd-Redundancy-Index'.toLocaleLowerCase();
-const HTTPHeaderResource = 'X-Gnfd-Resource'.toLocaleLowerCase();
-const HTTPHeaderDate = 'X-Gnfd-Date'.toLocaleLowerCase();
-const HTTPHeaderExpiryTimestamp = 'X-Gnfd-Expiry-Timestamp'.toLocaleLowerCase();
-const HTTPHeaderRange = 'Range'.toLocaleLowerCase();
-const HTTPHeaderPieceIndex = 'X-Gnfd-Piece-Index'.toLocaleLowerCase();
-const HTTPHeaderContentType = 'Content-Type'.toLocaleLowerCase();
-const HTTPHeaderContentMD5 = 'Content-MD5'.toLocaleLowerCase();
-const HTTPHeaderUnsignedMsg = 'X-Gnfd-Unsigned-Msg'.toLocaleLowerCase();
-const HTTPHeaderUserAddress = 'X-Gnfd-User-Address'.toLocaleLowerCase();
-const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain'.toLocaleLowerCase();
+export const HTTPHeaderAuthorization = 'Authorization';
+export const HTTPHeaderContentSHA256 = 'X-Gnfd-Content-Sha256';
+export const HTTPHeaderTransactionHash = 'X-Gnfd-Txn-Hash';
+export const HTTPHeaderObjectID = 'X-Gnfd-Object-ID';
+export const HTTPHeaderRedundancyIndex = 'X-Gnfd-Redundancy-Index';
+export const HTTPHeaderResource = 'X-Gnfd-Resource';
+export const HTTPHeaderDate = 'X-Gnfd-Date';
+export const HTTPHeaderExpiryTimestamp = 'X-Gnfd-Expiry-Timestamp';
+export const HTTPHeaderRange = 'Range';
+export const HTTPHeaderPieceIndex = 'X-Gnfd-Piece-Index';
+export const HTTPHeaderContentType = 'Content-Type';
+export const HTTPHeaderContentMD5 = 'Content-MD5';
+export const HTTPHeaderUnsignedMsg = 'X-Gnfd-Unsigned-Msg';
+export const HTTPHeaderUserAddress = 'X-Gnfd-User-Address';
+// const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain';
 
 const SUPPORTED_HEADERS = [
-  HTTPHeaderContentSHA256,
-  HTTPHeaderTransactionHash,
-  HTTPHeaderObjectID,
-  HTTPHeaderRedundancyIndex,
-  HTTPHeaderResource,
-  HTTPHeaderDate,
-  HTTPHeaderExpiryTimestamp,
-  HTTPHeaderRange,
-  HTTPHeaderPieceIndex,
-  HTTPHeaderContentType,
-  HTTPHeaderContentMD5,
-  HTTPHeaderUnsignedMsg,
-  HTTPHeaderUserAddress,
-  // HTTPHeaderAppDomain,
+  HTTPHeaderContentSHA256.toLocaleLowerCase(),
+  HTTPHeaderTransactionHash.toLocaleLowerCase(),
+  HTTPHeaderObjectID.toLocaleLowerCase(),
+  HTTPHeaderRedundancyIndex.toLocaleLowerCase(),
+  HTTPHeaderResource.toLocaleLowerCase(),
+  HTTPHeaderDate.toLocaleLowerCase(),
+  HTTPHeaderExpiryTimestamp.toLocaleLowerCase(),
+  HTTPHeaderRange.toLocaleLowerCase(),
+  HTTPHeaderPieceIndex.toLocaleLowerCase(),
+  HTTPHeaderContentType.toLocaleLowerCase(),
+  HTTPHeaderContentMD5.toLocaleLowerCase(),
+  HTTPHeaderUnsignedMsg.toLocaleLowerCase(),
+  HTTPHeaderUserAddress.toLocaleLowerCase(),
+  // HTTPHeaderAppDomain.toLocaleLowerCase(),
 ];
 
 const secpSign = (digestBz: Uint8Array, privateKey: string) => {
@@ -155,11 +154,6 @@ const secpSign = (digestBz: Uint8Array, privateKey: string) => {
 };
 
 export const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
-  // const signBytes = sha256(unsignedBytes);
   const res = keccak256(unsignedBytes);
   return res;
-
-  // const signBytes = sha256(unsignedBytes);
-  // const res = keccak256(signBytes);
-  // return res;
 };

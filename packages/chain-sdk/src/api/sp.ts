@@ -1,5 +1,6 @@
 import { METHOD_GET } from '@/constants/http';
-import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
+import { parseError } from '@/clients/spclient/spApis/parseError';
+import { fetchWithTimeout } from '@/utils/http';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
   QueryGlobalSpStorePriceByTimeResponse,
@@ -17,7 +18,7 @@ import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage
 import { Headers } from 'cross-fetch';
 import { container, singleton } from 'tsyringe';
 import { Bucket } from './bucket';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 import { VirtualGroup } from './virtualGroup';
 
 export interface ISp {
@@ -184,7 +185,8 @@ export class Sp implements ISp {
 
     const { status } = result;
     if (!result.ok) {
-      const { code, message } = await parseErrorXml(result);
+      const xmlError = await result.text();
+      const { code, message } = parseError(xmlError);
       throw {
         code: code || -1,
         message: message || 'Get group list error.',

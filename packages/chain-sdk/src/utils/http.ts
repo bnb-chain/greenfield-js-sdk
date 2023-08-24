@@ -1,6 +1,4 @@
-import { RequestErrorResponse } from '@/types/sp-xml';
 import fetch from 'cross-fetch';
-import { XMLParser } from 'fast-xml-parser';
 
 export function delayMs(duration: number) {
   return new Promise((resolve, reject) => {
@@ -22,15 +20,4 @@ const fetchWithTimeout = async (fetchUrl = '', fetchOptions: any = {}, duration 
   }
 };
 
-export const parseErrorXML = async (result: Response) => {
-  const xmlParser = new XMLParser();
-  const xmlData = await result.text();
-  const res = xmlParser.parse(xmlData) as RequestErrorResponse;
-
-  return {
-    code: res.Error.Code,
-    message: res.Error.Message,
-  };
-};
-
-export { fetchWithTimeout, parseErrorXML as parseErrorXml };
+export { fetchWithTimeout };

@@ -33,7 +33,7 @@ import {
   TxResponse,
 } from '..';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 import { Storage } from './storage';
 
 export interface IGroup {

@@ -33,7 +33,7 @@ import {
 import { container, singleton } from 'tsyringe';
 import { MsgDepositTypeUrl, MsgDisableRefundTypeUrl, MsgWithdrawTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IPayment {
   /**

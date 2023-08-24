@@ -23,7 +23,7 @@ import {
 import { container, delay, inject, singleton } from 'tsyringe';
 import { fromTimestamp, MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IStorage {
   params(): Promise<QueryParamsResponse>;
