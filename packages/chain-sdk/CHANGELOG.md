@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.14
+
+### Patch Changes
+
+- [#254](https://github.com/bnb-chain/greenfield-js-sdk/pull/254)
+  [`1ede2ea`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1ede2ea0ecc9ffc35d262a43a007221f06df3a0e)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add GetBucketMeta and GetObjectMeta
+
+- [#252](https://github.com/bnb-chain/greenfield-js-sdk/pull/252)
+  [`dba9871`](https://github.com/bnb-chain/greenfield-js-sdk/commit/dba987145172ddff7c7e363c144861a3f33ec999)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Gap time
+
 ## 0.2.4-alpha.13
 
 ### Patch Changes
