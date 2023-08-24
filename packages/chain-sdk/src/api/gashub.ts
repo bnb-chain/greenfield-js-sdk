@@ -4,7 +4,7 @@ import {
   QueryMsgGasParamsResponse,
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/gashub/v1beta1/query';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IGashub {
   getParams(): Promise<QueryParamsResponse>;

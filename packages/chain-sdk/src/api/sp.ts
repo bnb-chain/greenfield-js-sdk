@@ -1,5 +1,5 @@
 import { METHOD_GET } from '@/constants/http';
-import { parseError } from '@/parseXML/parseError';
+import { parseError } from '@/clients/spclient/parseXML/parseError';
 import { fetchWithTimeout } from '@/utils/http';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
@@ -18,7 +18,7 @@ import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage
 import { Headers } from 'cross-fetch';
 import { container, singleton } from 'tsyringe';
 import { Bucket } from './bucket';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 import { VirtualGroup } from './virtualGroup';
 
 export interface ISp {

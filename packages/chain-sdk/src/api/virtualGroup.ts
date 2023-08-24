@@ -10,7 +10,7 @@ import {
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/query';
 import { container, singleton } from 'tsyringe';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IVirtualGroup {
   params(): Promise<QueryParamsResponse>;

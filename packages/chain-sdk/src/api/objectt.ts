@@ -3,9 +3,9 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { parseError } from '@/parseXML/parseError';
-import { parseGetObjectMetaResponse } from '@/parseXML/parseGetObjectMetaResponse';
-import { parseListObjectsByBucketNameResponse } from '@/parseXML/parseListObjectsByBucketNameResponse';
+import { parseError } from '@/clients/spclient/parseXML/parseError';
+import { parseGetObjectMetaResponse } from '@/clients/spclient/parseXML/parseGetObjectMetaResponse';
+import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/parseXML/parseListObjectsByBucketNameResponse';
 import { ReqMeta } from '@/types/auth';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
 import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
@@ -66,9 +66,9 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 import { Sp } from './sp';
-import { AuthType, SpClient } from './spclient';
+import { AuthType, SpClient } from '../clients/spclient';
 import { Storage } from './storage';
 
 export interface IObject {

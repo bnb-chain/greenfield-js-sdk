@@ -1,4 +1,4 @@
-import { AuthType } from '@/api/spclient';
+import { AuthType } from '@/clients/spclient';
 import { signSignatureByEddsa } from '@/offchainauth';
 import { ReqMeta } from '@/types/auth';
 import { hexlify, joinSignature } from '@ethersproject/bytes';

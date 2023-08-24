@@ -1,5 +1,5 @@
 import { EMPTY_STRING_SHA256 } from '@/constants/http';
-import { parseError } from '@/parseXML/parseError';
+import { parseError } from '@/clients/spclient/parseXML/parseError';
 import { ReqMeta } from '@/types/auth';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { Headers } from 'cross-fetch';

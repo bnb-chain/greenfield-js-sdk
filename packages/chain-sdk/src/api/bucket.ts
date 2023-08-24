@@ -3,10 +3,10 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { parseError } from '@/parseXML/parseError';
-import { parseGetBucketMetaResponse } from '@/parseXML/parseGetBucketMetaResponse';
-import { parseGetUserBucketsResponse } from '@/parseXML/parseGetUserBucketsResponse';
-import { parseReadQuotaResponse } from '@/parseXML/parseReadQuotaResponse';
+import { parseError } from '@/clients/spclient/parseXML/parseError';
+import { parseGetBucketMetaResponse } from '@/clients/spclient/parseXML/parseGetBucketMetaResponse';
+import { parseGetUserBucketsResponse } from '@/clients/spclient/parseXML/parseGetUserBucketsResponse';
+import { parseReadQuotaResponse } from '@/clients/spclient/parseXML/parseReadQuotaResponse';
 import { ReqMeta } from '@/types/auth';
 import {
   GetBucketMetaRequest,
@@ -63,9 +63,9 @@ import {
   TGetUserBuckets,
 } from '../types/storage';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 import { Sp } from './sp';
-import { AuthType, SpClient } from './spclient';
+import { AuthType, SpClient } from '../clients/spclient';
 import { Storage } from './storage';
 
 export interface IBucket {

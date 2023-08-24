@@ -9,7 +9,7 @@ import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfi
 import { container, delay, inject, singleton } from 'tsyringe';
 import { MsgAttestTypeUrl, MsgSubmitTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IChallenge {
   // TODO: getChallengeInfo();
