@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.13
+
+### Patch Changes
+
+- [#250](https://github.com/bnb-chain/greenfield-js-sdk/pull/250)
+  [`2e86b92`](https://github.com/bnb-chain/greenfield-js-sdk/commit/2e86b92a0762d0701356d24b7ad774364c039e3c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add XML default value when null
+
 ## 0.2.4-alpha.12
 
 ### Patch Changes
