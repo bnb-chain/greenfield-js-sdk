@@ -1,6 +1,7 @@
 export * from './GetUserBucketsResponse';
 export * from './ListObjectsByBucketNameResponse';
 export * from './ReadQuotaResponse';
+export * from './GetBucketMetaResponse';
 
 export interface RequestErrorResponse {
   Error: {
@@ -16,21 +17,4 @@ export interface RequestNonceResponse {
     ExpiryDate: string;
     NextNonce: number;
   };
-}
-
-interface ObjectInfo {
-  Owner: number;
-  Creator: number;
-  BucketName: string;
-  ObjectName: string;
-  Id: number;
-  LocalVirtualGroupId: number;
-  PayloadSize: number;
-  Visibility: number;
-  ContentType: string;
-  CreateAt: number;
-  ObjectStatus: number;
-  RedundancyType: number;
-  SourceType: number;
-  Checksums: string[];
 }
