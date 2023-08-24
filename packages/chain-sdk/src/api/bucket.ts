@@ -63,7 +63,6 @@ import {
   TGetUserBuckets,
 } from '../types/storage';
 import { Basic } from './basic';
-import { OffChainAuth } from './offchainauth';
 import { RpcQueryClient } from './queryclient';
 import { Sp } from './sp';
 import { AuthType, SpClient } from './spclient';

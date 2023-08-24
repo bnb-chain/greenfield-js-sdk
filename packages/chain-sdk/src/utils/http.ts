@@ -1,6 +1,4 @@
-import { RequestErrorResponse } from '@/types/sp-xml';
 import fetch from 'cross-fetch';
-import { XMLParser } from 'fast-xml-parser';
 
 export function delayMs(duration: number) {
   return new Promise((resolve, reject) => {
