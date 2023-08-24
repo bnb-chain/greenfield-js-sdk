@@ -95,10 +95,10 @@ export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
   }
 
   const date = new Date();
-  // console.log('date', formatDate(date));
+  // NOTICE: Smoothing local and server time gap
+  date.setSeconds(date.getSeconds() + 200);
   headers.set(HTTPHeaderDate, formatDate(date));
 
-  // date.setSeconds(date.getSeconds() + 1000);
   date.setDate(date.getDate() + 6);
   headers.set(HTTPHeaderExpiryTimestamp, formatDate(date));
 
