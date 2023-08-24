@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.15
+
+### Patch Changes
+
+- [#255](https://github.com/bnb-chain/greenfield-js-sdk/pull/255)
+  [`ce00ce1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ce00ce1779c2ef3c627fb7172600093e6b580d23)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Refactor Sp client and supply custom http
+  request for meteInfo
+
 ## 0.2.4-alpha.14
 
 ### Patch Changes
