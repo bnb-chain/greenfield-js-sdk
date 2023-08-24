@@ -35,3 +35,33 @@ export interface StreamRecord {
   OutFlowCount: string;
   FrozenNetflowRate: string;
 }
+
+export interface TObject {
+  ObjectInfo: ObjectInfo;
+  LockedBalance: string;
+  Removed: string;
+  UpdateAt: string;
+  DeleteAt: string;
+  DeleteReason: string;
+  Operator: string;
+  CreateTxHash: string;
+  UpdateTxHash: string;
+  SealTxHash: string;
+}
+
+export interface ObjectInfo {
+  Owner: string;
+  Creator: string;
+  BucketName: string;
+  ObjectName: string;
+  Id: string;
+  LocalVirtualGroupId: string;
+  PayloadSize: string;
+  Visibility: string;
+  ContentType: string;
+  CreateAt: string;
+  ObjectStatus: string;
+  RedundancyType: string;
+  SourceType: string;
+  Checksums: string[];
+}

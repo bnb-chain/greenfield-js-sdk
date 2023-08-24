@@ -15,5 +15,11 @@ export const parseGetUserBucketsResponse = (data: string) => {
     },
   });
 
-  return xmlParser.parse(data) as GetUserBucketsResponse;
+  const res = xmlParser.parse(data) as GetUserBucketsResponse;
+
+  if (!res.GfSpGetUserBucketsResponse?.Buckets) {
+    res.GfSpGetUserBucketsResponse.Buckets = [];
+  }
+
+  return res;
 };

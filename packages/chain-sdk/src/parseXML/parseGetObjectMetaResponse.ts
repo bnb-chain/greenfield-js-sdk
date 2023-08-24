@@ -1,10 +1,10 @@
-import { GetBucketMetaResponse } from '@/types';
+import { GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
 import { XMLParser } from 'fast-xml-parser';
 
-export const parseGetBucketMetaResponse = (data: string) => {
+export const parseGetObjectMetaResponse = (data: string) => {
   const xmlParser = new XMLParser({
     isArray: (tagName: string) => {
-      if (tagName === 'Buckets') return true;
+      if (tagName === 'Objects') return true;
       return false;
     },
     numberParseOptions: {
@@ -15,7 +15,5 @@ export const parseGetBucketMetaResponse = (data: string) => {
     },
   });
 
-  const res = xmlParser.parse(data) as GetBucketMetaResponse;
-
-  return res;
+  return xmlParser.parse(data) as GetObjectMetaResponse;
 };

@@ -276,8 +276,3 @@ export interface IMigrateBucketMsgType {
     global_virtual_group_family_id: number;
   };
 }
-
-export interface GetBucketMeta {
-  bucketName: string;
-  endpoint: string;
-}

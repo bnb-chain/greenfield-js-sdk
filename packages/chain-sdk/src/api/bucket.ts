@@ -7,7 +7,11 @@ import { parseGetBucketMetaResponse } from '@/parseXML/parseGetBucketMetaRespons
 import { parseGetUserBucketsResponse } from '@/parseXML/parseGetUserBucketsResponse';
 import { parseReadQuotaResponse } from '@/parseXML/parseReadQuotaResponse';
 import { ReqMeta } from '@/types/auth';
-import { GetBucketMetaResponse, GetUserBucketsResponse } from '@/types/sp-xml';
+import {
+  GetBucketMetaRequest,
+  GetBucketMetaResponse,
+  GetUserBucketsResponse,
+} from '@/types/sp-xml';
 import { getAuthorization, newRequestHeadersByMeta } from '@/utils/auth';
 import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
 import { fetchWithTimeout, parseErrorXml } from '@/utils/http';
@@ -49,7 +53,6 @@ import {
   TxResponse,
 } from '..';
 import {
-  GetBucketMeta,
   IBaseGetCreateBucket,
   ICreateBucketMsgType,
   IMigrateBucketMsgType,
@@ -136,7 +139,7 @@ export interface IBucket {
     authType: AuthType,
   ): Promise<TxResponse>;
 
-  getBucketMeta(params: GetBucketMeta): Promise<IObjectResultType<GetBucketMetaResponse>>;
+  getBucketMeta(params: GetBucketMetaRequest): Promise<IObjectResultType<GetBucketMetaResponse>>;
 }
 
 @singleton()
@@ -148,7 +151,6 @@ export class Bucket implements IBucket {
   ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
-  private offChainAuthClient = container.resolve(OffChainAuth);
   private spClient = container.resolve(SpClient);
 
   public async getCreateBucketApproval(params: IBaseGetCreateBucket, authType: AuthType) {
@@ -673,7 +675,7 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async getBucketMeta(params: GetBucketMeta) {
+  public async getBucketMeta(params: GetBucketMetaRequest) {
     const { bucketName, endpoint } = params;
     const query = 'bucket-meta';
     const path = bucketName;
