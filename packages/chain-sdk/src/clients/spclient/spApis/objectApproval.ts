@@ -20,8 +20,13 @@ export const getObjectApprovalMetaInfo = async (endpoint: string, msg: ICreateOb
     },
   };
 
+  const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
+    method: METHOD_GET,
+  };
+
   return {
     url,
+    optionsWithOutHeaders,
     reqMeta,
   };
 };
