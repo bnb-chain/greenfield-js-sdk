@@ -1,6 +1,7 @@
 import { IFetchNonce, RequestNonceResponse } from '@/types';
 import { fetchWithTimeout } from '@/utils/http';
 import { XMLParser } from 'fast-xml-parser';
+import { Headers } from 'cross-fetch';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_nonce
 export const getNonce = async ({ spEndpoint, spName, spAddress, address, domain }: IFetchNonce) => {

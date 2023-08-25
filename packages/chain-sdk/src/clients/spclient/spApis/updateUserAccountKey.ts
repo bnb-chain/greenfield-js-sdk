@@ -1,5 +1,6 @@
 import { IUpdateOneSpPubKeyParams } from '@/types';
 import { fetchWithTimeout } from '@/utils/http';
+import { Headers } from 'cross-fetch';
 
 export const updateUserAccountKey = async ({
   address,
