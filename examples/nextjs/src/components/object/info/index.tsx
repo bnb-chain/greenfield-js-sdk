@@ -29,6 +29,8 @@ export const ObjectInfo = () => {
           get object info (headObject)
         </button>
 
+        <br />
+
         <button
           onClick={async () => {
             const sp = await selectSp();
