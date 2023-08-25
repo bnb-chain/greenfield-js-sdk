@@ -1,6 +1,7 @@
 import { EMPTY_STRING_SHA256, METHOD_PUT } from '@/constants';
 import { ReqMeta } from '@/types';
 import { generateUrlByBucketName } from '@/utils/s3';
+import { encodePath } from '../auth';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/put_object
 export const getPutObjectMetaInfo = async (
@@ -14,7 +15,8 @@ export const getPutObjectMetaInfo = async (
   },
 ) => {
   const { bucketName, objectName, txnHash, contentType, body } = params;
-  const path = `/${objectName}`;
+  const path = `/${encodePath(objectName)}`;
+
   const query = '';
   const url = `${generateUrlByBucketName(endpoint, bucketName)}${path}`;
 
