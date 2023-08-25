@@ -16,7 +16,7 @@ const client = Client.create(GRPC_URL, GREEN_CHAIN_ID);
 
 Apis include transactions and queries.
 
-### Tx
+### Tx Client
 
 #### 1. Tx construction
 
@@ -82,7 +82,7 @@ const broadcastRes = await transferTx.broadcast({
 });
 ```
 
-### Query
+### Query Client
 
 ```js
 // get account info
@@ -101,13 +101,8 @@ more API:
 * [payment](./src/api/payment.ts)
 * [sp](./src/api/sp.ts)
 
+### Storage Provider Client
 
-<!-- 
-### putBucketPolicy
+> https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest
 
-```js
-// `resource` params
-const resource = newBucketGRN(bucketName);
-msg.resource = GRNToString(resource);
-```
- -->
+
