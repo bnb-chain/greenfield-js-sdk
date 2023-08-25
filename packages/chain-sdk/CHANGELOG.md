@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.16
+
+### Patch Changes
+
+- [#257](https://github.com/bnb-chain/greenfield-js-sdk/pull/257)
+  [`569445b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/569445b218a156205172a15ce7aeb2d598b83f76)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Custom HTTP method with headers and options
+
 ## 0.2.4-alpha.15
 
 ### Patch Changes
