@@ -102,23 +102,6 @@ export type TBaseGetCreateObject = {
   expectCheckSums: string[];
 };
 
-export type SignTypeV1 = {
-  signType: 'authTypeV1';
-  privateKey: string;
-};
-
-export type SignTypeOffChain = {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-};
-
-export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & SignTypeOffChain;
-
-export type TCreateObjectByAuthTypeV1 = TBaseGetCreateObject & SignTypeV1;
-
-export type TCreateObject = TCreateObjectByOffChainAuth | TCreateObjectByAuthTypeV1;
-
 export interface ICreateObjectMsgType {
   creator: string;
   bucket_name: string;
