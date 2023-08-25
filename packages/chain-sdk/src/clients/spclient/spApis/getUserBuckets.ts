@@ -18,6 +18,14 @@ export const parseGetUserBucketsResponse = (data: string) => {
 
   const res = xmlParser.parse(data) as GetUserBucketsResponse;
 
+  if (typeof res.GfSpGetUserBucketsResponse === 'string') {
+    return {
+      GfSpGetUserBucketsResponse: {
+        Buckets: [],
+      },
+    };
+  }
+
   if (!res.GfSpGetUserBucketsResponse?.Buckets) {
     res.GfSpGetUserBucketsResponse.Buckets = [];
   }
