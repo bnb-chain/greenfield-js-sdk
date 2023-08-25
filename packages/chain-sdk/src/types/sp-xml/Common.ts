@@ -1,3 +1,9 @@
+import {
+  RedundancyType,
+  SourceType,
+  VisibilityType,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
+
 export interface Bucket {
   BucketInfo: BucketInfo;
   Removed: string;
@@ -13,9 +19,9 @@ export interface Bucket {
 export interface BucketInfo {
   Owner: string;
   BucketName: string;
-  Visibility: string;
+  Visibility: keyof typeof VisibilityType;
   Id: string;
-  SourceType: string;
+  SourceType: keyof typeof SourceType;
   CreateAt: string;
   PaymentAddress: string;
   GlobalVirtualGroupFamilyId: string;
@@ -61,7 +67,7 @@ export interface ObjectInfo {
   ContentType: string;
   CreateAt: string;
   ObjectStatus: string;
-  RedundancyType: string;
+  RedundancyType: keyof typeof RedundancyType;
   SourceType: string;
   Checksums: string[];
 }
