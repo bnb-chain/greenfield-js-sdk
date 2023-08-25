@@ -179,7 +179,7 @@ export class Objectt implements IObject {
       }
 
       const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-      const { reqMeta, url } = await getObjectApprovalMetaInfo(endpoint, {
+      const { reqMeta, optionsWithOutHeaders, url } = await getObjectApprovalMetaInfo(endpoint, {
         bucket_name: bucketName,
         content_type: fileType,
         creator: creator,
@@ -200,8 +200,8 @@ export class Objectt implements IObject {
       const result = await this.spClient.callApi(
         url,
         {
+          ...optionsWithOutHeaders,
           headers: signHeaders,
-          method: METHOD_GET,
         },
         duration,
         {
@@ -291,11 +291,12 @@ export class Objectt implements IObject {
     }
 
     const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-    const { reqMeta, url } = await getPutObjectMetaInfo(endpoint, {
+    const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
       bucketName,
       objectName,
       contentType: body.type,
       txnHash,
+      body,
     });
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
@@ -303,9 +304,8 @@ export class Objectt implements IObject {
       const result = await this.spClient.callApi(
         url,
         {
+          ...optionsWithOutHeaders,
           headers: signHeaders,
-          method: METHOD_PUT,
-          body,
         },
         duration,
       );
@@ -384,7 +384,7 @@ export class Objectt implements IObject {
       }
       const endpoint = await this.sp.getSPUrlByBucket(bucketName);
 
-      const { reqMeta, url } = await getGetObjectMetaInfo(endpoint, {
+      const { reqMeta, optionsWithOutHeaders, url } = await getGetObjectMetaInfo(endpoint, {
         bucketName,
         objectName,
       });
@@ -394,8 +394,8 @@ export class Objectt implements IObject {
       const result = await this.spClient.callApi(
         url,
         {
+          ...optionsWithOutHeaders,
           headers,
-          method: METHOD_GET,
         },
         duration,
       );
@@ -605,6 +605,13 @@ export class Objectt implements IObject {
 
   public async getObjectMeta(params: GetObjectMetaRequest) {
     const { bucketName, objectName, endpoint } = params;
+    if (!isValidBucketName(bucketName)) {
+      throw new Error('Error bucket name');
+    }
+    if (!isValidObjectName(objectName)) {
+      throw new Error('Error object name');
+    }
+
     const query = 'object-meta';
     const path = encodeObjectName(objectName);
     const url = `${generateUrlByBucketName(endpoint, bucketName)}/${path}?${query}`;
@@ -617,7 +624,7 @@ export class Objectt implements IObject {
 
     return {
       code: 0,
-      message: 'get bucket meta success.',
+      message: 'get object meta success.',
       statusCode: result.status,
       body: res,
     };

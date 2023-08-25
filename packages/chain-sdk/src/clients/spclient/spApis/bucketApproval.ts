@@ -20,8 +20,13 @@ export const getBucketApprovalMetaInfo = async (endpoint: string, msg: ICreateBu
     },
   };
 
+  const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
+    method: METHOD_GET,
+  };
+
   return {
     url,
+    optionsWithOutHeaders,
     reqMeta,
   };
 };

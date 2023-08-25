@@ -30,8 +30,13 @@ export const getQueryBucketReadQuotaMetaInfo = async (
     },
   };
 
+  const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
+    method: METHOD_GET,
+  };
+
   return {
     url,
+    optionsWithOutHeaders,
     reqMeta,
   };
 };

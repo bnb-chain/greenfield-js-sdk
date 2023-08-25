@@ -185,7 +185,7 @@ export class Bucket implements IBucket {
 
       const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
 
-      const { reqMeta, url } = await getBucketApprovalMetaInfo(endpoint, {
+      const { reqMeta, optionsWithOutHeaders, url } = await getBucketApprovalMetaInfo(endpoint, {
         bucket_name: bucketName,
         creator,
         visibility,
@@ -204,8 +204,8 @@ export class Bucket implements IBucket {
       const result = await this.spClient.callApi(
         url,
         {
+          ...optionsWithOutHeaders,
           headers: signHeaders,
-          method: METHOD_GET,
         },
         duration,
         {
@@ -379,14 +379,17 @@ export class Bucket implements IBucket {
       }
       const endpoint = await this.sp.getSPUrlByBucket(bucketName);
 
-      const { url, reqMeta } = await getQueryBucketReadQuotaMetaInfo(endpoint, params);
+      const { url, optionsWithOutHeaders, reqMeta } = await getQueryBucketReadQuotaMetaInfo(
+        endpoint,
+        params,
+      );
       const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
       const result = await this.spClient.callApi(
         url,
         {
+          ...optionsWithOutHeaders,
           headers: signHeaders,
-          method: METHOD_GET,
         },
         duration,
         {
@@ -601,6 +604,9 @@ export class Bucket implements IBucket {
 
   public async getBucketMeta(params: GetBucketMetaRequest) {
     const { bucketName, endpoint } = params;
+    if (!isValidBucketName(bucketName)) {
+      throw new Error('Error bucket name');
+    }
     const query = 'bucket-meta';
     const path = bucketName;
     const url = `${endpoint}/${path}?${query}`;

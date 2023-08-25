@@ -10,9 +10,10 @@ export const getPutObjectMetaInfo = async (
     bucketName: string;
     txnHash: string;
     contentType: string;
+    body: File;
   },
 ) => {
-  const { bucketName, objectName, txnHash, contentType } = params;
+  const { bucketName, objectName, txnHash, contentType, body } = params;
   const path = `/${objectName}`;
   const query = '';
   const url = `${generateUrlByBucketName(endpoint, bucketName)}${path}`;
@@ -29,8 +30,14 @@ export const getPutObjectMetaInfo = async (
     contentType,
   };
 
+  const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
+    method: METHOD_PUT,
+    body,
+  };
+
   return {
     url,
+    optionsWithOutHeaders,
     reqMeta,
   };
 };

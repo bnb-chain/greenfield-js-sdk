@@ -1,9 +1,8 @@
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_object
-
 import { EMPTY_STRING_SHA256, METHOD_PUT } from '@/constants';
 import { ReqMeta } from '@/types';
 import { generateUrlByBucketName } from '@/utils/s3';
 
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_object
 export const getGetObjectMetaInfo = async (
   endpoint: string,
   params: {
@@ -27,8 +26,13 @@ export const getGetObjectMetaInfo = async (
     contentType: 'application/octet-stream',
   };
 
+  const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
+    method: METHOD_PUT,
+  };
+
   return {
     url,
+    optionsWithOutHeaders,
     reqMeta,
   };
 };
