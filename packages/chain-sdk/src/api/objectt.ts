@@ -1,10 +1,11 @@
+import { encodePath } from '@/clients/spclient/auth';
 import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
 import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
 import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
 import { getObjectApprovalMetaInfo } from '@/clients/spclient/spApis/objectApproval';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
-import { METHOD_GET, METHOD_PUT, NORMAL_ERROR_CODE } from '@/constants/http';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
@@ -60,7 +61,6 @@ import {
   TxResponse,
 } from '../types';
 import {
-  encodeObjectName,
   generateUrlByBucketName,
   isValidBucketName,
   isValidObjectName,
@@ -613,7 +613,7 @@ export class Objectt implements IObject {
     }
 
     const query = 'object-meta';
-    const path = encodeObjectName(objectName);
+    const path = encodePath(objectName);
     const url = `${generateUrlByBucketName(endpoint, bucketName)}/${path}?${query}`;
     const result = await this.spClient.callApi(url, {
       method: METHOD_GET,
