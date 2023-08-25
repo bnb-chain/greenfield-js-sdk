@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.17
+
+### Patch Changes
+
+- [#263](https://github.com/bnb-chain/greenfield-js-sdk/pull/263)
+  [`352419e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/352419e2016e6643fe7223adfe2cc1c3a6ee7ba6)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Cross Headers
+
+- [#261](https://github.com/bnb-chain/greenfield-js-sdk/pull/261)
+  [`21c9f6e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/21c9f6e2daa434a3d1385a845a0879750559ffbc)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Bucket XML type
+
 ## 0.2.4-alpha.16
 
 ### Patch Changes
