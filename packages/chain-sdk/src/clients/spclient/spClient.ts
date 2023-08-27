@@ -4,6 +4,7 @@ import {
   newRequestHeadersByMeta,
 } from '@/clients/spclient/auth';
 import { parseError } from '@/clients/spclient/spApis/parseError';
+import { IObjectResultType } from '@/types';
 import { ReqMeta } from '@/types/auth';
 import { Headers } from 'cross-fetch';
 import { singleton } from 'tsyringe';
@@ -25,6 +26,14 @@ export type EDDSA = {
   address: string;
 };
 export type AuthType = ECDSA | EDDSA;
+
+export interface SpReponse<T> {
+  requestMeta: () => {
+    url: string;
+    reqOptions: RequestInit;
+  };
+  send: () => Promise<T>;
+}
 
 export interface ISpClient {
   callApi(

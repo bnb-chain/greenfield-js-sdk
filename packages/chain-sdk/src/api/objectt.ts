@@ -49,7 +49,7 @@ import {
   newObjectGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
-import { AuthType, SpClient } from '../clients/spclient/spClient';
+import { AuthType, SpClient, SpReponse } from '../clients/spclient/spClient';
 import {
   ICreateObjectMsgType,
   IObjectResultType,
@@ -78,7 +78,11 @@ export interface IObject {
 
   createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType): Promise<TxResponse>;
 
-  uploadObject(configParam: TBasePutObject, authType: AuthType): Promise<IObjectResultType<null>>;
+  uploadObject(
+    configParam: TBasePutObject,
+    authType: AuthType,
+    isSend?: boolean,
+  ): Promise<SpReponse<IObjectResultType<null>>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
@@ -95,7 +99,10 @@ export interface IObject {
   /**
    * get s3 object's blob
    */
-  getObject(configParam: TBaseGetObject, authType: AuthType): Promise<IObjectResultType<Blob>>;
+  getObject(
+    configParam: TBaseGetObject,
+    authType: AuthType,
+  ): Promise<SpReponse<IObjectResultType<Blob>>>;
 
   /**
    * download s3 object
@@ -275,10 +282,7 @@ export class Objectt implements IObject {
     return await this.createObjectTx(msg, signedMsg);
   }
 
-  public async uploadObject(
-    configParam: TBasePutObject,
-    authType: AuthType,
-  ): Promise<IObjectResultType<null>> {
+  public async uploadObject(configParam: TBasePutObject, authType: AuthType) {
     const { bucketName, objectName, txnHash, body, duration = 30000 } = configParam;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
@@ -300,25 +304,38 @@ export class Objectt implements IObject {
     });
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
-    try {
-      const result = await this.spClient.callApi(
-        url,
-        {
-          ...optionsWithOutHeaders,
-          headers: signHeaders,
-        },
-        duration,
-      );
-      const { status } = result;
+    return {
+      requestMeta: () => {
+        return {
+          url,
+          reqOptions: {
+            ...optionsWithOutHeaders,
+            headers: signHeaders,
+          },
+        };
+      },
+      send: async () => {
+        try {
+          const result = await this.spClient.callApi(
+            url,
+            {
+              ...optionsWithOutHeaders,
+              headers: signHeaders,
+            },
+            duration,
+          );
+          const { status } = result;
 
-      return { code: 0, message: 'Put object success.', statusCode: status };
-    } catch (error: any) {
-      return {
-        code: -1,
-        message: error.message,
-        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
-      };
-    }
+          return { code: 0, message: 'Put object success.', statusCode: status };
+        } catch (error: any) {
+          return {
+            code: -1,
+            message: error.message,
+            statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+          };
+        }
+      },
+    };
   }
 
   public async cancelCreateObject(msg: MsgCancelCreateObject) {
@@ -373,64 +390,77 @@ export class Objectt implements IObject {
     return await rpc.HeadObjectNFT(request);
   }
 
-  public async getObject(configParam: TBaseGetObject, authType: AuthType) {
-    try {
-      const { bucketName, objectName, duration = 30000 } = configParam;
-      if (!isValidBucketName(bucketName)) {
-        throw new Error('Error bucket name');
-      }
-      if (!isValidObjectName(objectName)) {
-        throw new Error('Error object name');
-      }
-      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-
-      const { reqMeta, optionsWithOutHeaders, url } = await getGetObjectMetaInfo(endpoint, {
-        bucketName,
-        objectName,
-      });
-
-      const headers = await this.spClient.signHeaders(reqMeta, authType);
-
-      const result = await this.spClient.callApi(
-        url,
-        {
-          ...optionsWithOutHeaders,
-          headers,
-        },
-        duration,
-      );
-      const { status } = result;
-      if (!result.ok) {
-        const xmlError = await result.text();
-        const { code, message } = parseError(xmlError);
-
-        return {
-          code: code || -1,
-          message: message || 'Get object error.',
-          statusCode: status,
-        };
-      }
-
-      const fileBlob = await result.blob();
-      return {
-        code: 0,
-        body: fileBlob,
-        message: 'Get object success.',
-        statusCode: status,
-      };
-    } catch (error: any) {
-      return {
-        code: -1,
-        message: error.message,
-        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
-      };
+  public async getObject(params: TBaseGetObject, authType: AuthType) {
+    const { bucketName, objectName, duration = 30000 } = params;
+    if (!isValidBucketName(bucketName)) {
+      throw new Error('Error bucket name');
     }
+    if (!isValidObjectName(objectName)) {
+      throw new Error('Error object name');
+    }
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    const { reqMeta, optionsWithOutHeaders, url } = await getGetObjectMetaInfo(endpoint, {
+      bucketName,
+      objectName,
+    });
+
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    return {
+      requestMeta: () => {
+        return {
+          url,
+          reqOptions: {
+            ...optionsWithOutHeaders,
+            headers: signHeaders,
+          },
+        };
+      },
+      send: async () => {
+        try {
+          const result = await this.spClient.callApi(
+            url,
+            {
+              ...optionsWithOutHeaders,
+              headers: signHeaders,
+            },
+            duration,
+          );
+          const { status } = result;
+          if (!result.ok) {
+            const xmlError = await result.text();
+            const { code, message } = parseError(xmlError);
+
+            return {
+              code: code || -1,
+              message: message || 'Get object error.',
+              statusCode: status,
+            };
+          }
+
+          const fileBlob = await result.blob();
+          return {
+            code: 0,
+            body: fileBlob,
+            message: 'Get object success.',
+            statusCode: status,
+          };
+        } catch (error: any) {
+          return {
+            code: -1,
+            message: error.message,
+            statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+          };
+        }
+      },
+    };
   }
 
   public async downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void> {
     try {
       const { objectName } = configParam;
-      const getObjectResult = await this.getObject(configParam, authType);
+      const getObjectReq = await this.getObject(configParam, authType);
+      const getObjectResult = await getObjectReq.send();
 
       if (getObjectResult.code !== 0) {
         throw new Error(getObjectResult.message);

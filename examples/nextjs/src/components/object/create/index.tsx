@@ -127,7 +127,7 @@ export const CreateObject = () => {
               return;
             }
 
-            const uploadRes = await client.object.uploadObject(
+            const uploadReq = await client.object.uploadObject(
               {
                 bucketName: createObjectInfo.bucketName,
                 objectName: createObjectInfo.objectName,
@@ -141,6 +141,7 @@ export const CreateObject = () => {
                 address,
               },
             );
+            const uploadRes = await uploadReq.send();
             console.log('uploadRes', uploadRes);
 
             if (uploadRes.code === 0) {

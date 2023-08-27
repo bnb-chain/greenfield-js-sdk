@@ -16,7 +16,7 @@ import {
   IObjectResultType,
   IReturnOffChainAuthKeyPairAndUpload,
   ISp,
-} from '../types/storage';
+} from '../types/sp';
 
 export interface IOffChainAuth {
   /**

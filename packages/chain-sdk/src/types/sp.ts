@@ -128,20 +128,6 @@ export type TBasePutObject = {
   duration?: number;
 };
 
-export type TPutObjectByAuthTypeV1 = TBasePutObject & {
-  signType?: 'authTypeV1';
-  privateKey: string;
-};
-
-export type TPutObjectByOffChainAuth = TBasePutObject & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TPutObject = TPutObjectByAuthTypeV1 | TPutObjectByOffChainAuth;
-
 export type TBaseGetObject = {
   bucketName: string;
   objectName: string;

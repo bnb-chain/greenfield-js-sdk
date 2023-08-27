@@ -4,7 +4,7 @@ import {
   IPersonalSignParams,
   ISp,
   IUpdateSpsPubKeyParams,
-} from '../types/storage';
+} from '../types/sp';
 import { getNonce } from '@/clients/spclient/spApis/getNonce';
 import { updateUserAccountKey } from '@/clients/spclient/spApis/updateUserAccountKey';
 

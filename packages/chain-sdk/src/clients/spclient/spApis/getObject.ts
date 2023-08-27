@@ -23,7 +23,7 @@ export const getGetObjectMetaInfo = async (
       query,
       path,
     },
-    contentType: 'application/octet-stream',
+    // contentType: 'application/octet-stream',
   };
 
   const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {

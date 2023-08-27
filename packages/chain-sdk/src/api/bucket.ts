@@ -71,7 +71,7 @@ import {
   IQuotaProps,
   TBaseGetBucketReadQuota,
   TGetUserBuckets,
-} from '../types/storage';
+} from '../types/sp';
 import { Basic } from './basic';
 import { Sp } from './sp';
 import { Storage } from './storage';
