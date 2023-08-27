@@ -1,4 +1,4 @@
-import { EMPTY_STRING_SHA256, METHOD_PUT } from '@/constants';
+import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
 import { ReqMeta } from '@/types';
 import { generateUrlByBucketName } from '@/utils/s3';
 
@@ -17,7 +17,7 @@ export const getGetObjectMetaInfo = async (
 
   const reqMeta: Partial<ReqMeta> = {
     contentSHA256: EMPTY_STRING_SHA256,
-    method: METHOD_PUT,
+    method: METHOD_GET,
     url: {
       hostname: new URL(url).hostname,
       query,
@@ -27,7 +27,7 @@ export const getGetObjectMetaInfo = async (
   };
 
   const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
-    method: METHOD_PUT,
+    method: METHOD_GET,
   };
 
   return {
