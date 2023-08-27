@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.19
+
+### Patch Changes
+
+- [#267](https://github.com/bnb-chain/greenfield-js-sdk/pull/267)
+  [`a485367`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a485367f23175c4004a7f030a1a4081c65d0d632)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Download HTTP method
+
 ## 0.2.4-alpha.18
 
 ### Patch Changes
