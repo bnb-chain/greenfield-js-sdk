@@ -1,31 +1,42 @@
-import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
-import { XMLParser } from 'fast-xml-parser';
+import {
+  formatObjectInfo,
+  ListObjectsByBucketNameResponse,
+} from '@/types/sp-xml/ListObjectsByBucketNameResponse';
+import xml from 'xml2js';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_objects_by_bucket
-export const parseListObjectsByBucketNameResponse = (data: string) => {
-  const arrayFields = ['Objects', 'CommonPrefixes'];
-  const xmlParser = new XMLParser({
-    isArray: (tagName: string) => {
-      if (arrayFields.includes(tagName)) return true;
-      return false;
-    },
-    numberParseOptions: {
-      hex: false,
-      leadingZeros: true,
-      skipLike: undefined,
-      eNotation: false,
-    },
-  });
+export const parseListObjectsByBucketNameResponse = async (data: string) => {
+  const res = (await xml.parseStringPromise(data, {
+    strict: true,
+    explicitRoot: true,
+    explicitArray: false,
+  })) as ListObjectsByBucketNameResponse;
 
-  const res = xmlParser.parse(data) as ListObjectsByBucketNameResponse;
+  let Objects = res.GfSpListObjectsByBucketNameResponse.Objects || [];
+  if (Objects) {
+    if (!Array.isArray(Objects)) {
+      Objects = [Objects];
+    }
 
-  if (!res.GfSpListObjectsByBucketNameResponse?.CommonPrefixes) {
-    res.GfSpListObjectsByBucketNameResponse.CommonPrefixes = [];
+    Objects = Objects.map((item) => {
+      return {
+        ...item,
+        Removed: Boolean(item.Removed),
+        UpdateAt: Number(item.UpdateAt),
+        DeleteAt: Number(item.DeleteAt),
+        ObjectInfo: formatObjectInfo(item.ObjectInfo),
+      };
+    });
   }
 
-  if (!res.GfSpListObjectsByBucketNameResponse?.Objects) {
-    res.GfSpListObjectsByBucketNameResponse.Objects = [];
-  }
+  const CommonPrefixes = res.GfSpListObjectsByBucketNameResponse.CommonPrefixes || [];
+
+  res.GfSpListObjectsByBucketNameResponse = {
+    ...res.GfSpListObjectsByBucketNameResponse,
+    Objects,
+    CommonPrefixes,
+    IsTruncated: Boolean(res.GfSpListObjectsByBucketNameResponse.IsTruncated),
+  };
 
   return res;
 };

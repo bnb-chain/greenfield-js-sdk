@@ -1,9 +1,13 @@
 import { RequestErrorResponse } from '@/types';
-import { XMLParser } from 'fast-xml-parser';
+import xml from 'xml2js';
 
-export const parseError = (data: string) => {
-  const xmlParser = new XMLParser();
-  const res = xmlParser.parse(data) as RequestErrorResponse;
+export const parseError = async (data: string) => {
+  const res = (await xml.parseStringPromise(data, {
+    strict: true,
+    explicitRoot: true,
+    explicitArray: false,
+  })) as RequestErrorResponse;
+
   return {
     code: res.Error.Code,
     message: res.Error.Message,

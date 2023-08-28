@@ -186,7 +186,7 @@ export class Sp implements ISp {
     const { status } = result;
     if (!result.ok) {
       const xmlError = await result.text();
-      const { code, message } = parseError(xmlError);
+      const { code, message } = await parseError(xmlError);
       throw {
         code: code || -1,
         message: message || 'Get group list error.',

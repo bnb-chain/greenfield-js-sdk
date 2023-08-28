@@ -12,6 +12,7 @@ export const getOffchainAuthKeys = async (address: string, provider: any) => {
     const storageRes = JSON.parse(storageResStr) as IReturnOffChainAuthKeyPairAndUpload;
     if (storageRes.expirationTime < Date.now()) {
       alert('Your auth key has expired, please generate a new one');
+      localStorage.removeItem(address);
       return;
     }
 

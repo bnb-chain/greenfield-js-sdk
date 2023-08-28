@@ -37,21 +37,22 @@ export const Deposit = () => {
           const amount_with_relay_fee = relayFee + ackRelayFee + amount;
           console.log('amount_with_relay_fee', amount_with_relay_fee);
 
-          const estimateGas = await publicClient.estimateContractGas({
-            address: TOKEN_HUB_CONTRACT_ADDRESS,
-            abi: TOKENHUB_ABI,
-            functionName: 'transferOut',
-            args: [address, amount],
-            account: address,
-            value: amount_with_relay_fee,
-          });
-          console.log('estimateGas', estimateGas);
+          // const estimateGas = await publicClient.estimateContractGas({
+          //   address: TOKEN_HUB_CONTRACT_ADDRESS,
+          //   abi: TOKENHUB_ABI,
+          //   functionName: 'transferOut',
+          //   args: [address, amount],
+          //   account: address,
+          //   value: amount_with_relay_fee,
+          // });
+          // console.log('estimateGas', estimateGas);
 
           const gasPrice = await publicClient.getGasPrice();
 
           console.log('gasPrice', gasPrice);
 
-          const gasFee = estimateGas * gasPrice;
+          // const gasFee = BigInt(5) * gasPrice;
+          const gasFee = 21000n;
           console.log('estimate gas fee: gas price * gas = ', formatEther(gasFee), 'ETH');
 
           const txHash = await walletClient.writeContract({
