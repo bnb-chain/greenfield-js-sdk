@@ -78,7 +78,7 @@ export type BucketProps = {
 
 export type TBaseGetBucketReadQuota = {
   bucketName: string;
-  // endpoint: string;
+  endpoint?: string;
   duration?: number;
   year?: number;
   month?: number;
@@ -100,6 +100,7 @@ export type TBaseGetCreateObject = {
   duration?: number;
   contentLength: number;
   expectCheckSums: string[];
+  endpoint?: string;
 };
 
 export interface ICreateObjectMsgType {
@@ -126,6 +127,7 @@ export type TBasePutObject = {
   txnHash: string;
   body: File;
   duration?: number;
+  endpoint?: string;
 };
 
 export type TPutObjectByAuthTypeV1 = TBasePutObject & {
@@ -146,6 +148,7 @@ export type TBaseGetObject = {
   bucketName: string;
   objectName: string;
   duration?: number;
+  endpoint?: string;
 };
 
 export type TBaseGetPrivewObject = {
@@ -153,6 +156,7 @@ export type TBaseGetPrivewObject = {
   objectName: string;
   duration?: number;
   queryMap: Record<string, string>;
+  endpoint?: string;
 };
 
 export type TListObjects = {

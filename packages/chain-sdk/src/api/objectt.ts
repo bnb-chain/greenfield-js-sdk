@@ -159,7 +159,7 @@ export class Objectt implements IObject {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
 
-  public async getCreateObjectApproval(configParam: TBaseGetCreateObject, authType: AuthType) {
+  public async getCreateObjectApproval(params: TBaseGetCreateObject, authType: AuthType) {
     const {
       bucketName,
       creator,
@@ -170,7 +170,7 @@ export class Objectt implements IObject {
       redundancyType = 'REDUNDANCY_EC_TYPE',
       contentLength,
       expectCheckSums,
-    } = configParam;
+    } = params;
 
     try {
       if (!isValidBucketName(bucketName)) {
@@ -183,7 +183,10 @@ export class Objectt implements IObject {
         throw new Error('empty creator address');
       }
 
-      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      let endpoint = params.endpoint;
+      if (!endpoint) {
+        endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      }
       const { reqMeta, optionsWithOutHeaders, url } = await getObjectApprovalMetaInfo(endpoint, {
         bucket_name: bucketName,
         content_type: fileType,
@@ -281,10 +284,10 @@ export class Objectt implements IObject {
   }
 
   public async uploadObject(
-    configParam: TBasePutObject,
+    params: TBasePutObject,
     authType: AuthType,
   ): Promise<IObjectResultType<null>> {
-    const { bucketName, objectName, txnHash, body, duration = 30000 } = configParam;
+    const { bucketName, objectName, txnHash, body, duration = 30000 } = params;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
     }
@@ -295,7 +298,10 @@ export class Objectt implements IObject {
       throw new Error('Transaction hash is empty, please check.');
     }
 
-    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    }
     const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
       bucketName,
       objectName,
@@ -378,16 +384,19 @@ export class Objectt implements IObject {
     return await rpc.HeadObjectNFT(request);
   }
 
-  public async getObject(configParam: TBaseGetObject, authType: AuthType) {
+  public async getObject(params: TBaseGetObject, authType: AuthType) {
     try {
-      const { bucketName, objectName, duration = 30000 } = configParam;
+      const { bucketName, objectName, duration = 30000 } = params;
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
       if (!isValidObjectName(objectName)) {
         throw new Error('Error object name');
       }
-      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      let endpoint = params.endpoint;
+      if (!endpoint) {
+        endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      }
 
       const { reqMeta, optionsWithOutHeaders, url } = await getGetObjectMetaInfo(endpoint, {
         bucketName,
@@ -432,15 +441,18 @@ export class Objectt implements IObject {
     }
   }
 
-  public async getObjectPreviewUrl(configParam: TBaseGetPrivewObject, authType: AuthType) {
-    const { bucketName, objectName, queryMap } = configParam;
+  public async getObjectPreviewUrl(params: TBaseGetPrivewObject, authType: AuthType) {
+    const { bucketName, objectName, queryMap } = params;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
     }
     if (!isValidObjectName(objectName)) {
       throw new Error('Error object name');
     }
-    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    }
 
     const path = '/' + encodePath(objectName);
     const url = generateUrlByBucketName(endpoint, bucketName) + path;
