@@ -1,6 +1,7 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
 import { ReqMeta } from '@/types';
 import { generateUrlByBucketName } from '@/utils/s3';
+import { encodePath } from '../auth';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_object
 export const getGetObjectMetaInfo = async (
@@ -11,9 +12,9 @@ export const getGetObjectMetaInfo = async (
   },
 ) => {
   const { bucketName, objectName } = params;
-  const path = `/${objectName}`;
+  const path = `/${encodePath(objectName)}`;
   const query = '';
-  const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
+  const url = generateUrlByBucketName(endpoint, bucketName) + path;
 
   const reqMeta: Partial<ReqMeta> = {
     contentSHA256: EMPTY_STRING_SHA256,

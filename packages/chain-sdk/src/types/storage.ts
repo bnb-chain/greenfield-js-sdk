@@ -148,6 +148,13 @@ export type TBaseGetObject = {
   duration?: number;
 };
 
+export type TBaseGetPrivewObject = {
+  bucketName: string;
+  objectName: string;
+  duration?: number;
+  queryMap: Record<string, string>;
+};
+
 export type TListObjects = {
   bucketName: string;
   duration?: number;

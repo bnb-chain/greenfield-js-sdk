@@ -73,7 +73,7 @@ export const CreateObject = () => {
                 bucketName: createObjectInfo.bucketName,
                 objectName: createObjectInfo.objectName,
                 creator: address,
-                visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+                visibility: 'VISIBILITY_TYPE_PRIVATE',
                 fileType: file.type,
                 redundancyType: 'REDUNDANCY_EC_TYPE',
                 contentLength,

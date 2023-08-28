@@ -1,4 +1,4 @@
-import { encodePath } from '@/clients/spclient/auth';
+import { encodePath, getMsgToSign, secpSign } from '@/clients/spclient/auth';
 import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
 import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
 import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
@@ -10,6 +10,7 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storag
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
+import { signSignatureByEddsa } from '@/offchainauth';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
 import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
 import {
@@ -37,8 +38,9 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { hexlify } from '@ethersproject/bytes';
 import { Headers } from 'cross-fetch';
-import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
+import { bytesToUtf8, hexToBytes, utf8ToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -56,6 +58,7 @@ import {
   Long,
   TBaseGetCreateObject,
   TBaseGetObject,
+  TBaseGetPrivewObject,
   TBasePutObject,
   TListObjects,
   TxResponse,
@@ -96,6 +99,8 @@ export interface IObject {
    * get s3 object's blob
    */
   getObject(configParam: TBaseGetObject, authType: AuthType): Promise<IObjectResultType<Blob>>;
+
+  getObjectPreviewUrl(configParam: TBaseGetPrivewObject, authType: AuthType): Promise<string>;
 
   /**
    * download s3 object
@@ -425,6 +430,48 @@ export class Objectt implements IObject {
         statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };
     }
+  }
+
+  public async getObjectPreviewUrl(configParam: TBaseGetPrivewObject, authType: AuthType) {
+    const { bucketName, objectName, queryMap } = configParam;
+    if (!isValidBucketName(bucketName)) {
+      throw new Error('Error bucket name');
+    }
+    if (!isValidObjectName(objectName)) {
+      throw new Error('Error object name');
+    }
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+
+    const path = '/' + encodePath(objectName);
+    const url = generateUrlByBucketName(endpoint, bucketName) + path;
+
+    const queryParams = new URLSearchParams();
+    for (const k in queryMap) {
+      queryParams.append(k, queryMap[k]);
+    }
+    queryParams.sort();
+
+    const queryRaw = queryParams.toString();
+
+    const canonicalRequest = [
+      METHOD_GET,
+      `/${encodePath(objectName)}`,
+      queryRaw,
+      new URL(url).host,
+      '\n',
+    ].join('\n');
+
+    const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
+    let authorization = '';
+    if (authType.type === 'ECDSA') {
+      const sig = secpSign(unsignedMsg, authType.privateKey);
+      authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
+    } else {
+      const sig = await signSignatureByEddsa(authType.seed, hexlify(unsignedMsg).slice(2));
+      authorization = `GNFD1-EDDSA,Signature=${sig}`;
+    }
+
+    return `${url}?Authorization=${encodeURIComponent(authorization)}&${queryRaw}`;
   }
 
   public async downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void> {
