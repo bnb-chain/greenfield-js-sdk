@@ -377,7 +377,10 @@ export class Bucket implements IBucket {
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
-      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      let endpoint = params.endpoint;
+      if (!endpoint) {
+        endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      }
 
       const { url, optionsWithOutHeaders, reqMeta } = await getQueryBucketReadQuotaMetaInfo(
         endpoint,
@@ -461,13 +464,16 @@ export class Bucket implements IBucket {
   }
 
   public async getMigrateBucketApproval(
-    configParams: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'>,
+    params: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'> & { endpoint?: string },
     authType: AuthType,
   ) {
-    const { bucketName, operator, dstPrimarySpId } = configParams;
+    const { bucketName, operator, dstPrimarySpId } = params;
 
     try {
-      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      let endpoint = params.endpoint;
+      if (!endpoint) {
+        endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      }
       const path = '/greenfield/admin/v1/get-approval';
       const query = 'action=MigrateBucket';
       const url = `${endpoint}${path}?${query}`;
@@ -559,7 +565,7 @@ export class Bucket implements IBucket {
   }
 
   public async migrateBucket(
-    configParams: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'>,
+    configParams: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'> & { endpoint?: string },
     authType: AuthType,
   ) {
     const { signedMsg } = await this.getMigrateBucketApproval(configParams, authType);
