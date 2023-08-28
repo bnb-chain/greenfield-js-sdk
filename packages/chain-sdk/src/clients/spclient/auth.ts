@@ -142,7 +142,7 @@ const SUPPORTED_HEADERS = [
 ];
 
 // https://github.com/ethers-io/ethers.js/issues/823
-const secpSign = (digestBz: Uint8Array, privateKey: string) => {
+export const secpSign = (digestBz: Uint8Array, privateKey: string) => {
   const signingKey = new SigningKey(privateKey);
   const signature = signingKey.signDigest(digestBz);
   let res = joinSignature(signature);
