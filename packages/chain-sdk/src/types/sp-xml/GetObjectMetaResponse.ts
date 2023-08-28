@@ -1,4 +1,4 @@
-import { TObject } from './Common';
+import { ObjectMeta } from './Common';
 
 export interface GetObjectMetaRequest {
   bucketName: string;
@@ -11,5 +11,5 @@ export interface GetObjectMetaResponse {
 }
 
 export interface GfSPGetObjectMetaResponse {
-  Object: TObject;
+  Object: ObjectMeta;
 }

@@ -2,7 +2,7 @@ import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
 import { ReqMeta, TBaseGetBucketReadQuota } from '@/types';
 import { ReadQuotaResponse } from '@/types/sp-xml';
 import { generateUrlByBucketName } from '@/utils/s3';
-import { XMLParser } from 'fast-xml-parser';
+import xml from 'xml2js';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/query_bucket_read_quota
 export const getQueryBucketReadQuotaMetaInfo = async (
@@ -41,7 +41,12 @@ export const getQueryBucketReadQuotaMetaInfo = async (
   };
 };
 
-export const parseReadQuotaResponse = (data: string) => {
-  const xmlParser = new XMLParser();
-  return xmlParser.parse(data) as ReadQuotaResponse;
+export const parseReadQuotaResponse = async (data: string) => {
+  const res = (await xml.parseStringPromise(data, {
+    strict: true,
+    explicitRoot: true,
+    explicitArray: false,
+  })) as ReadQuotaResponse;
+
+  return res;
 };

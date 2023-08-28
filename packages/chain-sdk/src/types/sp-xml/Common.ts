@@ -1,19 +1,21 @@
 import {
+  BucketStatus,
+  ObjectStatus,
   RedundancyType,
   SourceType,
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 
-export interface Bucket {
+export interface BucketMeta {
   BucketInfo: BucketInfo;
-  Removed: string;
-  DeleteAt: string;
+  Removed: boolean;
+  DeleteAt: number;
   DeleteReason: string;
   Operator: string;
   CreateTxHash: string;
   UpdateTxHash: string;
-  UpdateAt: string;
-  UpdateTime: string;
+  UpdateAt: number;
+  UpdateTime: number;
 }
 
 export interface BucketInfo {
@@ -22,11 +24,12 @@ export interface BucketInfo {
   Visibility: keyof typeof VisibilityType;
   Id: string;
   SourceType: keyof typeof SourceType;
-  CreateAt: string;
+  CreateAt: number;
   PaymentAddress: string;
-  GlobalVirtualGroupFamilyId: string;
-  ChargedReadQuota: string;
-  BucketStatus: string;
+  PrimarySpId: number;
+  GlobalVirtualGroupFamilyId: number;
+  ChargedReadQuota: number;
+  BucketStatus: keyof typeof BucketStatus;
 }
 
 export interface StreamRecord {
@@ -42,12 +45,12 @@ export interface StreamRecord {
   FrozenNetflowRate: string;
 }
 
-export interface TObject {
+export interface ObjectMeta {
   ObjectInfo: ObjectInfo;
   LockedBalance: string;
-  Removed: string;
-  UpdateAt: string;
-  DeleteAt: string;
+  Removed: boolean;
+  UpdateAt: number;
+  DeleteAt: number;
   DeleteReason: string;
   Operator: string;
   CreateTxHash: string;
@@ -60,14 +63,14 @@ export interface ObjectInfo {
   Creator: string;
   BucketName: string;
   ObjectName: string;
-  Id: string;
-  LocalVirtualGroupId: string;
-  PayloadSize: string;
-  Visibility: string;
+  Id: number;
+  LocalVirtualGroupId: number;
+  PayloadSize: number;
+  Visibility: keyof typeof VisibilityType;
   ContentType: string;
-  CreateAt: string;
-  ObjectStatus: string;
+  CreateAt: number;
+  ObjectStatus: keyof typeof ObjectStatus;
   RedundancyType: keyof typeof RedundancyType;
-  SourceType: string;
+  SourceType: keyof typeof SourceType;
   Checksums: string[];
 }

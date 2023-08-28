@@ -1,6 +1,6 @@
 import { IFetchNonce, RequestNonceResponse } from '@/types';
 import { fetchWithTimeout } from '@/utils/http';
-import { XMLParser } from 'fast-xml-parser';
+import xml from 'xml2js';
 import { Headers } from 'cross-fetch';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_nonce
@@ -20,9 +20,13 @@ export const getNonce = async ({ spEndpoint, spName, spAddress, address, domain 
       return { code: -1, nonce: null };
     }
 
-    const xmlParser = new XMLParser();
-    const xmlData = await result.text();
-    res = xmlParser.parse(xmlData) as RequestNonceResponse;
+    const data = await result.text();
+
+    res = (await xml.parseStringPromise(data, {
+      strict: true,
+      explicitRoot: true,
+      explicitArray: false,
+    })) as RequestNonceResponse;
   } catch (error) {
     return { code: -1, nonce: null };
   }

@@ -342,7 +342,7 @@ export class Bucket implements IBucket {
 
       if (!result.ok) {
         const xmlError = await result.text();
-        const { code, message } = parseError(xmlError);
+        const { code, message } = await parseError(xmlError);
         throw {
           code: code || -1,
           message: message || 'Get bucket error.',
@@ -351,7 +351,7 @@ export class Bucket implements IBucket {
       }
 
       const xmlData = await result.text();
-      const res = parseGetUserBucketsResponse(xmlData);
+      const res = await parseGetUserBucketsResponse(xmlData);
 
       return {
         code: 0,
@@ -399,7 +399,7 @@ export class Bucket implements IBucket {
       );
 
       const xmlData = await result.text();
-      const res = parseReadQuotaResponse(xmlData);
+      const res = await parseReadQuotaResponse(xmlData);
 
       return {
         code: 0,
@@ -532,7 +532,7 @@ export class Bucket implements IBucket {
       const { status } = result;
       if (!result.ok) {
         const xmlError = await result.text();
-        const { code, message } = parseError(xmlError);
+        const { code, message } = await parseError(xmlError);
         throw {
           code: code || -1,
           message: message || 'Get migrate bucket approval error.',
@@ -615,7 +615,7 @@ export class Bucket implements IBucket {
     });
 
     const xml = await result.text();
-    const res = parseGetBucketMetaResponse(xml);
+    const res = await parseGetBucketMetaResponse(xml);
 
     return {
       code: 0,

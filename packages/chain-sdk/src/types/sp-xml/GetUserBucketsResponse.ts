@@ -1,9 +1,9 @@
-import { Bucket } from './Common';
+import { BucketMeta } from './Common';
 
 export interface GetUserBucketsResponse {
   GfSpGetUserBucketsResponse: GfSPGetUserBucketsResponse;
 }
 
 export interface GfSPGetUserBucketsResponse {
-  Buckets: Bucket[];
+  Buckets: BucketMeta[];
 }

@@ -64,7 +64,7 @@ export class SpClient implements ISpClient {
 
       if (!response.ok) {
         const xmlError = await response.text();
-        const { code, message } = parseError(xmlError);
+        const { code, message } = await parseError(xmlError);
         throw {
           code: code || customError?.code,
           message: message || customError?.message,

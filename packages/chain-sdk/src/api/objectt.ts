@@ -407,7 +407,7 @@ export class Objectt implements IObject {
       const { status } = result;
       if (!result.ok) {
         const xmlError = await result.text();
-        const { code, message } = parseError(xmlError);
+        const { code, message } = await parseError(xmlError);
 
         return {
           code: code || -1,
@@ -524,7 +524,7 @@ export class Objectt implements IObject {
       const { status } = result;
       if (!result.ok) {
         const xmlError = await result.text();
-        const { code, message } = parseError(xmlError);
+        const { code, message } = await parseError(xmlError);
         return {
           code: code || -1,
           message: message || 'List object error.',
@@ -533,7 +533,7 @@ export class Objectt implements IObject {
       }
 
       const xmlData = await result.text();
-      const res = parseListObjectsByBucketNameResponse(xmlData);
+      const res = await parseListObjectsByBucketNameResponse(xmlData);
 
       return {
         code: 0,
@@ -667,7 +667,7 @@ export class Objectt implements IObject {
     });
 
     const xml = await result.text();
-    const res = parseGetObjectMetaResponse(xml);
+    const res = await parseGetObjectMetaResponse(xml);
 
     return {
       code: 0,

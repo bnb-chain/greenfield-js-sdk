@@ -1,9 +1,10 @@
 export interface ReadQuotaResponse {
   GetReadQuotaResult: {
-    BucketID: number;
     BucketName: string;
-    ReadConsumedSize: number;
+    BucketID: string;
     ReadQuotaSize: number;
     SPFreeReadQuotaSize: number;
+    ReadConsumedSize: number;
+    FreeConsumedSize: number;
   };
 }
