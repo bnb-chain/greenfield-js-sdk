@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.20
+
+### Patch Changes
+
+- [#270](https://github.com/bnb-chain/greenfield-js-sdk/pull/270)
+  [`a3e6b47`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a3e6b472329e32fe86f7dd8a770d39a371a034cc)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: New API getObjectPreviewUrl
+
 ## 0.2.4-alpha.19
 
 ### Patch Changes
