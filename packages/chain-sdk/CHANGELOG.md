@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.21
+
+### Patch Changes
+
+- [#273](https://github.com/bnb-chain/greenfield-js-sdk/pull/273)
+  [`25ccbb6`](https://github.com/bnb-chain/greenfield-js-sdk/commit/25ccbb6612b86d8037cec4b9ca3a9b141e10cc66)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sp API add optional endpoint param
+
+- [#272](https://github.com/bnb-chain/greenfield-js-sdk/pull/272)
+  [`b3683b8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b3683b8ce7e56a96c970964b2ade500eb95ef298)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: XML response from sp align to go struct
+
 ## 0.2.4-alpha.20
 
 ### Patch Changes
