@@ -17,7 +17,6 @@ export const MigrateBucket = () => {
             setBucketName(e.target.value);
           }}
         />
-        <br />
       </div>
       <br />
       <button
@@ -25,6 +24,8 @@ export const MigrateBucket = () => {
           if (!address) return;
 
           const destinationSpInfo = await selectSp();
+          console.log('dstPrimarySpId', destinationSpInfo.id);
+
           const provider = await connector?.getProvider();
           const offChainData = await getOffchainAuthKeys(address, provider);
           if (!offChainData) {

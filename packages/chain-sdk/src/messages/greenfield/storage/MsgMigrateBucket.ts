@@ -30,5 +30,9 @@ export const MsgMigrateBucketSDKTypeEIP712 = {
       name: 'global_virtual_group_family_id',
       type: 'uint32',
     },
+    {
+      name: 'sig',
+      type: 'bytes',
+    },
   ],
 };

@@ -66,6 +66,8 @@ export interface ISp {
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
   getSPUrlByPrimaryAddr(parimaryAddr: string): Promise<string>;
+
+  getSPUrlById(primaryId: number): Promise<string>;
 }
 
 @singleton()
@@ -110,6 +112,11 @@ export class Sp implements ISp {
   ) {
     const rpc = await this.queryClient.getSpQueryClient();
     return await rpc.StorageProviderMaintenanceRecordsByOperatorAddress(request);
+  }
+
+  public async getSPUrlById(primaryId: number) {
+    const spList = await this.getStorageProviders();
+    return spList.filter((sp) => sp.id === primaryId)[0].endpoint;
   }
 
   public async getSPUrlByBucket(bucketName: string) {
