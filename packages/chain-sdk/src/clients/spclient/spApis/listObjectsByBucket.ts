@@ -1,14 +1,13 @@
 import { convertStrToBool, formatObjectInfo } from '@/types/sp-xml/Common';
 import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
-import xml from 'xml2js';
+import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_objects_by_bucket
 export const parseListObjectsByBucketNameResponse = async (data: string) => {
-  const res = (await xml.parseStringPromise(data, {
-    strict: true,
-    explicitRoot: true,
-    explicitArray: false,
-  })) as ListObjectsByBucketNameResponse;
+  const xmlParser = new XMLParser({
+    parseTagValue: false,
+  });
+  const res = xmlParser.parse(data) as ListObjectsByBucketNameResponse;
 
   let Objects = res.GfSpListObjectsByBucketNameResponse.Objects || [];
   if (Objects) {
