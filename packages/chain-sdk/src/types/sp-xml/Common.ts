@@ -26,7 +26,7 @@ export interface BucketInfo {
   SourceType: keyof typeof SourceType;
   CreateAt: number;
   PaymentAddress: string;
-  PrimarySpId: number;
+  // PrimarySpId: number;
   GlobalVirtualGroupFamilyId: number;
   ChargedReadQuota: number;
   BucketStatus: keyof typeof BucketStatus;
