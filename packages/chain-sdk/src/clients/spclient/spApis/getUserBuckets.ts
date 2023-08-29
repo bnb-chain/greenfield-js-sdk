@@ -17,8 +17,17 @@ export const parseGetUserBucketsResponse = async (data: string) => {
     }
 
     Buckets = Buckets.map((item) => {
+      const BucketInfo = {
+        ...item.BucketInfo,
+        CreateAt: Number(item.BucketInfo.CreateAt),
+        // PrimarySpId: Number(item.BucketInfo.PrimarySpId),
+        GlobalVirtualGroupFamilyId: Number(item.BucketInfo.GlobalVirtualGroupFamilyId),
+        ChargedReadQuota: Number(item.BucketInfo.ChargedReadQuota),
+      };
+
       return {
         ...item,
+        BucketInfo,
         // @ts-ignore
         Removed: convertStrToBool(item.Removed),
         DeleteAt: Number(item.DeleteAt),
