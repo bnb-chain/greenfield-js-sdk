@@ -1,29 +1,24 @@
-import {
-  getAuthorization,
-  HTTPHeaderUserAddress,
-  newRequestHeadersByMeta,
-} from '@/clients/spclient/auth';
+import { HTTPHeaderUserAddress } from '@/clients/spclient/auth';
 import { getBucketApprovalMetaInfo } from '@/clients/spclient/spApis/bucketApproval';
 import { parseGetBucketMetaResponse } from '@/clients/spclient/spApis/getBucketMeta';
 import { parseGetUserBucketsResponse } from '@/clients/spclient/spApis/getUserBuckets';
+import { getMigrateMetaInfo } from '@/clients/spclient/spApis/migrateApproval';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import {
   getQueryBucketReadQuotaMetaInfo,
   parseReadQuotaResponse,
 } from '@/clients/spclient/spApis/queryBucketReadQuota';
-import { EMPTY_STRING_SHA256, METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateBucket';
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { ReqMeta } from '@/types/auth';
 import {
   GetBucketMetaRequest,
   GetBucketMetaResponse,
   GetUserBucketsResponse,
 } from '@/types/sp-xml';
-import { decodeObjectFromHexString, encodeObjectToHexString } from '@/utils/encoding';
-import { fetchWithTimeout } from '@/utils/http';
+import { decodeObjectFromHexString } from '@/utils/encoding';
 import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import {
   ActionType,
@@ -472,12 +467,10 @@ export class Bucket implements IBucket {
     try {
       let endpoint = params.endpoint;
       if (!endpoint) {
-        endpoint = await this.sp.getSPUrlByBucket(bucketName);
+        endpoint = await this.sp.getSPUrlById(params.dstPrimarySpId);
       }
-      const path = '/greenfield/admin/v1/get-approval';
-      const query = 'action=MigrateBucket';
-      const url = `${endpoint}${path}?${query}`;
-      const msg = {
+
+      const { reqMeta, optionsWithOutHeaders, url } = await getMigrateMetaInfo(endpoint, {
         operator: operator,
         bucket_name: bucketName,
         dst_primary_sp_id: dstPrimarySpId,
@@ -486,65 +479,19 @@ export class Bucket implements IBucket {
           sig: '',
           global_virtual_group_family_id: 0,
         },
-      };
-      const unSignedMessageInHex = encodeObjectToHexString(msg);
+      });
 
-      const reqMeta: Partial<ReqMeta> = {
-        contentSHA256: EMPTY_STRING_SHA256,
-        method: METHOD_GET,
-        url: {
-          hostname: new URL(url).hostname,
-          query,
-          path,
-        },
-        unsignMsg: unSignedMessageInHex,
-      };
-      const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
-      let headerObj: Record<string, any> = {
-        'X-Gnfd-Date': metaHeaders.get('X-Gnfd-Date'),
-        'X-Gnfd-Expiry-Timestamp': metaHeaders.get('X-Gnfd-Expiry-Timestamp'),
-        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-      };
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
-      if (authType.type === 'EDDSA') {
-        const { domain, address } = authType;
-        metaHeaders.append('X-Gnfd-User-Address', address);
-        metaHeaders.append('X-Gnfd-App-Domain', domain);
-
-        headerObj = {
-          ...headerObj,
-          'X-Gnfd-User-Address': address,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
-
-      const auth = await getAuthorization(reqMeta, metaHeaders, authType);
-
-      headerObj = {
-        ...headerObj,
-        Authorization: auth,
-      };
-
-      const headers = new Headers(headerObj);
-      const result = await fetchWithTimeout(
+      const result = await this.spClient.callApi(
         url,
         {
-          headers,
-          method: METHOD_GET,
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
         },
         30000,
       );
-      const { status } = result;
-      if (!result.ok) {
-        const xmlError = await result.text();
-        const { code, message } = await parseError(xmlError);
-        throw {
-          code: code || -1,
-          message: message || 'Get migrate bucket approval error.',
-          statusCode: status,
-        };
-      }
+
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
       const signedMsg = decodeObjectFromHexString(signedMsgString) as IMigrateBucketMsgType;
 
@@ -552,7 +499,7 @@ export class Bucket implements IBucket {
         code: 0,
         message: 'Get migrate bucket approval success.',
         body: signedMsgString,
-        statusCode: status,
+        statusCode: result.status,
         signedMsg: signedMsg,
       };
     } catch (error: any) {
