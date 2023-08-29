@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.25
+
+### Patch Changes
+
+- [#283](https://github.com/bnb-chain/greenfield-js-sdk/pull/283)
+  [`1badb9c`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1badb9c9dd71a7a39025e90adfe9a6feace75936)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Replace xml2js for universal usage browser
+  and nodejs
+
+- [#284](https://github.com/bnb-chain/greenfield-js-sdk/pull/284)
+  [`c28ab8b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c28ab8b283f9aca37633c761527706f780bd13f5)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Update Bucket Info
+
 ## 0.2.4-alpha.24
 
 ### Patch Changes
