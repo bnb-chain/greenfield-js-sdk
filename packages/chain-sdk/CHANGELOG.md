@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.22
+
+### Patch Changes
+
+- [#275](https://github.com/bnb-chain/greenfield-js-sdk/pull/275)
+  [`55f8851`](https://github.com/bnb-chain/greenfield-js-sdk/commit/55f8851a659a178c1ab37473f0c76f9a374a0368)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: XML boolean parse
+
 ## 0.2.4-alpha.21
 
 ### Patch Changes
