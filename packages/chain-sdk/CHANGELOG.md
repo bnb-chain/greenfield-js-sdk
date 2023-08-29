@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.23
+
+### Patch Changes
+
+- [#277](https://github.com/bnb-chain/greenfield-js-sdk/pull/277)
+  [`ff112b2`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ff112b2403b3e9826acb120cf42203996bf97872)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Common Prefix XML parse as array
+
 ## 0.2.4-alpha.22
 
 ### Patch Changes
