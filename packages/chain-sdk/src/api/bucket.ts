@@ -20,6 +20,7 @@ import {
 } from '@/types/sp-xml';
 import { decodeObjectFromHexString } from '@/utils/encoding';
 import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
+import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
   ActionType,
   Principal,
@@ -120,7 +121,9 @@ export interface IBucket {
 
   deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
 
-  updateBucketInfo(msg: MsgUpdateBucketInfo): Promise<TxResponse>;
+  updateBucketInfo(
+    srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota?: string },
+  ): Promise<TxResponse>;
 
   putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
 
@@ -416,12 +419,27 @@ export class Bucket implements IBucket {
     }
   }
 
-  public async updateBucketInfo(msg: MsgUpdateBucketInfo) {
+  public async updateBucketInfo(
+    srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota: string },
+  ) {
+    const msg: MsgUpdateBucketInfo = {
+      ...srcMsg,
+      visibility: visibilityTypeFromJSON(srcMsg.visibility),
+      chargedReadQuota: UInt64Value.fromPartial({
+        value: Long.fromString(srcMsg.chargedReadQuota),
+      }),
+    };
+
     return await this.basic.tx(
       MsgUpdateBucketInfoTypeUrl,
       msg.operator,
       MsgUpdateBucketInfoSDKTypeEIP712,
-      MsgUpdateBucketInfo.toSDK(msg),
+      {
+        ...MsgUpdateBucketInfo.toSDK(msg),
+        charged_read_quota: {
+          value: srcMsg.chargedReadQuota,
+        },
+      },
       MsgUpdateBucketInfo.encode(msg).finish(),
     );
   }

@@ -13,12 +13,22 @@ export const MsgUpdateBucketInfoSDKTypeEIP712 = {
       type: 'string',
     },
     {
+      name: 'charged_read_quota',
+      type: 'TypeMsg1ChargedReadQuota',
+    },
+    {
       name: 'payment_address',
       type: 'string',
     },
     {
       name: 'visibility',
       type: 'string',
+    },
+  ],
+  TypeMsg1ChargedReadQuota: [
+    {
+      name: 'value',
+      type: 'uint64',
     },
   ],
 };
