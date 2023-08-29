@@ -1,8 +1,6 @@
 import { client } from '@/client';
-import { Long } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
-import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 
 export const UpdateBucket = () => {
   const { address } = useAccount();
