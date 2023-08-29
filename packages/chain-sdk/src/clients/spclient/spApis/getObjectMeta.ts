@@ -1,4 +1,4 @@
-import { formatObjectInfo } from '@/types';
+import { convertStrToBool, formatObjectInfo } from '@/types/sp-xml/Common';
 import { GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
 import xml from 'xml2js';
 
@@ -12,7 +12,8 @@ export const parseGetObjectMetaResponse = async (data: string) => {
 
   const Object = res.GfSpGetObjectMetaResponse.Object || {};
   if (Object) {
-    Object.Removed = Boolean(Object.Removed);
+    // @ts-ignore
+    Object.Removed = convertStrToBool(Object.Removed);
     Object.UpdateAt = Number(Object.UpdateAt);
     Object.DeleteAt = Number(Object.DeleteAt);
 
