@@ -3,6 +3,7 @@ import { DeleteBucket } from './delete';
 import { BucketInfo } from './info';
 import { MigrateBucket } from './migrate';
 import { BucketQuota } from './quota';
+import { UpdateBucket } from './update';
 
 export const Bucket = () => {
   return (
@@ -10,6 +11,10 @@ export const Bucket = () => {
       <h2>Bucket</h2>
 
       <CreateBucket />
+
+      <div style={{ marginTop: 10 }} />
+
+      <UpdateBucket />
 
       <div style={{ marginTop: 10 }} />
 
