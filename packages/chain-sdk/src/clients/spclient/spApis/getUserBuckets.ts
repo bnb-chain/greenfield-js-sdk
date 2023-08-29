@@ -1,14 +1,13 @@
 import { GetUserBucketsResponse } from '@/types';
 import { convertStrToBool } from '@/types/sp-xml/Common';
-import xml from 'xml2js';
+import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_user_buckets
 export const parseGetUserBucketsResponse = async (data: string) => {
-  const res = (await xml.parseStringPromise(data, {
-    strict: true,
-    explicitRoot: true,
-    explicitArray: false,
-  })) as GetUserBucketsResponse;
+  const xmlParser = new XMLParser({
+    parseTagValue: false,
+  });
+  const res = xmlParser.parse(data) as GetUserBucketsResponse;
 
   let Buckets = res.GfSpGetUserBucketsResponse.Buckets || [];
   if (Buckets) {

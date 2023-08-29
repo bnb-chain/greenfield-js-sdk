@@ -94,7 +94,7 @@ describe('parseListObjectsByBucketNameResponse', () => {
 		<ObjectInfo>
 			<Owner>0x1C893441AB6c1A75E01887087ea508bE8e07AAae</Owner>
 			<Creator>0x1C893441AB6c1A75E01887087ea508bE8e07AAae</Creator>
-			<BucketName>foo</BucketName>
+			<BucketName>true</BucketName>
 			<ObjectName>obk</ObjectName>
 			<Id>739112</Id>
 			<LocalVirtualGroupId>1</LocalVirtualGroupId>
@@ -136,7 +136,7 @@ describe('parseListObjectsByBucketNameResponse', () => {
         ObjectInfo: {
           Owner: '0x1C893441AB6c1A75E01887087ea508bE8e07AAae',
           Creator: '0x1C893441AB6c1A75E01887087ea508bE8e07AAae',
-          BucketName: 'foo',
+          BucketName: 'true',
           ObjectName: 'obk',
           Id: 739112,
           LocalVirtualGroupId: 1,

@@ -1,14 +1,13 @@
 import { convertStrToBool, formatObjectInfo } from '@/types/sp-xml/Common';
 import { GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
-import xml from 'xml2js';
+import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_object_meta
 export const parseGetObjectMetaResponse = async (data: string) => {
-  const res = (await xml.parseStringPromise(data, {
-    strict: true,
-    explicitRoot: true,
-    explicitArray: false,
-  })) as GetObjectMetaResponse;
+  const xmlParser = new XMLParser({
+    parseTagValue: false,
+  });
+  const res = xmlParser.parse(data) as GetObjectMetaResponse;
 
   const Object = res.GfSpGetObjectMetaResponse.Object || {};
   if (Object) {

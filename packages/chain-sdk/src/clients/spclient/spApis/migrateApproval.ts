@@ -1,5 +1,5 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
-import { ICreateBucketMsgType, IMigrateBucketMsgType, ReqMeta } from '@/types';
+import { IMigrateBucketMsgType, ReqMeta } from '@/types';
 import { toHex, utf8ToBytes } from 'ethereum-cryptography/utils';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_approval

@@ -1,14 +1,12 @@
 import { GetBucketMetaResponse } from '@/types';
-import xml from 'xml2js';
+import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_bucket_meta
 export const parseGetBucketMetaResponse = async (data: string) => {
-  // Buckets
-  const res = (await xml.parseStringPromise(data, {
-    strict: true,
-    explicitRoot: true,
-    explicitArray: false,
-  })) as GetBucketMetaResponse;
+  const xmlParser = new XMLParser({
+    parseTagValue: false,
+  });
+  const res = xmlParser.parse(data) as GetBucketMetaResponse;
 
   return res;
 };
