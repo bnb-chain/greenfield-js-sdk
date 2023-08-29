@@ -263,9 +263,7 @@ export class Bucket implements IBucket {
         sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
         globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
       },
-      chargedReadQuota: signedMsg.charged_read_quota
-        ? Long.fromString('0')
-        : Long.fromString(signedMsg.charged_read_quota),
+      chargedReadQuota: Long.fromString(signedMsg.charged_read_quota),
       paymentAddress: signedMsg.payment_address,
     };
 
