@@ -28,7 +28,12 @@ export const parseListObjectsByBucketNameResponse = async (data: string) => {
     });
   }
 
-  const CommonPrefixes = res.GfSpListObjectsByBucketNameResponse.CommonPrefixes || [];
+  let CommonPrefixes = res.GfSpListObjectsByBucketNameResponse.CommonPrefixes || [];
+  if (CommonPrefixes) {
+    if (!Array.isArray(CommonPrefixes)) {
+      CommonPrefixes = [CommonPrefixes];
+    }
+  }
 
   res.GfSpListObjectsByBucketNameResponse = {
     ...res.GfSpListObjectsByBucketNameResponse,
