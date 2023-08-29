@@ -1,7 +1,5 @@
-import {
-  formatObjectInfo,
-  ListObjectsByBucketNameResponse,
-} from '@/types/sp-xml/ListObjectsByBucketNameResponse';
+import { convertStrToBool, formatObjectInfo } from '@/types/sp-xml/Common';
+import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
 import xml from 'xml2js';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_objects_by_bucket
@@ -21,7 +19,8 @@ export const parseListObjectsByBucketNameResponse = async (data: string) => {
     Objects = Objects.map((item) => {
       return {
         ...item,
-        Removed: Boolean(item.Removed),
+        // @ts-ignore
+        Removed: convertStrToBool(item.Removed),
         UpdateAt: Number(item.UpdateAt),
         DeleteAt: Number(item.DeleteAt),
         ObjectInfo: formatObjectInfo(item.ObjectInfo),
@@ -35,7 +34,8 @@ export const parseListObjectsByBucketNameResponse = async (data: string) => {
     ...res.GfSpListObjectsByBucketNameResponse,
     Objects,
     CommonPrefixes,
-    IsTruncated: Boolean(res.GfSpListObjectsByBucketNameResponse.IsTruncated),
+    // @ts-ignore
+    IsTruncated: convertStrToBool(res.GfSpListObjectsByBucketNameResponse.IsTruncated),
   };
 
   return res;

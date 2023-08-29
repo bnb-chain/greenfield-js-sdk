@@ -16,13 +16,3 @@ export interface GfSPListObjectsByBucketNameResponse {
   CommonPrefixes: string[];
   ContinuationToken: string;
 }
-
-export function formatObjectInfo(o: ObjectInfo) {
-  return {
-    ...o,
-    Id: Number(o.Id),
-    LocalVirtualGroupId: Number(o.LocalVirtualGroupId),
-    PayloadSize: Number(o.PayloadSize),
-    CreateAt: Number(o.CreateAt),
-  };
-}

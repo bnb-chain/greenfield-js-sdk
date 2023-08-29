@@ -74,3 +74,17 @@ export interface ObjectInfo {
   SourceType: keyof typeof SourceType;
   Checksums: string[];
 }
+
+export function formatObjectInfo(o: ObjectInfo) {
+  return {
+    ...o,
+    Id: Number(o.Id),
+    LocalVirtualGroupId: Number(o.LocalVirtualGroupId),
+    PayloadSize: Number(o.PayloadSize),
+    CreateAt: Number(o.CreateAt),
+  };
+}
+
+export function convertStrToBool(str: string) {
+  return String(str).toLowerCase() === 'true';
+}
