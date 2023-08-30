@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.26
+
+### Patch Changes
+
+- [#287](https://github.com/bnb-chain/greenfield-js-sdk/pull/287)
+  [`402da22`](https://github.com/bnb-chain/greenfield-js-sdk/commit/402da22ea101f855a05f098b8970eef13b045ead)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: convert XML enum to number
+
+- [#286](https://github.com/bnb-chain/greenfield-js-sdk/pull/286)
+  [`c7de1fc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c7de1fc86211e879dcdf4c420e3f7363fa1e36a5)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: EncodePath function handling non-English chars
+
 ## 0.2.4-alpha.25
 
 ### Patch Changes
