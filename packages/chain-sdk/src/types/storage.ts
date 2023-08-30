@@ -88,6 +88,7 @@ export interface IQuotaProps {
   readQuota: number;
   freeQuota: number;
   consumedQuota: number;
+  freeConsumedSize: number;
 }
 
 export type TBaseGetCreateObject = {

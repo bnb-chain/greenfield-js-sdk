@@ -406,6 +406,7 @@ export class Bucket implements IBucket {
           readQuota: Number(res.GetReadQuotaResult.ReadQuotaSize ?? '0'),
           freeQuota: Number(res.GetReadQuotaResult.SPFreeReadQuotaSize ?? '0'),
           consumedQuota: Number(res.GetReadQuotaResult.ReadConsumedSize ?? '0'),
+          freeConsumedSize: Number(res.GetReadQuotaResult.FreeConsumedSize ?? '0'),
         },
         message: 'Get bucket read quota.',
         statusCode: result.status,

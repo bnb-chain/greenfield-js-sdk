@@ -1,5 +1,5 @@
 import { GetUserBucketsResponse } from '@/types';
-import { convertStrToBool } from '@/types/sp-xml/Common';
+import { convertStrToBool, formatBucketInfo } from '@/types/sp-xml/Common';
 import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_user_buckets
@@ -16,17 +16,9 @@ export const parseGetUserBucketsResponse = async (data: string) => {
     }
 
     Buckets = Buckets.map((item) => {
-      const BucketInfo = {
-        ...item.BucketInfo,
-        CreateAt: Number(item.BucketInfo.CreateAt),
-        // PrimarySpId: Number(item.BucketInfo.PrimarySpId),
-        GlobalVirtualGroupFamilyId: Number(item.BucketInfo.GlobalVirtualGroupFamilyId),
-        ChargedReadQuota: Number(item.BucketInfo.ChargedReadQuota),
-      };
-
       return {
         ...item,
-        BucketInfo,
+        BucketInfo: formatBucketInfo(item.BucketInfo),
         // @ts-ignore
         Removed: convertStrToBool(item.Removed),
         DeleteAt: Number(item.DeleteAt),

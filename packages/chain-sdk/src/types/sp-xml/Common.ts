@@ -1,11 +1,3 @@
-import {
-  BucketStatus,
-  ObjectStatus,
-  RedundancyType,
-  SourceType,
-  VisibilityType,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-
 export interface BucketMeta {
   BucketInfo: BucketInfo;
   Removed: boolean;
@@ -19,17 +11,17 @@ export interface BucketMeta {
 }
 
 export interface BucketInfo {
-  Owner: string;
-  BucketName: string;
-  Visibility: keyof typeof VisibilityType;
-  Id: string;
-  SourceType: keyof typeof SourceType;
-  CreateAt: number;
-  PaymentAddress: string;
   // PrimarySpId: number;
-  GlobalVirtualGroupFamilyId: number;
+  BucketName: string;
+  BucketStatus: number;
   ChargedReadQuota: number;
-  BucketStatus: keyof typeof BucketStatus;
+  CreateAt: number;
+  GlobalVirtualGroupFamilyId: number;
+  Id: string;
+  Owner: string;
+  PaymentAddress: string;
+  SourceType: number;
+  Visibility: number;
 }
 
 export interface StreamRecord {
@@ -59,29 +51,46 @@ export interface ObjectMeta {
 }
 
 export interface ObjectInfo {
-  Owner: string;
-  Creator: string;
   BucketName: string;
-  ObjectName: string;
-  Id: number;
-  LocalVirtualGroupId: number;
-  PayloadSize: number;
-  Visibility: keyof typeof VisibilityType;
+  Checksums: string[];
   ContentType: string;
   CreateAt: number;
-  ObjectStatus: keyof typeof ObjectStatus;
-  RedundancyType: keyof typeof RedundancyType;
-  SourceType: keyof typeof SourceType;
-  Checksums: string[];
+  Creator: string;
+  Id: number;
+  LocalVirtualGroupId: number;
+  ObjectName: string;
+  ObjectStatus: number;
+  Owner: string;
+  PayloadSize: number;
+  RedundancyType: number;
+  SourceType: number;
+  Visibility: number;
+}
+
+export function formatBucketInfo(o: BucketInfo) {
+  return {
+    ...o,
+    // PrimarySpId: Number(item.BucketInfo.PrimarySpId),
+    BucketStatus: Number(o.BucketStatus),
+    ChargedReadQuota: Number(o.ChargedReadQuota),
+    CreateAt: Number(o.CreateAt),
+    GlobalVirtualGroupFamilyId: Number(o.GlobalVirtualGroupFamilyId),
+    SourceType: Number(o.SourceType),
+    Visibility: Number(o.Visibility),
+  };
 }
 
 export function formatObjectInfo(o: ObjectInfo) {
   return {
     ...o,
+    CreateAt: Number(o.CreateAt),
     Id: Number(o.Id),
     LocalVirtualGroupId: Number(o.LocalVirtualGroupId),
+    ObjectStatus: Number(o.ObjectStatus),
     PayloadSize: Number(o.PayloadSize),
-    CreateAt: Number(o.CreateAt),
+    RedundancyType: Number(o.RedundancyType),
+    SourceType: Number(o.SourceType),
+    Visibility: Number(o.Visibility),
   };
 }
 
