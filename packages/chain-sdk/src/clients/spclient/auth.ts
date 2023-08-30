@@ -187,14 +187,15 @@ export const encodePath = (pathName: string) => {
 
       // others characters need to be encoded
       default:
-        const length = encodeURIComponent(s).length;
-        if (length < 0) {
-          // if encodeURIComponent cannot convert return the same string as is
-          return pathName;
+        // . ! @ # $ % ^ & * ) ( - + = { } [ ] / " , ' < > ~ \ .` ? : ; | \\
+        if (/[.!@#\$%\^&\*\)\(\-+=\{\}\[\]\/\",'<>~\·`\?:;|\\]+$/.test(s)) {
+          // english characters
+          const hexStr = s.charCodeAt(0).toString(16);
+          encodedPathName += '%' + hexStr.toUpperCase();
+        } else {
+          // others characters
+          encodedPathName += encodeURI(s);
         }
-
-        const hexStr = s.charCodeAt(0).toString(16);
-        encodedPathName += '%' + hexStr.toUpperCase();
     }
   }
   return encodedPathName;
