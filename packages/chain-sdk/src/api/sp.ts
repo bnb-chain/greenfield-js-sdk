@@ -1,6 +1,7 @@
-import { encodePath } from '@/clients/spclient/auth';
+import { encodePath, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
 import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
 import { parseListGroupsMembersResponse } from '@/clients/spclient/spApis/listGroupsMembers';
+import { parseListUserGroupsResponse } from '@/clients/spclient/spApis/listUserGroups';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
 import { SpClient } from '@/clients/spclient/spClient';
@@ -23,8 +24,10 @@ import {
   IObjectResultType,
   ListGroupsMembersResponse,
   ListGroupsResponse,
+  ListUserGroupsResponse,
   TListGroups,
-  TListGroupsMembers,
+  TListGroupsMembersRequest,
+  TListUserGroupRequest,
   TVerifyPermissionRequest,
   VerifyPermissionResponse,
 } from '..';
@@ -75,8 +78,10 @@ export interface ISp {
   listGroups(params: TListGroups): Promise<IObjectResultType<ListGroupsResponse>>;
 
   listGroupsMembers(
-    params: TListGroupsMembers,
+    params: TListGroupsMembersRequest,
   ): Promise<IObjectResultType<ListGroupsMembersResponse>>;
+
+  listUserGroups(params: TListUserGroupRequest): Promise<IObjectResultType<ListUserGroupsResponse>>;
 
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
@@ -278,7 +283,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async listGroupsMembers(params: TListGroupsMembers) {
+  public async listGroupsMembers(params: TListGroupsMembersRequest) {
     try {
       const { groupId, limit, startAfter } = params;
       const sp = await this.getInServiceSP();
@@ -312,6 +317,59 @@ export class Sp implements ISp {
 
       const xmlData = await result.text();
       const res = await parseListGroupsMembersResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listUserGroups(params: TListUserGroupRequest) {
+    try {
+      const { address, limit, startAfter } = params;
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}?user-groups`;
+
+      if (limit) {
+        url += `&limit=${limit}`;
+      }
+      if (startAfter) {
+        url += `&start-after=${startAfter}`;
+      }
+
+      const headers = new Headers({
+        [HTTPHeaderUserAddress]: address,
+      });
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListUserGroupsResponse(xmlData);
 
       return {
         code: 0,

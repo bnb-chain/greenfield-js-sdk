@@ -292,8 +292,14 @@ export type TVerifyPermissionRequest = {
   action: keyof typeof ActionType;
 };
 
-export type TListGroupsMembers = {
+export type TListGroupsMembersRequest = {
   groupId: number;
+  limit?: number;
+  startAfter?: string;
+};
+
+export type TListUserGroupRequest = {
+  address: string;
   limit?: number;
   startAfter?: string;
 };

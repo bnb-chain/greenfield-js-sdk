@@ -7,6 +7,7 @@ export * from './ListGroupsMembersResponse';
 export * from './ListGroupsResponse';
 export * from './ListObjectsByBucketNameResponse';
 export * from './ListObjectsByIDsResponse';
+export * from './ListUserGroupsResponse';
 export * from './ReadQuotaResponse';
 export * from './RequestErrorResponse';
 export * from './RequestNonceResponse';
