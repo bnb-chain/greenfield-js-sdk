@@ -2,6 +2,7 @@ export * from './GetBucketMetaResponse';
 export * from './GetObjectMetaResponse';
 export * from './GetUserBucketsResponse';
 export * from './ListBucketReadRecordResponse';
+export * from './ListBucketsByIDsResponse';
 export * from './ListGroupsResponse';
 export * from './ListObjectsByBucketNameResponse';
 export * from './ListObjectsByIDsResponse';

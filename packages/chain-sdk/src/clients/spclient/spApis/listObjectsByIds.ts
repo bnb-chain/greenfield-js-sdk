@@ -17,17 +17,22 @@ export const parseListObjectsByIdsResponse = async (data: string) => {
     }
 
     ObjectEntry = ObjectEntry.map((item) => {
-      return {
-        ...item,
-        Id: Number(item.Id),
-        Value: {
+      let Value = item.Value;
+      if (Value) {
+        Value = {
           ...item.Value,
           ObjectInfo: formatObjectInfo(item.Value.ObjectInfo),
           // @ts-ignore
           Removed: convertStrToBool(item.Value.Removed),
           UpdateAt: Number(item.Value.UpdateAt),
           DeleteAt: Number(item.Value.DeleteAt),
-        },
+        };
+      }
+
+      return {
+        ...item,
+        Id: Number(item.Id),
+        Value,
       };
     });
   }

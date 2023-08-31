@@ -74,6 +74,18 @@ export const QueryComponent = () => {
         <li>
           <button
             onClick={async () => {
+              const res = await client.bucket.listBucketsByIds({
+                ids: ['1', '2'],
+              });
+              console.log('res', res);
+            }}
+          >
+            get buckets by ids
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={async () => {
               const res = await client.object.listObjectsByIds({
                 ids: ['1', '2'],
               });
