@@ -9,3 +9,4 @@ export * from './ListObjectsByIDsResponse';
 export * from './ReadQuotaResponse';
 export * from './RequestErrorResponse';
 export * from './RequestNonceResponse';
+export * from './VerifyPermissionResponse';

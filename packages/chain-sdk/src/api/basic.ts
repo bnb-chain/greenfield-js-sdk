@@ -35,6 +35,7 @@ import {
   SimulateOptions,
   TxResponse,
 } from '..';
+import { RpcQueryClient } from '../clients/queryclient';
 import { DEFAULT_DENOM, ZERO_PUBKEY } from '../constants';
 import {
   createEIP712,
@@ -47,7 +48,6 @@ import {
 import { generateMsg } from '../messages/utils';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 import { Account } from './account';
-import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IBasic {
   /**

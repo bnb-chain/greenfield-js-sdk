@@ -1,3 +1,4 @@
+import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   RedundancyType,
   SourceType,
@@ -282,4 +283,11 @@ export type TListObjectsByIDsRequest = {
 
 export type TListBucketsByIDsRequest = {
   ids: string[];
+};
+
+export type TVerifyPermissionRequest = {
+  operator: string;
+  bucketName: string;
+  objectName?: string;
+  action: keyof typeof ActionType;
 };
