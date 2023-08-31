@@ -3,6 +3,7 @@ import { ReqMeta, TBaseGetBucketReadQuota } from '@/types';
 import { ReadQuotaResponse } from '@/types/sp-xml';
 import { generateUrlByBucketName } from '@/utils/s3';
 import { XMLParser } from 'fast-xml-parser';
+import { getSortQuery } from '../auth';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/query_bucket_read_quota
 export const getQueryBucketReadQuotaMetaInfo = async (
@@ -17,7 +18,11 @@ export const getQueryBucketReadQuotaMetaInfo = async (
   const formattedMonth = finalMonth.toString().padStart(2, '0');
 
   const path = '/';
-  const query = `read-quota=null&year-month=${finalYear}-${formattedMonth}`;
+  const queryMap = {
+    'year-month': `${finalYear}-${formattedMonth}`,
+    'read-quota': 'null',
+  };
+  const query = getSortQuery(queryMap);
   const url = `${generateUrlByBucketName(endpoint, bucketName)}${path}?${query}`;
 
   const reqMeta: Partial<ReqMeta> = {

@@ -93,13 +93,11 @@ export const ObjectInfo = () => {
                 bucketName,
                 objectName,
                 queryMap: {
-                  view: '0',
+                  view: '1',
                   'X-Gnfd-User-Address': address,
                   'X-Gnfd-App-Domain': window.location.origin,
                   'X-Gnfd-Expiry-Timestamp': '2023-09-03T09%3A23%3A39Z',
                 },
-                // queryRaw:
-                //   'X-Gnfd-App-Domain=http%3A%2F%2Flocalhost%3A3000&X-Gnfd-Expiry-Timestamp=2023-09-03T09%3A23%3A39Z&X-Gnfd-User-Address=0x1C893441AB6c1A75E01887087ea508bE8e07AAae&view=0',
               },
               {
                 type: 'EDDSA',

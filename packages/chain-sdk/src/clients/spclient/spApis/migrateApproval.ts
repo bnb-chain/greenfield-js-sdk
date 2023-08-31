@@ -1,11 +1,15 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
 import { IMigrateBucketMsgType, ReqMeta } from '@/types';
 import { toHex, utf8ToBytes } from 'ethereum-cryptography/utils';
+import { getSortQuery } from '../auth';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_approval
 export const getMigrateMetaInfo = async (endpoint: string, msg: IMigrateBucketMsgType) => {
   const path = '/greenfield/admin/v1/get-approval';
-  const query = 'action=MigrateBucket';
+  const queryMap = {
+    action: 'MigrateBucket',
+  };
+  const query = getSortQuery(queryMap);
   const url = `${endpoint}${path}?${query}`;
   const unSignedMessageInHex = toHex(utf8ToBytes(JSON.stringify(msg)));
 

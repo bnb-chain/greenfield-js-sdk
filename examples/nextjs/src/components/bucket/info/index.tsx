@@ -43,7 +43,6 @@ export const BucketInfo = () => {
                 bucketName,
                 startTimeStamp,
                 endTimeStamp,
-                listReadRecord: 'null',
                 maxRecords: 1000,
               },
               {

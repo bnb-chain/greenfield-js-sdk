@@ -1,4 +1,4 @@
-import { HTTPHeaderUserAddress } from '@/clients/spclient/auth';
+import { getSortQuery, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
 import { getBucketApprovalMetaInfo } from '@/clients/spclient/spApis/bucketApproval';
 import { parseGetBucketMetaResponse } from '@/clients/spclient/spApis/getBucketMeta';
 import { parseGetUserBucketsResponse } from '@/clients/spclient/spApis/getUserBuckets';
@@ -595,7 +595,10 @@ export class Bucket implements IBucket {
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
     }
-    const query = 'bucket-meta';
+    const queryMap = {
+      'bucket-meta': '',
+    };
+    const query = getSortQuery(queryMap);
     const path = bucketName;
     const url = `${endpoint}/${path}?${query}`;
     const result = await this.spClient.callApi(url, {
@@ -669,7 +672,7 @@ export class Bucket implements IBucket {
       const { ids } = params;
 
       const sp = await this.sp.getInServiceSP();
-      const url = `${sp.endpoint}?buckets-query=null&ids=${ids.join(',')}`;
+      const url = `${sp.endpoint}?ids=${ids.join(',')}&buckets-query=null`;
 
       const result = await this.spClient.callApi(
         url,

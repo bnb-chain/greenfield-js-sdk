@@ -1,10 +1,10 @@
 import { ReadRecord } from './Common';
 
 export interface ListBucketReadRecordResponse {
-  ListBucketReadRecordResult: ListBucketReadRecordResult;
+  GetBucketReadQuotaResult: GetBucketReadQuotaResult;
 }
 
-export interface ListBucketReadRecordResult {
+export interface GetBucketReadQuotaResult {
   NextStartTimestampUs: string;
   ReadRecords: ReadRecord[];
 }

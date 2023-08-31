@@ -1,4 +1,4 @@
-import { encodePath, getMsgToSign, secpSign } from '@/clients/spclient/auth';
+import { encodePath, getMsgToSign, getSortQuery, secpSign } from '@/clients/spclient/auth';
 import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
 import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
 import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
@@ -464,13 +464,7 @@ export class Objectt implements IObject {
     const path = '/' + encodePath(objectName);
     const url = generateUrlByBucketName(endpoint, bucketName) + path;
 
-    const queryParams = new URLSearchParams();
-    for (const k in queryMap) {
-      queryParams.append(k, queryMap[k]);
-    }
-    queryParams.sort();
-
-    const queryRaw = queryParams.toString();
+    const queryRaw = getSortQuery(queryMap);
 
     const canonicalRequest = [
       METHOD_GET,
@@ -678,7 +672,10 @@ export class Objectt implements IObject {
       throw new Error('Error object name');
     }
 
-    const query = 'object-meta';
+    const queryMap = {
+      'object-meta': '',
+    };
+    const query = getSortQuery(queryMap);
     const path = encodePath(objectName);
     const url = `${generateUrlByBucketName(endpoint, bucketName)}/${path}?${query}`;
     const result = await this.spClient.callApi(url, {
