@@ -1,4 +1,4 @@
-import { ObjectInfo, ObjectMeta } from './Common';
+import { ObjectMeta } from './Common';
 
 export interface ListObjectsByBucketNameResponse {
   GfSpListObjectsByBucketNameResponse: GfSPListObjectsByBucketNameResponse;

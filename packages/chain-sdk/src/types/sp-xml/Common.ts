@@ -97,3 +97,19 @@ export function formatObjectInfo(o: ObjectInfo) {
 export function convertStrToBool(str: string) {
   return String(str).toLowerCase() === 'true';
 }
+
+export interface ReadRecord {
+  ObjectName: string;
+  ObjectID: string;
+  ReadAccountAddress: string;
+  ReadTimestampUs: number;
+  ReadSize: number;
+}
+
+export function formatReadRecord(o: ReadRecord) {
+  return {
+    ...o,
+    ReadTimestampUs: Number(o.ReadTimestampUs),
+    ReadSize: Number(o.ReadSize),
+  };
+}

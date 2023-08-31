@@ -1,9 +1,10 @@
 import { client, selectSp } from '@/client';
+import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 export const BucketInfo = () => {
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const [bucketName, setBucketName] = useState('');
   const [bucketId, setBucketId] = useState('');
 
@@ -22,6 +23,42 @@ export const BucketInfo = () => {
         >
           get bucket info by name
         </button>
+        <br />
+        <button
+          onClick={async () => {
+            if (!address) return;
+
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
+            const startTimeStamp = Math.round(Date.now() / 1000) - 3600 * 24 * 2;
+            const endTimeStamp = Math.round(Date.now() / 1000);
+
+            const bucketInfo = await client.bucket.listBucketReadRecords(
+              {
+                bucketName,
+                startTimeStamp,
+                endTimeStamp,
+                listReadRecord: 'null',
+                maxRecords: 1000,
+              },
+              {
+                type: 'EDDSA',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                address,
+              },
+            );
+            console.log(bucketInfo);
+          }}
+        >
+          get bucket read records
+        </button>
+        <br />
         <button
           onClick={async () => {
             const sp = await selectSp();
