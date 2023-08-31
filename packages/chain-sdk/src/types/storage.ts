@@ -1,5 +1,6 @@
 import {
   RedundancyType,
+  SourceType,
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 
@@ -265,4 +266,12 @@ export type TListBucketReadRecord = {
   maxRecords: number;
   startTimeStamp: number;
   endTimeStamp: number;
+};
+
+export type TListGroups = {
+  name: string;
+  prefix: string;
+  sourceType?: keyof typeof SourceType;
+  limit?: number;
+  offset?: number;
 };

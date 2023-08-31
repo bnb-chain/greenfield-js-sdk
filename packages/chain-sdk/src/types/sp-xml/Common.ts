@@ -113,3 +113,19 @@ export function formatReadRecord(o: ReadRecord) {
     ReadSize: Number(o.ReadSize),
   };
 }
+
+export interface GroupInfo {
+  Owner: string;
+  GroupName: string;
+  SourceType: number;
+  Id: number;
+  Extra: string;
+}
+
+export function formatGroupInfo(o: GroupInfo) {
+  return {
+    ...o,
+    SourceType: Number(o.SourceType),
+    Id: Number(o.Id),
+  };
+}

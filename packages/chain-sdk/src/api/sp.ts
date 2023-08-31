@@ -1,6 +1,8 @@
-import { METHOD_GET } from '@/constants/http';
+import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
 import { parseError } from '@/clients/spclient/spApis/parseError';
-import { fetchWithTimeout } from '@/utils/http';
+import { SpClient } from '@/clients/spclient/spClient';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
+import { IObjectResultType, TListGroups } from '@/types/storage';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
   QueryGlobalSpStorePriceByTimeResponse,
@@ -13,12 +15,10 @@ import {
   QueryStorageProviderMaintenanceRecordsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
-import { SourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
-import { Headers } from 'cross-fetch';
 import { container, singleton } from 'tsyringe';
-import { Bucket } from './bucket';
+import { ListGroupsResponse } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { Bucket } from './bucket';
 import { VirtualGroup } from './virtualGroup';
 
 export interface ISp {
@@ -61,7 +61,7 @@ export interface ISp {
 
   params(): Promise<QueryParamsResponse>;
 
-  listGroup(groupName: string, prefix: string, opts: ListGroupsOptions): Promise<ListGroupsResult>;
+  listGroups(params: TListGroups): Promise<IObjectResultType<ListGroupsResponse>>;
 
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
@@ -75,6 +75,7 @@ export class Sp implements ISp {
   private bucket = container.resolve(Bucket);
   private queryClient = container.resolve(RpcQueryClient);
   private virtualGroup = container.resolve(VirtualGroup);
+  private spClient = container.resolve(SpClient);
 
   public async getStorageProviders() {
     const rpc = await this.queryClient.getSpQueryClient();
@@ -151,75 +152,62 @@ export class Sp implements ISp {
     return spList[0];
   }
 
-  public async listGroup(groupName: string, prefix: string, opts: ListGroupsOptions) {
-    const MaximumGetGroupListLimit = 1000;
-    const MaximumGetGroupListOffset = 100000;
-    const DefaultGetGroupListLimit = 50;
+  public async listGroups(params: TListGroups) {
+    try {
+      const { name, prefix, sourceType, limit, offset } = params;
 
-    const res: ListGroupsResult = {
-      groups: [],
-      count: '0',
-    };
+      let res: ListGroupsResponse = {
+        GfSpGetGroupListResponse: {
+          Groups: [],
+          Count: 0,
+        },
+      };
 
-    if (groupName === '' || prefix === '') {
-      return res;
-    }
+      if (name === '' || prefix === '') {
+        return {
+          code: 0,
+          message: 'success',
+          body: res,
+        };
+      }
 
-    if (opts.limit < 0) {
-      return res;
-    } else if (opts.limit > MaximumGetGroupListLimit) {
-      opts.limit = MaximumGetGroupListLimit;
-    } else if (opts.limit === 0) {
-      opts.limit = DefaultGetGroupListLimit;
-    }
+      const sp = await this.getInServiceSP();
+      const url = `${sp.endpoint}?group-query=null&name=${name}&prefix=${prefix}&source-type=${sourceType}&limit=${limit}&offset=${offset}`;
 
-    if (opts.offset < 0 || opts.offset > MaximumGetGroupListOffset) {
-      return res;
-    }
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
 
-    let headerContent: Record<string, any> = {};
-    const sp = await this.getInServiceSP();
-    headerContent = {
-      ...headerContent,
-    };
-    const url = `${sp.endpoint}?group-query&name=${groupName}&prefix=${prefix}&source-type=${opts.sourceType}&limit=${opts.limit}&offset=${opts.offset}`;
+      const xmlData = await result.text();
+      res = await parseListGroupsResponse(xmlData);
 
-    const headers = new Headers(headerContent);
-    const result = await fetchWithTimeout(url, {
-      headers,
-      method: METHOD_GET,
-    });
-
-    const { status } = result;
-    if (!result.ok) {
-      const xmlError = await result.text();
-      const { code, message } = await parseError(xmlError);
-      throw {
-        code: code || -1,
-        message: message || 'Get group list error.',
+      return {
+        code: 0,
+        message: 'success',
         statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };
     }
-
-    return await result.json();
   }
 }
-
-type ListGroupsOptions = {
-  sourceType: keyof typeof SourceType;
-  limit: number;
-  offset: number;
-};
-
-type ListGroupsResult = {
-  groups: {
-    group: GroupInfo;
-    operator: string;
-    create_at: number;
-    create_time: number;
-    update_at: number;
-    update_time: number;
-    removed: boolean;
-  }[];
-  count: string;
-};
