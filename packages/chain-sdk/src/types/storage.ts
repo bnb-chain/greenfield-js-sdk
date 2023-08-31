@@ -279,3 +279,7 @@ export type TListGroups = {
 export type TListObjectsByIDsRequest = {
   ids: string[];
 };
+
+export type TListBucketsByIDsRequest = {
+  ids: string[];
+};

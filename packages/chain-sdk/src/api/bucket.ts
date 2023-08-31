@@ -6,6 +6,7 @@ import {
   getListBucketReadRecordMetaInfo,
   parseListBucketReadRecordResponse,
 } from '@/clients/spclient/spApis/listBucketReadRecords';
+import { parseListBucketsByIdsResponse } from '@/clients/spclient/spApis/listBucketsByIds';
 import { getMigrateMetaInfo } from '@/clients/spclient/spApis/migrateApproval';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import {
@@ -21,6 +22,7 @@ import {
   GetBucketMetaRequest,
   GetBucketMetaResponse,
   GetUserBucketsResponse,
+  ListBucketsByIDsResponse,
 } from '@/types/sp-xml';
 import { ListBucketReadRecordResponse } from '@/types/sp-xml/ListBucketReadRecordResponse';
 import { decodeObjectFromHexString } from '@/utils/encoding';
@@ -73,6 +75,7 @@ import {
   TBaseGetBucketReadQuota,
   TGetUserBuckets,
   TListBucketReadRecord,
+  TListBucketsByIDsRequest,
 } from '../types/storage';
 import { Basic } from './basic';
 import { Sp } from './sp';
@@ -157,6 +160,10 @@ export interface IBucket {
     params: TListBucketReadRecord,
     authType: AuthType,
   ): Promise<IObjectResultType<ListBucketReadRecordResponse>>;
+
+  listBucketsByIds(
+    params: TListBucketsByIDsRequest,
+  ): Promise<IObjectResultType<ListBucketsByIDsResponse>>;
 }
 
 @singleton()
@@ -647,6 +654,50 @@ export class Bucket implements IBucket {
         body: res,
         message: 'success',
         statusCode: result.status,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listBucketsByIds(params: TListBucketsByIDsRequest) {
+    try {
+      const { ids } = params;
+
+      const sp = await this.sp.getInServiceSP();
+      const url = `${sp.endpoint}?buckets-query=null&ids=${ids.join(',')}`;
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListBucketsByIdsResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
       };
     } catch (error: any) {
       return {
