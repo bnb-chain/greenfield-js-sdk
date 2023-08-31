@@ -2,6 +2,10 @@ import { HTTPHeaderUserAddress } from '@/clients/spclient/auth';
 import { getBucketApprovalMetaInfo } from '@/clients/spclient/spApis/bucketApproval';
 import { parseGetBucketMetaResponse } from '@/clients/spclient/spApis/getBucketMeta';
 import { parseGetUserBucketsResponse } from '@/clients/spclient/spApis/getUserBuckets';
+import {
+  getListBucketReadRecordMetaInfo,
+  parseListBucketReadRecordResponse,
+} from '@/clients/spclient/spApis/listBucketReadRecords';
 import { getMigrateMetaInfo } from '@/clients/spclient/spApis/migrateApproval';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import {
@@ -18,6 +22,7 @@ import {
   GetBucketMetaResponse,
   GetUserBucketsResponse,
 } from '@/types/sp-xml';
+import { ListBucketReadRecordResponse } from '@/types/sp-xml/ListBucketReadRecordResponse';
 import { decodeObjectFromHexString } from '@/utils/encoding';
 import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
@@ -67,6 +72,7 @@ import {
   IQuotaProps,
   TBaseGetBucketReadQuota,
   TGetUserBuckets,
+  TListBucketReadRecord,
 } from '../types/storage';
 import { Basic } from './basic';
 import { Sp } from './sp';
@@ -146,6 +152,11 @@ export interface IBucket {
   ): Promise<TxResponse>;
 
   getBucketMeta(params: GetBucketMetaRequest): Promise<IObjectResultType<GetBucketMetaResponse>>;
+
+  listBucketReadRecords(
+    params: TListBucketReadRecord,
+    authType: AuthType,
+  ): Promise<IObjectResultType<ListBucketReadRecordResponse>>;
 }
 
 @singleton()
@@ -593,5 +604,56 @@ export class Bucket implements IBucket {
       statusCode: result.status,
       body: res,
     };
+  }
+
+  public async listBucketReadRecords(params: TListBucketReadRecord, authType: AuthType) {
+    try {
+      const { bucketName } = params;
+      // if (!isValidAddress(address)) {
+      //   throw new Error('Error address');
+      // }
+      let endpoint = params.endpoint;
+      if (!endpoint) {
+        endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      }
+      if (!isValidUrl(endpoint)) {
+        throw new Error('Invalid endpoint');
+      }
+
+      const { url, optionsWithOutHeaders, reqMeta } = await getListBucketReadRecordMetaInfo(
+        endpoint,
+        params,
+      );
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        3000,
+        {
+          code: -1,
+          message: 'Get Bucket Quota error.',
+        },
+      );
+
+      const xmlData = await result.text();
+      const res = await parseListBucketReadRecordResponse(xmlData);
+
+      return {
+        code: 0,
+        body: res,
+        message: 'success',
+        statusCode: result.status,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
   }
 }

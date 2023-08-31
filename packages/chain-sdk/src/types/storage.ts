@@ -131,20 +131,6 @@ export type TBasePutObject = {
   endpoint?: string;
 };
 
-export type TPutObjectByAuthTypeV1 = TBasePutObject & {
-  signType?: 'authTypeV1';
-  privateKey: string;
-};
-
-export type TPutObjectByOffChainAuth = TBasePutObject & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TPutObject = TPutObjectByAuthTypeV1 | TPutObjectByOffChainAuth;
-
 export type TBaseGetObject = {
   bucketName: string;
   objectName: string;
@@ -271,3 +257,12 @@ export interface IMigrateBucketMsgType {
     global_virtual_group_family_id: number;
   };
 }
+
+export type TListBucketReadRecord = {
+  bucketName: string;
+  endpoint?: string;
+  listReadRecord: string;
+  maxRecords: number;
+  startTimeStamp: number;
+  endTimeStamp: number;
+};
