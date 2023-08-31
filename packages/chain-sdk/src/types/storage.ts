@@ -275,3 +275,7 @@ export type TListGroups = {
   limit?: number;
   offset?: number;
 };
+
+export type TListObjectsByIDsRequest = {
+  ids: string[];
+};
