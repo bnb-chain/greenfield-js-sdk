@@ -2,10 +2,12 @@ import { encodePath, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
 import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
 import { parseListGroupsMembersResponse } from '@/clients/spclient/spApis/listGroupsMembers';
 import { parseListUserGroupsResponse } from '@/clients/spclient/spApis/listUserGroups';
+import { parseListUserOwnedGroupsResponse } from '@/clients/spclient/spApis/listUserOwnedGroups';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
 import { SpClient } from '@/clients/spclient/spClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
+import { ListUserOwnedGroupsResponse } from '@/types/sp-xml/ListUserOwnedGroupsResponse';
 import { actionTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
@@ -28,6 +30,7 @@ import {
   TListGroups,
   TListGroupsMembersRequest,
   TListUserGroupRequest,
+  TListUserOwnedGroupRequest,
   TVerifyPermissionRequest,
   VerifyPermissionResponse,
 } from '..';
@@ -82,6 +85,10 @@ export interface ISp {
   ): Promise<IObjectResultType<ListGroupsMembersResponse>>;
 
   listUserGroups(params: TListUserGroupRequest): Promise<IObjectResultType<ListUserGroupsResponse>>;
+
+  listUserOwnedGroups(
+    params: TListUserOwnedGroupRequest,
+  ): Promise<IObjectResultType<ListUserOwnedGroupsResponse>>;
 
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
@@ -370,6 +377,59 @@ export class Sp implements ISp {
 
       const xmlData = await result.text();
       const res = await parseListUserGroupsResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listUserOwnedGroups(params: TListUserOwnedGroupRequest) {
+    try {
+      const { address, limit, startAfter } = params;
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}?owned-groups`;
+
+      if (limit) {
+        url += `&limit=${limit}`;
+      }
+      if (startAfter) {
+        url += `&start-after=${startAfter}`;
+      }
+
+      const headers = new Headers({
+        [HTTPHeaderUserAddress]: address,
+      });
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListUserOwnedGroupsResponse(xmlData);
 
       return {
         code: 0,

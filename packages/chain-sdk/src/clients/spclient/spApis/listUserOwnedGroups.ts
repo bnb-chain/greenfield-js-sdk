@@ -1,16 +1,16 @@
-import { ListGroupsResponse } from '@/types';
 import { formatGroupInfo, convertStrToBool } from '@/types/sp-xml/Common';
+import { ListUserOwnedGroupsResponse } from '@/types/sp-xml/ListUserOwnedGroupsResponse';
 import { XMLParser } from 'fast-xml-parser';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_group_list
-export const parseListGroupsResponse = async (data: string) => {
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_user_owned_groups
+export const parseListUserOwnedGroupsResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,
   });
 
-  const res = xmlParser.parse(data) as ListGroupsResponse;
+  const res = xmlParser.parse(data) as ListUserOwnedGroupsResponse;
 
-  let Groups = res.GfSpGetGroupListResponse.Groups || [];
+  let Groups = res.GfSpGetUserOwnedGroupsResponse.Groups || [];
   if (Groups) {
     if (!Array.isArray(Groups)) {
       Groups = [Groups];
@@ -30,9 +30,8 @@ export const parseListGroupsResponse = async (data: string) => {
     });
   }
 
-  res.GfSpGetGroupListResponse = {
+  res.GfSpGetUserOwnedGroupsResponse = {
     Groups: Groups,
-    Count: Number(res.GfSpGetGroupListResponse.Count),
   };
 
   return res;

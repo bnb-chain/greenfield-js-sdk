@@ -144,6 +144,23 @@ export const QueryComponent = () => {
             list user groups
           </button>
         </li>
+        <li>
+          <button
+            onClick={async () => {
+              if (!address) return;
+
+              const res = await client.sp.listUserOwnedGroups({
+                address,
+                limit: 10,
+                startAfter: '0',
+              });
+
+              console.log('res', res);
+            }}
+          >
+            list user owned groups
+          </button>
+        </li>
       </ul>
     </>
   );

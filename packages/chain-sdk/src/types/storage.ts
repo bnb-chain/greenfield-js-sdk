@@ -303,3 +303,9 @@ export type TListUserGroupRequest = {
   limit?: number;
   startAfter?: string;
 };
+
+export type TListUserOwnedGroupRequest = {
+  address: string;
+  limit?: number;
+  startAfter?: string;
+};
