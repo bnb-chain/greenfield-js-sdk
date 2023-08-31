@@ -112,6 +112,21 @@ export const QueryComponent = () => {
             verify permission
           </button>
         </li>
+        <li>
+          <button
+            onClick={async () => {
+              if (!address) return;
+
+              const res = await client.sp.listGroupsMembers({
+                groupId: 269,
+              });
+
+              console.log('res', res);
+            }}
+          >
+            list groups members
+          </button>
+        </li>
       </ul>
     </>
   );

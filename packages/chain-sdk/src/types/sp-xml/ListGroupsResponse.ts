@@ -4,7 +4,7 @@ export interface ListGroupsResponse {
   GfSpGetGroupListResponse: GfSpGetGroupListResponse;
 }
 
-export interface Group {
+interface Group {
   Group: GroupInfo;
   Operator: string;
   CreateAt: number;
