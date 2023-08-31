@@ -1,8 +1,10 @@
+import { encodePath } from '@/clients/spclient/auth';
 import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
 import { parseError } from '@/clients/spclient/spApis/parseError';
+import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
 import { SpClient } from '@/clients/spclient/spClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
-import { IObjectResultType, TListGroups } from '@/types/storage';
+import { actionTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
   QueryGlobalSpStorePriceByTimeResponse,
@@ -16,7 +18,13 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import { container, singleton } from 'tsyringe';
-import { ListGroupsResponse } from '..';
+import {
+  IObjectResultType,
+  ListGroupsResponse,
+  TListGroups,
+  TVerifyPermissionRequest,
+  VerifyPermissionResponse,
+} from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { Bucket } from './bucket';
 import { VirtualGroup } from './virtualGroup';
@@ -68,6 +76,10 @@ export interface ISp {
   getSPUrlByPrimaryAddr(parimaryAddr: string): Promise<string>;
 
   getSPUrlById(primaryId: number): Promise<string>;
+
+  verifyPermission(
+    params: TVerifyPermissionRequest,
+  ): Promise<IObjectResultType<VerifyPermissionResponse>>;
 }
 
 @singleton()
@@ -195,6 +207,54 @@ export class Sp implements ISp {
 
       const xmlData = await result.text();
       res = await parseListGroupsResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async verifyPermission(params: TVerifyPermissionRequest) {
+    try {
+      const { action, bucketName, objectName, operator } = params;
+
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}/permission/${operator}/${bucketName}/${actionTypeFromJSON(action)}`;
+
+      if (objectName) {
+        url += `?object=${encodePath(objectName)}`;
+      }
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseVerifyPermissionResponse(xmlData);
 
       return {
         code: 0,

@@ -95,6 +95,23 @@ export const QueryComponent = () => {
             get objects by ids
           </button>
         </li>
+        <li>
+          <button
+            onClick={async () => {
+              if (!address) return;
+
+              const res = await client.sp.verifyPermission({
+                action: 'ACTION_DELETE_OBJECT',
+                bucketName: 'foo',
+                operator: address,
+                objectName: 'bar2.+_-~/fd(){}',
+              });
+              console.log('res', res);
+            }}
+          >
+            verify permission
+          </button>
+        </li>
       </ul>
     </>
   );
