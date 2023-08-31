@@ -1,11 +1,11 @@
 export const MsgMirrorGroupSDKTypeEIP712 = {
   Msg1: [
     {
-      name: 'type',
-      type: 'string',
+      name: 'dest_chain_id',
+      type: 'uint32',
     },
     {
-      name: 'operator',
+      name: 'group_name',
       type: 'string',
     },
     {
@@ -13,7 +13,11 @@ export const MsgMirrorGroupSDKTypeEIP712 = {
       type: 'string',
     },
     {
-      name: 'group_name',
+      name: 'operator',
+      type: 'string',
+    },
+    {
+      name: 'type',
       type: 'string',
     },
   ],

@@ -200,3 +200,13 @@ export const encodePath = (pathName: string) => {
   }
   return encodedPathName;
 };
+
+export const getSortQuery = (queryMap: Record<string, string>) => {
+  const queryParams = new URLSearchParams();
+  for (const k in queryMap) {
+    queryParams.append(k, queryMap[k]);
+  }
+  queryParams.sort();
+
+  return queryParams.toString();
+};

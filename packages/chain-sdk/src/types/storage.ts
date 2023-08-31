@@ -263,7 +263,6 @@ export interface IMigrateBucketMsgType {
 export type TListBucketReadRecord = {
   bucketName: string;
   endpoint?: string;
-  listReadRecord: string;
   maxRecords: number;
   startTimeStamp: number;
   endTimeStamp: number;
