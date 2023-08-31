@@ -6,21 +6,36 @@
 npm install @bnb-chain/greenfield-js-sdk
 ```
 
-## Usage
-
-### create client
+## Create Client
 ```js
 import {Client} from '@bnb-chain/greenfield-js-sdk'
+
+// Node.js
 const client = Client.create(GRPC_URL, GREEN_CHAIN_ID);
+
+// Browser
+Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
+  zkCryptoUrl:
+    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto@0.0.2-alpha.4/dist/node/zk-crypto.wasm',
+});
 ```
 
-Apis include transactions and queries.
+> Browser need load wasm manually.
 
-### Tx Client
+## Usage
+
+The SDK consists of two parts:
+
+* Chain: https://docs.bnbchain.org/greenfield-docs/docs/api/blockchain-rest
+* Storage Provider: https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest
+
+## Chain
+
+### Tx
 
 #### 1. Tx construction
 
-take `transfer` for example:
+`transfer` tx for example:
 
 ```js
 const transferTx = await client.account.transfer({
@@ -57,14 +72,16 @@ const broadcastRes = await transferTx.broadcast({
 });
 ```
 
+#### NOTICE: Signature mode for `Broadcast`  
+
 `broadcast` use `window.ethereum` as signature provider by default.
 
 If you want to use others, you can set `signTypedDataCallback`:
 
 ```js
-// trustwallet
+// trustwallet:
 const broadcastRes = await transferTx.broadcast({
-  //...
+  // ...
   signTypedDataCallback: async (addr: string, message: string) => {
     return await window.trustwallet.request({
       method: 'eth_signTypedData_v4',
@@ -74,35 +91,76 @@ const broadcastRes = await transferTx.broadcast({
 });
 ```
 
-If you broadcast in Nodejs, you can set `privateKey`:
+If you broadcast in Nodejs, you can broadcast a tx by `privateKey`:
 ```js
 const broadcastRes = await transferTx.broadcast({
-  //...
+  // ...
   privateKey: '0x.......'
 });
 ```
 
-### Query Client
+### Query
 
 ```js
 // get account info
 await client.account.getAccount(address);
 ```
 
-
-more API:
-
-* [account](./src/api/account.ts)
-* [basic](./src/api/basic.ts)
-* [backet](./src/api/backet.ts)
-* [challenge](./src/api/challenge.ts)
-* [object](./src/api/object.ts)
-* [group](./src/api/group.ts)
-* [payment](./src/api/payment.ts)
-* [sp](./src/api/sp.ts)
+Examples:
+* [Next.js](../../examples/nextjs/README.md)
+* [Node.js](../../examples/nodejs/README.md)
 
 ### Storage Provider Client
 
 > https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest
 
+SDK support two [authentication type](https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest#authentication-type):
 
+* ECDSA: It is usually used on Node.js(Because it need to use a private key)
+* EDDSA: It is usually used in a browser
+
+`getBucketReadQuota` as example:
+
+```js
+// browser:
+
+// generate seed:
+const allSps = await getAllSps();
+const offchainAuthRes = await client.offchainauth.genOffChainAuthKeyPairAndUpload(
+  {
+    sps: allSps,
+    chainId: GREEN_CHAIN_ID,
+    expirationMs: 5 * 24 * 60 * 60 * 1000,
+    domain: window.location.origin,
+    address: 'your address',
+  },
+  provider: 'wallet provider',
+);
+
+// request sp api
+const bucketQuota = await client.bucket.getBucketReadQuota(
+  {
+    bucketName,
+  },
+  {
+    type: 'EDDSA',
+    seed: offchainAuthRes.seedString,
+    domain: window.location.origin,
+    address: 'your address',
+  },
+);
+```
+
+```js
+// Node.js:
+// request sp api
+const bucketQuota = await client.bucket.getBucketReadQuota(
+  {
+    bucketName,
+  },
+  {
+    type: 'ECDSA',
+    privateKey: '0x....'
+  },
+);
+```
