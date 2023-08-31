@@ -56,7 +56,6 @@ export const GroupUpdate = () => {
       >
         update group (add)
       </button>
-
       <button
         onClick={async () => {
           if (!address) return;
@@ -87,6 +86,36 @@ export const GroupUpdate = () => {
         }}
       >
         update group (delete)
+      </button>
+      <button
+        onClick={async () => {
+          if (!address) return;
+
+          const updateGroupTx = await client.group.updateGroupExtra({
+            operator: address,
+            groupOwner: address,
+            groupName: groupName,
+            extra: String(Math.random() * 10000000000000),
+          });
+
+          const simulateInfo = await updateGroupTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log(simulateInfo);
+
+          const res = await updateGroupTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo.gasLimit),
+            gasPrice: simulateInfo.gasPrice,
+            payer: address,
+            granter: '',
+          });
+
+          console.log('res', res);
+        }}
+      >
+        updateGroupExtra
       </button>
     </div>
   );
