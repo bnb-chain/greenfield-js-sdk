@@ -4,6 +4,7 @@ export * from './GetUserBucketsResponse';
 export * from './ListBucketReadRecordResponse';
 export * from './ListGroupsResponse';
 export * from './ListObjectsByBucketNameResponse';
+export * from './ListObjectsByIDsResponse';
 export * from './ReadQuotaResponse';
 export * from './RequestErrorResponse';
 export * from './RequestNonceResponse';

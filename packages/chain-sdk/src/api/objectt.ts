@@ -2,6 +2,7 @@ import { encodePath, getMsgToSign, secpSign } from '@/clients/spclient/auth';
 import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
 import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
 import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
+import { parseListObjectsByIdsResponse } from '@/clients/spclient/spApis/listObjectsByIds';
 import { getObjectApprovalMetaInfo } from '@/clients/spclient/spApis/objectApproval';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
@@ -55,12 +56,14 @@ import { AuthType, SpClient } from '../clients/spclient/spClient';
 import {
   ICreateObjectMsgType,
   IObjectResultType,
+  ListObjectsByIDsResponse,
   Long,
   TBaseGetCreateObject,
   TBaseGetObject,
   TBaseGetPrivewObject,
   TBasePutObject,
   TListObjects,
+  TListObjectsByIDsRequest,
   TxResponse,
 } from '../types';
 import {
@@ -144,6 +147,10 @@ export interface IObject {
   ): Promise<QueryPolicyForAccountResponse>;
 
   getObjectMeta(params: GetObjectMetaRequest): Promise<IObjectResultType<GetObjectMetaResponse>>;
+
+  listObjectsByIds(
+    params: TListObjectsByIDsRequest,
+  ): Promise<IObjectResultType<ListObjectsByIDsResponse>>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }
@@ -689,16 +696,47 @@ export class Objectt implements IObject {
     };
   }
 
-  // private async getObjectStatusFromSP(params: IGetObjectStaus) {
-  //   const {bucketInfo} = await this.bucket.headBucket(params.bucketName);
-  //   const primarySpAddress = bucketInfo?.primarySpAddress
+  public async listObjectsByIds(params: TListObjectsByIDsRequest) {
+    try {
+      const { ids } = params;
 
-  //   // const url = params.endpoint + '/greenfield/admin/v1/get-approval?upload-progress=';
-  //   // const unSignedMessageInHex = encodeObjectToHexString(msg);
-  //   // const headers = new Headers({
-  //   //   // TODO: replace when offchain release
-  //   //   Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${MOCK_SIGNATURE}`,
-  //   //   'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-  //   // });
-  // }
+      const sp = await this.sp.getInServiceSP();
+      const url = `${sp.endpoint}?objects-query=null&ids=${ids.join(',')}`;
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListObjectsByIdsResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
 }

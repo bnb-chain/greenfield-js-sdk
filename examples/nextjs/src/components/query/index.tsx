@@ -71,6 +71,18 @@ export const QueryComponent = () => {
             getSPUrlByBucket
           </button>
         </li>
+        <li>
+          <button
+            onClick={async () => {
+              const res = await client.object.listObjectsByIds({
+                ids: ['1', '2'],
+              });
+              console.log('res', res);
+            }}
+          >
+            get objects by ids
+          </button>
+        </li>
       </ul>
     </>
   );
