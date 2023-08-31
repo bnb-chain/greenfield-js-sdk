@@ -1,10 +1,10 @@
 import { GroupInfo } from './Common';
 
-export interface ListGroupsMembersResponse {
-  GfSpGetGroupMembersResponse: GfSpGetGroupMembersResponse;
+export interface ListUserGroupsResponse {
+  GfSpGetUserGroupsResponse: GfSpGetUserGroupsResponse;
 }
 
-export interface GfSpGetGroupMembersResponse {
+export interface GfSpGetUserGroupsResponse {
   Groups: Group[];
 }
 
