@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.4-alpha.28
+
+### Patch Changes
+
+- [#292](https://github.com/bnb-chain/greenfield-js-sdk/pull/292)
+  [`7869b75`](https://github.com/bnb-chain/greenfield-js-sdk/commit/7869b75fa16ef8f71daad0a00b0d10ba7fb13fb3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sort query
+
 ## 0.2.4-alpha.27
 
 ### Patch Changes
