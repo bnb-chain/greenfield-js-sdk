@@ -1,5 +1,6 @@
 import { encodePath } from '@/clients/spclient/auth';
 import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
+import { parseListGroupsMembersResponse } from '@/clients/spclient/spApis/listGroupsMembers';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
 import { SpClient } from '@/clients/spclient/spClient';
@@ -20,8 +21,10 @@ import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/gree
 import { container, singleton } from 'tsyringe';
 import {
   IObjectResultType,
+  ListGroupsMembersResponse,
   ListGroupsResponse,
   TListGroups,
+  TListGroupsMembers,
   TVerifyPermissionRequest,
   VerifyPermissionResponse,
 } from '..';
@@ -70,6 +73,10 @@ export interface ISp {
   params(): Promise<QueryParamsResponse>;
 
   listGroups(params: TListGroups): Promise<IObjectResultType<ListGroupsResponse>>;
+
+  listGroupsMembers(
+    params: TListGroupsMembers,
+  ): Promise<IObjectResultType<ListGroupsMembersResponse>>;
 
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
@@ -255,6 +262,56 @@ export class Sp implements ISp {
 
       const xmlData = await result.text();
       const res = await parseVerifyPermissionResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listGroupsMembers(params: TListGroupsMembers) {
+    try {
+      const { groupId, limit, startAfter } = params;
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}?group-members&group-id=${groupId}`;
+
+      if (limit) {
+        url += `&limit=${limit}`;
+      }
+      if (startAfter) {
+        url += `&start-after=${startAfter}`;
+      }
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListGroupsMembersResponse(xmlData);
 
       return {
         code: 0,
