@@ -1,5 +1,5 @@
 import { ListUserGroupsResponse } from '@/types';
-import { formatGroupInfo } from '@/types/sp-xml/Common';
+import { formatGroupInfo, convertStrToBool } from '@/types/sp-xml/Common';
 import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_user_groups
