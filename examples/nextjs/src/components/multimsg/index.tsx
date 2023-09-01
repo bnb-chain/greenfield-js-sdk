@@ -1,5 +1,4 @@
 import { client } from '@/client';
-import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -51,7 +50,6 @@ export const MultiMsg = () => {
               gasPrice: '5000000000',
               payer: address,
               granter: '',
-              privateKey: ACCOUNT_PRIVATEKEY,
             });
 
             if (res.code === 0) {

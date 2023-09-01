@@ -7,7 +7,7 @@ import {
 import { Coin } from '@cosmjs/proto-signing';
 import { container } from 'tsyringe';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 export interface IDistribution {
   /**
    * sets the withdrawal address for a delegator address

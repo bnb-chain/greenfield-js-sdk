@@ -1,19 +1,41 @@
-import { getAuthorizationAuthTypeV2 } from '@/utils/auth';
-import { fetchWithTimeout, METHOD_GET, parseErrorXml } from '@/utils/http';
-import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
+import { encodePath, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
+import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
+import { parseListGroupsMembersResponse } from '@/clients/spclient/spApis/listGroupsMembers';
+import { parseListUserGroupsResponse } from '@/clients/spclient/spApis/listUserGroups';
+import { parseListUserOwnedGroupsResponse } from '@/clients/spclient/spApis/listUserOwnedGroups';
+import { parseError } from '@/clients/spclient/spApis/parseError';
+import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
+import { SpClient } from '@/clients/spclient/spClient';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
+import { ListUserOwnedGroupsResponse } from '@/types/sp-xml/ListUserOwnedGroupsResponse';
+import { actionTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
-  SecondarySpStorePrice,
-  SpStoragePrice,
-  Status,
-  StorageProvider,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
-import { SourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { GroupInfo } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
-import { Headers } from 'cross-fetch';
-import Long from 'long';
-import { container, delay, inject, singleton } from 'tsyringe';
+  QueryGlobalSpStorePriceByTimeRequest,
+  QueryGlobalSpStorePriceByTimeResponse,
+  QueryParamsResponse,
+  QuerySpStoragePriceRequest,
+  QuerySpStoragePriceResponse,
+  QueryStorageProviderByOperatorAddressRequest,
+  QueryStorageProviderByOperatorAddressResponse,
+  QueryStorageProviderMaintenanceRecordsRequest,
+  QueryStorageProviderMaintenanceRecordsResponse,
+} from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
+import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
+import { container, singleton } from 'tsyringe';
+import {
+  IObjectResultType,
+  ListGroupsMembersResponse,
+  ListGroupsResponse,
+  ListUserGroupsResponse,
+  TListGroups,
+  TListGroupsMembersRequest,
+  TListUserGroupRequest,
+  TListUserOwnedGroupRequest,
+  TVerifyPermissionRequest,
+  VerifyPermissionResponse,
+} from '..';
+import { RpcQueryClient } from '../clients/queryclient';
 import { Bucket } from './bucket';
-import { RpcQueryClient } from './queryclient';
 import { VirtualGroup } from './virtualGroup';
 
 export interface ISp {
@@ -29,22 +51,54 @@ export interface ISp {
   getStorageProviderInfo(spId: number): Promise<StorageProvider | undefined>;
 
   /**
-   * returns the storage price for a particular storage provider, including update time, read price, store price and .etc.
+   * get the latest storage price of specific sp
    */
-  getStoragePriceByTime(spAddress: string): Promise<SpStoragePrice | undefined>;
+  getQuerySpStoragePrice(request: QuerySpStoragePriceRequest): Promise<QuerySpStoragePriceResponse>;
 
   /**
-   * returns the secondary storage price, including update time and store price
+   * get global store price by time
    */
-  getSecondarySpStorePrice(): Promise<SecondarySpStorePrice | undefined>;
+  getQueryGlobalSpStorePriceByTime(
+    request: QueryGlobalSpStorePriceByTimeRequest,
+  ): Promise<QueryGlobalSpStorePriceByTimeResponse>;
+
+  /**
+   * Queries a StorageProvider by specify operator address.
+   */
+  getStorageProviderByOperatorAddress(
+    request: QueryStorageProviderByOperatorAddressRequest,
+  ): Promise<QueryStorageProviderByOperatorAddressResponse>;
+
+  /**
+   * Queries a StorageProvider by specify operator address.
+   */
+  getStorageProviderMaintenanceRecordsByOperatorAddress(
+    request: QueryStorageProviderMaintenanceRecordsRequest,
+  ): Promise<QueryStorageProviderMaintenanceRecordsResponse>;
 
   params(): Promise<QueryParamsResponse>;
 
-  listGroup(groupName: string, prefix: string, opts: ListGroupsOptions): Promise<ListGroupsResult>;
+  listGroups(params: TListGroups): Promise<IObjectResultType<ListGroupsResponse>>;
+
+  listGroupsMembers(
+    params: TListGroupsMembersRequest,
+  ): Promise<IObjectResultType<ListGroupsMembersResponse>>;
+
+  listUserGroups(params: TListUserGroupRequest): Promise<IObjectResultType<ListUserGroupsResponse>>;
+
+  listUserOwnedGroups(
+    params: TListUserOwnedGroupRequest,
+  ): Promise<IObjectResultType<ListUserOwnedGroupsResponse>>;
 
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
   getSPUrlByPrimaryAddr(parimaryAddr: string): Promise<string>;
+
+  getSPUrlById(primaryId: number): Promise<string>;
+
+  verifyPermission(
+    params: TVerifyPermissionRequest,
+  ): Promise<IObjectResultType<VerifyPermissionResponse>>;
 }
 
 @singleton()
@@ -52,6 +106,7 @@ export class Sp implements ISp {
   private bucket = container.resolve(Bucket);
   private queryClient = container.resolve(RpcQueryClient);
   private virtualGroup = container.resolve(VirtualGroup);
+  private spClient = container.resolve(SpClient);
 
   public async getStorageProviders() {
     const rpc = await this.queryClient.getSpQueryClient();
@@ -65,6 +120,35 @@ export class Sp implements ISp {
       id: spId,
     });
     return res.storageProvider;
+  }
+
+  public async getQuerySpStoragePrice(request: QuerySpStoragePriceRequest) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.QuerySpStoragePrice(request);
+  }
+
+  public async getQueryGlobalSpStorePriceByTime(request: QueryGlobalSpStorePriceByTimeRequest) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.QueryGlobalSpStorePriceByTime(request);
+  }
+
+  public async getStorageProviderByOperatorAddress(
+    request: QueryStorageProviderByOperatorAddressRequest,
+  ) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.StorageProviderByOperatorAddress(request);
+  }
+
+  public async getStorageProviderMaintenanceRecordsByOperatorAddress(
+    request: QueryStorageProviderMaintenanceRecordsRequest,
+  ) {
+    const rpc = await this.queryClient.getSpQueryClient();
+    return await rpc.StorageProviderMaintenanceRecordsByOperatorAddress(request);
+  }
+
+  public async getSPUrlById(primaryId: number) {
+    const spList = await this.getStorageProviders();
+    return spList.filter((sp) => sp.id === primaryId)[0].endpoint;
   }
 
   public async getSPUrlByBucket(bucketName: string) {
@@ -87,23 +171,6 @@ export class Sp implements ISp {
     return sps.filter((sp) => sp.operatorAddress === parimaryAddr)[0].endpoint;
   }
 
-  public async getStoragePriceByTime(spAddress: string) {
-    const rpc = await this.queryClient.getSpQueryClient();
-    const res = await rpc.QueryGetSpStoragePriceByTime({
-      timestamp: Long.fromNumber(0),
-      spAddr: spAddress,
-    });
-    return res.spStoragePrice;
-  }
-
-  public async getSecondarySpStorePrice() {
-    const rpc = await this.queryClient.getSpQueryClient();
-    const res = await rpc.QueryGetSecondarySpStorePriceByTime({
-      timestamp: Long.fromNumber(0),
-    });
-    return res.secondarySpStorePrice;
-  }
-
   public async params() {
     const rpc = await this.queryClient.getSpQueryClient();
     return await rpc.Params();
@@ -116,74 +183,266 @@ export class Sp implements ISp {
     return spList[0];
   }
 
-  public async listGroup(groupName: string, prefix: string, opts: ListGroupsOptions) {
-    const MaximumGetGroupListLimit = 1000;
-    const MaximumGetGroupListOffset = 100000;
-    const DefaultGetGroupListLimit = 50;
+  public async listGroups(params: TListGroups) {
+    try {
+      const { name, prefix, sourceType, limit, offset } = params;
 
-    const res: ListGroupsResult = {
-      groups: [],
-      count: '0',
-    };
+      let res: ListGroupsResponse = {
+        GfSpGetGroupListResponse: {
+          Groups: [],
+          Count: 0,
+        },
+      };
 
-    if (groupName === '' || prefix === '') {
-      return res;
-    }
+      if (name === '' || prefix === '') {
+        return {
+          code: 0,
+          message: 'success',
+          body: res,
+        };
+      }
 
-    if (opts.limit < 0) {
-      return res;
-    } else if (opts.limit > MaximumGetGroupListLimit) {
-      opts.limit = MaximumGetGroupListLimit;
-    } else if (opts.limit === 0) {
-      opts.limit = DefaultGetGroupListLimit;
-    }
+      const sp = await this.getInServiceSP();
+      const url = `${sp.endpoint}?group-query=null&name=${name}&prefix=${prefix}&source-type=${sourceType}&limit=${limit}&offset=${offset}`;
 
-    if (opts.offset < 0 || opts.offset > MaximumGetGroupListOffset) {
-      return res;
-    }
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
 
-    let headerContent: Record<string, any> = {};
-    const sp = await this.getInServiceSP();
-    headerContent = {
-      ...headerContent,
-    };
-    const url = `${sp.endpoint}?group-query&name=${groupName}&prefix=${prefix}&source-type=${opts.sourceType}&limit=${opts.limit}&offset=${opts.offset}`;
+      const xmlData = await result.text();
+      res = await parseListGroupsResponse(xmlData);
 
-    const headers = new Headers(headerContent);
-    const result = await fetchWithTimeout(url, {
-      headers,
-      method: METHOD_GET,
-    });
-
-    const { status } = result;
-    if (!result.ok) {
-      const { code, message } = await parseErrorXml(result);
-      throw {
-        code: code || -1,
-        message: message || 'Get group list error.',
+      return {
+        code: 0,
+        message: 'success',
         statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };
     }
+  }
 
-    return await result.json();
+  public async verifyPermission(params: TVerifyPermissionRequest) {
+    try {
+      const { action, bucketName, objectName, operator } = params;
+
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}/permission/${operator}/${bucketName}/${actionTypeFromJSON(action)}`;
+
+      if (objectName) {
+        url += `?object=${encodePath(objectName)}`;
+      }
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseVerifyPermissionResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listGroupsMembers(params: TListGroupsMembersRequest) {
+    try {
+      const { groupId, limit, startAfter } = params;
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}?group-members&group-id=${groupId}`;
+
+      if (limit) {
+        url += `&limit=${limit}`;
+      }
+      if (startAfter) {
+        url += `&start-after=${startAfter}`;
+      }
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListGroupsMembersResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listUserGroups(params: TListUserGroupRequest) {
+    try {
+      const { address, limit, startAfter } = params;
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}?user-groups`;
+
+      if (limit) {
+        url += `&limit=${limit}`;
+      }
+      if (startAfter) {
+        url += `&start-after=${startAfter}`;
+      }
+
+      const headers = new Headers({
+        [HTTPHeaderUserAddress]: address,
+      });
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListUserGroupsResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listUserOwnedGroups(params: TListUserOwnedGroupRequest) {
+    try {
+      const { address, limit, startAfter } = params;
+      const sp = await this.getInServiceSP();
+      let url = `${sp.endpoint}?owned-groups`;
+
+      if (limit) {
+        url += `&limit=${limit}`;
+      }
+      if (startAfter) {
+        url += `&start-after=${startAfter}`;
+      }
+
+      const headers = new Headers({
+        [HTTPHeaderUserAddress]: address,
+      });
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers,
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListUserOwnedGroupsResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
   }
 }
-
-type ListGroupsOptions = {
-  sourceType: keyof typeof SourceType;
-  limit: number;
-  offset: number;
-};
-
-type ListGroupsResult = {
-  groups: {
-    group: GroupInfo;
-    operator: string;
-    create_at: number;
-    create_time: number;
-    update_at: number;
-    update_time: number;
-    removed: boolean;
-  }[];
-  count: string;
-};

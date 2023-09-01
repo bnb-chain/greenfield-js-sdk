@@ -1,4 +1,3 @@
-import { fetchNonce, updateOneSpPubKey } from './fetch';
 import {
   IFetchNonces,
   TGenSecondSignMsgParams,
@@ -6,6 +5,8 @@ import {
   ISp,
   IUpdateSpsPubKeyParams,
 } from '../types/storage';
+import { getNonce } from '@/clients/spclient/spApis/getNonce';
+import { updateUserAccountKey } from '@/clients/spclient/spApis/updateUserAccountKey';
 
 const delay = (ms: number, value: { code: number; nonce?: null | number; message?: any }) =>
   new Promise((resolve) => setTimeout(() => resolve(value), ms));
@@ -36,7 +37,7 @@ export const genLocalSignMsg = (sps: ISp[], domain: string) => {
 
 export const fetchNonces = async ({ sps, address, domain }: IFetchNonces): Promise<any> => {
   const promises = sps.map((sp: ISp) =>
-    fetchNonce({
+    getNonce({
       spEndpoint: sp.endpoint,
       spAddress: sp.address,
       spName: sp.name,
@@ -58,7 +59,7 @@ export const updateSpsPubKey = async ({
   authorization,
 }: IUpdateSpsPubKeyParams) => {
   const promises = sps.map((sp: ISp) =>
-    updateOneSpPubKey({
+    updateUserAccountKey({
       address,
       domain,
       sp,
@@ -115,8 +116,4 @@ export const personalSign = async ({ message, address, provider }: IPersonalSign
   });
 
   return sign;
-};
-
-export const genSeedSignMsg = (timestamp: number) => {
-  return `InvokeSPAPI_offChainSign_${timestamp}`;
 };

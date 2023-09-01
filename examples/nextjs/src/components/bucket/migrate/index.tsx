@@ -1,9 +1,10 @@
 import { client, selectSp } from '@/client';
+import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 export const MigrateBucket = () => {
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   const [bucketName, setBucketName] = useState('');
 
   return (
@@ -16,24 +17,35 @@ export const MigrateBucket = () => {
             setBucketName(e.target.value);
           }}
         />
-        <br />
       </div>
       <br />
       <button
         onClick={async () => {
           if (!address) return;
 
-          const spInfo = await selectSp();
+          const destinationSpInfo = await selectSp();
+          console.log('dstPrimarySpId', destinationSpInfo.id);
 
-          const migrateBucketTx = await client.bucket.migrateBucket({
-            params: {
+          const provider = await connector?.getProvider();
+          const offChainData = await getOffchainAuthKeys(address, provider);
+          if (!offChainData) {
+            alert('No offchain, please create offchain pairs first');
+            return;
+          }
+
+          const migrateBucketTx = await client.bucket.migrateBucket(
+            {
               bucketName,
               operator: address,
-              dstPrimarySpId: spInfo.id,
+              dstPrimarySpId: destinationSpInfo.id,
             },
-            spInfo,
-            signType: 'authTypeV2',
-          });
+            {
+              type: 'EDDSA',
+              address,
+              domain: window.location.origin,
+              seed: offChainData.seedString,
+            },
+          );
 
           const simulateInfo = await migrateBucketTx.simulate({
             denom: 'BNB',

@@ -1,4 +1,5 @@
 import { client } from '@/client';
+import { BSC_CHAIN_ID } from '@/config';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -29,6 +30,7 @@ export const Mirror = () => {
             groupName: '',
             id: groupInfo.id,
             operator: address,
+            destChainId: BSC_CHAIN_ID,
           });
 
           const simulateInfo = await mirrorGroupTx.simulate({

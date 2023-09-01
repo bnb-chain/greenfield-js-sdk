@@ -1,4 +1,4 @@
-import { getPubKeyByPriKey, signEIP712Data } from '@/keymanage';
+import { getPubKeyByPriKey } from '@/keymanage';
 import { defaultSignTypedData } from '@/sign/signTx';
 import { getGasFeeBySimulate } from '@/utils/units';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
@@ -27,7 +27,15 @@ import { arrayify } from '@ethersproject/bytes';
 import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
-import { BroadcastOptions, ISimulateGasFee, MetaTxInfo, SimulateOptions, TxResponse } from '..';
+import {
+  BroadcastOptions,
+  ISimulateGasFee,
+  MetaTxInfo,
+  SignOptions,
+  SimulateOptions,
+  TxResponse,
+} from '..';
+import { RpcQueryClient } from '../clients/queryclient';
 import { DEFAULT_DENOM, ZERO_PUBKEY } from '../constants';
 import {
   createEIP712,
@@ -37,10 +45,9 @@ import {
   mergeMultiEip712,
   mergeMultiMessage,
 } from '../messages';
-import { generateMsg, typeWrapper } from '../messages/utils';
+import { generateMsg } from '../messages/utils';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 import { Account } from './account';
-import { RpcQueryClient } from './queryclient';
 
 export interface IBasic {
   /**
@@ -104,7 +111,7 @@ export interface IBasic {
   /**
    *
    */
-  multiTx(txResList: TxResponse[]): Promise<Omit<TxResponse, 'metaTxInfo'>>;
+  multiTx(txResList: Pick<TxResponse, 'metaTxInfo'>[]): Promise<Omit<TxResponse, 'metaTxInfo'>>;
 }
 
 @singleton()
@@ -167,32 +174,36 @@ export class Basic implements IBasic {
     MsgSDK: MetaTxInfo['MsgSDK'],
     msgBytes: MetaTxInfo['msgBytes'],
   ) {
-    const accountInfo = await this.account.getAccount(address);
-    const bodyBytes = this.getSingleBodyBytes(typeUrl, msgBytes);
-
-    return {
-      simulate: async (opts: SimulateOptions) => {
-        return await this.simulateRawTx(bodyBytes, accountInfo, opts);
+    const txBodyBytes = this.getBodyBytes([
+      {
+        typeUrl,
+        msgBytes,
       },
-      broadcast: async (opts: BroadcastOptions) => {
-        const rawTxBytes = await this.getRawTxBytes(
+    ]);
+
+    const tx = await this.multiTx([
+      {
+        metaTxInfo: {
           typeUrl,
+          address,
           MsgSDKTypeEIP712,
           MsgSDK,
-          bodyBytes,
-          accountInfo,
-          opts,
-        );
-
-        return await this.broadcastRawTx(rawTxBytes);
+          msgBytes,
+          bodyBytes: txBodyBytes,
+        },
       },
+    ]);
+
+    return {
+      simulate: tx.simulate,
+      broadcast: tx.broadcast,
       metaTxInfo: {
         typeUrl,
         address,
         MsgSDKTypeEIP712,
         MsgSDK,
         msgBytes,
-        bodyBytes,
+        bodyBytes: txBodyBytes,
       },
     };
   }
@@ -236,16 +247,10 @@ export class Basic implements IBasic {
     return await client.broadcastTx(txRawBytes);
   }
 
-  public async multiTx(txResList: TxResponse[]) {
+  public async multiTx(txResList: Pick<TxResponse, 'metaTxInfo'>[]) {
     const txs = txResList.map((txRes) => txRes.metaTxInfo);
     const accountInfo = await this.account.getAccount(txs[0].address);
-    const multiMsgBytes = txs.map((tx) => {
-      return generateMsg(tx.typeUrl, tx.msgBytes);
-    });
-    const txBody = TxBody.fromPartial({
-      messages: multiMsgBytes,
-    });
-    const txBodyBytes = TxBody.encode(txBody).finish();
+    const txBodyBytes = this.getBodyBytes(txs);
 
     return {
       simulate: async (opts: SimulateOptions) => {
@@ -256,14 +261,12 @@ export class Basic implements IBasic {
           denom,
           gasLimit,
           gasPrice,
-          privateKey,
           payer,
           granter,
+          privateKey,
           signTypedDataCallback = defaultSignTypedData,
         } = opts;
 
-        let signature,
-          pubKey = undefined;
         const types = mergeMultiEip712(txs.map((tx) => tx.MsgSDKTypeEIP712));
         const fee = generateFee(
           String(BigInt(gasLimit) * BigInt(gasPrice)),
@@ -285,25 +288,9 @@ export class Basic implements IBasic {
         );
 
         const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
-        if (privateKey) {
-          pubKey = getPubKeyByPriKey(privateKey);
-          signature = signTypedData({
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            data: eip712,
-            version: SignTypedDataVersion.V4,
-            privateKey: Buffer.from(arrayify(privateKey)),
-          });
-        } else {
-          signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
-          const messageHash = eip712Hash(JSON.stringify(eip712));
-
-          const pk = recoverPk({
-            signature,
-            messageHash,
-          });
-          pubKey = makeCosmsPubKey(pk);
-        }
+        const { pubKey, signature } = privateKey
+          ? this.getSignByPriKey(eip712, privateKey)
+          : await this.getSignByWallet(eip712, accountInfo.address, signTypedDataCallback);
 
         const authInfoBytes = this.getAuthInfoBytes({
           denom,
@@ -341,130 +328,67 @@ export class Basic implements IBasic {
         amount: String(BigInt(gasLimit) * BigInt(gasPrice)),
       },
     ];
-    const feeGranter = granter;
-    const feePayer = payer;
+
     const authInfoBytes = makeAuthInfoBytes(
       [{ pubkey: pubKey, sequence: Number(sequence) }],
       feeAmount,
       gasLimit,
-      feeGranter,
-      feePayer,
+      granter,
+      payer,
       712,
     );
 
     return authInfoBytes;
   }
 
-  /**
-   * Get the body bytes of a transaction
-   *
-   * EIP712 sign or private key sign
-   */
-  protected async getRawTxBytes(
-    typeUrl: string,
-    msgEIP712Structor: object,
-    msgEIP712: object,
-    bodyBytes: Uint8Array,
-    accountInfo: BaseAccount,
-    txOption: BroadcastOptions,
-  ): Promise<Uint8Array> {
-    const {
-      denom,
-      gasLimit,
-      gasPrice,
-      privateKey,
-      signTypedDataCallback = defaultSignTypedData,
-      granter,
-      payer,
-    } = txOption;
-
-    // console.log('txOption', txOption);
-    // console.log('msgEIP712', msgEIP712);
-
-    let signature,
-      pubKey = undefined;
-
-    if (privateKey) {
-      pubKey = getPubKeyByPriKey(privateKey);
-      signature = signEIP712Data(
-        this.chainId,
-        accountInfo.accountNumber + '',
-        accountInfo.sequence + '',
-        typeUrl,
-        msgEIP712Structor,
-        msgEIP712,
-        txOption,
-      );
-      // console.log('signature', signature);
-    } else {
-      const eip712 = this.getEIP712Struct(
-        typeUrl,
-        msgEIP712Structor,
-        accountInfo.accountNumber + '',
-        accountInfo.sequence + '',
-        this.chainId,
-        msgEIP712,
-        txOption,
-      );
-      signature = await signTypedDataCallback(accountInfo.address, JSON.stringify(eip712));
-      const messageHash = eip712Hash(JSON.stringify(eip712));
-      const pk = recoverPk({
-        signature,
-        messageHash,
-      });
-      pubKey = makeCosmsPubKey(pk);
-    }
-
-    const authInfoBytes = this.getAuthInfoBytes({
-      denom,
-      sequence: accountInfo.sequence + '',
-      gasLimit,
-      gasPrice,
-      pubKey,
-      granter,
-      payer,
+  private getBodyBytes(params: { typeUrl: string; msgBytes: Uint8Array }[]) {
+    const multiMsgBytes = params.map((tx) => {
+      return generateMsg(tx.typeUrl, tx.msgBytes);
     });
-
-    const txRaw = TxRaw.fromPartial({
-      bodyBytes,
-      authInfoBytes,
-      signatures: [arrayify(signature)],
-    });
-
-    return TxRaw.encode(txRaw).finish();
-  }
-
-  protected getSingleBodyBytes(typeUrl: string, msgBytes: Uint8Array): Uint8Array {
-    const msgWrapped = generateMsg(typeUrl, msgBytes);
 
     const txBody = TxBody.fromPartial({
-      messages: [msgWrapped],
+      messages: multiMsgBytes,
     });
-
-    return TxBody.encode(txBody).finish();
+    const txBodyBytes = TxBody.encode(txBody).finish();
+    return txBodyBytes;
   }
 
-  protected getEIP712Struct(
-    typeUrl: string,
-    types: object,
-    accountNumber: string,
-    sequence: string,
-    chainId: string,
-    msg: object,
-    txOption: BroadcastOptions,
+  private getSignByPriKey(
+    eip712: ReturnType<typeof createEIP712>,
+    privateKey: SignOptions['privateKey'],
   ) {
-    const { gasLimit, gasPrice, denom = DEFAULT_DENOM, payer, granter } = txOption;
+    const pubKey = getPubKeyByPriKey(privateKey);
+    const signature = signTypedData({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      data: eip712,
+      version: SignTypedDataVersion.V4,
+      privateKey: Buffer.from(arrayify(privateKey)),
+    });
 
-    const fee = generateFee(
-      String(BigInt(gasLimit) * BigInt(gasPrice)),
-      denom,
-      String(gasLimit),
-      payer,
-      granter,
-    );
-    const wrapperTypes = generateTypes(types);
-    const wrapperMsg = typeWrapper(typeUrl, msg);
-    const messages = generateMessage(accountNumber, sequence, chainId, '', fee, wrapperMsg, '0');
-    return createEIP712(wrapperTypes, chainId, messages);
+    return {
+      pubKey,
+      signature,
+    };
+  }
+
+  private async getSignByWallet(
+    eip712: ReturnType<typeof createEIP712>,
+    address: string,
+    signTypedDataCallback: SignOptions['signTypedDataCallback'],
+  ) {
+    const signature = await signTypedDataCallback(address, JSON.stringify(eip712));
+    const messageHash = eip712Hash(JSON.stringify(eip712));
+
+    const pk = recoverPk({
+      signature,
+      messageHash,
+    });
+    const pubKey = makeCosmsPubKey(pk);
+
+    return {
+      pubKey,
+      signature,
+    };
   }
 }

@@ -2,6 +2,8 @@ import { CreateBucket } from './create';
 import { DeleteBucket } from './delete';
 import { BucketInfo } from './info';
 import { MigrateBucket } from './migrate';
+import { BucketQuota } from './quota';
+import { UpdateBucket } from './update';
 
 export const Bucket = () => {
   return (
@@ -12,7 +14,15 @@ export const Bucket = () => {
 
       <div style={{ marginTop: 10 }} />
 
+      <UpdateBucket />
+
+      <div style={{ marginTop: 10 }} />
+
       <DeleteBucket />
+
+      <div style={{ marginTop: 10 }} />
+
+      <BucketQuota />
 
       <div style={{ marginTop: 10 }} />
 
