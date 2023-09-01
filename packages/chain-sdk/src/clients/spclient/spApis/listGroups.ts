@@ -1,5 +1,5 @@
 import { ListGroupsResponse } from '@/types';
-import { formatGroupInfo, convertStrToBool } from '@/types/sp-xml/Common';
+import { formatGroupInfo, convertStrToBool } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_group_list

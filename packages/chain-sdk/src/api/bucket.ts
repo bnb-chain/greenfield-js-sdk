@@ -21,10 +21,22 @@ import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/
 import {
   GetBucketMetaRequest,
   GetBucketMetaResponse,
+  GetUserBucketsRequest,
   GetUserBucketsResponse,
   ListBucketsByIDsResponse,
-} from '@/types/sp-xml';
-import { ListBucketReadRecordResponse } from '@/types/sp-xml/ListBucketReadRecordResponse';
+  ListBucketReadRecordResponse,
+  ListBucketReadRecordRequest,
+  ListBucketsByIDsRequest,
+  ReadQuotaRequest,
+  SpResponse,
+  IQuotaProps,
+  MigrateBucketApprovalRequest,
+  MigrateBucketApprovalResponse,
+} from '@/types/sp';
+import {
+  CreateBucketApprovalRequest,
+  CreateBucketApprovalResponse,
+} from '@/types/sp/BucketApproval';
 import { decodeObjectFromHexString } from '@/utils/encoding';
 import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
@@ -66,17 +78,6 @@ import {
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { AuthType, SpClient } from '../clients/spclient/spClient';
-import {
-  IBaseGetCreateBucket,
-  ICreateBucketMsgType,
-  IMigrateBucketMsgType,
-  IObjectResultType,
-  IQuotaProps,
-  TBaseGetBucketReadQuota,
-  TGetUserBuckets,
-  TListBucketReadRecord,
-  TListBucketsByIDsRequest,
-} from '../types/storage';
 import { Basic } from './basic';
 import { Sp } from './sp';
 import { Storage } from './storage';
@@ -86,14 +87,14 @@ export interface IBucket {
    * returns the signature info for the approval of preCreating resources
    */
   getCreateBucketApproval(
-    configParam: IBaseGetCreateBucket,
+    configParam: CreateBucketApprovalRequest,
     authType: AuthType,
-  ): Promise<IObjectResultType<string>>;
+  ): Promise<SpResponse<string>>;
 
   /**
    * get approval of creating bucket and send createBucket txn to greenfield chain
    */
-  createBucket(params: IBaseGetCreateBucket, authType: AuthType): Promise<TxResponse>;
+  createBucket(params: CreateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
 
   /**
    * query the bucketInfo on chain, return the bucket info if exists
@@ -117,16 +118,16 @@ export interface IBucket {
   ): Promise<QueryVerifyPermissionResponse>;
 
   getUserBuckets(
-    configParam: TGetUserBuckets,
-  ): Promise<IObjectResultType<GetUserBucketsResponse['GfSpGetUserBucketsResponse']['Buckets']>>;
+    configParam: GetUserBucketsRequest,
+  ): Promise<SpResponse<GetUserBucketsResponse['GfSpGetUserBucketsResponse']['Buckets']>>;
 
   /**
    * return quota info of bucket of current month, include chain quota, free quota and consumed quota
    */
   getBucketReadQuota(
-    configParam: TBaseGetBucketReadQuota,
+    configParam: ReadQuotaRequest,
     authType: AuthType,
-  ): Promise<IObjectResultType<IQuotaProps>>;
+  ): Promise<SpResponse<IQuotaProps>>;
 
   deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
 
@@ -145,25 +146,20 @@ export interface IBucket {
   getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
 
   getMigrateBucketApproval(
-    params: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'>,
+    params: MigrateBucketApprovalRequest,
     authType: AuthType,
-  ): Promise<IObjectResultType<string>>;
+  ): Promise<SpResponse<string>>;
 
-  migrateBucket(
-    configParams: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'>,
-    authType: AuthType,
-  ): Promise<TxResponse>;
+  migrateBucket(params: MigrateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
 
-  getBucketMeta(params: GetBucketMetaRequest): Promise<IObjectResultType<GetBucketMetaResponse>>;
+  getBucketMeta(params: GetBucketMetaRequest): Promise<SpResponse<GetBucketMetaResponse>>;
 
   listBucketReadRecords(
-    params: TListBucketReadRecord,
+    params: ListBucketReadRecordRequest,
     authType: AuthType,
-  ): Promise<IObjectResultType<ListBucketReadRecordResponse>>;
+  ): Promise<SpResponse<ListBucketReadRecordResponse>>;
 
-  listBucketsByIds(
-    params: TListBucketsByIDsRequest,
-  ): Promise<IObjectResultType<ListBucketsByIDsResponse>>;
+  listBucketsByIds(params: ListBucketsByIDsRequest): Promise<SpResponse<ListBucketsByIDsResponse>>;
 }
 
 @singleton()
@@ -177,7 +173,7 @@ export class Bucket implements IBucket {
   private queryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
 
-  public async getCreateBucketApproval(params: IBaseGetCreateBucket, authType: AuthType) {
+  public async getCreateBucketApproval(params: CreateBucketApprovalRequest, authType: AuthType) {
     const {
       bucketName,
       creator,
@@ -233,7 +229,7 @@ export class Bucket implements IBucket {
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
       const signedMsg = JSON.parse(
         bytesToUtf8(hexToBytes(signedMsgString)),
-      ) as ICreateBucketMsgType;
+      ) as CreateBucketApprovalResponse;
 
       return {
         code: 0,
@@ -251,7 +247,7 @@ export class Bucket implements IBucket {
     }
   }
 
-  private async createBucketTx(msg: MsgCreateBucket, signedMsg: ICreateBucketMsgType) {
+  private async createBucketTx(msg: MsgCreateBucket, signedMsg: CreateBucketApprovalResponse) {
     return await this.basic.tx(
       MsgCreateBucketTypeUrl,
       msg.creator,
@@ -267,7 +263,7 @@ export class Bucket implements IBucket {
     );
   }
 
-  public async createBucket(params: IBaseGetCreateBucket, authType: AuthType) {
+  public async createBucket(params: CreateBucketApprovalRequest, authType: AuthType) {
     const { signedMsg } = await this.getCreateBucketApproval(params, authType);
 
     if (!signedMsg) {
@@ -330,7 +326,7 @@ export class Bucket implements IBucket {
     });
   }
 
-  public async getUserBuckets(configParam: TGetUserBuckets) {
+  public async getUserBuckets(configParam: GetUserBucketsRequest) {
     try {
       const { address, duration = 30000, endpoint } = configParam;
       if (!isValidAddress(address)) {
@@ -383,9 +379,9 @@ export class Bucket implements IBucket {
   }
 
   public async getBucketReadQuota(
-    params: TBaseGetBucketReadQuota,
+    params: ReadQuotaRequest,
     authType: AuthType,
-  ): Promise<IObjectResultType<IQuotaProps>> {
+  ): Promise<SpResponse<IQuotaProps>> {
     try {
       const { bucketName, duration = 30000 } = params;
       if (!isValidBucketName(bucketName)) {
@@ -493,10 +489,7 @@ export class Bucket implements IBucket {
     return rpc.QueryPolicyForAccount(request);
   }
 
-  public async getMigrateBucketApproval(
-    params: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'> & { endpoint?: string },
-    authType: AuthType,
-  ) {
+  public async getMigrateBucketApproval(params: MigrateBucketApprovalRequest, authType: AuthType) {
     const { bucketName, operator, dstPrimarySpId } = params;
 
     try {
@@ -528,7 +521,7 @@ export class Bucket implements IBucket {
       );
 
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-      const signedMsg = decodeObjectFromHexString(signedMsgString) as IMigrateBucketMsgType;
+      const signedMsg = decodeObjectFromHexString(signedMsgString) as MigrateBucketApprovalResponse;
 
       return {
         code: 0,
@@ -546,11 +539,8 @@ export class Bucket implements IBucket {
     }
   }
 
-  public async migrateBucket(
-    configParams: Omit<MsgMigrateBucket, 'dstPrimarySpApproval'> & { endpoint?: string },
-    authType: AuthType,
-  ) {
-    const { signedMsg } = await this.getMigrateBucketApproval(configParams, authType);
+  public async migrateBucket(params: MigrateBucketApprovalRequest, authType: AuthType) {
+    const { signedMsg } = await this.getMigrateBucketApproval(params, authType);
 
     if (!signedMsg) {
       throw new Error('Get migrate bucket approval error');
@@ -571,7 +561,7 @@ export class Bucket implements IBucket {
     return await this.migrateBucketTx(msg, signedMsg);
   }
 
-  private async migrateBucketTx(msg: MsgMigrateBucket, signedMsg: IMigrateBucketMsgType) {
+  private async migrateBucketTx(msg: MsgMigrateBucket, signedMsg: MigrateBucketApprovalResponse) {
     return await this.basic.tx(
       MsgMigrateBucketTypeUrl,
       msg.operator,
@@ -616,7 +606,7 @@ export class Bucket implements IBucket {
     };
   }
 
-  public async listBucketReadRecords(params: TListBucketReadRecord, authType: AuthType) {
+  public async listBucketReadRecords(params: ListBucketReadRecordRequest, authType: AuthType) {
     try {
       const { bucketName } = params;
       // if (!isValidAddress(address)) {
@@ -667,7 +657,7 @@ export class Bucket implements IBucket {
     }
   }
 
-  public async listBucketsByIds(params: TListBucketsByIDsRequest) {
+  public async listBucketsByIds(params: ListBucketsByIDsRequest) {
     try {
       const { ids } = params;
 

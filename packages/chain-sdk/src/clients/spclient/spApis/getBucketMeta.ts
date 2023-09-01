@@ -1,5 +1,5 @@
 import { GetBucketMetaResponse } from '@/types';
-import { formatBucketInfo } from '@/types/sp-xml/Common';
+import { formatBucketInfo } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_bucket_meta

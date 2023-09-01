@@ -1,5 +1,5 @@
-import { convertStrToBool, formatObjectInfo } from '@/types/sp-xml/Common';
-import { GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
+import { convertStrToBool, formatObjectInfo } from '@/types/sp/Common';
+import { GetObjectMetaResponse } from '@/types/sp/GetObjectMeta';
 import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_object_meta

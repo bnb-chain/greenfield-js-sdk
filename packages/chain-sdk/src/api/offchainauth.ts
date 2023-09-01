@@ -10,10 +10,9 @@ import {
 } from '@/offchainauth';
 import { hexlify } from '@ethersproject/bytes';
 import { singleton } from 'tsyringe';
-import { convertTimeStampToDate, getUtcZeroTimestamp } from '..';
+import { convertTimeStampToDate, getUtcZeroTimestamp, SpResponse } from '..';
 import {
   IGenOffChainAuthKeyPairAndUpload,
-  IObjectResultType,
   IReturnOffChainAuthKeyPairAndUpload,
   ISp,
 } from '../types/storage';
@@ -25,7 +24,7 @@ export interface IOffChainAuth {
   genOffChainAuthKeyPairAndUpload(
     params: IGenOffChainAuthKeyPairAndUpload,
     provider: any,
-  ): Promise<IObjectResultType<IReturnOffChainAuthKeyPairAndUpload>>;
+  ): Promise<SpResponse<IReturnOffChainAuthKeyPairAndUpload>>;
 }
 
 @singleton()

@@ -1,6 +1,6 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
-import { ReqMeta, TBaseGetBucketReadQuota } from '@/types';
-import { ReadQuotaResponse } from '@/types/sp-xml';
+import { ReqMeta, ReadQuotaRequest } from '@/types';
+import { ReadQuotaResponse } from '@/types/sp';
 import { generateUrlByBucketName } from '@/utils/s3';
 import { XMLParser } from 'fast-xml-parser';
 import { getSortQuery } from '../auth';
@@ -8,7 +8,7 @@ import { getSortQuery } from '../auth';
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/query_bucket_read_quota
 export const getQueryBucketReadQuotaMetaInfo = async (
   endpoint: string,
-  params: TBaseGetBucketReadQuota,
+  params: ReadQuotaRequest,
 ) => {
   const { year, month, bucketName } = params;
   const currentDate = new Date();

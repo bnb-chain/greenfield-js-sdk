@@ -1,5 +1,5 @@
 import { GetUserBucketsResponse } from '@/types';
-import { convertStrToBool, formatBucketInfo } from '@/types/sp-xml/Common';
+import { convertStrToBool, formatBucketInfo } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_user_buckets

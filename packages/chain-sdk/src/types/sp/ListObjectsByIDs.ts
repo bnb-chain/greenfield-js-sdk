@@ -1,5 +1,9 @@
 import { ObjectInfo } from './Common';
 
+export type ListObjectsByIDsRequest = {
+  ids: string[];
+};
+
 export interface ListObjectsByIDsResponse {
   GfSpListObjectsByIDsResponse: GfSpListObjectsByIDsResponse;
 }

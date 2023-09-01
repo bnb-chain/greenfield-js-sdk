@@ -1,10 +1,13 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
-import { ICreateObjectMsgType, ReqMeta } from '@/types';
+import { CreateObjectApprovalResponse, ReqMeta } from '@/types';
 import { toHex, utf8ToBytes } from 'ethereum-cryptography/utils';
 import { getSortQuery } from '../auth';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_approval
-export const getObjectApprovalMetaInfo = async (endpoint: string, msg: ICreateObjectMsgType) => {
+export const getObjectApprovalMetaInfo = async (
+  endpoint: string,
+  msg: CreateObjectApprovalResponse,
+) => {
   const path = '/greenfield/admin/v1/get-approval';
   const queryMap = {
     action: 'CreateObject',

@@ -1,5 +1,11 @@
 import { GroupInfo } from './Common';
 
+export type ListUserOwnedGroupsRequest = {
+  address: string;
+  limit?: number;
+  startAfter?: string;
+};
+
 export interface ListUserOwnedGroupsResponse {
   GfSpGetUserOwnedGroupsResponse: GfSpGetUserOwnedGroupsResponse;
 }

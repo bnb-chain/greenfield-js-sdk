@@ -1,7 +1,10 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
-import { ReqMeta, TListBucketReadRecord } from '@/types';
-import { formatReadRecord } from '@/types/sp-xml/Common';
-import { ListBucketReadRecordResponse } from '@/types/sp-xml/ListBucketReadRecordResponse';
+import { ReqMeta } from '@/types';
+import { formatReadRecord } from '@/types/sp/Common';
+import {
+  ListBucketReadRecordRequest,
+  ListBucketReadRecordResponse,
+} from '@/types/sp/ListBucketReadRecord';
 import { generateUrlByBucketName } from '@/utils';
 import { XMLParser } from 'fast-xml-parser';
 import { getSortQuery } from '../auth';
@@ -33,7 +36,7 @@ export const parseListBucketReadRecordResponse = async (data: string) => {
 
 export const getListBucketReadRecordMetaInfo = async (
   endpoint: string,
-  params: TListBucketReadRecord,
+  params: ListBucketReadRecordRequest,
 ) => {
   const { bucketName, endTimeStamp, maxRecords, startTimeStamp } = params;
   const path = '/';
