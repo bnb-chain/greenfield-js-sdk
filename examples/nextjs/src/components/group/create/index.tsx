@@ -27,7 +27,6 @@ export const CreateGroup = () => {
           const createGroupTx = await client.group.createGroup({
             creator: address,
             groupName: createGroupInfo.groupName,
-            members: [address],
             extra: 'extra info',
           });
 

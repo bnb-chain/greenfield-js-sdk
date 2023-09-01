@@ -1,25 +1,22 @@
-import { NORMAL_ERROR_CODE } from '@/utils/http';
+import { NORMAL_ERROR_CODE } from '@/constants/http';
+import {
+  fetchNonces,
+  genLocalSignMsg,
+  genSecondSignMsg,
+  getCurrentAccountPublicKey,
+  getCurrentSeedString,
+  personalSign,
+  updateSpsPubKey,
+} from '@/offchainauth';
+import { hexlify } from '@ethersproject/bytes';
 import { singleton } from 'tsyringe';
 import { convertTimeStampToDate, getUtcZeroTimestamp } from '..';
 import {
   IGenOffChainAuthKeyPairAndUpload,
   IObjectResultType,
   IReturnOffChainAuthKeyPairAndUpload,
-  IReturnSignWithSeedString,
   ISp,
 } from '../types/storage';
-import {
-  fetchNonces,
-  genLocalSignMsg,
-  genSecondSignMsg,
-  genSeedSignMsg,
-  getCurrentAccountPublicKey,
-  getCurrentSeedString,
-  personalSign,
-  signSignatureByEddsa,
-  updateSpsPubKey,
-} from '@/offchainauth';
-import { hexlify } from '@ethersproject/bytes';
 
 export interface IOffChainAuth {
   /**
@@ -29,11 +26,6 @@ export interface IOffChainAuth {
     params: IGenOffChainAuthKeyPairAndUpload,
     provider: any,
   ): Promise<IObjectResultType<IReturnOffChainAuthKeyPairAndUpload>>;
-
-  /**
-   * Sign a message with a seed string, return the authorization for sp authorizing the user.
-   */
-  sign(seedString: string): Promise<IObjectResultType<IReturnSignWithSeedString>>;
 }
 
 @singleton()
@@ -54,9 +46,11 @@ export class OffChainAuth implements IOffChainAuth {
       const spsWithNonce = spsNonceRaw.filter((item: ISp) => item.nonce !== null);
       // 2. generate signature key pair
       const seedMsg = genLocalSignMsg(spsWithNonce, domain);
+      // Uint8Array
       const seed = await getCurrentSeedString({ message: seedMsg, address, chainId, provider });
       const seedString = hexlify(seed);
       const pubKey = await getCurrentAccountPublicKey(seedString);
+
       // 3. second sign for upload public key to server
       const curUtcZeroTimestamp = getUtcZeroTimestamp();
       const expirationTime = curUtcZeroTimestamp + expirationMs;
@@ -73,7 +67,7 @@ export class OffChainAuth implements IOffChainAuth {
       });
       const signRes = await personalSign({ message: signMsg, address, provider });
       const jsonSignMsg = JSON.stringify(signMsg).replace(/\"/g, '');
-      const authorization = `PersonalSign ECDSA-secp256k1,SignedMsg=${jsonSignMsg},Signature=${signRes}`;
+      const authorization = `GNFD1-ETH-PERSONAL_SIGN,SignedMsg=${jsonSignMsg},Signature=${signRes}`;
       // 4. upload signature and pubKey to server
       const res = await updateSpsPubKey({
         address,
@@ -109,34 +103,6 @@ export class OffChainAuth implements IOffChainAuth {
       };
     } catch (error: any) {
       return { code: -1, message: error.message, statusCode: error?.status || NORMAL_ERROR_CODE };
-    }
-  }
-
-  public async sign(seedString: string) {
-    try {
-      // NOTICE: Smoothing local and server time gap
-      const expirationMs = 300000 - 100000;
-      const timestamp = getUtcZeroTimestamp();
-      const expireTimestamp = timestamp + expirationMs;
-      const signMsg = genSeedSignMsg(expireTimestamp);
-      const signRes = await signSignatureByEddsa(seedString, signMsg);
-      const authorization = `OffChainAuth EDDSA,SignedMsg=${signMsg},Signature=${signRes}`;
-
-      return {
-        code: 0,
-        body: {
-          unSignedMsg: signMsg,
-          signature: signRes,
-          authorization,
-        },
-        message: 'Sign with seed string success',
-      };
-    } catch (error: any) {
-      return {
-        code: -1,
-        message: error.message || 'Sign with seed string failed',
-        statusCode: error?.status || NORMAL_ERROR_CODE,
-      };
     }
   }
 }

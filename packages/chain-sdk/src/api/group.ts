@@ -2,14 +2,14 @@ import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCr
 import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
 import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
 import { MsgUpdateGroupExtraSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupExtra';
-import { MsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
+import { getMsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
 import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '@/utils/grn';
 import {
   QueryGroupNFTResponse,
   QueryHeadGroupMemberResponse,
   QueryHeadGroupResponse,
-  QueryListGroupRequest,
-  QueryListGroupResponse,
+  QueryListGroupsRequest,
+  QueryListGroupsResponse,
   QueryNFTRequest,
   QueryPolicyForGroupRequest,
   QueryPolicyForGroupResponse,
@@ -24,6 +24,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
+  fromTimestamp,
   MsgCreateGroupTypeUrl,
   MsgDeleteGroupTypeUrl,
   MsgLeaveGroupTypeUrl,
@@ -32,7 +33,7 @@ import {
   TxResponse,
 } from '..';
 import { Basic } from './basic';
-import { RpcQueryClient } from './queryclient';
+import { RpcQueryClient } from '../clients/queryclient';
 import { Storage } from './storage';
 
 export interface IGroup {
@@ -72,7 +73,7 @@ export interface IGroup {
     member: string,
   ): Promise<QueryHeadGroupMemberResponse>;
 
-  listGroup(request: QueryListGroupRequest): Promise<QueryListGroupResponse>;
+  listGroup(request: QueryListGroupsRequest): Promise<QueryListGroupsResponse>;
 
   headGroupNFT(request: QueryNFTRequest): Promise<QueryGroupNFTResponse>;
 
@@ -138,8 +139,19 @@ export class Group implements IGroup {
     return await this.basic.tx(
       MsgUpdateGroupMemberTypeUrl,
       msg.operator,
-      MsgUpdateGroupMemberSDKTypeEIP712,
-      MsgUpdateGroupMember.toSDK(msg),
+      getMsgUpdateGroupMemberSDKTypeEIP712({
+        membersToAdd: msg.membersToAdd,
+        membersToDelete: msg.membersToDelete,
+      }),
+      {
+        ...MsgUpdateGroupMember.toSDK(msg),
+        members_to_add: msg.membersToAdd.map((x) => {
+          return {
+            member: x.member,
+            expiration_time: fromTimestamp(x.expirationTime),
+          };
+        }),
+      },
       MsgUpdateGroupMember.encode(msg).finish(),
     );
   }
@@ -186,9 +198,9 @@ export class Group implements IGroup {
     return await rpc.HeadGroupNFT(request);
   }
 
-  public async listGroup(request: QueryListGroupRequest) {
+  public async listGroup(request: QueryListGroupsRequest) {
     const rpc = await this.queryClient.getStorageQueryClient();
-    return await rpc.ListGroup(request);
+    return await rpc.ListGroups(request);
   }
 
   public async getPolicyOfGroup(request: QueryPolicyForGroupRequest) {

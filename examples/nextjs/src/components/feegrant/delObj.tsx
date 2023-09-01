@@ -4,6 +4,7 @@ import {
   MsgDeleteObjectTypeUrl,
   newObjectGRN,
   PermissionTypes,
+  toTimestamp,
 } from '@bnb-chain/greenfield-js-sdk';
 import { Wallet } from '@ethersproject/wallet';
 import { useState } from 'react';
@@ -49,12 +50,15 @@ export const DelObj = () => {
           setWallet(wallet);
 
           // 2. allow temporary account to submit specified tx and amount
+          const date = new Date();
+          date.setDate(date.getDate() + 1);
           const grantAllowanceTx = await client.feegrant.grantAllowance({
             granter: address,
             grantee: wallet.address,
             allowedMessages: [MsgDeleteObjectTypeUrl],
             amount: parseEther('0.09').toString(),
             denom: 'BNB',
+            expirationTime: toTimestamp(date),
           });
 
           // 3. Put bucket policy so that the temporary account can create objects within this bucket

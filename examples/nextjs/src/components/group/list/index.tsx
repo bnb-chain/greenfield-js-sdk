@@ -26,7 +26,9 @@ export const ListGroup = () => {
         onClick={async () => {
           if (!address) return;
 
-          const groupList = await client.sp.listGroup(groupName, prefix, {
+          const groupList = await client.sp.listGroups({
+            name: groupName,
+            prefix,
             sourceType: 'SOURCE_TYPE_ORIGIN',
             limit: 1000,
             offset: 0,

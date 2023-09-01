@@ -1,8 +1,9 @@
+import { ActionType } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   RedundancyType,
+  SourceType,
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { MsgMigrateBucket } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 
 export interface IBaseGetCreateBucket {
   bucketName: string;
@@ -13,20 +14,8 @@ export interface IBaseGetCreateBucket {
     primarySpAddress: string;
   };
   duration?: number;
+  paymentAddress: string;
 }
-
-export interface ICreateBucketByOffChainAuth extends IBaseGetCreateBucket {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-}
-
-export interface ICreateBucketByAuthV1 extends IBaseGetCreateBucket {
-  signType?: 'authTypeV1';
-  privateKey: string;
-}
-
-export type TCreateBucket = ICreateBucketByOffChainAuth | ICreateBucketByAuthV1;
 
 export interface ISpInfo {
   id: number;
@@ -37,7 +26,7 @@ export interface ISpInfo {
 }
 
 export interface IObjectResultType<T> {
-  code: number;
+  code: number | string;
   xml?: Document;
   message?: string;
   statusCode?: number;
@@ -91,31 +80,17 @@ export type BucketProps = {
 
 export type TBaseGetBucketReadQuota = {
   bucketName: string;
-  endpoint: string;
+  endpoint?: string;
   duration?: number;
   year?: number;
   month?: number;
 };
 
-export type TGetBucketReadQuotaByAuthTypeV2 = TBaseGetBucketReadQuota & {
-  signType?: 'authTypeV2';
-};
-
-export type TGetBucketReadQuotaByOffChainAuth = TBaseGetBucketReadQuota & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TGetBucketReadQuota =
-  | TGetBucketReadQuotaByAuthTypeV2
-  | TGetBucketReadQuotaByOffChainAuth;
-
 export interface IQuotaProps {
   readQuota: number;
   freeQuota: number;
   consumedQuota: number;
+  freeConsumedSize: number;
 }
 
 export type TBaseGetCreateObject = {
@@ -128,24 +103,8 @@ export type TBaseGetCreateObject = {
   duration?: number;
   contentLength: number;
   expectCheckSums: string[];
+  endpoint?: string;
 };
-
-export type SignTypeV1 = {
-  signType: 'authTypeV1';
-  privateKey: string;
-};
-
-export type SignTypeOffChain = {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-};
-
-export type TCreateObjectByOffChainAuth = TBaseGetCreateObject & SignTypeOffChain;
-
-export type TCreateObjectByAuthTypeV1 = TBaseGetCreateObject & SignTypeV1;
-
-export type TCreateObject = TCreateObjectByOffChainAuth | TCreateObjectByAuthTypeV1;
 
 export interface ICreateObjectMsgType {
   creator: string;
@@ -169,43 +128,25 @@ export type TBasePutObject = {
   bucketName: string;
   objectName: string;
   txnHash: string;
-  body: Blob;
+  body: File;
   duration?: number;
+  endpoint?: string;
 };
-
-export type TPutObjectByAuthTypeV1 = TBasePutObject & {
-  signType?: 'authTypeV1';
-  privateKey: string;
-};
-
-export type TPutObjectByOffChainAuth = TBasePutObject & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TPutObject = TPutObjectByAuthTypeV1 | TPutObjectByOffChainAuth;
 
 export type TBaseGetObject = {
   bucketName: string;
   objectName: string;
-  endpoint?: string;
   duration?: number;
+  endpoint?: string;
 };
 
-export type TGetObjectByAuthTypeV2 = TBaseGetObject & {
-  signType?: 'authTypeV2';
+export type TBaseGetPrivewObject = {
+  bucketName: string;
+  objectName: string;
+  duration?: number;
+  queryMap: Record<string, string>;
+  endpoint?: string;
 };
-
-export type TGetObjectByOffChainAuth = TBaseGetObject & {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-  address: string;
-};
-
-export type TGetObject = TGetObjectByAuthTypeV2 | TGetObjectByOffChainAuth;
 
 export type TListObjects = {
   bucketName: string;
@@ -222,46 +163,6 @@ export type TDownloadFile = {
   year?: number;
   month?: number;
 };
-
-export interface IObjectResponse {
-  create_tx_hash: string;
-  delete_at: string;
-  delete_reason: string;
-  locked_balance: string;
-  operator: string;
-  removed: boolean;
-  seal_tx_hash: string;
-  update_at: string;
-  update_tx_hash: string;
-  object_info: {
-    bucket_name: string;
-    checksums: Array<string>;
-    content_type: string;
-    create_at: string;
-    creator: string;
-    id: string;
-    local_virtual_group_id: number;
-    object_name: string;
-    object_status: number;
-    owner: string;
-    payload_size: string;
-    redundancy_type: string;
-    source_type: string;
-    visibility: number;
-  };
-}
-export interface IObjectsProps {
-  common_prefixes: Array<string>;
-  continuation_token: string;
-  delimiter: string;
-  is_truncated: boolean;
-  key_count: string;
-  max_keys: string;
-  name: string;
-  next_continuation_token: string;
-  objects: IObjectResponse[];
-  prefix: string;
-}
 
 export interface IGetObjectStaus {
   bucketName: string;
@@ -348,23 +249,6 @@ export interface TGetCurrentSeedStringParams {
   provider: any;
 }
 
-export interface IBaseMigrateBucket {
-  params: MsgMigrateBucket;
-  spInfo: ISpInfo;
-}
-
-export interface IMigrateBucketByOffChainAuth extends IBaseMigrateBucket {
-  signType: 'offChainAuth';
-  domain: string;
-  seedString: string;
-}
-
-export interface IMigrateBucketByAuthTypeV2 extends IBaseMigrateBucket {
-  signType?: 'authTypeV2';
-}
-
-export type IMigrateBucket = IMigrateBucketByOffChainAuth | IMigrateBucketByAuthTypeV2;
-
 export interface IMigrateBucketMsgType {
   operator: string;
   bucket_name: string;
@@ -375,3 +259,52 @@ export interface IMigrateBucketMsgType {
     global_virtual_group_family_id: number;
   };
 }
+
+export type TListBucketReadRecord = {
+  bucketName: string;
+  endpoint?: string;
+  maxRecords: number;
+  startTimeStamp: number;
+  endTimeStamp: number;
+};
+
+export type TListGroups = {
+  name: string;
+  prefix: string;
+  sourceType?: keyof typeof SourceType;
+  limit?: number;
+  offset?: number;
+};
+
+export type TListObjectsByIDsRequest = {
+  ids: string[];
+};
+
+export type TListBucketsByIDsRequest = {
+  ids: string[];
+};
+
+export type TVerifyPermissionRequest = {
+  operator: string;
+  bucketName: string;
+  objectName?: string;
+  action: keyof typeof ActionType;
+};
+
+export type TListGroupsMembersRequest = {
+  groupId: number;
+  limit?: number;
+  startAfter?: string;
+};
+
+export type TListUserGroupRequest = {
+  address: string;
+  limit?: number;
+  startAfter?: string;
+};
+
+export type TListUserOwnedGroupRequest = {
+  address: string;
+  limit?: number;
+  startAfter?: string;
+};

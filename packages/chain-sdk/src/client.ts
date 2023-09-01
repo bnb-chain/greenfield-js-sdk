@@ -14,14 +14,31 @@ import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 import { IStorage, Storage } from './api/storage';
 import { Basic, IBasic } from './api/basic';
 import { Gashub, IGashub } from './api/gashub';
-import { RpcQueryClient } from './api/queryclient';
+import { RpcQueryClient } from './clients/queryclient';
 import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
+import { ISpClient, SpClient } from './clients/spclient/spClient';
 
 @injectable()
 export class Client {
-  static create(rpcUrl: string, chainId: string): Client {
+  /**
+   * @rpcUrl string
+   * @chaidId string
+   * @wasmURL optional, need setting only used for browser
+   */
+  static create(
+    rpcUrl: string,
+    chainId: string,
+    wasmURL?: {
+      zkCryptoUrl?: string;
+    },
+  ): Client {
     container.register('RPC_URL', { useValue: rpcUrl });
     container.register('CHAIN_ID', { useValue: chainId });
+    container.register('ZK_CRYPTO', { useValue: wasmURL?.zkCryptoUrl });
+
+    if (wasmURL?.zkCryptoUrl) {
+      (globalThis as any).__PUBLIC_ZKCRYPTO_WASM_PATH__ = wasmURL.zkCryptoUrl;
+    }
 
     const account = container.resolve<Account>(Account);
     const basic = container.resolve<Basic>(Basic);
@@ -36,6 +53,7 @@ export class Client {
     const payment = container.resolve<Payment>(Payment);
     const queryClient = container.resolve<RpcQueryClient>(RpcQueryClient);
     const sp = container.resolve<Sp>(Sp);
+    const spClient = container.resolve(SpClient);
     const storage = container.resolve<Storage>(Storage);
     const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
     const virtualGroup = container.resolve<VirtualGroup>(VirtualGroup);
@@ -54,6 +72,7 @@ export class Client {
       payment,
       queryClient,
       sp,
+      spClient,
       storage,
       offchainauth,
       virtualGroup,
@@ -74,6 +93,7 @@ export class Client {
     public payment: IPayment,
     public queryClient: RpcQueryClient,
     public sp: ISp,
+    public spClient: ISpClient,
     public storage: IStorage,
     public offchainauth: IOffChainAuth,
     public virtualGroup: IVirtualGroup,

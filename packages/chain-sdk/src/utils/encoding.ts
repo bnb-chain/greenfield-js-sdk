@@ -14,7 +14,7 @@ const decodeFromHex = (hex = '') => {
   return result.join('');
 };
 
-const encodeObjectToHexString = (jsonObject: any) => {
+const encodeObjectToHexString = (jsonObject: object) => {
   const utf8Encoder = new TextEncoder();
   const utf8Bytes = utf8Encoder.encode(JSON.stringify(jsonObject));
   return Array.from(utf8Bytes)

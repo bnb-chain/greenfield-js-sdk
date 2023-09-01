@@ -1,11 +1,12 @@
 import { client } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import {
   GRNToString,
   MsgCreateObjectTypeUrl,
   newBucketGRN,
   PermissionTypes,
+  toTimestamp,
 } from '@bnb-chain/greenfield-js-sdk';
-import { FileHandler } from '@bnb-chain/greenfiled-file-handle';
 import { Wallet } from '@ethersproject/wallet';
 import { ChangeEvent, useState } from 'react';
 import { parseEther } from 'viem';
@@ -62,12 +63,15 @@ export const CreateObj = () => {
           setWallet(wallet);
 
           // 2. allow temporary account to submit specified tx and amount
+          const date = new Date();
+          date.setDate(date.getMinutes() + 10);
           const grantAllowanceTx = await client.feegrant.grantAllowance({
             granter: address,
             grantee: wallet.address,
             allowedMessages: [MsgCreateObjectTypeUrl],
-            amount: parseEther('0.09').toString(),
+            amount: parseEther('0.01').toString(),
             denom: 'BNB',
+            expirationTime: toTimestamp(date),
           });
 
           // 3. Put bucket policy so that the temporary account can create objects within this bucket
@@ -83,6 +87,7 @@ export const CreateObj = () => {
               type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
               value: wallet.address,
             },
+            expirationTime: toTimestamp(date),
           });
 
           // 4. broadcast txs include 2 msg
@@ -120,21 +125,27 @@ export const CreateObj = () => {
           console.log('temp account', granteeAddr, privateKey);
 
           const fileBytes = await file.arrayBuffer();
-          const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
+          const hashResult = await (window as any).FileHandle.getCheckSums(
+            new Uint8Array(fileBytes),
+          );
           const { contentLength, expectCheckSums } = hashResult;
 
-          const createObjectTx = await client.object.createObject({
-            bucketName: bucketName,
-            objectName: objectName,
-            visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-            redundancyType: 'REDUNDANCY_EC_TYPE',
-            contentLength,
-            expectCheckSums,
-            fileType: file.type,
-            signType: 'authTypeV1',
-            creator: granteeAddr,
-            privateKey: privateKey,
-          });
+          const createObjectTx = await client.object.createObject(
+            {
+              creator: granteeAddr,
+              bucketName: bucketName,
+              objectName: objectName,
+              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+              redundancyType: 'REDUNDANCY_EC_TYPE',
+              contentLength,
+              expectCheckSums,
+              fileType: file.type,
+            },
+            {
+              type: 'ECDSA',
+              privateKey: ACCOUNT_PRIVATEKEY,
+            },
+          );
 
           const simulateInfo = await createObjectTx.simulate({
             denom: 'BNB',

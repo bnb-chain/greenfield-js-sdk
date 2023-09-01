@@ -1,17 +1,19 @@
+import { encodePath, getMsgToSign, getSortQuery, secpSign } from '@/clients/spclient/auth';
+import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
+import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
+import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
+import { parseListObjectsByIdsResponse } from '@/clients/spclient/spApis/listObjectsByIds';
+import { getObjectApprovalMetaInfo } from '@/clients/spclient/spApis/objectApproval';
+import { parseError } from '@/clients/spclient/spApis/parseError';
+import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { getAuthorizationAuthTypeV1, getAuthorizationAuthTypeV2, ReqMeta } from '@/utils/auth';
-import {
-  EMPTY_STRING_SHA256,
-  fetchWithTimeout,
-  METHOD_GET,
-  METHOD_POST,
-  METHOD_PUT,
-  NORMAL_ERROR_CODE,
-  parseErrorXml,
-} from '@/utils/http';
+import { signSignatureByEddsa } from '@/offchainauth';
+import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
+import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
 import {
   ActionType,
   Principal,
@@ -37,7 +39,9 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { hexlify } from '@ethersproject/bytes';
 import { Headers } from 'cross-fetch';
+import { bytesToUtf8, hexToBytes, utf8ToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, singleton } from 'tsyringe';
 import {
   GRNToString,
@@ -47,22 +51,21 @@ import {
   MsgUpdateObjectInfoTypeUrl,
   newObjectGRN,
 } from '..';
+import { RpcQueryClient } from '../clients/queryclient';
+import { AuthType, SpClient } from '../clients/spclient/spClient';
 import {
   ICreateObjectMsgType,
-  IObjectsProps,
   IObjectResultType,
+  ListObjectsByIDsResponse,
   Long,
-  SignTypeOffChain,
-  SignTypeV1,
   TBaseGetCreateObject,
-  TCreateObject,
-  TGetObject,
-  TKeyValue,
+  TBaseGetObject,
+  TBaseGetPrivewObject,
+  TBasePutObject,
   TListObjects,
-  TPutObject,
+  TListObjectsByIDsRequest,
   TxResponse,
 } from '../types';
-import { decodeObjectFromHexString, encodeObjectToHexString } from '../utils/encoding';
 import {
   generateUrlByBucketName,
   isValidBucketName,
@@ -70,18 +73,18 @@ import {
   isValidUrl,
 } from '../utils/s3';
 import { Basic } from './basic';
-import { Bucket } from './bucket';
-import { OffChainAuth } from './offchainauth';
-import { RpcQueryClient } from './queryclient';
 import { Sp } from './sp';
 import { Storage } from './storage';
 
 export interface IObject {
-  getCreateObjectApproval(getApprovalParams: TCreateObject): Promise<IObjectResultType<string>>;
+  getCreateObjectApproval(
+    configParam: TBaseGetCreateObject,
+    authType: AuthType,
+  ): Promise<IObjectResultType<string>>;
 
-  createObject(getApprovalParams: TCreateObject): Promise<TxResponse>;
+  createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType): Promise<TxResponse>;
 
-  uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>>;
+  uploadObject(configParam: TBasePutObject, authType: AuthType): Promise<IObjectResultType<null>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
@@ -95,15 +98,25 @@ export interface IObject {
 
   headObjectNFT(request: QueryNFTRequest): Promise<QueryObjectNFTResponse>;
 
-  getObject(configParam: TGetObject): Promise<IObjectResultType<Blob>>;
+  /**
+   * get s3 object's blob
+   */
+  getObject(configParam: TBaseGetObject, authType: AuthType): Promise<IObjectResultType<Blob>>;
 
-  downloadFile(configParam: TGetObject): Promise<void>;
+  getObjectPreviewUrl(configParam: TBaseGetPrivewObject, authType: AuthType): Promise<string>;
 
-  listObjects(configParam: TListObjects): Promise<IObjectResultType<IObjectsProps>>;
+  /**
+   * download s3 object
+   */
+  downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void>;
+
+  listObjects(
+    configParam: TListObjects,
+  ): Promise<IObjectResultType<ListObjectsByBucketNameResponse>>;
 
   createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
-    signParams: SignTypeOffChain | SignTypeV1,
+    authType: AuthType,
   ): Promise<TxResponse>;
 
   putObjectPolicy(
@@ -132,6 +145,12 @@ export interface IObject {
     objectName: string,
     principalAddr: string,
   ): Promise<QueryPolicyForAccountResponse>;
+
+  getObjectMeta(params: GetObjectMetaRequest): Promise<IObjectResultType<GetObjectMetaResponse>>;
+
+  listObjectsByIds(
+    params: TListObjectsByIDsRequest,
+  ): Promise<IObjectResultType<ListObjectsByIDsResponse>>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }
@@ -145,9 +164,9 @@ export class Objectt implements IObject {
   ) {}
 
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
-  private offChainAuthClient = container.resolve(OffChainAuth);
+  private spClient = container.resolve(SpClient);
 
-  public async getCreateObjectApproval(configParam: TCreateObject) {
+  public async getCreateObjectApproval(params: TBaseGetCreateObject, authType: AuthType) {
     const {
       bucketName,
       creator,
@@ -158,7 +177,7 @@ export class Objectt implements IObject {
       redundancyType = 'REDUNDANCY_EC_TYPE',
       contentLength,
       expectCheckSums,
-    } = configParam;
+    } = params;
 
     try {
       if (!isValidBucketName(bucketName)) {
@@ -171,11 +190,13 @@ export class Objectt implements IObject {
         throw new Error('empty creator address');
       }
 
-      // must sort (Go SDK)
-      const msg: ICreateObjectMsgType = {
+      let endpoint = params.endpoint;
+      if (!endpoint) {
+        endpoint = await this.sp.getSPUrlByBucket(bucketName);
+      }
+      const { reqMeta, optionsWithOutHeaders, url } = await getObjectApprovalMetaInfo(endpoint, {
         bucket_name: bucketName,
         content_type: fileType,
-        // content_type: 'application/octet-stream',
         creator: creator,
         expect_checksums: expectCheckSums,
         object_name: objectName,
@@ -187,91 +208,33 @@ export class Objectt implements IObject {
         },
         redundancy_type: redundancyType,
         visibility,
-      };
+      });
 
-      const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-      const path = '/greenfield/admin/v1/get-approval';
-      const query = 'action=CreateObject';
-      const url = `${endpoint}${path}?${query}`;
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
-      const unSignedMessageInHex = encodeObjectToHexString(msg);
-
-      let headerContent: TKeyValue = {
-        'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-      };
-
-      if (configParam.signType === 'authTypeV1') {
-        // const date = new Date().toISOString();
-        const reqMeta: Partial<ReqMeta> = {
-          contentSHA256: EMPTY_STRING_SHA256,
-          txnMsg: unSignedMessageInHex,
-          method: METHOD_GET,
-          url: {
-            hostname: new URL(endpoint).hostname,
-            query,
-            path,
-          },
-          date: '',
-          contentType: fileType,
-        };
-
-        const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
-
-        headerContent = {
-          'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-          'Content-Type': fileType,
-          // 'Content-Type': 'application/octet-stream',
-          'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-          'X-Gnfd-Date': '',
-          Authorization,
-        };
-        // console.log(x)
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString, domain } = configParam;
-        const { code, body, statusCode } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          throw {
-            code: -1,
-            message: 'Get create bucket approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
-          'X-Gnfd-User-Address': creator,
-          'X-Gnfd-App-Domain': domain,
-        };
-      }
-      const headers = new Headers(headerContent);
-      const result = await fetchWithTimeout(
+      const result = await this.spClient.callApi(
         url,
         {
-          headers,
-          method: METHOD_GET,
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
         },
         duration,
+        {
+          code: -1,
+          message: 'Get create object approval error.',
+        },
       );
 
-      const { status } = result;
-      if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
-        throw {
-          code: code || -1,
-          message: message || 'Get create object approval error.',
-          statusCode: status,
-          error: result,
-        };
-      }
-
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-      const signedMsg = decodeObjectFromHexString(signedMsgString) as ICreateObjectMsgType;
+      const signedMsg = JSON.parse(
+        bytesToUtf8(hexToBytes(signedMsgString)),
+      ) as ICreateObjectMsgType;
 
       return {
         code: 0,
         message: 'Get create object approval success.',
         body: result.headers.get('X-Gnfd-Signed-Msg') ?? '',
-        statusCode: status,
+        statusCode: result.status,
         signedMsg,
       };
     } catch (error: any) {
@@ -302,8 +265,8 @@ export class Objectt implements IObject {
     );
   }
 
-  public async createObject(getApprovalParams: TCreateObject) {
-    const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams);
+  public async createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType) {
+    const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams, authType);
     if (!signedMsg) {
       throw new Error('Get create object approval error');
     }
@@ -327,8 +290,11 @@ export class Objectt implements IObject {
     return await this.createObjectTx(msg, signedMsg);
   }
 
-  public async uploadObject(configParam: TPutObject): Promise<IObjectResultType<null>> {
-    const { bucketName, objectName, txnHash, body, duration = 30000 } = configParam;
+  public async uploadObject(
+    params: TBasePutObject,
+    authType: AuthType,
+  ): Promise<IObjectResultType<null>> {
+    const { bucketName, objectName, txnHash, body, duration = 30000 } = params;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
     }
@@ -339,76 +305,29 @@ export class Objectt implements IObject {
       throw new Error('Transaction hash is empty, please check.');
     }
 
-    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
-    const path = `/${objectName}`;
-    const query = '';
-    const url = generateUrlByBucketName(endpoint, bucketName) + path;
-
-    let headerContent: TKeyValue = {
-      'X-Gnfd-Txn-hash': txnHash,
-    };
-    if (!configParam.signType || configParam.signType === 'authTypeV1') {
-      const date = new Date().toISOString();
-      const reqMeta: Partial<ReqMeta> = {
-        contentSHA256: EMPTY_STRING_SHA256,
-        method: METHOD_PUT,
-        url: {
-          hostname: `${bucketName}.${new URL(endpoint).hostname}`,
-          query,
-          path,
-        },
-        date: date,
-        // contentType: '',
-        txnHash: txnHash,
-      };
-
-      const Authorization = getAuthorizationAuthTypeV1(reqMeta, configParam.privateKey);
-      headerContent = {
-        ...headerContent,
-        'Content-Type': 'application/octet-stream',
-        'X-Gnfd-Content-Sha256': EMPTY_STRING_SHA256,
-        'X-Gnfd-Date': date,
-        Authorization,
-      };
-    } else if (configParam.signType === 'offChainAuth') {
-      const { seedString, address, domain } = configParam;
-      const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-      if (code !== 0) {
-        return {
-          code: -1,
-          message: message || 'Get create object approval error.',
-          statusCode: statusCode,
-        };
-      }
-      headerContent = {
-        ...headerContent,
-        Authorization: body?.authorization as string,
-        'X-Gnfd-User-Address': address,
-        'X-Gnfd-App-Domain': domain,
-      };
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
     }
-
-    const headers = new Headers(headerContent);
+    const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
+      bucketName,
+      objectName,
+      contentType: body.type,
+      txnHash,
+      body,
+    });
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
     try {
-      const result = await fetchWithTimeout(
+      const result = await this.spClient.callApi(
         url,
         {
-          headers,
-          method: METHOD_PUT,
-          body,
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
         },
         duration,
       );
       const { status } = result;
-      if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
-        return {
-          code: +(code || 0) || -1,
-          message: message || 'Put object error.',
-          statusCode: status,
-        };
-      }
 
       return { code: 0, message: 'Put object success.', statusCode: status };
     } catch (error: any) {
@@ -472,58 +391,39 @@ export class Objectt implements IObject {
     return await rpc.HeadObjectNFT(request);
   }
 
-  public async getObject(configParam: TGetObject) {
+  public async getObject(params: TBaseGetObject, authType: AuthType) {
     try {
-      const { bucketName, objectName, endpoint, duration = 30000 } = configParam;
-      if (!isValidUrl(endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
+      const { bucketName, objectName, duration = 30000 } = params;
       if (!isValidBucketName(bucketName)) {
         throw new Error('Error bucket name');
       }
       if (!isValidObjectName(objectName)) {
         throw new Error('Error object name');
       }
-      const url = generateUrlByBucketName(endpoint, bucketName) + '/' + objectName;
-
-      let headerContent: TKeyValue = {};
-      if (!configParam.signType || configParam.signType === 'authTypeV2') {
-        const Authorization = getAuthorizationAuthTypeV2();
-        headerContent = {
-          ...headerContent,
-          Authorization,
-        };
-      } else if (configParam.signType === 'offChainAuth') {
-        const { seedString, address, domain } = configParam;
-        const { code, body, statusCode, message } = await this.offChainAuthClient.sign(seedString);
-        if (code !== 0) {
-          throw {
-            code: -1,
-            message: message || 'Get create object approval error.',
-            statusCode: statusCode,
-          };
-        }
-        headerContent = {
-          ...headerContent,
-          Authorization: body?.authorization as string,
-          'X-Gnfd-User-Address': address,
-          'X-Gnfd-App-Domain': domain,
-        };
+      let endpoint = params.endpoint;
+      if (!endpoint) {
+        endpoint = await this.sp.getSPUrlByBucket(bucketName);
       }
 
-      const headers = new Headers(headerContent);
+      const { reqMeta, optionsWithOutHeaders, url } = await getGetObjectMetaInfo(endpoint, {
+        bucketName,
+        objectName,
+      });
 
-      const result = await fetchWithTimeout(
+      const headers = await this.spClient.signHeaders(reqMeta, authType);
+
+      const result = await this.spClient.callApi(
         url,
         {
+          ...optionsWithOutHeaders,
           headers,
-          method: METHOD_GET,
         },
         duration,
       );
       const { status } = result;
       if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
 
         return {
           code: code || -1,
@@ -548,10 +448,49 @@ export class Objectt implements IObject {
     }
   }
 
-  public async downloadFile(configParam: TGetObject): Promise<void> {
+  public async getObjectPreviewUrl(params: TBaseGetPrivewObject, authType: AuthType) {
+    const { bucketName, objectName, queryMap } = params;
+    if (!isValidBucketName(bucketName)) {
+      throw new Error('Error bucket name');
+    }
+    if (!isValidObjectName(objectName)) {
+      throw new Error('Error object name');
+    }
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    }
+
+    const path = '/' + encodePath(objectName);
+    const url = generateUrlByBucketName(endpoint, bucketName) + path;
+
+    const queryRaw = getSortQuery(queryMap);
+
+    const canonicalRequest = [
+      METHOD_GET,
+      `/${encodePath(objectName)}`,
+      queryRaw,
+      new URL(url).host,
+      '\n',
+    ].join('\n');
+
+    const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
+    let authorization = '';
+    if (authType.type === 'ECDSA') {
+      const sig = secpSign(unsignedMsg, authType.privateKey);
+      authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
+    } else {
+      const sig = await signSignatureByEddsa(authType.seed, hexlify(unsignedMsg).slice(2));
+      authorization = `GNFD1-EDDSA,Signature=${sig}`;
+    }
+
+    return `${url}?Authorization=${encodeURIComponent(authorization)}&${queryRaw}`;
+  }
+
+  public async downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void> {
     try {
       const { objectName } = configParam;
-      const getObjectResult = await this.getObject(configParam);
+      const getObjectResult = await this.getObject(configParam, authType);
 
       if (getObjectResult.code !== 0) {
         throw new Error(getObjectResult.message);
@@ -585,10 +524,9 @@ export class Objectt implements IObject {
         throw new Error('Invalid endpoint');
       }
       const url = `${generateUrlByBucketName(endpoint, bucketName)}?${query?.toString()}`;
-      const headerContent: TKeyValue = {};
-      const headers = new Headers(headerContent);
+      const headers = new Headers();
 
-      const result = await fetchWithTimeout(
+      const result = await this.spClient.callApi(
         url,
         {
           headers,
@@ -598,19 +536,23 @@ export class Objectt implements IObject {
       );
       const { status } = result;
       if (!result.ok) {
-        const { code, message } = await parseErrorXml(result);
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
         return {
           code: code || -1,
           message: message || 'List object error.',
           statusCode: status,
         };
       }
-      const body = await result.json();
+
+      const xmlData = await result.text();
+      const res = await parseListObjectsByBucketNameResponse(xmlData);
+
       return {
         code: 0,
         message: 'List object success.',
         statusCode: status,
-        body,
+        body: res,
       };
     } catch (error: any) {
       return {
@@ -623,7 +565,7 @@ export class Objectt implements IObject {
 
   public async createFolder(
     getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
-    signParams: SignTypeOffChain | SignTypeV1,
+    authType: AuthType,
   ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
@@ -640,7 +582,7 @@ export class Objectt implements IObject {
       const { contentLength, expectCheckSums } = hashResult;
      */
 
-    const params: TCreateObject = {
+    const params: TBaseGetCreateObject = {
       bucketName: getApprovalParams.bucketName,
       objectName: getApprovalParams.objectName,
       contentLength: 0,
@@ -655,10 +597,9 @@ export class Objectt implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
       ],
       creator: getApprovalParams.creator,
-      ...signParams,
     };
 
-    return this.createObject(params);
+    return this.createObject(params, authType);
   }
 
   public async putObjectPolicy(
@@ -722,16 +663,77 @@ export class Objectt implements IObject {
     return await this.storage.deletePolicy(msg);
   }
 
-  // private async getObjectStatusFromSP(params: IGetObjectStaus) {
-  //   const {bucketInfo} = await this.bucket.headBucket(params.bucketName);
-  //   const primarySpAddress = bucketInfo?.primarySpAddress
+  public async getObjectMeta(params: GetObjectMetaRequest) {
+    const { bucketName, objectName, endpoint } = params;
+    if (!isValidBucketName(bucketName)) {
+      throw new Error('Error bucket name');
+    }
+    if (!isValidObjectName(objectName)) {
+      throw new Error('Error object name');
+    }
 
-  //   // const url = params.endpoint + '/greenfield/admin/v1/get-approval?upload-progress=';
-  //   // const unSignedMessageInHex = encodeObjectToHexString(msg);
-  //   // const headers = new Headers({
-  //   //   // TODO: replace when offchain release
-  //   //   Authorization: `authTypeV2 ECDSA-secp256k1, Signature=${MOCK_SIGNATURE}`,
-  //   //   'X-Gnfd-Unsigned-Msg': unSignedMessageInHex,
-  //   // });
-  // }
+    const queryMap = {
+      'object-meta': '',
+    };
+    const query = getSortQuery(queryMap);
+    const path = encodePath(objectName);
+    const url = `${generateUrlByBucketName(endpoint, bucketName)}/${path}?${query}`;
+    const result = await this.spClient.callApi(url, {
+      method: METHOD_GET,
+    });
+
+    const xml = await result.text();
+    const res = await parseGetObjectMetaResponse(xml);
+
+    return {
+      code: 0,
+      message: 'get object meta success.',
+      statusCode: result.status,
+      body: res,
+    };
+  }
+
+  public async listObjectsByIds(params: TListObjectsByIDsRequest) {
+    try {
+      const { ids } = params;
+
+      const sp = await this.sp.getInServiceSP();
+      const url = `${sp.endpoint}?objects-query=null&ids=${ids.join(',')}`;
+
+      const result = await this.spClient.callApi(
+        url,
+        {
+          headers: {},
+          method: METHOD_GET,
+        },
+        3000,
+      );
+      const { status } = result;
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = await parseListObjectsByIdsResponse(xmlData);
+
+      return {
+        code: 0,
+        message: 'success',
+        statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
 }

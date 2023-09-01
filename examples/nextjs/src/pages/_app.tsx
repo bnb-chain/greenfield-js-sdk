@@ -1,4 +1,4 @@
-import { chains, publicClient, RainbowTrustWalletConnector, webSocketPublicClient } from '@/config';
+import { chains, publicClient, webSocketPublicClient } from '@/config';
 import '@/styles/globals.css';
 import {
   connectorsForWallets,
@@ -6,7 +6,6 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { trustWallet } from '@rainbow-me/rainbowkit/wallets';
 import type { AppProps } from 'next/app';
 import { createConfig, WagmiConfig } from 'wagmi';
 

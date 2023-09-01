@@ -1,38 +1,25 @@
 {
   "name": "@bnb-chain/greenfiled-file-handle",
-  "version": "0.2.0",
-  "description": "greenfield js chain sdk",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "version": "0.2.1",
+  "description": "checksums wasm package",
+  "module": "./dist/browser/esm/index.js",
+  "main": "./dist/node/index.js",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/esm/**.d.ts",
-        "default": "./dist/esm/index.js"
-      },
-      "require": {
-        "types": "./dist/cjs/**.d.ts",
-        "default": "./dist/cjs/index.js"
-      }
+      "import": "./dist/browser/esm/index.js",
+      "main": "./dist/node/index.js",
+      "default": "./dist/node/index.js",
+      "types": "./types/index.d.ts"
     },
-    "./files": {
-      "default": "./dist/files-handle-wasm/cjs/node.js"
-    }
-  },
-  "browser": {
-    "./dist/cjs/index.js": "./dist/cjs/index.js",
-    "./dist/esm/index.js": "./dist/esm/index.js",
-    "./dist/files-handle-wasm/cjs/node.js": "./dist/files-handle-wasm/web/index.js",
-    "./dist/files-handle-wasm/esm/node.js": "./dist/files-handle-wasm/web/index.js"
+    "./file-handle.wasm": "./dist/node/file-handle.wasm"
   },
   "scripts": {
     "predev": "rimraf ./dist",
-    "dev": "rollup -cw",
+    "dev": "weboack -w",
     "prebuild": "rimraf ./dist",
-    "build": "rollup -c",
-    "test": "jest",
-    "lint": "prettier --write './src/*.{ts,tsx,js,jsx}' && eslint ./src/ --ext .js,.jsx,.ts,.tsx --fix"
+    "build": "webpack",
+    "test": ""
   },
   "keywords": [],
   "author": "",
@@ -58,19 +45,11 @@
     ]
   },
   "devDependencies": {
-    "@jest/globals": "^29.5.0",
-    "@rollup/plugin-wasm": "^6.1.2",
-    "@types/jest": "^29.5.1",
-    "jest": "^29.5.0",
-    "rollup": "^2.79.1",
-    "rollup-plugin-auto-external": "^2.0.0",
-    "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-polyfill-node": "^0.10.2",
-    "rollup-plugin-terser": "^7.0.2",
-    "ts-jest": "^29.1.0",
-    "ts-node": "^10.9.1",
-    "tslib": "^2.5.0",
-    "typescript": "^4.9.5"
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
   }
 }

@@ -1,11 +1,11 @@
 export const MsgCreatePaymentAccountSDKTypeEIP712 = {
-  Msg: [
+  Msg1: [
     {
       name: 'type',
       type: 'string',
     },
     {
-      name: 'creaator',
+      name: 'creator',
       type: 'string',
     },
   ],
