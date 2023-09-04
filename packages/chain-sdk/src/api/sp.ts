@@ -7,7 +7,7 @@ import { parseError } from '@/clients/spclient/spApis/parseError';
 import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
 import { SpClient } from '@/clients/spclient/spClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
-import { ListUserOwnedGroupsResponse } from '@/types/sp-xml/ListUserOwnedGroupsResponse';
+import { ListUserOwnedGroupsResponse } from '@/types/sp/ListUserOwnedGroups';
 import { actionTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
@@ -22,16 +22,16 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
 import { container, singleton } from 'tsyringe';
-import {
-  IObjectResultType,
+import type {
+  SpResponse,
   ListGroupsMembersResponse,
   ListGroupsResponse,
   ListUserGroupsResponse,
-  TListGroups,
-  TListGroupsMembersRequest,
-  TListUserGroupRequest,
-  TListUserOwnedGroupRequest,
-  TVerifyPermissionRequest,
+  ListGroupsResquest,
+  ListGroupsMembersRequest,
+  ListUserGroupsResquest,
+  ListUserOwnedGroupsRequest,
+  VerifyPermissionRequest,
   VerifyPermissionResponse,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
@@ -78,17 +78,17 @@ export interface ISp {
 
   params(): Promise<QueryParamsResponse>;
 
-  listGroups(params: TListGroups): Promise<IObjectResultType<ListGroupsResponse>>;
+  listGroups(params: ListGroupsResquest): Promise<SpResponse<ListGroupsResponse>>;
 
   listGroupsMembers(
-    params: TListGroupsMembersRequest,
-  ): Promise<IObjectResultType<ListGroupsMembersResponse>>;
+    params: ListGroupsMembersRequest,
+  ): Promise<SpResponse<ListGroupsMembersResponse>>;
 
-  listUserGroups(params: TListUserGroupRequest): Promise<IObjectResultType<ListUserGroupsResponse>>;
+  listUserGroups(params: ListUserGroupsResquest): Promise<SpResponse<ListUserGroupsResponse>>;
 
   listUserOwnedGroups(
-    params: TListUserOwnedGroupRequest,
-  ): Promise<IObjectResultType<ListUserOwnedGroupsResponse>>;
+    params: ListUserOwnedGroupsRequest,
+  ): Promise<SpResponse<ListUserOwnedGroupsResponse>>;
 
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
@@ -96,9 +96,7 @@ export interface ISp {
 
   getSPUrlById(primaryId: number): Promise<string>;
 
-  verifyPermission(
-    params: TVerifyPermissionRequest,
-  ): Promise<IObjectResultType<VerifyPermissionResponse>>;
+  verifyPermission(params: VerifyPermissionRequest): Promise<SpResponse<VerifyPermissionResponse>>;
 }
 
 @singleton()
@@ -183,7 +181,7 @@ export class Sp implements ISp {
     return spList[0];
   }
 
-  public async listGroups(params: TListGroups) {
+  public async listGroups(params: ListGroupsResquest) {
     try {
       const { name, prefix, sourceType, limit, offset } = params;
 
@@ -242,7 +240,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async verifyPermission(params: TVerifyPermissionRequest) {
+  public async verifyPermission(params: VerifyPermissionRequest) {
     try {
       const { action, bucketName, objectName, operator } = params;
 
@@ -290,7 +288,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async listGroupsMembers(params: TListGroupsMembersRequest) {
+  public async listGroupsMembers(params: ListGroupsMembersRequest) {
     try {
       const { groupId, limit, startAfter } = params;
       const sp = await this.getInServiceSP();
@@ -340,7 +338,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async listUserGroups(params: TListUserGroupRequest) {
+  public async listUserGroups(params: ListUserGroupsResquest) {
     try {
       const { address, limit, startAfter } = params;
       const sp = await this.getInServiceSP();
@@ -393,7 +391,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async listUserOwnedGroups(params: TListUserOwnedGroupRequest) {
+  public async listUserOwnedGroups(params: ListUserOwnedGroupsRequest) {
     try {
       const { address, limit, startAfter } = params;
       const sp = await this.getInServiceSP();

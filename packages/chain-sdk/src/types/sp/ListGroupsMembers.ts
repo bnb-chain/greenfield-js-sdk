@@ -1,5 +1,11 @@
 import { GroupInfo } from './Common';
 
+export type ListGroupsMembersRequest = {
+  groupId: number;
+  limit?: number;
+  startAfter?: string;
+};
+
 export interface ListGroupsMembersResponse {
   GfSpGetGroupMembersResponse: GfSpGetGroupMembersResponse;
 }

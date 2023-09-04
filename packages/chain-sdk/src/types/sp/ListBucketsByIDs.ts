@@ -1,5 +1,9 @@
 import { BucketInfo } from './Common';
 
+export type ListBucketsByIDsRequest = {
+  ids: string[];
+};
+
 export interface ListBucketsByIDsResponse {
   GfSpListBucketsByIDsResponse: GfSpListBucketsByIDsResponse;
 }

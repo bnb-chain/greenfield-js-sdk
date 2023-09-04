@@ -1,5 +1,5 @@
-import { formatGroupInfo, convertStrToBool } from '@/types/sp-xml/Common';
-import { ListUserOwnedGroupsResponse } from '@/types/sp-xml/ListUserOwnedGroupsResponse';
+import { formatGroupInfo, convertStrToBool } from '@/types/sp/Common';
+import { ListUserOwnedGroupsResponse } from '@/types/sp/ListUserOwnedGroups';
 import { XMLParser } from 'fast-xml-parser';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_user_owned_groups

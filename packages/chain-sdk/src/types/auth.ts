@@ -8,8 +8,8 @@ export interface ReqMeta {
     path: string;
     query: string;
   };
-  date: string;
-  expiryTimestamp: string;
+  date: Date;
+  expiryTimestamp: Date;
   contentSHA256: string;
   unsignMsg: string;
   txnHash: string;
