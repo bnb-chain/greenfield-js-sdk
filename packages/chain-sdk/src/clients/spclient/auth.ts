@@ -102,8 +102,8 @@ export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
   if (meta.expiryTimestamp) {
     headers.set(HTTPHeaderExpiryTimestamp.toLocaleLowerCase(), formatDate(meta.expiryTimestamp));
   } else {
+    date.setHours(date.getHours() + 2);
     headers.set(HTTPHeaderExpiryTimestamp.toLocaleLowerCase(), formatDate(date));
-    date.setDate(date.getHours() + 2);
   }
 
   return headers;
@@ -215,4 +215,14 @@ export const getSortQuery = (queryMap: Record<string, string>) => {
   queryParams.sort();
 
   return queryParams.toString();
+};
+
+export const getSortQueryParams = (url: URL, queryMap: Record<string, string>) => {
+  // const queryParams = new URLSearchParams();
+  for (const k in queryMap) {
+    url.searchParams.append(k, queryMap[k]);
+  }
+  url.searchParams.sort();
+
+  return url;
 };
