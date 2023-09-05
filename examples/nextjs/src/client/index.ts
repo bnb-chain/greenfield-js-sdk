@@ -3,7 +3,7 @@ import { Client } from '@bnb-chain/greenfield-js-sdk';
 
 export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
   zkCryptoUrl:
-    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto@0.0.2-alpha.5/dist/node/zk-crypto.wasm',
+    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto@0.0.3-alpha.0/dist/node/zk-crypto.wasm',
 });
 
 export const getSps = async () => {
