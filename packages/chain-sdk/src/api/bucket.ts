@@ -1,13 +1,21 @@
-import { getSortQuery, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
-import { getBucketApprovalMetaInfo } from '@/clients/spclient/spApis/bucketApproval';
-import { parseGetBucketMetaResponse } from '@/clients/spclient/spApis/getBucketMeta';
-import { parseGetUserBucketsResponse } from '@/clients/spclient/spApis/getUserBuckets';
+import { HTTPHeaderUserAddress } from '@/clients/spclient/auth';
+import { getApprovalMetaInfo } from '@/clients/spclient/spApis/approval';
+import {
+  getBucketMetaInfo,
+  parseGetBucketMetaResponse,
+} from '@/clients/spclient/spApis/getBucketMeta';
+import {
+  getUserBucketMetaInfo,
+  parseGetUserBucketsResponse,
+} from '@/clients/spclient/spApis/getUserBuckets';
 import {
   getListBucketReadRecordMetaInfo,
   parseListBucketReadRecordResponse,
 } from '@/clients/spclient/spApis/listBucketReadRecords';
-import { parseListBucketsByIdsResponse } from '@/clients/spclient/spApis/listBucketsByIds';
-import { getMigrateMetaInfo } from '@/clients/spclient/spApis/migrateApproval';
+import {
+  getListBucketsByIDsMetaInfo,
+  parseListBucketsByIdsResponse,
+} from '@/clients/spclient/spApis/listBucketsByIds';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import {
   getQueryBucketReadQuotaMetaInfo,
@@ -23,15 +31,15 @@ import {
   GetBucketMetaResponse,
   GetUserBucketsRequest,
   GetUserBucketsResponse,
-  ListBucketsByIDsResponse,
-  ListBucketReadRecordResponse,
-  ListBucketReadRecordRequest,
-  ListBucketsByIDsRequest,
-  ReadQuotaRequest,
-  SpResponse,
   IQuotaProps,
+  ListBucketReadRecordRequest,
+  ListBucketReadRecordResponse,
+  ListBucketsByIDsRequest,
+  ListBucketsByIDsResponse,
   MigrateBucketApprovalRequest,
   MigrateBucketApprovalResponse,
+  ReadQuotaRequest,
+  SpResponse,
 } from '@/types/sp';
 import {
   CreateBucketApprovalRequest,
@@ -173,7 +181,10 @@ export class Bucket implements IBucket {
   private queryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
 
-  public async getCreateBucketApproval(params: CreateBucketApprovalRequest, authType: AuthType) {
+  public async getCreateBucketApproval(
+    params: CreateBucketApprovalRequest,
+    authType: AuthType,
+  ): Promise<SpResponse<string>> {
     const {
       bucketName,
       creator,
@@ -197,47 +208,40 @@ export class Bucket implements IBucket {
 
       const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
 
-      const { reqMeta, optionsWithOutHeaders, url } = await getBucketApprovalMetaInfo(endpoint, {
-        bucket_name: bucketName,
-        creator,
-        visibility,
-        primary_sp_address: spInfo.primarySpAddress,
-        primary_sp_approval: {
-          expired_height: '0',
-          sig: '',
-          global_virtual_group_family_id: 0,
-        },
-        charged_read_quota: chargedReadQuota,
-        payment_address: paymentAddress,
-      });
+      const { reqMeta, optionsWithOutHeaders, url } =
+        getApprovalMetaInfo<CreateBucketApprovalResponse>(endpoint, 'CreateBucket', {
+          bucket_name: bucketName,
+          creator,
+          visibility,
+          primary_sp_address: spInfo.primarySpAddress,
+          primary_sp_approval: {
+            expired_height: '0',
+            sig: '',
+            global_virtual_group_family_id: 0,
+          },
+          charged_read_quota: chargedReadQuota,
+          payment_address: paymentAddress,
+        });
 
       const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+      const requestOptions: RequestInit = {
+        ...optionsWithOutHeaders,
+        headers: signHeaders,
+      };
 
-      const result = await this.spClient.callApi(
-        url,
-        {
-          ...optionsWithOutHeaders,
-          headers: signHeaders,
-        },
-        duration,
-        {
-          code: -1,
-          message: 'Get create bucket approval error.',
-        },
-      );
+      const result = await this.spClient.callApi(url, requestOptions, duration, {
+        code: -1,
+        message: 'Get create bucket approval error.',
+      });
 
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-      const signedMsg = JSON.parse(
-        bytesToUtf8(hexToBytes(signedMsgString)),
-      ) as CreateBucketApprovalResponse;
 
       return {
         code: 0,
         message: 'Get create bucket approval success.',
         body: signedMsgString,
         statusCode: result.status,
-        signedMsg: signedMsg,
-      };
+      } as SpResponse<string>;
     } catch (error: any) {
       throw {
         code: -1,
@@ -264,11 +268,13 @@ export class Bucket implements IBucket {
   }
 
   public async createBucket(params: CreateBucketApprovalRequest, authType: AuthType) {
-    const { signedMsg } = await this.getCreateBucketApproval(params, authType);
+    const { body } = await this.getCreateBucketApproval(params, authType);
 
-    if (!signedMsg) {
+    if (!body) {
       throw new Error('Get create bucket approval error');
     }
+
+    const signedMsg = JSON.parse(bytesToUtf8(hexToBytes(body))) as CreateBucketApprovalResponse;
 
     const msg: MsgCreateBucket = {
       bucketName: signedMsg.bucket_name,
@@ -335,7 +341,7 @@ export class Bucket implements IBucket {
       if (!isValidUrl(endpoint)) {
         throw new Error('Invalid endpoint');
       }
-      const url = endpoint;
+      const { url } = getUserBucketMetaInfo(endpoint);
 
       const headers = new Headers({
         [HTTPHeaderUserAddress]: address,
@@ -498,16 +504,17 @@ export class Bucket implements IBucket {
         endpoint = await this.sp.getSPUrlById(params.dstPrimarySpId);
       }
 
-      const { reqMeta, optionsWithOutHeaders, url } = await getMigrateMetaInfo(endpoint, {
-        operator: operator,
-        bucket_name: bucketName,
-        dst_primary_sp_id: dstPrimarySpId,
-        dst_primary_sp_approval: {
-          expired_height: '0',
-          sig: '',
-          global_virtual_group_family_id: 0,
-        },
-      });
+      const { reqMeta, optionsWithOutHeaders, url } =
+        getApprovalMetaInfo<MigrateBucketApprovalResponse>(endpoint, 'MigrateBucket', {
+          operator: operator,
+          bucket_name: bucketName,
+          dst_primary_sp_id: dstPrimarySpId,
+          dst_primary_sp_approval: {
+            expired_height: '0',
+            sig: '',
+            global_virtual_group_family_id: 0,
+          },
+        });
 
       const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
@@ -581,16 +588,18 @@ export class Bucket implements IBucket {
   }
 
   public async getBucketMeta(params: GetBucketMetaRequest) {
-    const { bucketName, endpoint } = params;
+    const { bucketName } = params;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
     }
-    const queryMap = {
-      'bucket-meta': '',
-    };
-    const query = getSortQuery(queryMap);
-    const path = bucketName;
-    const url = `${endpoint}/${path}?${query}`;
+
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    }
+
+    const { url } = getBucketMetaInfo(endpoint, params);
+
     const result = await this.spClient.callApi(url, {
       method: METHOD_GET,
     });
@@ -609,9 +618,6 @@ export class Bucket implements IBucket {
   public async listBucketReadRecords(params: ListBucketReadRecordRequest, authType: AuthType) {
     try {
       const { bucketName } = params;
-      // if (!isValidAddress(address)) {
-      //   throw new Error('Error address');
-      // }
       let endpoint = params.endpoint;
       if (!endpoint) {
         endpoint = await this.sp.getSPUrlByBucket(bucketName);
@@ -620,7 +626,7 @@ export class Bucket implements IBucket {
         throw new Error('Invalid endpoint');
       }
 
-      const { url, optionsWithOutHeaders, reqMeta } = await getListBucketReadRecordMetaInfo(
+      const { url, optionsWithOutHeaders, reqMeta } = getListBucketReadRecordMetaInfo(
         endpoint,
         params,
       );
@@ -660,9 +666,8 @@ export class Bucket implements IBucket {
   public async listBucketsByIds(params: ListBucketsByIDsRequest) {
     try {
       const { ids } = params;
-
       const sp = await this.sp.getInServiceSP();
-      const url = `${sp.endpoint}?ids=${ids.join(',')}&buckets-query=null`;
+      const { url } = getListBucketsByIDsMetaInfo(sp.endpoint, { ids });
 
       const result = await this.spClient.callApi(
         url,

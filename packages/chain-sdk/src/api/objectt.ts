@@ -1,9 +1,15 @@
 import { encodePath, getMsgToSign, getSortQuery, secpSign } from '@/clients/spclient/auth';
+import { getApprovalMetaInfo } from '@/clients/spclient/spApis/approval';
 import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
-import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
+import {
+  getObjectMetaInfo,
+  parseGetObjectMetaResponse,
+} from '@/clients/spclient/spApis/getObjectMeta';
 import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
-import { parseListObjectsByIdsResponse } from '@/clients/spclient/spApis/listObjectsByIds';
-import { getObjectApprovalMetaInfo } from '@/clients/spclient/spApis/objectApproval';
+import {
+  getListObjectsByIDsMetaInfo,
+  parseListObjectsByIdsResponse,
+} from '@/clients/spclient/spApis/listObjectsByIds';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
@@ -58,12 +64,12 @@ import { AuthType, SpClient } from '../clients/spclient/spClient';
 import {
   CreateObjectApprovalRequest,
   CreateObjectApprovalResponse,
+  GetPrivewObject,
   ListObjectsByBucketNameRequest,
   ListObjectsByIDsRequest,
   ListObjectsByIDsResponse,
   Long,
   SpResponse,
-  GetPrivewObject,
   TxResponse,
 } from '../types';
 import {
@@ -198,21 +204,22 @@ export class Objectt implements IObject {
       if (!endpoint) {
         endpoint = await this.sp.getSPUrlByBucket(bucketName);
       }
-      const { reqMeta, optionsWithOutHeaders, url } = await getObjectApprovalMetaInfo(endpoint, {
-        bucket_name: bucketName,
-        content_type: fileType,
-        creator: creator,
-        expect_checksums: expectCheckSums,
-        object_name: objectName,
-        payload_size: contentLength.toString(),
-        primary_sp_approval: {
-          expired_height: '0',
-          global_virtual_group_family_id: 0,
-          sig: null,
-        },
-        redundancy_type: redundancyType,
-        visibility,
-      });
+      const { reqMeta, optionsWithOutHeaders, url } =
+        getApprovalMetaInfo<CreateObjectApprovalResponse>(endpoint, 'CreateObject', {
+          bucket_name: bucketName,
+          content_type: fileType,
+          creator: creator,
+          expect_checksums: expectCheckSums,
+          object_name: objectName,
+          payload_size: contentLength.toString(),
+          primary_sp_approval: {
+            expired_height: '0',
+            global_virtual_group_family_id: 0,
+            sig: null,
+          },
+          redundancy_type: redundancyType,
+          visibility,
+        });
 
       const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
@@ -679,12 +686,8 @@ export class Objectt implements IObject {
       throw new Error('Error object name');
     }
 
-    const queryMap = {
-      'object-meta': '',
-    };
-    const query = getSortQuery(queryMap);
-    const path = encodePath(objectName);
-    const url = `${generateUrlByBucketName(endpoint, bucketName)}/${path}?${query}`;
+    const { url } = getObjectMetaInfo(endpoint, params);
+
     const result = await this.spClient.callApi(url, {
       method: METHOD_GET,
     });
@@ -702,10 +705,8 @@ export class Objectt implements IObject {
 
   public async listObjectsByIds(params: ListObjectsByIDsRequest) {
     try {
-      const { ids } = params;
-
       const sp = await this.sp.getInServiceSP();
-      const url = `${sp.endpoint}?objects-query=null&ids=${ids.join(',')}`;
+      const { url } = getListObjectsByIDsMetaInfo(sp.endpoint, params);
 
       const result = await this.spClient.callApi(
         url,

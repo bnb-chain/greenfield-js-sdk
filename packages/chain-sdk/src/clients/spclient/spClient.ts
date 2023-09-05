@@ -7,16 +7,18 @@ import { parseError } from '@/clients/spclient/spApis/parseError';
 import { ReqMeta } from '@/types/auth';
 import { Headers } from 'cross-fetch';
 import { singleton } from 'tsyringe';
+import { getGetObjectMetaInfo } from './spApis/getObject';
+import { getPutObjectMetaInfo } from './spApis/putObject';
 
 /**
- * V1
+ * ECDSA Signature
  */
 export type ECDSA = {
   type: 'ECDSA';
   privateKey: string;
 };
 /**
- * OffChainAuth
+ * EDDSA Signature
  */
 export type EDDSA = {
   type: 'EDDSA';
@@ -25,6 +27,8 @@ export type EDDSA = {
   address: string;
 };
 export type AuthType = ECDSA | EDDSA;
+
+export type ApiResult<T extends boolean, U> = T extends true ? U : RequestInit;
 
 export interface ISpClient {
   callApi(
@@ -38,6 +42,21 @@ export interface ISpClient {
   ): Promise<Response>;
 
   signHeaders(reqMeta: Partial<ReqMeta>, authType: AuthType): Promise<Headers>;
+
+  /**
+   *
+   * ```
+   * const { PUT_OBJECT: getPutObjectMetaInfo } = client.spClient.getMetaInfo(endpoint, payload);
+   * const {reqMeta, url} = await getPutObjectMetaInfo(endpoint, params);
+   *
+   * axios.put(...)
+   * ```
+   *
+   */
+  getMetaInfo(): {
+    PUT_OBJECT: typeof getPutObjectMetaInfo;
+    GET_OBJECT: typeof getGetObjectMetaInfo;
+  };
 }
 
 @singleton()
@@ -90,5 +109,12 @@ export class SpClient implements ISpClient {
     metaHeaders.set(HTTPHeaderAuthorization, auth);
 
     return metaHeaders;
+  }
+
+  public getMetaInfo() {
+    return {
+      PUT_OBJECT: getPutObjectMetaInfo,
+      GET_OBJECT: getGetObjectMetaInfo,
+    };
   }
 }
