@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.0
+
+### Patch Changes
+
+- [#302](https://github.com/bnb-chain/greenfield-js-sdk/pull/302)
+  [`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Sp types
+
+- Updated dependencies
+  [[`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274)]:
+  - @bnb-chain/greenfield-zk-crypto@0.0.3-alpha.0
+
 ## 0.2.4
 
 ### Patch Changes
