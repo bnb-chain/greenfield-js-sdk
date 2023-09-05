@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.1
+
+### Patch Changes
+
+- [#308](https://github.com/bnb-chain/greenfield-js-sdk/pull/308)
+  [`4acdb91`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4acdb919f4c2d7764c670f97c26a5b9cca8c962e)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Update Deps
+
+- [#305](https://github.com/bnb-chain/greenfield-js-sdk/pull/305)
+  [`bea0466`](https://github.com/bnb-chain/greenfield-js-sdk/commit/bea04668309bb4a769b68e9eab4f193ad2ef1d4b)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Sp metainfo
+
 ## 0.2.5-alpha.0
 
 ### Patch Changes
