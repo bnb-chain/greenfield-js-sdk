@@ -164,3 +164,15 @@ const bucketQuota = await client.bucket.getBucketReadQuota(
   },
 );
 ```
+
+#### Support Custom Http Request
+
+It's actually an HTTP request, we use `fetch` by default, and if you want to use another http library like `axios`, we'll construct it for you as well.
+
+```js
+// custom upload object
+const { PUT_OBJECT: getPutObjectMetaInfo } = client.spClient.getMetaInfo(endpoint, payload);
+const {reqMeta, url} = await getPutObjectMetaInfo(endpoint, params);
+
+axios.put(...)
+```

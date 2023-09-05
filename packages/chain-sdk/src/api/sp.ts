@@ -1,5 +1,8 @@
 import { encodePath, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
-import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
+import {
+  getListGroupMetaInfo,
+  parseListGroupsResponse,
+} from '@/clients/spclient/spApis/listGroups';
 import { parseListGroupsMembersResponse } from '@/clients/spclient/spApis/listGroupsMembers';
 import { parseListUserGroupsResponse } from '@/clients/spclient/spApis/listUserGroups';
 import { parseListUserOwnedGroupsResponse } from '@/clients/spclient/spApis/listUserOwnedGroups';
@@ -183,7 +186,7 @@ export class Sp implements ISp {
 
   public async listGroups(params: ListGroupsResquest) {
     try {
-      const { name, prefix, sourceType, limit, offset } = params;
+      const { name, prefix } = params;
 
       let res: ListGroupsResponse = {
         GfSpGetGroupListResponse: {
@@ -201,7 +204,7 @@ export class Sp implements ISp {
       }
 
       const sp = await this.getInServiceSP();
-      const url = `${sp.endpoint}?group-query=null&name=${name}&prefix=${prefix}&source-type=${sourceType}&limit=${limit}&offset=${offset}`;
+      const { url } = getListGroupMetaInfo(sp.endpoint, params);
 
       const result = await this.spClient.callApi(
         url,

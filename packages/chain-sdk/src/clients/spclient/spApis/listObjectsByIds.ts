@@ -1,8 +1,24 @@
-import { ListObjectsByIDsResponse } from '@/types';
+import { ListObjectsByIDsRequest, ListObjectsByIDsResponse } from '@/types';
 import { formatObjectInfo, convertStrToBool } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
+import { getSortQueryParams } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_objects_by_ids
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_objects_by_ids
+export const getListObjectsByIDsMetaInfo = (endpoint: string, params: ListObjectsByIDsRequest) => {
+  const path = '';
+  const queryMap = {
+    ids: params.ids.join(','),
+    'objects-query': 'null',
+  };
+
+  let url = new URL(path, endpoint);
+  url = getSortQueryParams(url, queryMap);
+
+  return {
+    url: url.href,
+  };
+};
+
 export const parseListObjectsByIdsResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,
