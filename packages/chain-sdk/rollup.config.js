@@ -5,7 +5,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import typescript from '@rollup/plugin-typescript';
 import path from 'path';
-import builtins from 'rollup-plugin-node-builtins';
 
 import autoExternal from 'rollup-plugin-auto-external';
 import pkg from './package.json';
@@ -30,7 +29,7 @@ export default async () => {
         json({
           include: ['src/**'],
         }),
-        builtins(),
+        // builtins(),
         resolve({
           exportConditions: ['default', 'module', 'import'],
           mainFields: ['module', 'main'],
