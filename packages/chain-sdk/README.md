@@ -27,7 +27,7 @@ Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
 The SDK consists of two parts:
 
 * Chain: https://docs.bnbchain.org/greenfield-docs/docs/api/blockchain-rest
-* Storage Provider: https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest
+* Storage Provider: https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest
 
 ## Chain
 
@@ -114,7 +114,7 @@ Examples:
 
 > https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest
 
-SDK support two [authentication type](https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest#authentication-type):
+SDK support two [authentication type](https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest#authentication-type):
 
 * ECDSA: It is usually used on Node.js(Because it need to use a private key)
 * EDDSA: It is usually used in a browser
