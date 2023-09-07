@@ -1,9 +1,11 @@
 import { client } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
+import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { Long } from '@bnb-chain/greenfield-js-sdk';
 import { useAccount } from 'wagmi';
 
 export const QueryComponent = () => {
-  const { address } = useAccount();
+  const { address, connector } = useAccount();
   return (
     <>
       <h2>open console panel</h2>
@@ -177,6 +179,39 @@ export const QueryComponent = () => {
             }}
           >
             list user owned groups
+          </button>
+        </li>
+
+        <li>
+          <button
+            onClick={async () => {
+              if (!address) return;
+
+              const provider = await connector?.getProvider();
+              const offChainData = await getOffchainAuthKeys(address, provider);
+              if (!offChainData) {
+                alert('No offchain, please create offchain pairs first');
+                return;
+              }
+
+              const res = await client.payment.listUserPaymentAccounts(
+                {
+                  account: address,
+                },
+                {
+                  // type: 'ECDSA',
+                  // privateKey: ACCOUNT_PRIVATEKEY,
+                  type: 'EDDSA',
+                  domain: window.location.origin,
+                  seed: offChainData.seedString,
+                  address,
+                },
+              );
+
+              console.log('res', res);
+            }}
+          >
+            listUserPaymentAccounts
           </button>
         </li>
       </ul>

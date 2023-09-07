@@ -3,13 +3,6 @@ import { getPubKeyByPriKey } from '@/keymanage';
 import { defaultSignTypedData } from '@/sign/signTx';
 import { getGasFeeBySimulate } from '@/utils/units';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
-import {
-  GetBlockByHeightResponse,
-  GetLatestBlockResponse,
-  GetLatestValidatorSetRequest,
-  GetNodeInfoResponse,
-  ServiceClientImpl as tdServiceClientImpl,
-} from '@bnb-chain/greenfield-cosmos-types/cosmos/base/tendermint/v1beta1/query';
 import { Coin } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/v1beta1/coin';
 import {
   ServiceClientImpl,
@@ -26,7 +19,6 @@ import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { arrayify } from '@ethersproject/bytes';
 import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
-import Long from 'long';
 import { container, inject, singleton } from 'tsyringe';
 import {
   BroadcastOptions,
@@ -292,6 +284,7 @@ export class TxClient implements ITxClient {
         );
 
         const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
+        // console.log('eip712', eip712);
         const { pubKey, signature } = privateKey
           ? this.getSignByPriKey(eip712, privateKey)
           : await this.getSignByWallet(eip712, accountInfo.address, signTypedDataCallback);
@@ -312,6 +305,8 @@ export class TxClient implements ITxClient {
           signatures: [arrayify(signature)],
         });
         const txBytes = TxRaw.encode(txRaw).finish();
+
+        // console.log('txBytes', hexlify(txBytes));
         return await this.broadcastRawTx(txBytes);
       },
     };

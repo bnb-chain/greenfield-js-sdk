@@ -1,7 +1,13 @@
+import {
+  getListUserPaymentAccountMetaInfo,
+  parseListUserPaymentAccountResponse,
+} from '@/clients/spclient/spApis/listUserPaymentAccounts';
+import { AuthType, SpClient } from '@/clients/spclient/spClient';
 import { TxClient } from '@/clients/txClient';
 import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
 import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
 import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
+import { ListUserPaymentAccountsResquest } from '../types/sp/ListUserPaymentAccounts';
 import {
   QueryAutoSettleRecordsRequest,
   QueryAutoSettleRecordsResponse,
@@ -32,8 +38,16 @@ import {
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
-import { MsgDepositTypeUrl, MsgDisableRefundTypeUrl, MsgWithdrawTypeUrl, TxResponse } from '..';
+import {
+  METHOD_GET,
+  MsgDepositTypeUrl,
+  MsgDisableRefundTypeUrl,
+  MsgWithdrawTypeUrl,
+  NORMAL_ERROR_CODE,
+  TxResponse,
+} from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { Sp } from './sp';
 
 export interface IPayment {
   /**
@@ -92,11 +106,20 @@ export interface IPayment {
   ): Promise<QueryAutoSettleRecordsResponse>;
 
   getOutFlows(request: QueryOutFlowsRequest): Promise<QueryOutFlowsResponse>;
+
+  listUserPaymentAccounts(
+    params: ListUserPaymentAccountsResquest,
+    authType: AuthType,
+  ): Promise<any>;
 }
 
 @singleton()
 export class Payment implements IPayment {
-  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
+  constructor(
+    @inject(delay(() => TxClient)) private txClient: TxClient,
+    @inject(delay(() => Sp)) private sp: Sp,
+  ) {}
+  private spClient = container.resolve(SpClient);
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async getStreamRecord(account: string) {
@@ -189,5 +212,42 @@ export class Payment implements IPayment {
       MsgDisableRefund.toSDK(msg),
       MsgDisableRefund.encode(msg).finish(),
     );
+  }
+
+  public async listUserPaymentAccounts(
+    params: ListUserPaymentAccountsResquest,
+    authType: AuthType,
+  ) {
+    try {
+      const sp = await this.sp.getInServiceSP();
+
+      const { url, optionsWithOutHeaders, reqMeta } = getListUserPaymentAccountMetaInfo(
+        sp.endpoint,
+        params,
+      );
+
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+      const result = await this.spClient.callApi(url, {
+        ...optionsWithOutHeaders,
+        headers: signHeaders,
+      });
+
+      const xml = await result.text();
+      const res = parseListUserPaymentAccountResponse(xml);
+
+      return {
+        code: 0,
+        message: 'Get bucket success.',
+        statusCode: result.status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
   }
 }
