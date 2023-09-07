@@ -1,5 +1,29 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.2
+
+### Patch Changes
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Validator API - editValidator
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Proposal vote api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: ListUserPaymentAccount api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Bucket listBucketsByPaymentAccount api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: basic.multi -> txClient.multi
+
 ## 0.2.5-alpha.1
 
 ### Patch Changes
