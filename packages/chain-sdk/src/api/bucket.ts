@@ -16,6 +16,10 @@ import {
   getListBucketsByIDsMetaInfo,
   parseListBucketsByIdsResponse,
 } from '@/clients/spclient/spApis/listBucketsByIds';
+import {
+  getListBucketByPaymentMetaInfo,
+  parseListBucketByPaymentResponse,
+} from '@/clients/spclient/spApis/listBucketsByPayment';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import {
   getQueryBucketReadQuotaMetaInfo,
@@ -27,7 +31,7 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import {
+import type {
   GetBucketMetaRequest,
   GetBucketMetaResponse,
   GetUserBucketsRequest,
@@ -41,11 +45,11 @@ import {
   MigrateBucketApprovalResponse,
   ReadQuotaRequest,
   SpResponse,
-} from '@/types/sp';
-import {
+  ListBucketsByPaymentAccountRequest,
   CreateBucketApprovalRequest,
   CreateBucketApprovalResponse,
-} from '@/types/sp/BucketApproval';
+  ListBucketsByPaymentAccountResponse,
+} from '../types/sp';
 import { decodeObjectFromHexString } from '@/utils/encoding';
 import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
@@ -168,6 +172,13 @@ export interface IBucket {
   ): Promise<SpResponse<ListBucketReadRecordResponse>>;
 
   listBucketsByIds(params: ListBucketsByIDsRequest): Promise<SpResponse<ListBucketsByIDsResponse>>;
+
+  /**
+   * ListBucketsByPaymentAccount list buckets by payment account
+   */
+  listBucketsByPaymentAccount(
+    params: ListBucketsByPaymentAccountRequest,
+  ): Promise<SpResponse<ListBucketsByPaymentAccountResponse>>;
 }
 
 @singleton()
@@ -695,6 +706,33 @@ export class Bucket implements IBucket {
         code: 0,
         message: 'success',
         statusCode: status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  public async listBucketsByPaymentAccount(params: ListBucketsByPaymentAccountRequest) {
+    try {
+      const sp = await this.sp.getInServiceSP();
+      const { url } = getListBucketByPaymentMetaInfo(sp.endpoint, params);
+
+      const result = await this.spClient.callApi(url, {
+        headers: {},
+        method: METHOD_GET,
+      });
+
+      const xmlData = await result.text();
+      const res = parseListBucketByPaymentResponse(xmlData);
+      return {
+        code: 0,
+        message: 'Get bucket success.',
+        statusCode: result.status,
         body: res,
       };
     } catch (error: any) {

@@ -117,6 +117,24 @@ export const QueryComponent = () => {
             onClick={async () => {
               if (!address) return;
 
+              const { paymentAccounts } = await client.payment.getPaymentAccountsByOwner({
+                owner: address,
+              });
+
+              const res = await client.bucket.listBucketsByPaymentAccount({
+                paymentAccount: paymentAccounts[0],
+              });
+              console.log('res', res);
+            }}
+          >
+            list bucket by payment
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={async () => {
+              if (!address) return;
+
               const res = await client.sp.listGroupsMembers({
                 groupId: 269,
               });
