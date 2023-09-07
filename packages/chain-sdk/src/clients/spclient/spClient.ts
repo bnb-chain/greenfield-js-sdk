@@ -28,8 +28,6 @@ export type EDDSA = {
 };
 export type AuthType = ECDSA | EDDSA;
 
-export type ApiResult<T extends boolean, U> = T extends true ? U : RequestInit;
-
 export interface ISpClient {
   callApi(
     url: string,

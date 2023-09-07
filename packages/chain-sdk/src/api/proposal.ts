@@ -1,3 +1,4 @@
+import { TxClient } from '@/clients/txClient';
 import { MsgVoteSDKTypeEIP712 } from '@/messages/cosmos/gov/MsgVote';
 import { voteOptionFromJSON } from '@bnb-chain/greenfield-cosmos-types/cosmos/gov/v1/gov';
 import { MsgVote } from '@bnb-chain/greenfield-cosmos-types/cosmos/gov/v1/tx';
@@ -11,10 +12,10 @@ export interface IProposal {
 
 @singleton()
 export class Proposal implements IProposal {
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
 
   public async voteProposal(msg: MsgVote) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgVoteTypeUrl,
       msg.voter,
       MsgVoteSDKTypeEIP712,

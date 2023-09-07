@@ -1,3 +1,4 @@
+import { TxClient } from '@/clients/txClient';
 import { MsgAttestSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgAttest';
 import { MsgSubmitSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgSubmit';
 import {
@@ -8,7 +9,6 @@ import {
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
 import { MsgAttestTypeUrl, MsgSubmitTypeUrl, TxResponse } from '..';
-import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IChallenge {
@@ -37,10 +37,10 @@ export interface IChallenge {
 @singleton()
 export class Challenge implements IChallenge {
   private queryClient = container.resolve(RpcQueryClient);
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
 
   public async submitChallenge(address: string, msg: MsgSubmit) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgSubmitTypeUrl,
       address,
       MsgSubmitSDKTypeEIP712,
@@ -50,7 +50,7 @@ export class Challenge implements IChallenge {
   }
 
   public async attestChallenge(address: string, msg: MsgAttest) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgAttestTypeUrl,
       address,
       MsgAttestSDKTypeEIP712,

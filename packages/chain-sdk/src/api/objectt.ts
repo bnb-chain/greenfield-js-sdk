@@ -12,6 +12,7 @@ import {
 } from '@/clients/spclient/spApis/listObjectsByIds';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
+import { TxClient } from '@/clients/txClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
@@ -78,7 +79,6 @@ import {
   isValidObjectName,
   isValidUrl,
 } from '../utils/s3';
-import { Basic } from './basic';
 import { Sp } from './sp';
 import { Storage } from './storage';
 
@@ -168,7 +168,7 @@ export interface IObject {
 @singleton()
 export class Objectt implements IObject {
   constructor(
-    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => TxClient)) private txClient: TxClient,
     @inject(delay(() => Storage)) private storage: Storage,
     @inject(delay(() => Sp)) private sp: Sp,
   ) {}
@@ -258,7 +258,7 @@ export class Objectt implements IObject {
   }
 
   private async createObjectTx(msg: MsgCreateObject, signedMsg: CreateObjectApprovalResponse) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgCreateObjectTypeUrl,
       msg.creator,
       MsgCreateObjectSDKTypeEIP712,
@@ -351,7 +351,7 @@ export class Objectt implements IObject {
   }
 
   public async cancelCreateObject(msg: MsgCancelCreateObject) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgCancelCreateObjectTypeUrl,
       msg.operator,
       MsgCancelCreateObjectSDKTypeEIP712,
@@ -361,7 +361,7 @@ export class Objectt implements IObject {
   }
 
   public async deleteObject(msg: MsgDeleteObject) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDeleteObjectTypeUrl,
       msg.operator,
       MsgDeleteObjectSDKTypeEIP712,
@@ -371,7 +371,7 @@ export class Objectt implements IObject {
   }
 
   public async updateObjectInfo(msg: MsgUpdateObjectInfo) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgUpdateObjectInfoTypeUrl,
       msg.operator,
       MsgUpdateObjectInfoSDKTypeEIP712,

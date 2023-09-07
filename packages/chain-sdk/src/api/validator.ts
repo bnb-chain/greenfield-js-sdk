@@ -1,4 +1,5 @@
 import { RpcQueryClient } from '@/clients/queryclient';
+import { TxClient } from '@/clients/txClient';
 import { MsgEditValidatorSDKTypeEIP712 } from '@/messages/cosmos/staking/MsgEditValidator';
 import {
   QueryValidatorsRequest,
@@ -24,7 +25,7 @@ export interface IValidator {
 
 @singleton()
 export class Validator implements IValidator {
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async listValidators(request: QueryValidatorsRequest) {
@@ -33,7 +34,7 @@ export class Validator implements IValidator {
   }
 
   // public async createValidator(address: string, msg: MsgCreateValidator) {
-  //   return await this.basic.tx(
+  //   return await this.txClient.tx(
   //     MsgCreateValidatorTypeUrl,
   //     address,
   //     MsgCreateValidatorSDKTypeEIP712,
@@ -43,7 +44,7 @@ export class Validator implements IValidator {
   // }
 
   public async editValidator(address: string, msg: MsgEditValidator) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgEditValidatorTypeUrl,
       address,
       MsgEditValidatorSDKTypeEIP712,

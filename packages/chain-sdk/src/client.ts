@@ -19,6 +19,7 @@ import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
 import { ISpClient, SpClient } from './clients/spclient/spClient';
 import { Validator } from './api/validator';
 import { IProposal, Proposal } from './api/proposal';
+import { ITxClient, TxClient } from './clients/txClient';
 
 @injectable()
 export class Client {
@@ -58,6 +59,7 @@ export class Client {
     const sp = container.resolve<Sp>(Sp);
     const spClient = container.resolve(SpClient);
     const storage = container.resolve<Storage>(Storage);
+    const txClient = container.resolve<TxClient>(TxClient);
     const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
     const validator = container.resolve<Validator>(Validator);
     const virtualGroup = container.resolve<VirtualGroup>(VirtualGroup);
@@ -79,6 +81,7 @@ export class Client {
       sp,
       spClient,
       storage,
+      txClient,
       offchainauth,
       validator,
       virtualGroup,
@@ -102,6 +105,7 @@ export class Client {
     public sp: ISp,
     public spClient: ISpClient,
     public storage: IStorage,
+    public txClient: ITxClient,
     public offchainauth: IOffChainAuth,
     public validator: Validator,
     public virtualGroup: IVirtualGroup,

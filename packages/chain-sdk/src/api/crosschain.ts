@@ -20,7 +20,7 @@ import {
   MsgMirrorGroup,
   MsgMirrorObject,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { container, singleton } from 'tsyringe';
+import { container, delay, inject, singleton } from 'tsyringe';
 import {
   MsgClaimTypeUrl,
   MsgMirrorBucketTypeUrl,
@@ -31,6 +31,7 @@ import {
 } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
+import { TxClient } from '@/clients/txClient';
 
 export interface ICrossChain {
   /**
@@ -84,11 +85,11 @@ export interface ICrossChain {
 
 @singleton()
 export class CrossChain implements ICrossChain {
-  private basic: Basic = container.resolve(Basic);
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async transferOut(msg: MsgTransferOut) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgTransferOutTypeUrl,
       msg.from,
       MsgTransferOutSDKTypeEIP712,
@@ -98,7 +99,7 @@ export class CrossChain implements ICrossChain {
   }
 
   public async claims(msg: MsgClaim) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgClaimTypeUrl,
       msg.fromAddress,
       MsgClaimSDKTypeEIP712,
@@ -128,7 +129,7 @@ export class CrossChain implements ICrossChain {
   }
 
   public async mirrorGroup(msg: MsgMirrorGroup) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgMirrorGroupTypeUrl,
       msg.operator,
       MsgMirrorGroupSDKTypeEIP712,
@@ -138,7 +139,7 @@ export class CrossChain implements ICrossChain {
   }
 
   public async mirrorBucket(msg: MsgMirrorBucket) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgMirrorBucketTypeUrl,
       msg.operator,
       MsgMirrorBucketSDKTypeEIP712,
@@ -148,7 +149,7 @@ export class CrossChain implements ICrossChain {
   }
 
   public async mirrorObject(msg: MsgMirrorObject) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgMirrorObjectTypeUrl,
       msg.operator,
       MsgMirrorObjectSDKTypeEIP712,

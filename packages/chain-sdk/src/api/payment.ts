@@ -1,38 +1,38 @@
+import { TxClient } from '@/clients/txClient';
 import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
 import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
 import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
   QueryAutoSettleRecordsRequest,
   QueryAutoSettleRecordsResponse,
-  QueryPaymentAccountCountsRequest,
-  QueryPaymentAccountCountsResponse,
-  QueryPaymentAccountsRequest,
-  QueryPaymentAccountsResponse,
-  QueryStreamRecordsRequest,
-  QueryStreamRecordsResponse,
   QueryDynamicBalanceRequest,
   QueryDynamicBalanceResponse,
+  QueryGetStreamRecordResponse,
+  QueryOutFlowsRequest,
+  QueryOutFlowsResponse,
+  QueryParamsByTimestampRequest,
+  QueryParamsByTimestampResponse,
+  QueryParamsResponse,
   QueryPaymentAccountCountRequest,
   QueryPaymentAccountCountResponse,
+  QueryPaymentAccountCountsRequest,
+  QueryPaymentAccountCountsResponse,
   QueryPaymentAccountRequest,
   QueryPaymentAccountResponse,
   QueryPaymentAccountsByOwnerRequest,
   QueryPaymentAccountsByOwnerResponse,
-  QueryGetStreamRecordResponse,
-  QueryParamsByTimestampRequest,
-  QueryParamsByTimestampResponse,
-  QueryParamsResponse,
-  QueryOutFlowsRequest,
-  QueryOutFlowsResponse,
+  QueryPaymentAccountsRequest,
+  QueryPaymentAccountsResponse,
+  QueryStreamRecordsRequest,
+  QueryStreamRecordsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import {
   MsgDeposit,
   MsgDisableRefund,
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { container, singleton } from 'tsyringe';
+import { container, delay, inject, singleton } from 'tsyringe';
 import { MsgDepositTypeUrl, MsgDisableRefundTypeUrl, MsgWithdrawTypeUrl, TxResponse } from '..';
-import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IPayment {
@@ -96,7 +96,7 @@ export interface IPayment {
 
 @singleton()
 export class Payment implements IPayment {
-  private basic: Basic = container.resolve(Basic);
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async getStreamRecord(account: string) {
@@ -162,7 +162,7 @@ export class Payment implements IPayment {
   }
 
   public async deposit(msg: MsgDeposit) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDepositTypeUrl,
       msg.creator,
       MsgDepositSDKTypeEIP712,
@@ -172,7 +172,7 @@ export class Payment implements IPayment {
   }
 
   public async withdraw(msg: MsgWithdraw) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgWithdrawTypeUrl,
       msg.creator,
       MsgWithdrawSDKTypeEIP712,
@@ -182,7 +182,7 @@ export class Payment implements IPayment {
   }
 
   public async disableRefund(msg: MsgDisableRefund) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDisableRefundTypeUrl,
       msg.owner,
       MsgDisableRefundSDKTypeEIP712,

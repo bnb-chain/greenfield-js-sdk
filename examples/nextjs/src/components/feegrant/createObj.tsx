@@ -91,7 +91,7 @@ export const CreateObj = () => {
           });
 
           // 4. broadcast txs include 2 msg
-          const txs = await client.basic.multiTx([grantAllowanceTx, putPolicyTx]);
+          const txs = await client.txClient.multiTx([grantAllowanceTx, putPolicyTx]);
           const simuluateInfo = await txs.simulate({
             denom: 'BNB',
           });
