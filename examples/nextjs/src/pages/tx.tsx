@@ -12,6 +12,7 @@ import { Withdraw } from '@/components/withdraw';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { useAccount } from 'wagmi';
 import { PaymentComponent } from '@/components/payment';
+import { Validator } from '@/components/validator';
 
 export default function Tx() {
   const isMounted = useIsMounted();
@@ -46,6 +47,8 @@ export default function Tx() {
           <Policy />
           <hr style={{ margin: '10px 0' }} />
           <FeeGrant />
+          <hr style={{ margin: '10px 0' }} />
+          <Validator />
           <hr style={{ margin: '10px 0' }} />
           <MultiMsg />
         </>

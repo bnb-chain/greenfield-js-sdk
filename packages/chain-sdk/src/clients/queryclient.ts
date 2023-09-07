@@ -5,6 +5,7 @@ import { MsgClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/distrib
 import { QueryClientImpl as FeeGrantQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/query';
 import { QueryClientImpl as GashubClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/gashub/v1beta1/query';
 import { QueryClientImpl as OracleQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
+import { QueryClientImpl as StakingQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/cosmos/staking/v1beta1/query';
 import { QueryClientImpl as BridgeQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
 import { QueryClientImpl as ChallengeQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { QueryClientImpl as PaymentQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
@@ -130,6 +131,11 @@ export class RpcQueryClient {
   public async getVirtualGroupClient() {
     const rpcClient = await this.getRpcClient();
     return new VirtualGroupClientImpl(rpcClient);
+  }
+
+  public async getStakingClient() {
+    const rpcClient = await this.getRpcClient();
+    return new StakingQueryClientImpl(rpcClient);
   }
 }
 

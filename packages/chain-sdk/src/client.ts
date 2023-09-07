@@ -17,6 +17,7 @@ import { Gashub, IGashub } from './api/gashub';
 import { RpcQueryClient } from './clients/queryclient';
 import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
 import { ISpClient, SpClient } from './clients/spclient/spClient';
+import { Validator } from './api/validator';
 
 @injectable()
 export class Client {
@@ -56,6 +57,7 @@ export class Client {
     const spClient = container.resolve(SpClient);
     const storage = container.resolve<Storage>(Storage);
     const offchainauth = container.resolve<OffChainAuth>(OffChainAuth);
+    const validator = container.resolve<Validator>(Validator);
     const virtualGroup = container.resolve<VirtualGroup>(VirtualGroup);
 
     return new Client(
@@ -75,6 +77,7 @@ export class Client {
       spClient,
       storage,
       offchainauth,
+      validator,
       virtualGroup,
     );
   }
@@ -96,6 +99,7 @@ export class Client {
     public spClient: ISpClient,
     public storage: IStorage,
     public offchainauth: IOffChainAuth,
+    public validator: Validator,
     public virtualGroup: IVirtualGroup,
   ) {}
 }
