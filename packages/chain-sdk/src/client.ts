@@ -18,6 +18,7 @@ import { RpcQueryClient } from './clients/queryclient';
 import { IVirtualGroup, VirtualGroup } from './api/virtualGroup';
 import { ISpClient, SpClient } from './clients/spclient/spClient';
 import { Validator } from './api/validator';
+import { IProposal, Proposal } from './api/proposal';
 
 @injectable()
 export class Client {
@@ -52,6 +53,7 @@ export class Client {
     const group = container.resolve<Group>(Group);
     const objectt = container.resolve<Objectt>(Objectt);
     const payment = container.resolve<Payment>(Payment);
+    const proposal = container.resolve<Proposal>(Proposal);
     const queryClient = container.resolve<RpcQueryClient>(RpcQueryClient);
     const sp = container.resolve<Sp>(Sp);
     const spClient = container.resolve(SpClient);
@@ -72,6 +74,7 @@ export class Client {
       group,
       objectt,
       payment,
+      proposal,
       queryClient,
       sp,
       spClient,
@@ -94,6 +97,7 @@ export class Client {
     public group: IGroup,
     public object: IObject,
     public payment: IPayment,
+    public proposal: IProposal,
     public queryClient: RpcQueryClient,
     public sp: ISp,
     public spClient: ISpClient,
