@@ -8,7 +8,6 @@ import {
 import { MsgEditValidator } from '@bnb-chain/greenfield-cosmos-types/cosmos/staking/v1beta1/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
 import { MsgEditValidatorTypeUrl, TxResponse } from '..';
-import { Basic } from './basic';
 
 export interface IValidator {
   /**
@@ -20,6 +19,9 @@ export interface IValidator {
    */
   listValidators(request: QueryValidatorsRequest): Promise<QueryValidatorsResponse>;
 
+  /**
+   * NOTICE: only validator can use this api
+   */
   editValidator(address: string, msg: MsgEditValidator): Promise<TxResponse>;
 }
 

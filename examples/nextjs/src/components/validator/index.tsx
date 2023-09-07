@@ -1,4 +1,5 @@
 import { client } from '@/client';
+import { VALIDATOR_PRIVATEKEY } from '@/config/env';
 import { Long } from '@bnb-chain/greenfield-js-sdk';
 import { useAccount } from 'wagmi';
 
@@ -70,6 +71,8 @@ export const Validator = () => {
           });
 
           console.log('res', res);
+
+          // console.log('blsKey', toHex(res.validators[0].blsKey));
         }}
       >
         list
@@ -81,9 +84,10 @@ export const Validator = () => {
           if (!address) return;
 
           const editValidatorTx = await client.validator.editValidator(address, {
-            blsKey: '0x00000000000000000000',
+            blsKey:
+              '0xb3c5eaba9ae74bc6308054f586db909ea8482d158b24789d66c47578bb9b293b7d00d5acfb0645e528f39526ff04994b',
             blsProof: '',
-            challengerAddress: '0x1C893441AB6c1A75E01887087ea508bE8e07AAa0',
+            challengerAddress: '0x52A57571D08692d2D60596DD9b588Ff59ACdf02E',
             description: {
               moniker: 'test',
               details: 'test',
@@ -91,8 +95,8 @@ export const Validator = () => {
               securityContact: 'test',
               website: 'test',
             },
-            relayerAddress: '0x1C893441AB6c1A75E01887087ea508bE8e07AAa1',
-            validatorAddress: address,
+            relayerAddress: '0x68EA59d9aFB06a838E05d511eDdA2049D1b6fF61',
+            validatorAddress: '0x84800aaFDD595f1b7C77292c98988ad424068470',
             commissionRate: '',
             minSelfDelegation: '',
           });
@@ -109,6 +113,7 @@ export const Validator = () => {
             gasPrice: simulateInfo?.gasPrice || '5000000000',
             payer: address,
             granter: '',
+            privateKey: VALIDATOR_PRIVATEKEY,
           });
 
           if (res.code === 0) {
