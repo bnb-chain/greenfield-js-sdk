@@ -1,6 +1,8 @@
 import {
   getAuthorization,
+  HTTPHeaderAppDomain,
   HTTPHeaderAuthorization,
+  HTTPHeaderUserAddress,
   newRequestHeadersByMeta,
 } from '@/clients/spclient/auth';
 import { parseError } from '@/clients/spclient/spApis/parseError';
@@ -27,8 +29,6 @@ export type EDDSA = {
   address: string;
 };
 export type AuthType = ECDSA | EDDSA;
-
-export type ApiResult<T extends boolean, U> = T extends true ? U : RequestInit;
 
 export interface ISpClient {
   callApi(
@@ -99,10 +99,11 @@ export class SpClient implements ISpClient {
 
   public async signHeaders(reqMeta: Partial<ReqMeta>, authType: AuthType) {
     const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
+
     if (authType.type === 'EDDSA') {
       const { domain, address } = authType;
-      metaHeaders.append('X-Gnfd-User-Address', address);
-      metaHeaders.append('X-Gnfd-App-Domain', domain);
+      metaHeaders.set(HTTPHeaderUserAddress, address);
+      metaHeaders.set(HTTPHeaderAppDomain, domain);
     }
 
     const auth = await getAuthorization(reqMeta, metaHeaders, authType);

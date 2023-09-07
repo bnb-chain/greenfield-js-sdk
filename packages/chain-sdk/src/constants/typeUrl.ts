@@ -30,3 +30,6 @@ export const MsgUpdateGroupMemberTypeUrl = '/greenfield.storage.MsgUpdateGroupMe
 export const MsgUpdateObjectInfoTypeUrl = '/greenfield.storage.MsgUpdateObjectInfo';
 export const BasicAllowanceTypeUrl = '/cosmos.feegrant.v1beta1.BasicAllowance';
 export const AllowedMsgAllowanceTypeUrl = '/cosmos.feegrant.v1beta1.AllowedMsgAllowance';
+export const MsgEditValidatorTypeUrl = '/cosmos.staking.v1beta1.MsgEditValidator';
+export const MsgCreateValidatorTypeUrl = '/cosmos.staking.v1beta1.MsgCreateValidator';
+export const MsgVoteTypeUrl = '/cosmos.gov.v1.MsgVote';

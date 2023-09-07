@@ -49,7 +49,6 @@ export const getAuthorization = async (
 ) => {
   const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);
   const signedHeaders = getSignedHeaders(reqHeaders);
-
   const canonicalRequestArr = [
     reqMeta.method,
     reqMeta.url?.path,
@@ -92,6 +91,10 @@ export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
     headers.set(HTTPHeaderUnsignedMsg.toLocaleLowerCase(), meta.unsignMsg);
   }
 
+  if (meta.userAddress) {
+    headers.set(HTTPHeaderUserAddress, meta.userAddress);
+  }
+
   const date = new Date();
   if (meta.date) {
     headers.set(HTTPHeaderDate.toLocaleLowerCase(), formatDate(meta.date));
@@ -128,7 +131,7 @@ export const HTTPHeaderContentType = 'Content-Type';
 export const HTTPHeaderContentMD5 = 'Content-MD5';
 export const HTTPHeaderUnsignedMsg = 'X-Gnfd-Unsigned-Msg';
 export const HTTPHeaderUserAddress = 'X-Gnfd-User-Address';
-// const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain';
+export const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain';
 
 const SUPPORTED_HEADERS = [
   HTTPHeaderContentSHA256.toLocaleLowerCase(),

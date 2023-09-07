@@ -13,4 +13,5 @@ export interface ReqMeta {
   contentSHA256: string;
   unsignMsg: string;
   txnHash: string;
+  userAddress: string;
 }

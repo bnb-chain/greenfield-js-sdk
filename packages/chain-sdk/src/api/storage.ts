@@ -24,6 +24,7 @@ import { container, delay, inject, singleton } from 'tsyringe';
 import { fromTimestamp, MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
 import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
+import { TxClient } from '@/clients/txClient';
 
 export interface IStorage {
   params(): Promise<QueryParamsResponse>;
@@ -55,7 +56,7 @@ export interface IStorage {
 
 @singleton()
 export class Storage implements IStorage {
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient = container.resolve(RpcQueryClient);
 
   public async params() {
@@ -65,7 +66,7 @@ export class Storage implements IStorage {
 
   public async putPolicy(msg: MsgPutPolicy) {
     const toSdk = MsgPutPolicy.toSDK(msg);
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgPutPolicyTypeUrl,
       msg.operator,
       MsgPutPolicySDKTypeEIP712,
@@ -83,7 +84,7 @@ export class Storage implements IStorage {
   }
 
   public async deletePolicy(msg: MsgDeletePolicy) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDeletePolicyTypeUrl,
       msg.operator,
       MsgDeletePolicySDKTypeEIP712,
