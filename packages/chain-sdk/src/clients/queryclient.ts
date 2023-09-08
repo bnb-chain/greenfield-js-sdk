@@ -36,9 +36,9 @@ import {
 } from '@cosmjs/stargate';
 import { AuthzExtension } from '@cosmjs/stargate/build/modules/authz/queries';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
-import { inject, singleton } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 
-@singleton()
+@injectable()
 export class RpcQueryClient {
   constructor(@inject('RPC_URL') private rpcUrl: string) {
     this.rpcUrl = rpcUrl;

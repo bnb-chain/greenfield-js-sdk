@@ -19,7 +19,7 @@ import { DeliverTxResponse, StargateClient } from '@cosmjs/stargate';
 import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import { arrayify } from '@ethersproject/bytes';
 import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
-import { container, inject, singleton } from 'tsyringe';
+import { container, inject, injectable } from 'tsyringe';
 import {
   BroadcastOptions,
   ISimulateGasFee,
@@ -72,7 +72,7 @@ export interface ITxClient {
   multiTx(txResList: Pick<TxResponse, 'metaTxInfo'>[]): Promise<Omit<TxResponse, 'metaTxInfo'>>;
 }
 
-@singleton()
+@injectable()
 export class TxClient implements ITxClient {
   public rpcUrl: string;
   public chainId: string;
