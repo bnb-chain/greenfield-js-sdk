@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.4
+
+### Patch Changes
+
+- [#314](https://github.com/bnb-chain/greenfield-js-sdk/pull/314)
+  [`06b933a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/06b933aa6a2ecb285c3511e06de0dfb93d38c40e)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: All class use injectable
+
 ## 0.2.5-alpha.3
 
 ### Patch Changes
