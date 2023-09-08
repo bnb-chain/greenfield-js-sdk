@@ -1,5 +1,27 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.3
+
+### Patch Changes
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`b13fba4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b13fba46d5df93bcaa643cd79aeea7dd4128feee)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: TxClient and QueryClient is not singleton
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`c7f9ef3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c7f9ef355e57bcc17a46b96655d8f36ba54dffa8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add sp `ListObjectPolicies` API
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`609f4cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/609f4cdbeccd289cd4080c0994aa2eb24bfa6eb2)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: `getUserBuckets` -> `listBuckets`, and
+  response add vgf(includes `Id` and `PrimarySpId`)
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`780e2ef`](https://github.com/bnb-chain/greenfield-js-sdk/commit/780e2efdfbc0d168c791c82e724ad96504050169)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: PutPolicy if resource is empty use `[]` not
+  `['']`
+
 ## 0.2.5-alpha.2
 
 ### Patch Changes
