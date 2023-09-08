@@ -129,10 +129,6 @@ export interface IBucket {
     actionType: ActionType,
   ): Promise<QueryVerifyPermissionResponse>;
 
-  getUserBuckets(
-    configParam: GetUserBucketsRequest,
-  ): Promise<SpResponse<GetUserBucketsResponse['GfSpGetUserBucketsResponse']['Buckets']>>;
-
   /**
    * return quota info of bucket of current month, include chain quota, free quota and consumed quota
    */
@@ -170,6 +166,10 @@ export interface IBucket {
     params: ListBucketReadRecordRequest,
     authType: AuthType,
   ): Promise<SpResponse<ListBucketReadRecordResponse>>;
+
+  listBuckets(
+    configParam: GetUserBucketsRequest,
+  ): Promise<SpResponse<GetUserBucketsResponse['GfSpGetUserBucketsResponse']['Buckets']>>;
 
   listBucketsByIds(params: ListBucketsByIDsRequest): Promise<SpResponse<ListBucketsByIDsResponse>>;
 
@@ -343,7 +343,7 @@ export class Bucket implements IBucket {
     });
   }
 
-  public async getUserBuckets(configParam: GetUserBucketsRequest) {
+  public async listBuckets(configParam: GetUserBucketsRequest) {
     try {
       const { address, duration = 30000, endpoint } = configParam;
       if (!isValidAddress(address)) {

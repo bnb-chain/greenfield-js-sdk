@@ -1,13 +1,33 @@
-export interface BucketMeta {
+export type BucketMeta = {
   BucketInfo: BucketInfo;
-  Removed: boolean;
+  CreateTxHash: string;
   DeleteAt: number;
   DeleteReason: string;
   Operator: string;
-  CreateTxHash: string;
-  UpdateTxHash: string;
+  Removed: boolean;
   UpdateAt: number;
   UpdateTime: number;
+  UpdateTxHash: string;
+};
+
+export type GlobalVirtualGroupFamily = {
+  Id: number;
+  PrimarySpId: number;
+  GlobalVirtualGroupIds: number[];
+  VirtualPaymentAddress: string;
+};
+
+export interface BucketMetaWithVGF extends BucketMeta {
+  Vgf: GlobalVirtualGroupFamily;
+}
+
+export function formatVGF(vgf: GlobalVirtualGroupFamily): GlobalVirtualGroupFamily {
+  return {
+    ...vgf,
+    Id: Number(vgf.Id),
+    PrimarySpId: Number(vgf.PrimarySpId),
+    // GlobalVirtualGroupIds: vgf.GlobalVirtualGroupIds.map((id) => Number(id)),
+  };
 }
 
 export interface BucketInfo {

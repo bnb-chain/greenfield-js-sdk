@@ -1,4 +1,4 @@
-import { BucketMeta } from './Common';
+import { BucketMetaWithVGF } from './Common';
 
 export type GetUserBucketsRequest = {
   address: string;
@@ -11,5 +11,5 @@ export interface GetUserBucketsResponse {
 }
 
 export interface GfSPGetUserBucketsResponse {
-  Buckets: BucketMeta[];
+  Buckets: BucketMetaWithVGF[];
 }

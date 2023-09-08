@@ -97,7 +97,7 @@ export const BucketInfo = () => {
 
               const spInfo = await selectSp();
 
-              const res = await client.bucket.getUserBuckets({
+              const res = await client.bucket.listBuckets({
                 address,
                 endpoint: spInfo.endpoint,
               });
