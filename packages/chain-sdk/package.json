@@ -53,7 +53,7 @@
     ]
   },
   "dependencies": {
-    "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.22",
+    "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.23",
     "@bnb-chain/greenfield-zk-crypto": "workspace:*",
     "@cosmjs/proto-signing": "^0.30.1",
     "@cosmjs/stargate": "^0.30.1",
