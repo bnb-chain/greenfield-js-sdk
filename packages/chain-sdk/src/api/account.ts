@@ -38,11 +38,6 @@ export interface IAccount {
    */
   getAccountBalance(request: QueryBalanceRequest): Promise<QueryBalanceResponse>;
 
-  /**
-   * takes an address string as parameters and returns a pointer to a paymentTypes.
-   */
-  getPaymentAccount(request: QueryPaymentAccountRequest): Promise<QueryPaymentAccountResponse>;
-
   getModuleAccounts(): Promise<QueryModuleAccountsResponse>;
 
   getModuleAccountByName(name: string): Promise<QueryModuleAccountByNameResponse>;
@@ -108,13 +103,6 @@ export class Account implements IAccount {
   public async getModuleAccounts() {
     const rpc = await this.queryClient.getAuthQueryClient();
     return await rpc.ModuleAccounts();
-  }
-
-  public async getPaymentAccount(
-    request: QueryPaymentAccountRequest,
-  ): Promise<QueryPaymentAccountResponse> {
-    const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.PaymentAccount(request);
   }
 
   public async getAccountBalance(request: QueryBalanceRequest): Promise<QueryBalanceResponse> {
