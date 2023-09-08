@@ -1,5 +1,6 @@
+import { TxClient } from '@/clients/txClient';
+import { getMsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield';
 import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
-import { MsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgPutPolicy';
 import {
   QueryGroupMembersExistRequest,
   QueryGroupMembersExistResponse,
@@ -22,9 +23,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, singleton } from 'tsyringe';
 import { fromTimestamp, MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
-import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
-import { TxClient } from '@/clients/txClient';
 
 export interface IStorage {
   params(): Promise<QueryParamsResponse>;
@@ -69,13 +68,18 @@ export class Storage implements IStorage {
     return await this.txClient.tx(
       MsgPutPolicyTypeUrl,
       msg.operator,
-      MsgPutPolicySDKTypeEIP712,
+      getMsgPutPolicySDKTypeEIP712(msg.statements[0].resources),
       {
         ...toSdk,
         expiration_time: msg.expirationTime ? fromTimestamp(msg.expirationTime) : '',
         statements: toSdk.statements.map((e) => {
           // @ts-ignore
           e.expiration_time = '';
+
+          if (e.resources.length == 0) {
+            // @ts-ignore
+            e.resources = null;
+          }
           return e;
         }),
       },
