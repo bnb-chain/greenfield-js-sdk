@@ -23,7 +23,7 @@ import {
   MsgUpdateGroupExtra,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   fromTimestamp,
   MsgCreateGroupTypeUrl,
@@ -98,7 +98,7 @@ export interface IGroup {
   ): Promise<TxResponse>;
 }
 
-@singleton()
+@injectable()
 export class Group implements IGroup {
   constructor(
     @inject(delay(() => TxClient)) private txClient: TxClient,

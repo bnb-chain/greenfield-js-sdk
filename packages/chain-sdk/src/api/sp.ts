@@ -24,16 +24,16 @@ import {
   QueryStorageProviderMaintenanceRecordsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
-import { container, singleton } from 'tsyringe';
+import { container, injectable } from 'tsyringe';
 import type {
-  SpResponse,
+  ListGroupsMembersRequest,
   ListGroupsMembersResponse,
   ListGroupsResponse,
-  ListUserGroupsResponse,
   ListGroupsResquest,
-  ListGroupsMembersRequest,
+  ListUserGroupsResponse,
   ListUserGroupsResquest,
   ListUserOwnedGroupsRequest,
+  SpResponse,
   VerifyPermissionRequest,
   VerifyPermissionResponse,
 } from '..';
@@ -102,7 +102,7 @@ export interface ISp {
   verifyPermission(params: VerifyPermissionRequest): Promise<SpResponse<VerifyPermissionResponse>>;
 }
 
-@singleton()
+@injectable()
 export class Sp implements ISp {
   private bucket = container.resolve(Bucket);
   private queryClient = container.resolve(RpcQueryClient);

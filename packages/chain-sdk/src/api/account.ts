@@ -12,13 +12,9 @@ import {
   QueryBalanceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
-import {
-  QueryPaymentAccountRequest,
-  QueryPaymentAccountResponse,
-  QueryPaymentAccountsByOwnerResponse,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
+import { QueryPaymentAccountsByOwnerResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   MsgCreatePaymentAccountTypeUrl,
   MsgMultiSendTypeUrl,
@@ -60,7 +56,7 @@ export interface IAccount {
   multiTransfer(address: string, msg: MsgMultiSend): Promise<TxResponse>;
 }
 
-@singleton()
+@injectable()
 export class Account implements IAccount {
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
 

@@ -257,8 +257,8 @@ importers:
         specifier: ^0.1.13
         version: 0.1.13
       tsyringe:
-        specifier: ^4.7.0
-        version: 4.7.0
+        specifier: ^4.8.0
+        version: 4.8.0
     devDependencies:
       '@jest/globals':
         specifier: ^29.5.0
@@ -11154,8 +11154,8 @@ packages:
       tslib: 1.14.1
       typescript: 4.9.5
 
-  /tsyringe@4.7.0:
-    resolution: {integrity: sha512-ncFDM1jTLsok4ejMvSW5jN1VGPQD48y2tfAR0pdptWRKYX4bkbqPt92k7KJ5RFJ1KV36JEs/+TMh7I6OUgj74g==}
+  /tsyringe@4.8.0:
+    resolution: {integrity: sha512-YB1FG+axdxADa3ncEtRnQCFq/M0lALGLxSZeVNbTU8NqhOVc51nnv2CISTcvc1kyv6EGPtXVr0v6lWeDxiijOA==}
     engines: {node: '>= 6.0.0'}
     dependencies:
       tslib: 1.14.1

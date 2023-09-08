@@ -7,8 +7,7 @@ import {
 } from '@/clients/spclient/auth';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { ReqMeta } from '@/types/auth';
-import { Headers } from 'cross-fetch';
-import { singleton } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import { getGetObjectMetaInfo } from './spApis/getObject';
 import { getPutObjectMetaInfo } from './spApis/putObject';
 
@@ -59,7 +58,7 @@ export interface ISpClient {
   };
 }
 
-@singleton()
+@injectable()
 export class SpClient implements ISpClient {
   public async callApi(
     url: string,

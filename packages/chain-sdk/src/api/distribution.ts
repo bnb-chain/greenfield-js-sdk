@@ -5,7 +5,7 @@ import {
   MsgWithdrawValidatorCommissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/distribution/v1beta1/tx';
 import { Coin } from '@cosmjs/proto-signing';
-import { container } from 'tsyringe';
+import { container, injectable } from 'tsyringe';
 import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
 export interface IDistribution {
@@ -41,6 +41,7 @@ export interface IDistribution {
   ): Promise<MsgFundCommunityPoolResponse>;
 }
 
+@injectable()
 export class Distribution implements IDistribution {
   private basic: Basic = container.resolve(Basic);
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);

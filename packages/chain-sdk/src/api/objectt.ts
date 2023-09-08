@@ -55,7 +55,7 @@ import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { hexlify } from '@ethersproject/bytes';
 import { Headers } from 'cross-fetch';
 import { bytesToUtf8, hexToBytes, utf8ToBytes } from 'ethereum-cryptography/utils';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   GRNToString,
   MsgCancelCreateObjectTypeUrl,
@@ -172,7 +172,7 @@ export interface IObject {
   // TODO: getObjectStatusFromSP
 }
 
-@singleton()
+@injectable()
 export class Objectt implements IObject {
   constructor(
     @inject(delay(() => TxClient)) private txClient: TxClient,

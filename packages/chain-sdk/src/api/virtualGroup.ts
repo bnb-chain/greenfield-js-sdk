@@ -9,7 +9,7 @@ import {
   QueryGlobalVirtualGroupResponse,
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/query';
-import { container, singleton } from 'tsyringe';
+import { container, injectable } from 'tsyringe';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IVirtualGroup {
@@ -32,7 +32,7 @@ export interface IVirtualGroup {
   ): Promise<QueryGlobalVirtualGroupFamilyResponse>;
 }
 
-@singleton()
+@injectable()
 export class VirtualGroup implements IVirtualGroup {
   private queryClient = container.resolve(RpcQueryClient);
 

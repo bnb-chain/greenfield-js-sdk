@@ -73,7 +73,7 @@
     "lodash.sortby": "^4.7.0",
     "long": "^5.2.1",
     "reflect-metadata": "^0.1.13",
-    "tsyringe": "^4.7.0"
+    "tsyringe": "^4.8.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",

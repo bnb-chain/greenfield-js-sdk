@@ -31,25 +31,6 @@ import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgC
 import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import type {
-  GetBucketMetaRequest,
-  GetBucketMetaResponse,
-  GetUserBucketsRequest,
-  GetUserBucketsResponse,
-  IQuotaProps,
-  ListBucketReadRecordRequest,
-  ListBucketReadRecordResponse,
-  ListBucketsByIDsRequest,
-  ListBucketsByIDsResponse,
-  MigrateBucketApprovalRequest,
-  MigrateBucketApprovalResponse,
-  ReadQuotaRequest,
-  SpResponse,
-  ListBucketsByPaymentAccountRequest,
-  CreateBucketApprovalRequest,
-  CreateBucketApprovalResponse,
-  ListBucketsByPaymentAccountResponse,
-} from '../types/sp';
 import { decodeObjectFromHexString } from '@/utils/encoding';
 import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
@@ -79,7 +60,7 @@ import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
 import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import Long from 'long';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   GRNToString,
   MsgCreateBucketTypeUrl,
@@ -91,6 +72,25 @@ import {
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { AuthType, SpClient } from '../clients/spclient/spClient';
+import type {
+  CreateBucketApprovalRequest,
+  CreateBucketApprovalResponse,
+  GetBucketMetaRequest,
+  GetBucketMetaResponse,
+  GetUserBucketsRequest,
+  GetUserBucketsResponse,
+  IQuotaProps,
+  ListBucketReadRecordRequest,
+  ListBucketReadRecordResponse,
+  ListBucketsByIDsRequest,
+  ListBucketsByIDsResponse,
+  ListBucketsByPaymentAccountRequest,
+  ListBucketsByPaymentAccountResponse,
+  MigrateBucketApprovalRequest,
+  MigrateBucketApprovalResponse,
+  ReadQuotaRequest,
+  SpResponse,
+} from '../types/sp';
 import { Sp } from './sp';
 import { Storage } from './storage';
 
@@ -181,7 +181,7 @@ export interface IBucket {
   ): Promise<SpResponse<ListBucketsByPaymentAccountResponse>>;
 }
 
-@singleton()
+@injectable()
 export class Bucket implements IBucket {
   constructor(
     @inject(delay(() => TxClient)) private txClient: TxClient,

@@ -6,7 +6,7 @@ import {
   ServiceClientImpl as tdServiceClientImpl,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/base/tendermint/v1beta1/query';
 import Long from 'long';
-import { container, singleton } from 'tsyringe';
+import { container, injectable } from 'tsyringe';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IBasic {
@@ -45,7 +45,7 @@ export interface IBasic {
   GetLatestValidatorSet(request: GetLatestValidatorSetRequest): Promise<number>;
 }
 
-@singleton()
+@injectable()
 export class Basic implements IBasic {
   private rpcQueryClient = container.resolve(RpcQueryClient);
 

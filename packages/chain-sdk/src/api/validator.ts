@@ -6,7 +6,7 @@ import {
   QueryValidatorsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/staking/v1beta1/query';
 import { MsgEditValidator } from '@bnb-chain/greenfield-cosmos-types/cosmos/staking/v1beta1/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import { MsgEditValidatorTypeUrl, TxResponse } from '..';
 
 export interface IValidator {
@@ -25,7 +25,7 @@ export interface IValidator {
   editValidator(address: string, msg: MsgEditValidator): Promise<TxResponse>;
 }
 
-@singleton()
+@injectable()
 export class Validator implements IValidator {
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);

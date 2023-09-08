@@ -1,3 +1,4 @@
+import { TxClient } from '@/clients/txClient';
 import { MsgClaimSDKTypeEIP712 } from '@/messages/cosmos/oracle/MsgClaim';
 import { MsgTransferOutSDKTypeEIP712 } from '@/messages/greenfield/bridge/MsgTransferOut';
 import { MsgMirrorBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorBucket';
@@ -20,7 +21,7 @@ import {
   MsgMirrorGroup,
   MsgMirrorObject,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   MsgClaimTypeUrl,
   MsgMirrorBucketTypeUrl,
@@ -29,9 +30,7 @@ import {
   MsgTransferOutTypeUrl,
   TxResponse,
 } from '..';
-import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
-import { TxClient } from '@/clients/txClient';
 
 export interface ICrossChain {
   /**
@@ -83,7 +82,7 @@ export interface ICrossChain {
   getParams(): Promise<QueryParamsResponse>;
 }
 
-@singleton()
+@injectable()
 export class CrossChain implements ICrossChain {
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
