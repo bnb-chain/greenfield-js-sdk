@@ -1,4 +1,4 @@
-import { client, client2 } from '@/client';
+import { client } from '@/client';
 import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { Long } from '@bnb-chain/greenfield-js-sdk';
@@ -20,10 +20,6 @@ export const QueryComponent = () => {
               const account = await client.account.getAccount(address);
 
               console.log('account', account);
-
-              const account2 = await client2.account.getAccount(address);
-
-              console.log('account2', account2);
             }}
           >
             get account

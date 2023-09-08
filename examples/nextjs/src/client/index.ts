@@ -6,14 +6,6 @@ export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
     'https://unpkg.com/@bnb-chain/greenfield-zk-crypto@0.0.3-alpha.0/dist/node/zk-crypto.wasm',
 });
 
-export const client2 = Client.create('xx222x', String('346345'), {
-  zkCryptoUrl:
-    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto@0.0.3-alpha.0/dist/node/zk-crypto.wasm',
-});
-
-console.log(client);
-console.log(client2);
-
 export const getSps = async () => {
   const sps = await client.sp.getStorageProviders();
   const finalSps = (sps ?? []).filter((v: any) => v.endpoint.includes('nodereal'));
