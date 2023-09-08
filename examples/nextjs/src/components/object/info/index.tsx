@@ -116,6 +116,24 @@ export const ObjectInfo = () => {
         <br />
 
         <div>
+          listObjectPolicies by bucket name and object name
+          <br />
+          <button
+            onClick={async () => {
+              const res = await client.object.listObjectPolicies({
+                bucketName,
+                objectName,
+                actionType: 'ACTION_GET_OBJECT',
+              });
+
+              console.log('res', res);
+            }}
+          >
+            listObjectPolicies
+          </button>
+        </div>
+
+        <div>
           get objects list by bucket name
           <br />
           <button

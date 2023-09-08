@@ -149,3 +149,34 @@ export function formatGroupInfo(o: GroupInfo) {
     Id: Number(o.Id),
   };
 }
+
+export interface PolicyMeta {
+  /**
+   * principal_type defines the type of principal
+   */
+  PrincipalType: number;
+  /**
+   * principal_value defines the value of principal
+   */
+  PrincipalValue: string;
+  /**
+   * resource_type defines the type of resource that grants permission for
+   */
+  ResourceType: number;
+  /**
+   * resource_id defines the bucket/object/group id of the resource that grants permission for
+   */
+  ResourceId: string;
+  /**
+   * create_timestamp defines the create time of permission
+   */
+  CreateTimestamp: number;
+  /**
+   * update_timestamp defines the update time of permission
+   */
+  UpdateTimestamp: number;
+  /**
+   * expiration_time defines the expiration time of permission
+   */
+  ExpirationTime: number;
+}

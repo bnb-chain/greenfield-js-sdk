@@ -10,6 +10,7 @@ export * from './ListBucketsByIDs';
 export * from './ListBucketsByPaymentAccount';
 export * from './ListGroups';
 export * from './ListGroupsMembers';
+export * from './ListObjectPolicies';
 export * from './ListObjectsByBucketName';
 export * from './ListObjectsByIDs';
 export * from './ListUserGroups';

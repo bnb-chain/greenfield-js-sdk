@@ -5,6 +5,10 @@ import {
   getObjectMetaInfo,
   parseGetObjectMetaResponse,
 } from '@/clients/spclient/spApis/getObjectMeta';
+import {
+  getListObjectPoliciesMetaInfo,
+  parseGetListObjectPoliciesResponse,
+} from '@/clients/spclient/spApis/listObjectPolicies';
 import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
 import {
   getListObjectsByIDsMetaInfo,
@@ -65,6 +69,7 @@ import { AuthType, SpClient } from '../clients/spclient/spClient';
 import {
   CreateObjectApprovalRequest,
   CreateObjectApprovalResponse,
+  GetListObjectPoliciesRequest,
   GetPrivewObject,
   ListObjectsByBucketNameRequest,
   ListObjectsByIDsRequest,
@@ -161,6 +166,8 @@ export interface IObject {
   getObjectMeta(params: GetObjectMetaRequest): Promise<SpResponse<GetObjectMetaResponse>>;
 
   listObjectsByIds(params: ListObjectsByIDsRequest): Promise<SpResponse<ListObjectsByIDsResponse>>;
+
+  listObjectPolicies(params: GetListObjectPoliciesRequest): Promise<any>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }
@@ -743,5 +750,28 @@ export class Objectt implements IObject {
         statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };
     }
+  }
+
+  public async listObjectPolicies(params: GetListObjectPoliciesRequest) {
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(params.bucketName);
+    }
+    const { url } = getListObjectPoliciesMetaInfo(endpoint, params);
+
+    const result = await this.spClient.callApi(url, {
+      headers: {},
+      method: METHOD_GET,
+    });
+
+    const xml = await result.text();
+    const res = parseGetListObjectPoliciesResponse(xml);
+
+    return {
+      code: 0,
+      message: 'success',
+      statusCode: result.status,
+      body: res,
+    };
   }
 }
