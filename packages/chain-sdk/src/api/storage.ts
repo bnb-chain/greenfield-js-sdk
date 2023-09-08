@@ -21,7 +21,7 @@ import {
   MsgDeletePolicy,
   MsgPutPolicy,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import { fromTimestamp, MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 
@@ -53,7 +53,7 @@ export interface IStorage {
   queryGroupsExistById(request: QueryGroupsExistByIdRequest): Promise<QueryGroupsExistResponse>;
 }
 
-@singleton()
+@injectable()
 export class Storage implements IStorage {
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient = container.resolve(RpcQueryClient);

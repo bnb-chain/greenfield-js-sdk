@@ -7,7 +7,7 @@ import {
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import { MsgAttestTypeUrl, MsgSubmitTypeUrl, TxResponse } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 
@@ -34,7 +34,7 @@ export interface IChallenge {
   params(): Promise<QueryParamsResponse>;
 }
 
-@singleton()
+@injectable()
 export class Challenge implements IChallenge {
   private queryClient = container.resolve(RpcQueryClient);
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}

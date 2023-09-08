@@ -2,7 +2,7 @@ import { TxClient } from '@/clients/txClient';
 import { MsgVoteSDKTypeEIP712 } from '@/messages/cosmos/gov/MsgVote';
 import { voteOptionToJSON } from '@bnb-chain/greenfield-cosmos-types/cosmos/gov/v1/gov';
 import { MsgVote } from '@bnb-chain/greenfield-cosmos-types/cosmos/gov/v1/tx';
-import { delay, inject, singleton } from 'tsyringe';
+import { delay, inject, injectable } from 'tsyringe';
 import { MsgVoteTypeUrl, TxResponse } from '..';
 
 export interface IProposal {
@@ -12,7 +12,7 @@ export interface IProposal {
   voteProposal(msg: MsgVote): Promise<TxResponse>;
 }
 
-@singleton()
+@injectable()
 export class Proposal implements IProposal {
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
 

@@ -7,7 +7,6 @@ import { TxClient } from '@/clients/txClient';
 import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
 import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
 import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
-import { ListUserPaymentAccountsResquest } from '../types/sp/ListUserPaymentAccounts';
 import {
   QueryAutoSettleRecordsRequest,
   QueryAutoSettleRecordsResponse,
@@ -37,16 +36,20 @@ import {
   MsgDisableRefund,
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
-  METHOD_GET,
   MsgDepositTypeUrl,
   MsgDisableRefundTypeUrl,
   MsgWithdrawTypeUrl,
   NORMAL_ERROR_CODE,
+  SpResponse,
   TxResponse,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import {
+  ListUserPaymentAccountsResponse,
+  ListUserPaymentAccountsResquest,
+} from '../types/sp/ListUserPaymentAccounts';
 import { Sp } from './sp';
 
 export interface IPayment {
@@ -110,10 +113,10 @@ export interface IPayment {
   listUserPaymentAccounts(
     params: ListUserPaymentAccountsResquest,
     authType: AuthType,
-  ): Promise<any>;
+  ): Promise<SpResponse<ListUserPaymentAccountsResponse>>;
 }
 
-@singleton()
+@injectable()
 export class Payment implements IPayment {
   constructor(
     @inject(delay(() => TxClient)) private txClient: TxClient,

@@ -1,9 +1,9 @@
-import { container, singleton } from 'tsyringe';
 import {
   QueryMsgGasParamsRequest,
   QueryMsgGasParamsResponse,
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/gashub/v1beta1/query';
+import { container, injectable } from 'tsyringe';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IGashub {
@@ -12,7 +12,7 @@ export interface IGashub {
   getMsgGasParams(request: QueryMsgGasParamsRequest): Promise<QueryMsgGasParamsResponse>;
 }
 
-@singleton()
+@injectable()
 export class Gashub implements IGashub {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 

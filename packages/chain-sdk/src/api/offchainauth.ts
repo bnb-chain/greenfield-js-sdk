@@ -9,7 +9,7 @@ import {
   updateSpsPubKey,
 } from '@/offchainauth';
 import { hexlify } from '@ethersproject/bytes';
-import { singleton } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import { convertTimeStampToDate, getUtcZeroTimestamp, SpResponse } from '..';
 import {
   IGenOffChainAuthKeyPairAndUpload,
@@ -27,7 +27,7 @@ export interface IOffChainAuth {
   ): Promise<SpResponse<IReturnOffChainAuthKeyPairAndUpload>>;
 }
 
-@singleton()
+@injectable()
 export class OffChainAuth implements IOffChainAuth {
   public async genOffChainAuthKeyPairAndUpload(
     { sps, address, domain, expirationMs, chainId }: IGenOffChainAuthKeyPairAndUpload,

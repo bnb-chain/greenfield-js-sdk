@@ -13,7 +13,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
 import { base64FromBytes } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { arrayify } from '@ethersproject/bytes';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   encodeToHex,
   IGrantAllowance,
@@ -37,7 +37,7 @@ export interface IFeeGrant {
   getAllowences(request: QueryAllowancesRequest): Promise<QueryAllowancesResponse>;
 }
 
-@singleton()
+@injectable()
 export class FeeGrant implements IFeeGrant {
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
