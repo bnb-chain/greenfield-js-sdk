@@ -38,7 +38,7 @@ export const ObjectPolicy = () => {
           const statement: PermissionTypes.Statement = {
             effect: PermissionTypes.Effect.EFFECT_ALLOW,
             actions: [PermissionTypes.ActionType.ACTION_GET_OBJECT],
-            resources: [''],
+            resources: [],
           };
 
           const tx = await client.object.putObjectPolicy(
