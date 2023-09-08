@@ -119,7 +119,7 @@ async function makeTransferTx() {
   return await client.account.transfer({
     amount: [
       {
-        amount: '10',
+        amount: '1000000000000000',
         denom: 'BNB',
       },
     ],

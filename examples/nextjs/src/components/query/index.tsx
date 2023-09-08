@@ -122,6 +122,25 @@ export const QueryComponent = () => {
               const { paymentAccounts } = await client.payment.getPaymentAccountsByOwner({
                 owner: address,
               });
+              console.log('paymentAccounts', paymentAccounts);
+              const res = await client.payment.paymentAccount({
+                addr: paymentAccounts[0],
+              });
+              console.log('res', res);
+            }}
+          >
+            get paymentAccount
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={async () => {
+              if (!address) return;
+
+              const { paymentAccounts } = await client.payment.getPaymentAccountsByOwner({
+                owner: address,
+              });
+              console.log('paymentAccounts', paymentAccounts);
 
               const res = await client.bucket.listBucketsByPaymentAccount({
                 paymentAccount: paymentAccounts[0],

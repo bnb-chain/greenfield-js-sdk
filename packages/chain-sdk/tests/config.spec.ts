@@ -1,5 +1,5 @@
-import { Client } from '..';
-import { ISimulateGasFee } from '../types';
+import { Client } from '../src';
+import { ISimulateGasFee } from '../src/types';
 import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY, GREENFIELD_CHAIN_ID, GRPC_URL } from './.env';
 
 export const client = Client.create(GRPC_URL, GREENFIELD_CHAIN_ID);

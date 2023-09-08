@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { parseListObjectsByBucketNameResponse } from '../clients/spclient/spApis/listObjectsByBucket';
-import { parseGetUserBucketsResponse } from '../clients/spclient/spApis/getUserBuckets';
+import { parseListObjectsByBucketNameResponse } from '../src/clients/spclient/spApis/listObjectsByBucket';
+import { parseGetUserBucketsResponse } from '../src/clients/spclient/spApis/getUserBuckets';
 
 describe('parseListObjectsByBucketNameResponse', () => {
   test('parse CommonPrefixes contains 2 element at least', async () => {

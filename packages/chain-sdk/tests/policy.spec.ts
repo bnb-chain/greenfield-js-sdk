@@ -16,7 +16,6 @@ describe('groupTx', () => {
         creator: ACCOUNT.address,
         extra: EXTRA,
         groupName: GROUP_NAME,
-        members: [ACCOUNT.address],
       });
 
       const simulateInfo = await createGroupTx.simulate({

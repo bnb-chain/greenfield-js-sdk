@@ -15,14 +15,22 @@ describe('storageTx', () => {
 
     test('create bucket', async () => {
       const spInfo = await selectSp();
-      const createBucketTx = await client.bucket.createBucket({
-        bucketName: BUCKET_NAME,
-        creator: ACCOUNT.address,
-        visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-        chargedReadQuota: '0',
-        spInfo,
-        signType: 'authTypeV2',
-      });
+      const createBucketTx = await client.bucket.createBucket(
+        {
+          bucketName: BUCKET_NAME,
+          creator: ACCOUNT.address,
+          visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+          chargedReadQuota: '0',
+          spInfo: {
+            primarySpAddress: spInfo.primarySpAddress,
+          },
+          paymentAddress: ACCOUNT.address,
+        },
+        {
+          type: 'ECDSA',
+          privateKey: ACCOUNT.privateKey,
+        },
+      );
 
       const simulateInfo = await createBucketTx.simulate({
         denom: 'BNB',
@@ -56,25 +64,28 @@ describe('storageTx', () => {
     console.log('object name', OBJECT_NAME);
 
     test('create Object', async () => {
-      const spInfo = await selectSp();
-      const createObjectTx = await client.object.createObject({
-        bucketName: BUCKET_NAME,
-        objectName: OBJECT_NAME,
-        spInfo,
-        contentLength: 0,
-        fileType: 'text/plain',
-        expectCheckSums: [
-          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-        ],
-        creator: ACCOUNT.address,
-        signType: 'authTypeV2',
-      });
+      const createObjectTx = await client.object.createObject(
+        {
+          bucketName: BUCKET_NAME,
+          objectName: OBJECT_NAME,
+          contentLength: 0,
+          fileType: 'text/plain',
+          expectCheckSums: [
+            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          ],
+          creator: ACCOUNT.address,
+        },
+        {
+          type: 'ECDSA',
+          privateKey: ACCOUNT.privateKey,
+        },
+      );
 
       const simulateInfo = await createObjectTx.simulate({
         denom: 'BNB',
