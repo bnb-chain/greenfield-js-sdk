@@ -1,5 +1,17 @@
 # @demo/wallet
 
+## 0.0.6-alpha.6
+
+### Patch Changes
+
+- [#319](https://github.com/bnb-chain/greenfield-js-sdk/pull/319)
+  [`ec4297d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ec4297da042e1b7c656d26b65d56fe52ac80365f)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add vg settle api
+
+- Updated dependencies
+  [[`ec4297d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ec4297da042e1b7c656d26b65d56fe52ac80365f)]:
+  - @bnb-chain/greenfield-js-sdk@0.2.5-alpha.6
+
 ## 0.0.6-alpha.5
 
 ### Patch Changes

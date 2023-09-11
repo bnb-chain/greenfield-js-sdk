@@ -9,6 +9,7 @@
     "@bnb-chain/greenfield-zk-crypto": "0.0.2"
   },
   "changesets": [
+    "fast-houses-do",
     "fuzzy-cobras-cry",
     "giant-bikes-grab",
     "heavy-seas-talk",
