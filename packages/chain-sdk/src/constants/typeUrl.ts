@@ -39,3 +39,4 @@ export const MsgSetWithdrawAddressTypeUrl = '/cosmos.distribution.v1beta1.MsgSet
 export const MsgWithdrawValidatorCommissionTypeUrl =
   '/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission';
 export const MsgFundCommunityPoolTypeUrl = '/cosmos.distribution.v1beta1.MsgFundCommunityPool';
+export const MsgSettleTypeUrl = '/greenfield.virtualgroup.MsgSettle';

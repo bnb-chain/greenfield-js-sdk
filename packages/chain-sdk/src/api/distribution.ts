@@ -46,7 +46,6 @@ export interface IDistribution {
 @injectable()
 export class Distribution implements IDistribution {
   constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
-  private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async setWithdrawAddress(msg: MsgSetWithdrawAddress) {
     return await this.txClient.tx(
