@@ -1,5 +1,13 @@
 # @demo/wallet
 
+## 0.0.6-alpha.7
+
+### Patch Changes
+
+- [#321](https://github.com/bnb-chain/greenfield-js-sdk/pull/321)
+  [`b384428`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b38442819d2dc341859bef4404d8f118a0aa189d)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Update deps
+
 ## 0.0.6-alpha.6
 
 ### Patch Changes
