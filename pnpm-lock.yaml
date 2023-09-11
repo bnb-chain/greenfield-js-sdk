@@ -98,6 +98,9 @@ importers:
 
   examples/nextjs:
     dependencies:
+      '@bnb-chain/greenfield-cosmos-types':
+        specifier: 0.4.0-alpha.23
+        version: 0.4.0-alpha.23
       '@bnb-chain/greenfield-js-sdk':
         specifier: workspace:*
         version: link:../../packages/chain-sdk
