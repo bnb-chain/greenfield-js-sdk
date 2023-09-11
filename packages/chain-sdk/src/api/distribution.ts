@@ -1,79 +1,90 @@
+import { TxClient } from '@/clients/txClient';
+import { MsgFundCommunityPoolTypeUrlSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgFundCommunityPoolTypeUrl';
+import { MsgSetWithdrawAddressSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgSetWithdrawAddress';
+import { MsgWithdrawDelegatorRewardSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgWithdrawDelegatorReward';
+import { MsgWithdrawValidatorCommissionSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgWithdrawValidatorCommission';
 import {
-  MsgFundCommunityPoolResponse,
-  MsgSetWithdrawAddressResponse,
-  MsgWithdrawDelegatorRewardResponse,
-  MsgWithdrawValidatorCommissionResponse,
+  MsgFundCommunityPool,
+  MsgSetWithdrawAddress,
+  MsgWithdrawDelegatorReward,
+  MsgWithdrawValidatorCommission,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/distribution/v1beta1/tx';
-import { Coin } from '@cosmjs/proto-signing';
-import { container, injectable } from 'tsyringe';
-import { Basic } from './basic';
+import { container, delay, inject, injectable } from 'tsyringe';
+import {
+  MsgFundCommunityPoolTypeUrl,
+  MsgSetWithdrawAddressTypeUrl,
+  MsgWithdrawDelegatorRewardTypeUrl,
+  MsgWithdrawValidatorCommissionTypeUrl,
+  TxResponse,
+} from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 export interface IDistribution {
   /**
    * sets the withdrawal address for a delegator address
    */
-  setWithdrawAddress(
-    withdrawAddress: string,
-    delegatorAddress: string,
-  ): Promise<MsgSetWithdrawAddressResponse>;
+  setWithdrawAddress(msg: MsgSetWithdrawAddress): Promise<TxResponse>;
 
   /**
    * withdraw accumulated commission by validator
    */
   withdrawValidatorCommission(
-    validatorAddress: string,
-  ): Promise<MsgWithdrawValidatorCommissionResponse>;
+    address: string,
+    msg: MsgWithdrawValidatorCommission,
+  ): Promise<TxResponse>;
 
   /**
    * withdraw rewards by a delegator
    */
-  withdrawDelegatorReward(
-    validatorAddress: string,
-    delegatorAddress: string,
-  ): Promise<MsgWithdrawDelegatorRewardResponse>;
+  withdrawDelegatorReward(msg: MsgWithdrawDelegatorReward): Promise<TxResponse>;
 
   /**
    * sends coins directly from the sender to the community pool.
    */
-  fundCommunityPoolundComm(
-    amount: Coin[],
-    depositor: string,
-  ): Promise<MsgFundCommunityPoolResponse>;
+  fundCommunityPoolundComm(address: string, msg: MsgFundCommunityPool): Promise<TxResponse>;
 }
 
 @injectable()
 export class Distribution implements IDistribution {
-  private basic: Basic = container.resolve(Basic);
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
-  public async setWithdrawAddress(withdrawAddress: string, delegatorAddress: string) {
-    const rpc = await this.queryClient.getMsgClient();
-    return await rpc.SetWithdrawAddress({
-      withdrawAddress,
-      delegatorAddress,
-    });
+  public async setWithdrawAddress(msg: MsgSetWithdrawAddress) {
+    return await this.txClient.tx(
+      MsgSetWithdrawAddressTypeUrl,
+      msg.delegatorAddress,
+      MsgSetWithdrawAddressSDKTypeEIP712,
+      MsgSetWithdrawAddress.toSDK(msg),
+      MsgSetWithdrawAddress.encode(msg).finish(),
+    );
   }
 
-  public async withdrawValidatorCommission(validatorAddress: string) {
-    const rpc = await this.queryClient.getMsgClient();
-    return rpc.WithdrawValidatorCommission({
-      validatorAddress,
-    });
+  public async withdrawValidatorCommission(address: string, msg: MsgWithdrawValidatorCommission) {
+    return await this.txClient.tx(
+      MsgWithdrawValidatorCommissionTypeUrl,
+      address,
+      MsgWithdrawValidatorCommissionSDKTypeEIP712,
+      MsgWithdrawValidatorCommission.toSDK(msg),
+      MsgWithdrawValidatorCommission.encode(msg).finish(),
+    );
   }
 
-  public async withdrawDelegatorReward(validatorAddress: string, delegatorAddress: string) {
-    const rpc = await this.queryClient.getMsgClient();
-    return rpc.WithdrawDelegatorReward({
-      delegatorAddress,
-      validatorAddress,
-    });
+  public async withdrawDelegatorReward(msg: MsgWithdrawDelegatorReward) {
+    return await this.txClient.tx(
+      MsgWithdrawDelegatorRewardTypeUrl,
+      msg.delegatorAddress,
+      MsgWithdrawDelegatorRewardSDKTypeEIP712,
+      MsgWithdrawDelegatorReward.toSDK(msg),
+      MsgWithdrawDelegatorReward.encode(msg).finish(),
+    );
   }
 
-  public async fundCommunityPoolundComm(amount: Coin[], depositor: string) {
-    const rpc = await this.queryClient.getMsgClient();
-    return rpc.FundCommunityPool({
-      amount,
-      depositor,
-    });
+  public async fundCommunityPoolundComm(address: string, msg: MsgFundCommunityPool) {
+    return await this.txClient.tx(
+      MsgFundCommunityPoolTypeUrl,
+      address,
+      MsgFundCommunityPoolTypeUrlSDKTypeEIP712,
+      MsgFundCommunityPool.toSDK(msg),
+      MsgFundCommunityPool.encode(msg).finish(),
+    );
   }
 }

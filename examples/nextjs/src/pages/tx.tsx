@@ -14,6 +14,7 @@ import { useAccount } from 'wagmi';
 import { PaymentComponent } from '@/components/payment';
 import { Validator } from '@/components/validator';
 import { Proposal } from '@/components/proposal';
+import { Distribution } from '@/components/distribution';
 
 export default function Tx() {
   const isMounted = useIsMounted();
@@ -52,6 +53,8 @@ export default function Tx() {
           <Proposal />
           <hr style={{ margin: '10px 0' }} />
           <Validator />
+          <hr style={{ margin: '10px 0' }} />
+          <Distribution />
           <hr style={{ margin: '10px 0' }} />
           <MultiMsg />
         </>

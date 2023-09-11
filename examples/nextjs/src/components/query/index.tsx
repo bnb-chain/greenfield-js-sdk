@@ -1,5 +1,4 @@
 import { client } from '@/client';
-import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { Long } from '@bnb-chain/greenfield-js-sdk';
 import { useAccount } from 'wagmi';
