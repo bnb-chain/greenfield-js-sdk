@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.7
+
+### Patch Changes
+
+- [#324](https://github.com/bnb-chain/greenfield-js-sdk/pull/324)
+  [`f3a7ce8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f3a7ce8f06d6bedf5e07bccccc4ada7676e79f2a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: New Bucket API: `headBucketExtra`
+
 ## 0.2.5-alpha.6
 
 ### Patch Changes
