@@ -42,6 +42,7 @@ import {
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
   QueryBucketNFTResponse,
+  QueryHeadBucketExtraResponse,
   QueryHeadBucketResponse,
   QueryNFTRequest,
   QueryPolicyForAccountRequest,
@@ -96,6 +97,31 @@ import { Storage } from './storage';
 
 export interface IBucket {
   /**
+   * get approval of creating bucket and send createBucket txn to greenfield chain
+   */
+  createBucket(params: CreateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
+
+  deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
+
+  deleteBucketPolicy(
+    operator: string,
+    bucketName: string,
+    principalAddr: string,
+  ): Promise<TxResponse>;
+
+  getBucketMeta(params: GetBucketMetaRequest): Promise<SpResponse<GetBucketMetaResponse>>;
+
+  getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
+
+  /**
+   * return quota info of bucket of current month, include chain quota, free quota and consumed quota
+   */
+  getBucketReadQuota(
+    configParam: ReadQuotaRequest,
+    authType: AuthType,
+  ): Promise<SpResponse<IQuotaProps>>;
+
+  /**
    * returns the signature info for the approval of preCreating resources
    */
   getCreateBucketApproval(
@@ -103,22 +129,10 @@ export interface IBucket {
     authType: AuthType,
   ): Promise<SpResponse<string>>;
 
-  /**
-   * get approval of creating bucket and send createBucket txn to greenfield chain
-   */
-  createBucket(params: CreateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
-
-  /**
-   * query the bucketInfo on chain, return the bucket info if exists
-   */
-  headBucket(bucketName: string): Promise<QueryHeadBucketResponse>;
-
-  /**
-   * query the bucketInfo on chain by bucketId, return the bucket info if exists
-   */
-  headBucketById(bucketId: string): Promise<QueryHeadBucketResponse>;
-
-  headBucketNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
+  getMigrateBucketApproval(
+    params: MigrateBucketApprovalRequest,
+    authType: AuthType,
+  ): Promise<SpResponse<string>>;
 
   /**
    * check if the permission of bucket is allowed to the user.
@@ -130,37 +144,18 @@ export interface IBucket {
   ): Promise<QueryVerifyPermissionResponse>;
 
   /**
-   * return quota info of bucket of current month, include chain quota, free quota and consumed quota
+   * query the bucketInfo on chain, return the bucket info if exists
    */
-  getBucketReadQuota(
-    configParam: ReadQuotaRequest,
-    authType: AuthType,
-  ): Promise<SpResponse<IQuotaProps>>;
+  headBucket(bucketName: string): Promise<QueryHeadBucketResponse>;
 
-  deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
+  /**
+   * query the bucketInfo on chain by bucketId, return the bucket info if exists
+   */
+  headBucketById(bucketId: string): Promise<QueryHeadBucketResponse>;
 
-  updateBucketInfo(
-    srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota?: string },
-  ): Promise<TxResponse>;
+  headBucketExtra(bucketName: string): Promise<QueryHeadBucketExtraResponse>;
 
-  putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
-
-  deleteBucketPolicy(
-    operator: string,
-    bucketName: string,
-    principalAddr: string,
-  ): Promise<TxResponse>;
-
-  getBucketPolicy(request: QueryPolicyForAccountRequest): Promise<QueryPolicyForAccountResponse>;
-
-  getMigrateBucketApproval(
-    params: MigrateBucketApprovalRequest,
-    authType: AuthType,
-  ): Promise<SpResponse<string>>;
-
-  migrateBucket(params: MigrateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
-
-  getBucketMeta(params: GetBucketMetaRequest): Promise<SpResponse<GetBucketMetaResponse>>;
+  headBucketNFT(request: QueryNFTRequest): Promise<QueryBucketNFTResponse>;
 
   listBucketReadRecords(
     params: ListBucketReadRecordRequest,
@@ -179,6 +174,14 @@ export interface IBucket {
   listBucketsByPaymentAccount(
     params: ListBucketsByPaymentAccountRequest,
   ): Promise<SpResponse<ListBucketsByPaymentAccountResponse>>;
+
+  migrateBucket(params: MigrateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
+
+  putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
+
+  updateBucketInfo(
+    srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota?: string },
+  ): Promise<TxResponse>;
 }
 
 @injectable()
@@ -325,6 +328,13 @@ export class Bucket implements IBucket {
     const rpc = await this.queryClient.getBucketQueryClient();
     return await rpc.HeadBucketById({
       bucketId,
+    });
+  }
+
+  public async headBucketExtra(bucketName: string) {
+    const rpc = await this.queryClient.getBucketQueryClient();
+    return await rpc.HeadBucketExtra({
+      bucketName,
     });
   }
 
