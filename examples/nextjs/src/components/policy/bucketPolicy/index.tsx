@@ -63,6 +63,55 @@ export const BucketPolicy = () => {
       >
         put bucket policy
       </button>
+      <button
+        onClick={async () => {
+          if (!address) return;
+
+          const tx = await client.bucket.deleteBucketPolicy(
+            address,
+            policyBucketInfo.bucketName,
+            address,
+            'PRINCIPAL_TYPE_GNFD_ACCOUNT',
+          );
+
+          const simulateInfo = await tx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log('simulateInfo', simulateInfo);
+
+          const res = await tx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
+            payer: address,
+            granter: '',
+          });
+
+          console.log('res', res);
+
+          if (res.code === 0) {
+            alert('success');
+          }
+        }}
+      >
+        delete bucket policy
+      </button>
+      {/* <button onClick={async () => {
+        if (!address) return;
+
+        const principal: PermissionTypes.Principal = {
+
+        }
+
+        await client.storage.deletePolicy({
+          operator: address,
+          principal,
+          resource:
+        })
+      }}>
+        xx
+      </button> */}
     </>
   );
 };

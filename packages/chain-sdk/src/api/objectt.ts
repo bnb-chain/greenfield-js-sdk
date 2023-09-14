@@ -31,6 +31,7 @@ import {
   ActionType,
   Principal,
   PrincipalType,
+  principalTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   redundancyTypeFromJSON,
@@ -148,6 +149,7 @@ export interface IObject {
     bucketName: string,
     objectName: string,
     principalAddr: string,
+    principalType: keyof typeof PrincipalType,
   ): Promise<TxResponse>;
 
   isObjectPermissionAllowed(
@@ -669,10 +671,11 @@ export class Objectt implements IObject {
     bucketName: string,
     objectName: string,
     principalAddr: string,
+    principalType: keyof typeof PrincipalType,
   ) {
     const resource = GRNToString(newObjectGRN(bucketName, objectName));
     const principal: Principal = {
-      type: PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+      type: principalTypeFromJSON(principalType),
       value: principalAddr,
     };
 

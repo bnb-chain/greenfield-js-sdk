@@ -1,5 +1,4 @@
 import { client } from '@/client';
-import { MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
 import { useAccount } from 'wagmi';
 
 export const CustomTx = () => {
