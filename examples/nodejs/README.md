@@ -1,9 +1,9 @@
 # GreenField JS SDK Node.js
 
-* [storage](./storage.js)
+> NOTICE: Before running, you need to fill your account's private key and address in [env.js](./env.js).
 
 ```bash
-> node storage
+> node storage.js
 ```
 
 [More examples](../../packages/chain-sdk/tests/)

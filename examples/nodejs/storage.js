@@ -1,10 +1,5 @@
-const {
-  client,
-  selectSp,
-  ACCOUNT_ADDRESS,
-  ACCOUNT_PRIVATEKEY,
-  generateString,
-} = require('./client');
+const { client, selectSp, generateString } = require('./client');
+const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('./env');
 
 (async () => {
   const bucketName = generateString(10);
