@@ -364,7 +364,7 @@ export class TxClient implements ITxClient {
         );
 
         const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
-        // console.log('eip712', eip712);
+
         const { pubKey, signature } = privateKey
           ? this.getSignByPriKey(eip712, privateKey)
           : await this.getSignByWallet(eip712, accountInfo.address, signTypedDataCallback);

@@ -38,6 +38,7 @@ import {
   ActionType,
   Principal,
   PrincipalType,
+  principalTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { visibilityTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
@@ -107,6 +108,7 @@ export interface IBucket {
     operator: string,
     bucketName: string,
     principalAddr: string,
+    principalType: keyof typeof PrincipalType,
   ): Promise<TxResponse>;
 
   getBucketMeta(params: GetBucketMetaRequest): Promise<SpResponse<GetBucketMetaResponse>>;
@@ -496,10 +498,15 @@ export class Bucket implements IBucket {
     return this.storage.putPolicy(msg);
   }
 
-  public async deleteBucketPolicy(operator: string, bucketName: string, principalAddr: string) {
+  public async deleteBucketPolicy(
+    operator: string,
+    bucketName: string,
+    principalAddr: string,
+    principalType: keyof typeof PrincipalType,
+  ) {
     const resource = GRNToString(newBucketGRN(bucketName));
     const principal: Principal = {
-      type: PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+      type: principalTypeFromJSON(principalType),
       value: principalAddr,
     };
 

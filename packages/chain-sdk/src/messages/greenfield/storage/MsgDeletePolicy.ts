@@ -12,5 +12,19 @@ export const MsgDeletePolicySDKTypeEIP712 = {
       name: 'resource',
       type: 'string',
     },
+    {
+      name: 'principal',
+      type: 'TypeMsg1Principal',
+    },
+  ],
+  TypeMsg1Principal: [
+    {
+      name: 'type',
+      type: 'string',
+    },
+    {
+      name: 'value',
+      type: 'string',
+    },
   ],
 };

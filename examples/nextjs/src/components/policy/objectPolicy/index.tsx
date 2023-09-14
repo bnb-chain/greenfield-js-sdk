@@ -77,6 +77,41 @@ export const ObjectPolicy = () => {
       >
         put object policy
       </button>
+      <button
+        onClick={async () => {
+          if (!address) return;
+
+          const tx = await client.object.deleteObjectPolicy(
+            address,
+            policyObjectInfo.bucketName,
+            policyObjectInfo.objectName,
+            address,
+            'PRINCIPAL_TYPE_GNFD_GROUP',
+          );
+
+          const simulateInfo = await tx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log('simulateInfo', simulateInfo);
+
+          const res = await tx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
+            payer: address,
+            granter: '',
+          });
+
+          console.log('res', res);
+
+          if (res.code === 0) {
+            alert('success');
+          }
+        }}
+      >
+        delete object policy
+      </button>
     </>
   );
 };
