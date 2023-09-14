@@ -2,4 +2,8 @@
 
 * [storage](./storage.js)
 
+```bash
+> node storage
+```
+
 [More examples](../../packages/chain-sdk/tests/)
