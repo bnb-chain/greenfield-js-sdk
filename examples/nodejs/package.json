@@ -3,12 +3,7 @@
   "version": "0.0.9-alpha.7",
   "type": "commonjs",
   "private": true,
-  "scripts": {
-    "dev": "cross-env NODE_ENV=development next dev",
-    "dev:qa": "cross-env NODE_ENV=test next dev",
-    "build": "",
-    "build:qa": ""
-  },
+  "scripts": {},
   "dependencies": {
     "@bnb-chain/greenfield-js-sdk": "workspace:*",
     "@bnb-chain/greenfiled-file-handle": "workspace:*"
