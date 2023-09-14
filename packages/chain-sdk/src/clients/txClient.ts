@@ -22,6 +22,7 @@ import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { container, inject, injectable } from 'tsyringe';
 import {
   BroadcastOptions,
+  CustomTx,
   ISimulateGasFee,
   MetaTxInfo,
   SignOptions,
@@ -65,6 +66,13 @@ export interface ITxClient {
     MsgSDK: MetaTxInfo['MsgSDK'],
     msgBytes: MetaTxInfo['msgBytes'],
   ): Promise<TxResponse>;
+
+  txRaw({
+    address,
+    txRawHex,
+    eip712MsgType,
+    msgData,
+  }: CustomTx): Promise<Omit<TxResponse, 'metaTxInfo'>>;
 
   /**
    *
@@ -121,6 +129,78 @@ export class TxClient implements ITxClient {
         MsgSDK,
         msgBytes,
         bodyBytes: txBodyBytes,
+      },
+    };
+  }
+
+  public async txRaw({
+    address,
+    txRawHex,
+    eip712MsgType,
+    msgData,
+  }: CustomTx): Promise<Omit<TxResponse, 'metaTxInfo'>> {
+    const accountInfo = await this.account.getAccount(address);
+    const txRawBytes = arrayify(txRawHex);
+    const txRawP = TxRaw.decode(txRawBytes);
+
+    return {
+      simulate: async (opts: SimulateOptions) => {
+        return await this.simulateRawTx(txRawP.bodyBytes, accountInfo, opts);
+      },
+      broadcast: async (opts: BroadcastOptions) => {
+        const {
+          denom,
+          gasLimit,
+          gasPrice,
+          payer,
+          granter,
+          privateKey,
+          signTypedDataCallback = defaultSignTypedData,
+        } = opts;
+
+        const fee = generateFee(
+          String(BigInt(gasLimit) * BigInt(gasPrice)),
+          denom,
+          String(gasLimit),
+          payer,
+          granter,
+        );
+        const wrapperTypes = generateTypes(eip712MsgType);
+        const messages = generateMessage(
+          accountInfo.accountNumber.toString(),
+          accountInfo.sequence.toString(),
+          this.chainId,
+          '',
+          fee,
+          msgData,
+          '0',
+        );
+
+        const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
+        // console.log('eip712', eip712);
+        const { pubKey, signature } = privateKey
+          ? this.getSignByPriKey(eip712, privateKey)
+          : await this.getSignByWallet(eip712, accountInfo.address, signTypedDataCallback);
+
+        const authInfoBytes = this.getAuthInfoBytes({
+          denom,
+          sequence: accountInfo.sequence + '',
+          gasLimit,
+          gasPrice,
+          pubKey,
+          granter,
+          payer,
+        });
+
+        const txRaw = TxRaw.fromPartial({
+          bodyBytes: txRawP.bodyBytes,
+          authInfoBytes,
+          signatures: [arrayify(signature)],
+        });
+        const txBytes = TxRaw.encode(txRaw).finish();
+
+        // console.log('txBytes', hexlify(txBytes));
+        return await this.broadcastRawTx(txBytes);
       },
     };
   }
