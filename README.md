@@ -30,18 +30,19 @@ You can try out some examples directly in your browser through Stackblitz:
 ### Running Examples Locally
 
 Clone the project and install dependencies:
+
 ```bash
 > git clone git@github.com:bnb-chain/greenfield-js-sdk.git
 > cd greenfield-js-sdk
 > pnpm install
 ```
 
-and build package:
+Build package:
 ```bash
-> pnpm run -r build
+> pnpm run -F "./packages/**" -r build
 ```
 
-and then copy env template file:
+copy env template file:
 ```bash
 > cp .env.simple .env
 ```
