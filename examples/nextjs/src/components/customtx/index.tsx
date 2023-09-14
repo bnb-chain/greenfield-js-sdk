@@ -1,7 +1,6 @@
 import { client } from '@/client';
-import { useAccount } from 'wagmi';
 import { MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
-import { parseEther } from 'viem';
+import { useAccount } from 'wagmi';
 
 export const CustomTx = () => {
   const { address } = useAccount();
@@ -14,69 +13,69 @@ export const CustomTx = () => {
       <button
         onClick={async () => {
           if (!address) return;
-          const transferParams: MsgSend = {
-            amount: [
-              {
-                denom: 'BNB',
-                amount: '100000000',
-              },
-            ],
-            fromAddress: address,
-            toAddress: '0x0000000000000000000000000000000000000001',
-          };
-
-          const transferTx = await client.txClient.tx(
-            '/cosmos.bank.v1beta1.MsgSend',
+          const tx = await client.txClient.txRaw({
             address,
-            {
+            eip712MsgType: {
               Msg1: [
+                {
+                  name: 'expiration_time',
+                  type: 'string',
+                },
+                {
+                  name: 'operator',
+                  type: 'string',
+                },
+                {
+                  name: 'principal',
+                  type: 'TypeMsg1Principal',
+                },
+                {
+                  name: 'resource',
+                  type: 'string',
+                },
+                {
+                  name: 'type',
+                  type: 'string',
+                },
+              ],
+              TypeMsg1Principal: [
                 {
                   name: 'type',
                   type: 'string',
                 },
                 {
-                  name: 'from_address',
-                  type: 'string',
-                },
-                {
-                  name: 'to_address',
-                  type: 'string',
-                },
-                {
-                  name: 'amount',
-                  type: 'TypeMsg1Amount[]',
-                },
-              ],
-              TypeMsg1Amount: [
-                {
-                  name: 'denom',
-                  type: 'string',
-                },
-                {
-                  name: 'amount',
+                  name: 'value',
                   type: 'string',
                 },
               ],
             },
-            MsgSend.toSDK(transferParams),
-            MsgSend.encode(transferParams).finish(),
-          );
+            msgData: {
+              expiration_time: '',
+              operator: '0x1C893441AB6c1A75E01887087ea508bE8e07AAae',
+              principal: {
+                type: 'PRINCIPAL_TYPE_GNFD_ACCOUNT',
+                value: '0x91D7deA99716Cbb247E81F1cfB692009164a967E',
+              },
+              resource: 'grn:o::foo/vvv',
+              type: '/greenfield.storage.MsgPutPolicy',
+            },
+            txRawHex:
+              '0x0a93010a90010a202f677265656e6669656c642e73746f726167652e4d7367507574506f6c696379126c0a2a307831433839333434314142366331413735453031383837303837656135303862453865303741416165122e0801122a3078393144376465413939373136436262323437453831463163664236393230303931363461393637451a0e67726e3a6f3a3a666f6f2f76767612021200',
+          });
 
-          const simulateInfo = await transferTx.simulate({
+          const simulateInfo = await tx.simulate({
             denom: 'BNB',
           });
 
-          console.log('simulateInfo', simulateInfo);
+          console.log(simulateInfo);
 
-          const res = await transferTx.broadcast({
+          const res = await tx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',
             payer: address,
             granter: '',
           });
-
-          console.log('res', res);
 
           if (res.code === 0) {
             alert('success');
