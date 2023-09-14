@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.8
+
+### Patch Changes
+
+- [#330](https://github.com/bnb-chain/greenfield-js-sdk/pull/330)
+  [`56a263e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/56a263ec0a39844d967ce99a7b58165cc686a16c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Custom any tx by raw info
+
 ## 0.2.5-alpha.7
 
 ### Patch Changes
