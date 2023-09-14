@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5-alpha.9
+
+### Patch Changes
+
+- [#332](https://github.com/bnb-chain/greenfield-js-sdk/pull/332)
+  [`88acc61`](https://github.com/bnb-chain/greenfield-js-sdk/commit/88acc61ef8e9826a9805a56f92d6321985a07e9a)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Delete Policy
+
 ## 0.2.5-alpha.8
 
 ### Patch Changes
