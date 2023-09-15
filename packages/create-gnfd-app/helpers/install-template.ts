@@ -8,7 +8,7 @@ import { failSpinner, startSpinner, succeedSpiner } from './spinner';
 
 export const SRC_DIR_NAMES = ['app', 'pages', 'styles'];
 
-export type TemplateType = 'nextjs' | 'cra';
+export type TemplateType = 'nextjs' | 'cra' | 'vite';
 export type TemplateMode = 'js' | 'ts';
 
 export const installTemplate = async ({ appName, root, packageManager }: InstallTemplateArgs) => {

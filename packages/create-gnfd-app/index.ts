@@ -5,13 +5,12 @@ import path, { resolve } from 'path';
 import { cyan, green } from 'picocolors';
 import validateNpmName from 'validate-npm-package-name';
 import { createApp } from './createApp';
-import { getPkgManager, PackageManager } from './helpers/get-pkg-manager';
+import { PackageManager } from './helpers/get-pkg-manager';
 import { TemplateType } from './helpers/install-template';
 import { isFolderEmpty } from './helpers/is-folder-empty';
 
 const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../package.json'), 'utf-8'));
 let projectPath = '';
-// const projectName = 'xxx';
 
 const program = new Commander.Command(packageJson.name);
 program
@@ -57,6 +56,7 @@ async function runInitPrompts(): Promise<void> {
     choices: [
       { name: 'nextjs', value: 'nextjs' },
       { name: 'create-react-app', value: 'cra' },
+      { name: 'vite', value: 'vite' },
     ],
   });
 
