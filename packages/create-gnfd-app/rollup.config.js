@@ -1,7 +1,6 @@
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
-import copy from 'rollup-plugin-copy';
 import autoExternal from 'rollup-plugin-auto-external';
 import pkg from './package.json';
 
@@ -29,14 +28,6 @@ export default async () => {
         }),
         typescript({
           tsconfig: './tsconfig.json',
-        }),
-        copy({
-          targets: [
-            {
-              src: './templates',
-              dest: './dist',
-            },
-          ],
         }),
       ],
     },

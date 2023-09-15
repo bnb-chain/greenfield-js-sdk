@@ -21,33 +21,8 @@ program
   .action((str) => {
     projectPath = str;
   })
-  // .option('-n, --name <string>', "What's your app name?")
-  // .option('-i, --integer <n>', 'An integer argument', parseInt)
-  .option(
-    '--ts, --typescript',
-    `
-      Initialize as a Typescript project(default)
-    `,
-  )
-  .option('--use-npm', `Explicitly tell the CLI to bootstrap the application using npm`)
-  .option('--use-yarn', `Explicitly tell the CLI to bootstrap the application using npm`)
-  .option('--use-pnpm', `Explicitly tell the CLI to bootstrap the application using npm`)
   .allowUnknownOption()
   .parse(process.argv);
-
-const { useYarn, useNpm, usePnpm } = program.opts();
-const packageManager: PackageManager = !!useNpm
-  ? 'npm'
-  : !!usePnpm
-  ? 'pnpm'
-  : !!useYarn
-  ? 'yarn'
-  : getPkgManager();
-
-// console.log('packageManager', packageManager);
-// console.log('projectPath', projectPath);
-// console.log(program.name());
-// console.log(program.opts());
 
 async function runInitPrompts(): Promise<void> {
   if (!projectPath) {
@@ -85,22 +60,19 @@ async function runInitPrompts(): Promise<void> {
     ],
   });
 
-  // console.log('template', template);
+  const packageManager: PackageManager = await prompts.select({
+    message: 'select a package manager?',
+    choices: [
+      { name: 'npm', value: 'npm' },
+      { name: 'yarn', value: 'yarn' },
+      { name: 'pnpm', value: 'pnpm' },
+    ],
+  });
 
   const resolvedProjectPath = path.resolve(projectPath);
-  // const projectName = path.basename(resolvedProjectPath);
-
   const root = path.resolve(resolvedProjectPath);
-  // console.log('root', root);
-
-  // console.log('resolvedProjectPath', resolvedProjectPath);
-  // console.log('projectName', projectName);
-
   const appName = path.basename(root);
   const folderExists = fs.existsSync(root);
-
-  // console.log('appName', appName);
-  // console.log('folderExists', folderExists);
 
   if (folderExists && !isFolderEmpty(root, appName)) {
     process.exit(1);
@@ -111,14 +83,6 @@ async function runInitPrompts(): Promise<void> {
       appPath: resolvedProjectPath,
       packageManager,
       template,
-      // example: example && example !== 'default' ? example : undefined,
-      // examplePath: program.examplePath,
-      // typescript: program.typescript,
-      // tailwind: program.tailwind,
-      // eslint: program.eslint,
-      // appRouter: program.app,
-      // srcDir: program.srcDir,
-      // importAlias: program.importAlias,
     });
   } catch (reason) {
     // .

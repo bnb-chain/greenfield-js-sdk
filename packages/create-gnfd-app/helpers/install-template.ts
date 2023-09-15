@@ -1,162 +1,58 @@
-/* eslint-disable no-console */
+import spawn from 'cross-spawn';
 import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import { bold, cyan } from 'picocolors';
-import { copySync } from 'fs-extra';
+import { removeSync } from 'fs-extra';
+import handlebars from 'handlebars';
+import { cyan } from 'picocolors';
 import { PackageManager } from './get-pkg-manager';
-import { install } from './install';
-import { makeDir } from './is-writeable';
+import { failSpinner, startSpinner, succeedSpiner } from './spinner';
 
 export const SRC_DIR_NAMES = ['app', 'pages', 'styles'];
 
 export type TemplateType = 'nextjs' | 'cra';
 export type TemplateMode = 'js' | 'ts';
 
-export const installTemplate = async ({
-  appName,
-  root,
-  packageManager,
-  isOnline,
-  template,
-  mode,
-}: InstallTemplateArgs) => {
-  console.log(bold(`Using ${packageManager}.`));
-
-  /**
-   * Copy the template files to the target directory.
-   */
-  console.log('\nInitializing project with template:', template, '\n');
-  const templatePath = path.join(__dirname, 'templates', template, mode);
-
-  // console.log('root', root);
-  // console.log('__dirname', __dirname);
-  // console.log('templatePath', templatePath);
-
-  // await copy(copySource, root, {
-  //   parents: true,
-  //   cwd: templatePath,
-  //   rename(name) {
-  //     switch (name) {
-  //       case 'gitignore':
-  //       case 'eslintrc.json': {
-  //         return `.${name}`;
-  //       }
-  //       // README.md is ignored by webpack-asset-relocator-loader used by ncc:
-  //       // https://github.com/vercel/webpack-asset-relocator-loader/blob/e9308683d47ff507253e37c9bcbb99474603192b/src/asset-relocator.js#L227
-  //       case 'README-template.md': {
-  //         return 'README.md';
-  //       }
-  //       default: {
-  //         return name;
-  //       }
-  //     }
-  //   },
-  // });
-
-  copySync(templatePath, root);
-
-  // const tsconfigFile = path.join(root, mode === 'js' ? 'jsconfig.json' : 'tsconfig.json');
-  /* await fs.promises.writeFile(
-    tsconfigFile,
-    (await fs.promises.readFile(tsconfigFile, 'utf8'))
-      .replace(`"@/*": ["./*"]`, srcDir ? `"@/*": ["./src/*"]` : `"@/*": ["./*"]`)
-      .replace(`"@/*":`, `"${importAlias}":`),
-  ); */
-
-  // update import alias in any files if not using the default
-
-  // await makeDir(path.join(root, 'src'));
-  await Promise.all(
-    SRC_DIR_NAMES.map(async (file) => {
-      await fs.promises.rename(path.join(root, file), path.join(root, 'src', file)).catch((err) => {
-        if (err.code !== 'ENOENT') {
-          throw err;
-        }
-      });
-    }),
-  );
-
-  console.log('root', root);
-
+export const installTemplate = async ({ appName, root, packageManager }: InstallTemplateArgs) => {
   /**
    * Create a package.json for the new project and write it to disk.
    */
-  const packageJson = {
+  const packageJsonPath = `${root}/package.json`;
+  const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf-8');
+  const packageJsonResult = handlebars.compile(packageJsonContent)({
     name: appName,
-    version: '0.1.0',
-    private: true,
-    scripts: {
-      dev: 'next dev',
-      build: 'next build',
-      start: 'next start',
-      lint: 'next lint',
-    },
-    dependencies: {
-      '@types/node': '20.6.0',
-      '@types/react': '18.2.21',
-      '@types/react-dom': '18.2.7',
-      eslint: '8.49.0',
-      'eslint-config-next': '13.4.19',
-      next: '13.4.19',
-      react: '18.2.0',
-      'react-dom': '18.2.0',
-      typescript: '5.2.2',
-    },
-  };
-  await fs.promises.writeFile(
-    path.join(root, 'package.json'),
-    JSON.stringify(packageJson, null, 2) + os.EOL,
-  );
+  });
+  fs.writeFileSync(packageJsonPath, packageJsonResult);
 
   /**
-   * These flags will be passed to `install()`, which calls the package manager
-   * install process.
+   * delete package-lock.json
    */
-  const installFlags = { packageManager, isOnline };
+  removeSync(`${root}/package-lock.json`);
 
   /**
-   * Default dependencies.
+   * install dependencies
    */
-  // const dependencies = [
-  //   'react',
-  //   'react-dom',
-  //   `next${
-  //     process.env.NEXT_PRIVATE_TEST_VERSION ? `@${process.env.NEXT_PRIVATE_TEST_VERSION}` : ''
-  //   }`,
-  // ];
+  startSpinner(cyan(`Installing dependencies with ${packageManager}...`));
+  const child = spawn(packageManager, ['install'], {
+    // stdio: 'inherit',
+    // env: {
+    //   ...process.env,
+    //   ADBLOCK: '1',
+    //   NODE_ENV: 'development',
+    //   DISABLE_OPENCOLLECTIVE: '1',
+    // },
+  });
 
-  /**
-   * TypeScript projects will have type definitions and other devDependencies.
-   */
-  // if (mode === 'ts') {
-  //   dependencies.push('typescript', '@types/react', '@types/node', '@types/react-dom');
-  // }
-
-  /**
-   * Install package.json dependencies if they exist.
-   */
-  /* if (dependencies.length) {
-    console.log();
-    console.log('Installing dependencies:');
-    for (const dependency of dependencies) {
-      console.log(`- ${cyan(dependency)}`);
+  child.on('close', (code) => {
+    if (code !== 0) {
+      failSpinner('Failed to install dependencies.');
+      return;
     }
-    console.log();
 
-    await install(root, dependencies, installFlags);
-  } */
+    succeedSpiner('Install dependencies successfully.');
+  });
 };
 
 export interface InstallTemplateArgs {
   appName: string;
   root: string;
   packageManager: PackageManager;
-  isOnline: boolean;
-  template: TemplateType;
-  mode: TemplateMode;
-  // eslint: boolean;
-  // tailwind: boolean;
-  // srcDir: boolean;
-  // importAlias: string;
 }

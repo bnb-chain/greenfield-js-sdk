@@ -1,9 +1,12 @@
+import download from 'download-git-repo';
 import path from 'path';
 import { green } from 'picocolors';
 import { PackageManager } from './helpers/get-pkg-manager';
 import { installTemplate, TemplateType } from './helpers/install-template';
 import { isFolderEmpty } from './helpers/is-folder-empty';
 import { isWriteable, makeDir } from './helpers/is-writeable';
+import { failSpinner, startSpinner, succeedSpiner } from './helpers/spinner';
+import { TEMPLATES_MAP } from './templates';
 
 export async function createApp({
   appPath,
@@ -31,18 +34,25 @@ export async function createApp({
     process.exit(1);
   }
 
-  const originalDirectory = process.cwd();
   /* eslint-disable-next-line no-console */
   console.log(`Creating a new Greenfield app in ${green(root)}.`);
   process.chdir(root);
-  const packageJsonPath = path.join(root, 'package.json');
 
-  await installTemplate({
-    appName,
-    root,
-    packageManager,
-    isOnline: true,
-    template,
-    mode: 'ts',
+  startSpinner('downloading template...');
+  download(TEMPLATES_MAP[template], '.', { clone: false }, (err) => {
+    if (err) {
+      failSpinner(err.message);
+      return;
+    }
+
+    succeedSpiner(`download template - ${template} success`);
+
+    return installTemplate({
+      appName,
+      root,
+      packageManager,
+    });
+  }).then(() => {
+    // ...
   });
 }

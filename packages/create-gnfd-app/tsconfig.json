@@ -8,7 +8,6 @@
     "skipLibCheck": false
   },
   "exclude": [
-    "templates",
     "dist"
   ]
 }
