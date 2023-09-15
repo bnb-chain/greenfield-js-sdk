@@ -1,5 +1,13 @@
 # @bnb-chain/zk-crypto
 
+## 0.0.3
+
+### Patch Changes
+
+- [#302](https://github.com/bnb-chain/greenfield-js-sdk/pull/302)
+  [`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upgrade TinyGo version and Go version
+
 ## 0.0.3-alpha.0
 
 ### Patch Changes
