@@ -5,3 +5,5 @@
 ```bash
 > npx @bnb-chain/create-gnfd-app
 ```
+
+![](./example.gif)
