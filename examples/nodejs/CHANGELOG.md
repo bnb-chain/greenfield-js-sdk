@@ -1,5 +1,30 @@
 # @demo/nodejs
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f3a7ce8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f3a7ce8f06d6bedf5e07bccccc4ada7676e79f2a),
+  [`ec4297d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ec4297da042e1b7c656d26b65d56fe52ac80365f),
+  [`910c0cc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/910c0cc7ab7267e67b9cb59b702b70b0d1364c2b),
+  [`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274),
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68),
+  [`4acdb91`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4acdb919f4c2d7764c670f97c26a5b9cca8c962e),
+  [`b13fba4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b13fba46d5df93bcaa643cd79aeea7dd4128feee),
+  [`c7f9ef3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c7f9ef355e57bcc17a46b96655d8f36ba54dffa8),
+  [`06b933a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/06b933aa6a2ecb285c3511e06de0dfb93d38c40e),
+  [`bea0466`](https://github.com/bnb-chain/greenfield-js-sdk/commit/bea04668309bb4a769b68e9eab4f193ad2ef1d4b),
+  [`609f4cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/609f4cdbeccd289cd4080c0994aa2eb24bfa6eb2),
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68),
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68),
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68),
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68),
+  [`88acc61`](https://github.com/bnb-chain/greenfield-js-sdk/commit/88acc61ef8e9826a9805a56f92d6321985a07e9a),
+  [`780e2ef`](https://github.com/bnb-chain/greenfield-js-sdk/commit/780e2efdfbc0d168c791c82e724ad96504050169),
+  [`56a263e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/56a263ec0a39844d967ce99a7b58165cc686a16c)]:
+  - @bnb-chain/greenfield-js-sdk@0.2.5
+
 ## 0.0.9-alpha.9
 
 ### Patch Changes
