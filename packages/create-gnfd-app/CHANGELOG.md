@@ -1,5 +1,13 @@
 # @bnb-chain/create-gnfd-app
 
+## 0.0.2-alpha.2
+
+### Patch Changes
+
+- [#339](https://github.com/bnb-chain/greenfield-js-sdk/pull/339)
+  [`6aaf062`](https://github.com/bnb-chain/greenfield-js-sdk/commit/6aaf06274a6acb692f6c87d2fb4f819e98814f8b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add vite template
+
 ## 0.0.2-alpha.1
 
 ### Patch Changes
