@@ -35,7 +35,7 @@ export async function createApp({
   }
 
   /* eslint-disable-next-line no-console */
-  console.log(`Creating a new Greenfield app in ${green(root)}.`);
+  console.log(`Creating a new Greenfield app in ${green(appName)}.`);
   process.chdir(root);
 
   startSpinner('downloading template...');
