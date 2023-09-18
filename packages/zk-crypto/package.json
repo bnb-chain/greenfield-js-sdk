@@ -29,7 +29,20 @@
     "dist",
     "types"
   ],
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnb-chain/greenfield-js-sdk",
+    "directory": "packages/zk-crypto"
+  },
+  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/tree/alpha/packages/zk-crypto#readme",
+  "bugs": "https://github.com/bnb-chain/greenfield-js-sdk/issues",
+  "keywords": [
+    "greenfiled",
+    "crypto",
+    "signature",
+    "EDDSA",
+    "ECDSA"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {

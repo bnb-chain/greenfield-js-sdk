@@ -29,7 +29,17 @@
     "test": "jest --runInBand",
     "lint": "prettier --write './src/*.{ts,tsx,js,jsx}' && eslint ./src/ --ext .js,.jsx,.ts,.tsx --fix"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnb-chain/greenfield-js-sdk",
+    "directory": "packages/js-sdk"
+  },
+  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/tree/alpha/packages/js-sdk#readme",
+  "bugs": "https://github.com/bnb-chain/greenfield-js-sdk/issues",
+  "keywords": [
+    "greenfiled",
+    "js-sdk"
+  ],
   "author": "",
   "license": "GPLv3",
   "engines": {
