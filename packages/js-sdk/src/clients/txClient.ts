@@ -29,7 +29,7 @@ import {
   SimulateOptions,
   TxResponse,
 } from '..';
-import { RpcQueryClient } from '../clients/queryclient';
+import { RpcQueryClient } from './queryclient';
 import { DEFAULT_DENOM, ZERO_PUBKEY } from '../constants';
 import {
   createEIP712,

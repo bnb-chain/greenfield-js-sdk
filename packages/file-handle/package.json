@@ -21,7 +21,17 @@
     "build": "webpack",
     "test": ""
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnb-chain/greenfield-js-sdk",
+    "directory": "packages/file-handle"
+  },
+  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/tree/alpha/packages/file-handle#readme",
+  "bugs": "https://github.com/bnb-chain/greenfield-js-sdk/issues",
+  "keywords": [
+    "greenfiled",
+    "checksums"
+  ],
   "author": "",
   "license": "GPLv3",
   "engines": {
