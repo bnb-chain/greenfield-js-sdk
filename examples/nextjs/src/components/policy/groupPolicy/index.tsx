@@ -28,7 +28,7 @@ export const GroupPolicy = () => {
           const statement: PermissionTypes.Statement = {
             effect: PermissionTypes.Effect.EFFECT_ALLOW,
             actions: [PermissionTypes.ActionType.ACTION_UPDATE_GROUP_MEMBER],
-            resources: [''],
+            resources: [],
           };
 
           const tx = await client.group.putGroupPolicy(address, policyGroupInfo.groupName, {

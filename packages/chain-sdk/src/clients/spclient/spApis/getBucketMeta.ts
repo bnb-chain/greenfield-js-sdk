@@ -1,8 +1,26 @@
-import { GetBucketMetaResponse } from '@/types';
-import { formatBucketInfo } from '@/types/sp-xml/Common';
+import { GetBucketMetaRequest, GetBucketMetaResponse } from '@/types';
+import { formatBucketInfo } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
+import { getSortQueryParams } from '../auth';
+import { SPMetaInfo } from './metaInfos';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_bucket_meta
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_bucket_meta
+export const getBucketMetaInfo = (
+  endpoint: string,
+  params: GetBucketMetaRequest,
+): Pick<SPMetaInfo, 'url'> => {
+  const path = `/${params.bucketName}`;
+  const queryMap = {
+    'bucket-meta': '',
+  };
+  let url = new URL(path, endpoint);
+  url = getSortQueryParams(url, queryMap);
+
+  return {
+    url: url.href,
+  };
+};
+
 export const parseGetBucketMetaResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,

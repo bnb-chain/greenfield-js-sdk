@@ -1,23 +1,37 @@
 import { encodePath, getMsgToSign, getSortQuery, secpSign } from '@/clients/spclient/auth';
+import { getApprovalMetaInfo } from '@/clients/spclient/spApis/approval';
 import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
-import { parseGetObjectMetaResponse } from '@/clients/spclient/spApis/getObjectMeta';
+import {
+  getObjectMetaInfo,
+  parseGetObjectMetaResponse,
+} from '@/clients/spclient/spApis/getObjectMeta';
+import {
+  getListObjectPoliciesMetaInfo,
+  parseGetListObjectPoliciesResponse,
+} from '@/clients/spclient/spApis/listObjectPolicies';
 import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
-import { parseListObjectsByIdsResponse } from '@/clients/spclient/spApis/listObjectsByIds';
-import { getObjectApprovalMetaInfo } from '@/clients/spclient/spApis/objectApproval';
+import {
+  getListObjectsByIDsMetaInfo,
+  parseListObjectsByIdsResponse,
+} from '@/clients/spclient/spApis/listObjectsByIds';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
+import { TxClient } from '@/clients/txClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
 import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
 import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
 import { signSignatureByEddsa } from '@/offchainauth';
-import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp-xml/GetObjectMetaResponse';
-import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
+import { GetObjectRequest } from '@/types/sp/GetObject';
+import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp/GetObjectMeta';
+import { ListObjectsByBucketNameResponse } from '@/types/sp/ListObjectsByBucketName';
+import { PutObjectRequest } from '@/types/sp/PutObject';
 import {
   ActionType,
   Principal,
   PrincipalType,
+  principalTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   redundancyTypeFromJSON,
@@ -42,7 +56,7 @@ import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { hexlify } from '@ethersproject/bytes';
 import { Headers } from 'cross-fetch';
 import { bytesToUtf8, hexToBytes, utf8ToBytes } from 'ethereum-cryptography/utils';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   GRNToString,
   MsgCancelCreateObjectTypeUrl,
@@ -54,16 +68,15 @@ import {
 import { RpcQueryClient } from '../clients/queryclient';
 import { AuthType, SpClient } from '../clients/spclient/spClient';
 import {
-  ICreateObjectMsgType,
-  IObjectResultType,
+  CreateObjectApprovalRequest,
+  CreateObjectApprovalResponse,
+  GetListObjectPoliciesRequest,
+  GetPrivewObject,
+  ListObjectsByBucketNameRequest,
+  ListObjectsByIDsRequest,
   ListObjectsByIDsResponse,
   Long,
-  TBaseGetCreateObject,
-  TBaseGetObject,
-  TBaseGetPrivewObject,
-  TBasePutObject,
-  TListObjects,
-  TListObjectsByIDsRequest,
+  SpResponse,
   TxResponse,
 } from '../types';
 import {
@@ -72,19 +85,21 @@ import {
   isValidObjectName,
   isValidUrl,
 } from '../utils/s3';
-import { Basic } from './basic';
 import { Sp } from './sp';
 import { Storage } from './storage';
 
 export interface IObject {
   getCreateObjectApproval(
-    configParam: TBaseGetCreateObject,
+    configParam: CreateObjectApprovalRequest,
     authType: AuthType,
-  ): Promise<IObjectResultType<string>>;
+  ): Promise<SpResponse<string>>;
 
-  createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType): Promise<TxResponse>;
+  createObject(
+    getApprovalParams: CreateObjectApprovalRequest,
+    authType: AuthType,
+  ): Promise<TxResponse>;
 
-  uploadObject(configParam: TBasePutObject, authType: AuthType): Promise<IObjectResultType<null>>;
+  uploadObject(configParam: PutObjectRequest, authType: AuthType): Promise<SpResponse<null>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
@@ -101,21 +116,24 @@ export interface IObject {
   /**
    * get s3 object's blob
    */
-  getObject(configParam: TBaseGetObject, authType: AuthType): Promise<IObjectResultType<Blob>>;
+  getObject(configParam: GetObjectRequest, authType: AuthType): Promise<SpResponse<Blob>>;
 
-  getObjectPreviewUrl(configParam: TBaseGetPrivewObject, authType: AuthType): Promise<string>;
+  getObjectPreviewUrl(configParam: GetPrivewObject, authType: AuthType): Promise<string>;
 
   /**
    * download s3 object
    */
-  downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void>;
+  downloadFile(configParam: GetObjectRequest, authType: AuthType): Promise<void>;
 
   listObjects(
-    configParam: TListObjects,
-  ): Promise<IObjectResultType<ListObjectsByBucketNameResponse>>;
+    configParam: ListObjectsByBucketNameRequest,
+  ): Promise<SpResponse<ListObjectsByBucketNameResponse>>;
 
   createFolder(
-    getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    getApprovalParams: Omit<
+      CreateObjectApprovalRequest,
+      'contentLength' | 'fileType' | 'expectCheckSums'
+    >,
     authType: AuthType,
   ): Promise<TxResponse>;
 
@@ -131,6 +149,7 @@ export interface IObject {
     bucketName: string,
     objectName: string,
     principalAddr: string,
+    principalType: keyof typeof PrincipalType,
   ): Promise<TxResponse>;
 
   isObjectPermissionAllowed(
@@ -146,19 +165,19 @@ export interface IObject {
     principalAddr: string,
   ): Promise<QueryPolicyForAccountResponse>;
 
-  getObjectMeta(params: GetObjectMetaRequest): Promise<IObjectResultType<GetObjectMetaResponse>>;
+  getObjectMeta(params: GetObjectMetaRequest): Promise<SpResponse<GetObjectMetaResponse>>;
 
-  listObjectsByIds(
-    params: TListObjectsByIDsRequest,
-  ): Promise<IObjectResultType<ListObjectsByIDsResponse>>;
+  listObjectsByIds(params: ListObjectsByIDsRequest): Promise<SpResponse<ListObjectsByIDsResponse>>;
+
+  listObjectPolicies(params: GetListObjectPoliciesRequest): Promise<any>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }
 
-@singleton()
+@injectable()
 export class Objectt implements IObject {
   constructor(
-    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => TxClient)) private txClient: TxClient,
     @inject(delay(() => Storage)) private storage: Storage,
     @inject(delay(() => Sp)) private sp: Sp,
   ) {}
@@ -166,7 +185,7 @@ export class Objectt implements IObject {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
 
-  public async getCreateObjectApproval(params: TBaseGetCreateObject, authType: AuthType) {
+  public async getCreateObjectApproval(params: CreateObjectApprovalRequest, authType: AuthType) {
     const {
       bucketName,
       creator,
@@ -194,21 +213,22 @@ export class Objectt implements IObject {
       if (!endpoint) {
         endpoint = await this.sp.getSPUrlByBucket(bucketName);
       }
-      const { reqMeta, optionsWithOutHeaders, url } = await getObjectApprovalMetaInfo(endpoint, {
-        bucket_name: bucketName,
-        content_type: fileType,
-        creator: creator,
-        expect_checksums: expectCheckSums,
-        object_name: objectName,
-        payload_size: contentLength.toString(),
-        primary_sp_approval: {
-          expired_height: '0',
-          global_virtual_group_family_id: 0,
-          sig: null,
-        },
-        redundancy_type: redundancyType,
-        visibility,
-      });
+      const { reqMeta, optionsWithOutHeaders, url } =
+        getApprovalMetaInfo<CreateObjectApprovalResponse>(endpoint, 'CreateObject', {
+          bucket_name: bucketName,
+          content_type: fileType,
+          creator: creator,
+          expect_checksums: expectCheckSums,
+          object_name: objectName,
+          payload_size: contentLength.toString(),
+          primary_sp_approval: {
+            expired_height: '0',
+            global_virtual_group_family_id: 0,
+            sig: null,
+          },
+          redundancy_type: redundancyType,
+          visibility,
+        });
 
       const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
@@ -228,7 +248,7 @@ export class Objectt implements IObject {
       const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
       const signedMsg = JSON.parse(
         bytesToUtf8(hexToBytes(signedMsgString)),
-      ) as ICreateObjectMsgType;
+      ) as CreateObjectApprovalResponse;
 
       return {
         code: 0,
@@ -246,8 +266,8 @@ export class Objectt implements IObject {
     }
   }
 
-  private async createObjectTx(msg: MsgCreateObject, signedMsg: ICreateObjectMsgType) {
-    return await this.basic.tx(
+  private async createObjectTx(msg: MsgCreateObject, signedMsg: CreateObjectApprovalResponse) {
+    return await this.txClient.tx(
       MsgCreateObjectTypeUrl,
       msg.creator,
       MsgCreateObjectSDKTypeEIP712,
@@ -265,7 +285,7 @@ export class Objectt implements IObject {
     );
   }
 
-  public async createObject(getApprovalParams: TBaseGetCreateObject, authType: AuthType) {
+  public async createObject(getApprovalParams: CreateObjectApprovalRequest, authType: AuthType) {
     const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams, authType);
     if (!signedMsg) {
       throw new Error('Get create object approval error');
@@ -291,9 +311,9 @@ export class Objectt implements IObject {
   }
 
   public async uploadObject(
-    params: TBasePutObject,
+    params: PutObjectRequest,
     authType: AuthType,
-  ): Promise<IObjectResultType<null>> {
+  ): Promise<SpResponse<null>> {
     const { bucketName, objectName, txnHash, body, duration = 30000 } = params;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
@@ -340,7 +360,7 @@ export class Objectt implements IObject {
   }
 
   public async cancelCreateObject(msg: MsgCancelCreateObject) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgCancelCreateObjectTypeUrl,
       msg.operator,
       MsgCancelCreateObjectSDKTypeEIP712,
@@ -350,7 +370,7 @@ export class Objectt implements IObject {
   }
 
   public async deleteObject(msg: MsgDeleteObject) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDeleteObjectTypeUrl,
       msg.operator,
       MsgDeleteObjectSDKTypeEIP712,
@@ -360,7 +380,7 @@ export class Objectt implements IObject {
   }
 
   public async updateObjectInfo(msg: MsgUpdateObjectInfo) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgUpdateObjectInfoTypeUrl,
       msg.operator,
       MsgUpdateObjectInfoSDKTypeEIP712,
@@ -391,7 +411,7 @@ export class Objectt implements IObject {
     return await rpc.HeadObjectNFT(request);
   }
 
-  public async getObject(params: TBaseGetObject, authType: AuthType) {
+  public async getObject(params: GetObjectRequest, authType: AuthType) {
     try {
       const { bucketName, objectName, duration = 30000 } = params;
       if (!isValidBucketName(bucketName)) {
@@ -448,7 +468,7 @@ export class Objectt implements IObject {
     }
   }
 
-  public async getObjectPreviewUrl(params: TBaseGetPrivewObject, authType: AuthType) {
+  public async getObjectPreviewUrl(params: GetPrivewObject, authType: AuthType) {
     const { bucketName, objectName, queryMap } = params;
     if (!isValidBucketName(bucketName)) {
       throw new Error('Error bucket name');
@@ -487,7 +507,7 @@ export class Objectt implements IObject {
     return `${url}?Authorization=${encodeURIComponent(authorization)}&${queryRaw}`;
   }
 
-  public async downloadFile(configParam: TBaseGetObject, authType: AuthType): Promise<void> {
+  public async downloadFile(configParam: GetObjectRequest, authType: AuthType): Promise<void> {
     try {
       const { objectName } = configParam;
       const getObjectResult = await this.getObject(configParam, authType);
@@ -514,7 +534,7 @@ export class Objectt implements IObject {
     }
   }
 
-  public async listObjects(configParam: TListObjects) {
+  public async listObjects(configParam: ListObjectsByBucketNameRequest) {
     try {
       const { bucketName, endpoint, duration = 30000, query = new URLSearchParams() } = configParam;
       if (!isValidBucketName(bucketName)) {
@@ -564,7 +584,10 @@ export class Objectt implements IObject {
   }
 
   public async createFolder(
-    getApprovalParams: Omit<TBaseGetCreateObject, 'contentLength' | 'fileType' | 'expectCheckSums'>,
+    getApprovalParams: Omit<
+      CreateObjectApprovalRequest,
+      'contentLength' | 'fileType' | 'expectCheckSums'
+    >,
     authType: AuthType,
   ) {
     if (!getApprovalParams.objectName.endsWith('/')) {
@@ -582,7 +605,7 @@ export class Objectt implements IObject {
       const { contentLength, expectCheckSums } = hashResult;
      */
 
-    const params: TBaseGetCreateObject = {
+    const params: CreateObjectApprovalRequest = {
       bucketName: getApprovalParams.bucketName,
       objectName: getApprovalParams.objectName,
       contentLength: 0,
@@ -648,10 +671,11 @@ export class Objectt implements IObject {
     bucketName: string,
     objectName: string,
     principalAddr: string,
+    principalType: keyof typeof PrincipalType,
   ) {
     const resource = GRNToString(newObjectGRN(bucketName, objectName));
     const principal: Principal = {
-      type: PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+      type: principalTypeFromJSON(principalType),
       value: principalAddr,
     };
 
@@ -672,12 +696,8 @@ export class Objectt implements IObject {
       throw new Error('Error object name');
     }
 
-    const queryMap = {
-      'object-meta': '',
-    };
-    const query = getSortQuery(queryMap);
-    const path = encodePath(objectName);
-    const url = `${generateUrlByBucketName(endpoint, bucketName)}/${path}?${query}`;
+    const { url } = getObjectMetaInfo(endpoint, params);
+
     const result = await this.spClient.callApi(url, {
       method: METHOD_GET,
     });
@@ -693,12 +713,10 @@ export class Objectt implements IObject {
     };
   }
 
-  public async listObjectsByIds(params: TListObjectsByIDsRequest) {
+  public async listObjectsByIds(params: ListObjectsByIDsRequest) {
     try {
-      const { ids } = params;
-
       const sp = await this.sp.getInServiceSP();
-      const url = `${sp.endpoint}?objects-query=null&ids=${ids.join(',')}`;
+      const { url } = getListObjectsByIDsMetaInfo(sp.endpoint, params);
 
       const result = await this.spClient.callApi(
         url,
@@ -735,5 +753,28 @@ export class Objectt implements IObject {
         statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };
     }
+  }
+
+  public async listObjectPolicies(params: GetListObjectPoliciesRequest) {
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(params.bucketName);
+    }
+    const { url } = getListObjectPoliciesMetaInfo(endpoint, params);
+
+    const result = await this.spClient.callApi(url, {
+      headers: {},
+      method: METHOD_GET,
+    });
+
+    const xml = await result.text();
+    const res = parseGetListObjectPoliciesResponse(xml);
+
+    return {
+      code: 0,
+      message: 'success',
+      statusCode: result.status,
+      body: res,
+    };
   }
 }

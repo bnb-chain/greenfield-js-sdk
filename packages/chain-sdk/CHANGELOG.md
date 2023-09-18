@@ -1,5 +1,205 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.5
+
+### Patch Changes
+
+- [#324](https://github.com/bnb-chain/greenfield-js-sdk/pull/324)
+  [`f3a7ce8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f3a7ce8f06d6bedf5e07bccccc4ada7676e79f2a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: New Bucket API: `headBucketExtra`
+
+- [#319](https://github.com/bnb-chain/greenfield-js-sdk/pull/319)
+  [`ec4297d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ec4297da042e1b7c656d26b65d56fe52ac80365f)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add vg settle api
+
+- [#317](https://github.com/bnb-chain/greenfield-js-sdk/pull/317)
+  [`910c0cc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/910c0cc7ab7267e67b9cb59b702b70b0d1364c2b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Distribution api
+
+- [#302](https://github.com/bnb-chain/greenfield-js-sdk/pull/302)
+  [`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Sp types
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Validator API - editValidator
+
+- [#308](https://github.com/bnb-chain/greenfield-js-sdk/pull/308)
+  [`4acdb91`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4acdb919f4c2d7764c670f97c26a5b9cca8c962e)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Update Deps
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`b13fba4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b13fba46d5df93bcaa643cd79aeea7dd4128feee)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: TxClient and QueryClient is not singleton
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`c7f9ef3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c7f9ef355e57bcc17a46b96655d8f36ba54dffa8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add sp `ListObjectPolicies` API
+
+- [#314](https://github.com/bnb-chain/greenfield-js-sdk/pull/314)
+  [`06b933a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/06b933aa6a2ecb285c3511e06de0dfb93d38c40e)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: All class use injectable
+
+- [#305](https://github.com/bnb-chain/greenfield-js-sdk/pull/305)
+  [`bea0466`](https://github.com/bnb-chain/greenfield-js-sdk/commit/bea04668309bb4a769b68e9eab4f193ad2ef1d4b)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Sp metainfo
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`609f4cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/609f4cdbeccd289cd4080c0994aa2eb24bfa6eb2)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: `getUserBuckets` -> `listBuckets`, and
+  response add vgf(includes `Id` and `PrimarySpId`)
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Proposal vote api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: ListUserPaymentAccount api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Bucket listBucketsByPaymentAccount api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: basic.multi -> txClient.multi
+
+- [#332](https://github.com/bnb-chain/greenfield-js-sdk/pull/332)
+  [`88acc61`](https://github.com/bnb-chain/greenfield-js-sdk/commit/88acc61ef8e9826a9805a56f92d6321985a07e9a)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Delete Policy
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`780e2ef`](https://github.com/bnb-chain/greenfield-js-sdk/commit/780e2efdfbc0d168c791c82e724ad96504050169)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: PutPolicy if resource is empty use `[]` not
+  `['']`
+
+- [#330](https://github.com/bnb-chain/greenfield-js-sdk/pull/330)
+  [`56a263e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/56a263ec0a39844d967ce99a7b58165cc686a16c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Custom any tx by raw info
+
+- Updated dependencies
+  [[`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274)]:
+  - @bnb-chain/greenfield-zk-crypto@0.0.3
+
+## 0.2.5-alpha.9
+
+### Patch Changes
+
+- [#332](https://github.com/bnb-chain/greenfield-js-sdk/pull/332)
+  [`88acc61`](https://github.com/bnb-chain/greenfield-js-sdk/commit/88acc61ef8e9826a9805a56f92d6321985a07e9a)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Delete Policy
+
+## 0.2.5-alpha.8
+
+### Patch Changes
+
+- [#330](https://github.com/bnb-chain/greenfield-js-sdk/pull/330)
+  [`56a263e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/56a263ec0a39844d967ce99a7b58165cc686a16c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Custom any tx by raw info
+
+## 0.2.5-alpha.7
+
+### Patch Changes
+
+- [#324](https://github.com/bnb-chain/greenfield-js-sdk/pull/324)
+  [`f3a7ce8`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f3a7ce8f06d6bedf5e07bccccc4ada7676e79f2a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: New Bucket API: `headBucketExtra`
+
+## 0.2.5-alpha.6
+
+### Patch Changes
+
+- [#319](https://github.com/bnb-chain/greenfield-js-sdk/pull/319)
+  [`ec4297d`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ec4297da042e1b7c656d26b65d56fe52ac80365f)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: add vg settle api
+
+## 0.2.5-alpha.5
+
+### Patch Changes
+
+- [#317](https://github.com/bnb-chain/greenfield-js-sdk/pull/317)
+  [`910c0cc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/910c0cc7ab7267e67b9cb59b702b70b0d1364c2b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Distribution api
+
+## 0.2.5-alpha.4
+
+### Patch Changes
+
+- [#314](https://github.com/bnb-chain/greenfield-js-sdk/pull/314)
+  [`06b933a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/06b933aa6a2ecb285c3511e06de0dfb93d38c40e)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: All class use injectable
+
+## 0.2.5-alpha.3
+
+### Patch Changes
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`b13fba4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b13fba46d5df93bcaa643cd79aeea7dd4128feee)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: TxClient and QueryClient is not singleton
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`c7f9ef3`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c7f9ef355e57bcc17a46b96655d8f36ba54dffa8)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add sp `ListObjectPolicies` API
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`609f4cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/609f4cdbeccd289cd4080c0994aa2eb24bfa6eb2)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: `getUserBuckets` -> `listBuckets`, and
+  response add vgf(includes `Id` and `PrimarySpId`)
+
+- [#312](https://github.com/bnb-chain/greenfield-js-sdk/pull/312)
+  [`780e2ef`](https://github.com/bnb-chain/greenfield-js-sdk/commit/780e2efdfbc0d168c791c82e724ad96504050169)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: PutPolicy if resource is empty use `[]` not
+  `['']`
+
+## 0.2.5-alpha.2
+
+### Patch Changes
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Validator API - editValidator
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Proposal vote api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: ListUserPaymentAccount api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Bucket listBucketsByPaymentAccount api
+
+- [#310](https://github.com/bnb-chain/greenfield-js-sdk/pull/310)
+  [`695379e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/695379edeaa480afed7e91cb9cf1b381c7fc5f68)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: basic.multi -> txClient.multi
+
+## 0.2.5-alpha.1
+
+### Patch Changes
+
+- [#308](https://github.com/bnb-chain/greenfield-js-sdk/pull/308)
+  [`4acdb91`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4acdb919f4c2d7764c670f97c26a5b9cca8c962e)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Update Deps
+
+- [#305](https://github.com/bnb-chain/greenfield-js-sdk/pull/305)
+  [`bea0466`](https://github.com/bnb-chain/greenfield-js-sdk/commit/bea04668309bb4a769b68e9eab4f193ad2ef1d4b)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Sp metainfo
+
+## 0.2.5-alpha.0
+
+### Patch Changes
+
+- [#302](https://github.com/bnb-chain/greenfield-js-sdk/pull/302)
+  [`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: Sp types
+
+- Updated dependencies
+  [[`f0d69c9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f0d69c9f6614bfbf799d199c4a530b5f0d4d1274)]:
+  - @bnb-chain/greenfield-zk-crypto@0.0.3-alpha.0
+
 ## 0.2.4
 
 ### Patch Changes

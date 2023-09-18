@@ -1,8 +1,32 @@
-import { ListGroupsResponse } from '@/types';
-import { formatGroupInfo, convertStrToBool } from '@/types/sp-xml/Common';
+import { ListGroupsResponse, ListGroupsResquest } from '@/types';
+import { formatGroupInfo, convertStrToBool } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
+import { getSortQueryParams } from '../auth';
+import { SPMetaInfo } from './metaInfos';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_group_list
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_group_list
+export const getListGroupMetaInfo = (
+  endpoint: string,
+  params: ListGroupsResquest,
+): Pick<SPMetaInfo, 'url'> => {
+  const { name, prefix, sourceType, limit, offset } = params;
+  const path = '/';
+  const queryMap = {
+    'group-query': 'null',
+    name,
+    prefix,
+    'source-type': sourceType as string,
+    limit: String(limit),
+    offset: String(offset),
+  };
+  let url = new URL(path, endpoint);
+  url = getSortQueryParams(url, queryMap);
+
+  return {
+    url: url.href,
+  };
+};
+
 export const parseListGroupsResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,

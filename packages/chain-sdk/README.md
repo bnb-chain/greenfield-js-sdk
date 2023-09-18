@@ -27,7 +27,7 @@ Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
 The SDK consists of two parts:
 
 * Chain: https://docs.bnbchain.org/greenfield-docs/docs/api/blockchain-rest
-* Storage Provider: https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest
+* Storage Provider: https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest
 
 ## Chain
 
@@ -114,7 +114,7 @@ Examples:
 
 > https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest
 
-SDK support two [authentication type](https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest#authentication-type):
+SDK support two [authentication type](https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest#authentication-type):
 
 * ECDSA: It is usually used on Node.js(Because it need to use a private key)
 * EDDSA: It is usually used in a browser
@@ -163,4 +163,16 @@ const bucketQuota = await client.bucket.getBucketReadQuota(
     privateKey: '0x....'
   },
 );
+```
+
+#### Support Custom Http Request
+
+It's actually an HTTP request, we use `fetch` by default, and if you want to use another http library like `axios`, we'll construct it for you as well.
+
+```js
+// custom upload object
+const { PUT_OBJECT: getPutObjectMetaInfo } = client.spClient.getMetaInfo(endpoint, payload);
+const {reqMeta, url} = await getPutObjectMetaInfo(endpoint, params);
+
+axios.put(...)
 ```

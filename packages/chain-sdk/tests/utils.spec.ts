@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { encodePath } from '../clients/spclient/auth';
+import { encodePath } from '../src/clients/spclient/auth';
 
 describe('encodePaths', () => {
   it('encode english chars', () => {

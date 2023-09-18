@@ -3,7 +3,7 @@ import { ReqMeta } from '@/types';
 import { generateUrlByBucketName } from '@/utils/s3';
 import { encodePath } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_object
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_object
 export const getGetObjectMetaInfo = async (
   endpoint: string,
   params: {
@@ -14,7 +14,8 @@ export const getGetObjectMetaInfo = async (
   const { bucketName, objectName } = params;
   const path = `/${encodePath(objectName)}`;
   const query = '';
-  const url = generateUrlByBucketName(endpoint, bucketName) + path;
+
+  const url = new URL(path, generateUrlByBucketName(endpoint, bucketName));
 
   const reqMeta: Partial<ReqMeta> = {
     contentSHA256: EMPTY_STRING_SHA256,
@@ -32,7 +33,7 @@ export const getGetObjectMetaInfo = async (
   };
 
   return {
-    url,
+    url: url.href,
     optionsWithOutHeaders,
     reqMeta,
   };

@@ -1,3 +1,4 @@
+import { TxClient } from '@/clients/txClient';
 import { MsgMultiSendSDKTypeEIP712 } from '@/messages/bank/MsgMultiSend';
 import { MsgSendSDKTypeEIP712 } from '@/messages/bank/MsgSend';
 import { MsgCreatePaymentAccountSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgCreatePaymentAccount';
@@ -11,20 +12,15 @@ import {
   QueryBalanceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/query';
 import { MsgMultiSend, MsgSend } from '@bnb-chain/greenfield-cosmos-types/cosmos/bank/v1beta1/tx';
-import {
-  QueryPaymentAccountRequest,
-  QueryPaymentAccountResponse,
-  QueryPaymentAccountsByOwnerResponse,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
+import { QueryPaymentAccountsByOwnerResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { MsgCreatePaymentAccount } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   MsgCreatePaymentAccountTypeUrl,
   MsgMultiSendTypeUrl,
   MsgSendTypeUrl,
   TxResponse,
 } from '..';
-import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IAccount {
@@ -37,11 +33,6 @@ export interface IAccount {
    * retrieves balance information of an account for a given address.
    */
   getAccountBalance(request: QueryBalanceRequest): Promise<QueryBalanceResponse>;
-
-  /**
-   * takes an address string as parameters and returns a pointer to a paymentTypes.
-   */
-  getPaymentAccount(request: QueryPaymentAccountRequest): Promise<QueryPaymentAccountResponse>;
 
   getModuleAccounts(): Promise<QueryModuleAccountsResponse>;
 
@@ -65,14 +56,14 @@ export interface IAccount {
   multiTransfer(address: string, msg: MsgMultiSend): Promise<TxResponse>;
 }
 
-@singleton()
+@injectable()
 export class Account implements IAccount {
-  constructor(@inject(delay(() => Basic)) private basic: Basic) {}
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
 
   private queryClient = container.resolve(RpcQueryClient);
 
   public async multiTransfer(address: string, msg: MsgMultiSend) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgMultiSendTypeUrl,
       address,
       MsgMultiSendSDKTypeEIP712,
@@ -82,7 +73,7 @@ export class Account implements IAccount {
   }
 
   public async createPaymentAccount(msg: MsgCreatePaymentAccount) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgCreatePaymentAccountTypeUrl,
       msg.creator,
       MsgCreatePaymentAccountSDKTypeEIP712,
@@ -110,13 +101,6 @@ export class Account implements IAccount {
     return await rpc.ModuleAccounts();
   }
 
-  public async getPaymentAccount(
-    request: QueryPaymentAccountRequest,
-  ): Promise<QueryPaymentAccountResponse> {
-    const rpc = await this.queryClient.getPaymentQueryClient();
-    return await rpc.PaymentAccount(request);
-  }
-
   public async getAccountBalance(request: QueryBalanceRequest): Promise<QueryBalanceResponse> {
     const rpc = await this.queryClient.getBankQueryClient();
     return await rpc.Balance(request);
@@ -131,7 +115,7 @@ export class Account implements IAccount {
   }
 
   public async transfer(msg: MsgSend) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgSendTypeUrl,
       msg.fromAddress,
       MsgSendSDKTypeEIP712,

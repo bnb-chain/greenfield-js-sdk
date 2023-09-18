@@ -1,5 +1,8 @@
 import { encodePath, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
-import { parseListGroupsResponse } from '@/clients/spclient/spApis/listGroups';
+import {
+  getListGroupMetaInfo,
+  parseListGroupsResponse,
+} from '@/clients/spclient/spApis/listGroups';
 import { parseListGroupsMembersResponse } from '@/clients/spclient/spApis/listGroupsMembers';
 import { parseListUserGroupsResponse } from '@/clients/spclient/spApis/listUserGroups';
 import { parseListUserOwnedGroupsResponse } from '@/clients/spclient/spApis/listUserOwnedGroups';
@@ -7,7 +10,7 @@ import { parseError } from '@/clients/spclient/spApis/parseError';
 import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
 import { SpClient } from '@/clients/spclient/spClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
-import { ListUserOwnedGroupsResponse } from '@/types/sp-xml/ListUserOwnedGroupsResponse';
+import { ListUserOwnedGroupsResponse } from '@/types/sp/ListUserOwnedGroups';
 import { actionTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   QueryGlobalSpStorePriceByTimeRequest,
@@ -21,17 +24,17 @@ import {
   QueryStorageProviderMaintenanceRecordsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
 import { Status, StorageProvider } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/types';
-import { container, singleton } from 'tsyringe';
-import {
-  IObjectResultType,
+import { container, injectable } from 'tsyringe';
+import type {
+  ListGroupsMembersRequest,
   ListGroupsMembersResponse,
   ListGroupsResponse,
+  ListGroupsResquest,
   ListUserGroupsResponse,
-  TListGroups,
-  TListGroupsMembersRequest,
-  TListUserGroupRequest,
-  TListUserOwnedGroupRequest,
-  TVerifyPermissionRequest,
+  ListUserGroupsResquest,
+  ListUserOwnedGroupsRequest,
+  SpResponse,
+  VerifyPermissionRequest,
   VerifyPermissionResponse,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
@@ -78,17 +81,17 @@ export interface ISp {
 
   params(): Promise<QueryParamsResponse>;
 
-  listGroups(params: TListGroups): Promise<IObjectResultType<ListGroupsResponse>>;
+  listGroups(params: ListGroupsResquest): Promise<SpResponse<ListGroupsResponse>>;
 
   listGroupsMembers(
-    params: TListGroupsMembersRequest,
-  ): Promise<IObjectResultType<ListGroupsMembersResponse>>;
+    params: ListGroupsMembersRequest,
+  ): Promise<SpResponse<ListGroupsMembersResponse>>;
 
-  listUserGroups(params: TListUserGroupRequest): Promise<IObjectResultType<ListUserGroupsResponse>>;
+  listUserGroups(params: ListUserGroupsResquest): Promise<SpResponse<ListUserGroupsResponse>>;
 
   listUserOwnedGroups(
-    params: TListUserOwnedGroupRequest,
-  ): Promise<IObjectResultType<ListUserOwnedGroupsResponse>>;
+    params: ListUserOwnedGroupsRequest,
+  ): Promise<SpResponse<ListUserOwnedGroupsResponse>>;
 
   getSPUrlByBucket(bucketName: string): Promise<string>;
 
@@ -96,12 +99,10 @@ export interface ISp {
 
   getSPUrlById(primaryId: number): Promise<string>;
 
-  verifyPermission(
-    params: TVerifyPermissionRequest,
-  ): Promise<IObjectResultType<VerifyPermissionResponse>>;
+  verifyPermission(params: VerifyPermissionRequest): Promise<SpResponse<VerifyPermissionResponse>>;
 }
 
-@singleton()
+@injectable()
 export class Sp implements ISp {
   private bucket = container.resolve(Bucket);
   private queryClient = container.resolve(RpcQueryClient);
@@ -183,9 +184,9 @@ export class Sp implements ISp {
     return spList[0];
   }
 
-  public async listGroups(params: TListGroups) {
+  public async listGroups(params: ListGroupsResquest) {
     try {
-      const { name, prefix, sourceType, limit, offset } = params;
+      const { name, prefix } = params;
 
       let res: ListGroupsResponse = {
         GfSpGetGroupListResponse: {
@@ -203,7 +204,7 @@ export class Sp implements ISp {
       }
 
       const sp = await this.getInServiceSP();
-      const url = `${sp.endpoint}?group-query=null&name=${name}&prefix=${prefix}&source-type=${sourceType}&limit=${limit}&offset=${offset}`;
+      const { url } = getListGroupMetaInfo(sp.endpoint, params);
 
       const result = await this.spClient.callApi(
         url,
@@ -242,7 +243,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async verifyPermission(params: TVerifyPermissionRequest) {
+  public async verifyPermission(params: VerifyPermissionRequest) {
     try {
       const { action, bucketName, objectName, operator } = params;
 
@@ -290,7 +291,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async listGroupsMembers(params: TListGroupsMembersRequest) {
+  public async listGroupsMembers(params: ListGroupsMembersRequest) {
     try {
       const { groupId, limit, startAfter } = params;
       const sp = await this.getInServiceSP();
@@ -340,7 +341,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async listUserGroups(params: TListUserGroupRequest) {
+  public async listUserGroups(params: ListUserGroupsResquest) {
     try {
       const { address, limit, startAfter } = params;
       const sp = await this.getInServiceSP();
@@ -393,7 +394,7 @@ export class Sp implements ISp {
     }
   }
 
-  public async listUserOwnedGroups(params: TListUserOwnedGroupRequest) {
+  public async listUserOwnedGroups(params: ListUserOwnedGroupsRequest) {
     try {
       const { address, limit, startAfter } = params;
       const sp = await this.getInServiceSP();

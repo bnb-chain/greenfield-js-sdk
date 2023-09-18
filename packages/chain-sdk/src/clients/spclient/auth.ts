@@ -49,7 +49,6 @@ export const getAuthorization = async (
 ) => {
   const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);
   const signedHeaders = getSignedHeaders(reqHeaders);
-
   const canonicalRequestArr = [
     reqMeta.method,
     reqMeta.url?.path,
@@ -92,13 +91,23 @@ export const newRequestHeadersByMeta = (meta: Partial<ReqMeta>) => {
     headers.set(HTTPHeaderUnsignedMsg.toLocaleLowerCase(), meta.unsignMsg);
   }
 
-  const date = new Date();
-  // NOTICE: Smoothing local and server time gap
-  date.setSeconds(date.getSeconds() + 200);
-  headers.set(HTTPHeaderDate.toLocaleLowerCase(), formatDate(date));
+  if (meta.userAddress) {
+    headers.set(HTTPHeaderUserAddress, meta.userAddress);
+  }
 
-  date.setDate(date.getDate() + 6);
-  headers.set(HTTPHeaderExpiryTimestamp.toLocaleLowerCase(), formatDate(date));
+  const date = new Date();
+  if (meta.date) {
+    headers.set(HTTPHeaderDate.toLocaleLowerCase(), formatDate(meta.date));
+  } else {
+    headers.set(HTTPHeaderDate.toLocaleLowerCase(), formatDate(date));
+  }
+
+  if (meta.expiryTimestamp) {
+    headers.set(HTTPHeaderExpiryTimestamp.toLocaleLowerCase(), formatDate(meta.expiryTimestamp));
+  } else {
+    date.setHours(date.getHours() + 2);
+    headers.set(HTTPHeaderExpiryTimestamp.toLocaleLowerCase(), formatDate(date));
+  }
 
   return headers;
 };
@@ -122,7 +131,7 @@ export const HTTPHeaderContentType = 'Content-Type';
 export const HTTPHeaderContentMD5 = 'Content-MD5';
 export const HTTPHeaderUnsignedMsg = 'X-Gnfd-Unsigned-Msg';
 export const HTTPHeaderUserAddress = 'X-Gnfd-User-Address';
-// const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain';
+export const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain';
 
 const SUPPORTED_HEADERS = [
   HTTPHeaderContentSHA256.toLocaleLowerCase(),
@@ -209,4 +218,14 @@ export const getSortQuery = (queryMap: Record<string, string>) => {
   queryParams.sort();
 
   return queryParams.toString();
+};
+
+export const getSortQueryParams = (url: URL, queryMap: Record<string, string>) => {
+  // const queryParams = new URLSearchParams();
+  for (const k in queryMap) {
+    url.searchParams.append(k, queryMap[k]);
+  }
+  url.searchParams.sort();
+
+  return url;
 };

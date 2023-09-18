@@ -1,3 +1,4 @@
+import { TxClient } from '@/clients/txClient';
 import { MsgGrantAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgGrantAllowance';
 import { MsgRevokeAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgRevokeAllowance';
 import {
@@ -12,7 +13,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/feegrant/v1beta1/tx';
 import { base64FromBytes } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { arrayify } from '@ethersproject/bytes';
-import { container, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   encodeToHex,
   IGrantAllowance,
@@ -24,7 +25,6 @@ import {
   newMsgGrantAllowance,
   TxResponse,
 } from '..';
-import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IFeeGrant {
@@ -37,9 +37,9 @@ export interface IFeeGrant {
   getAllowences(request: QueryAllowancesRequest): Promise<QueryAllowancesResponse>;
 }
 
-@singleton()
+@injectable()
 export class FeeGrant implements IFeeGrant {
-  private basic: Basic = container.resolve(Basic);
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async grantAllowance(params: IGrantAllowance) {
@@ -50,7 +50,7 @@ export class FeeGrant implements IFeeGrant {
     const grantAllowance = newMsgGrantAllowance(grantee, granter, allowedMsgAllowance);
     const marshal = newMarshal(amount, denom, allowedMessages, expirationTime);
 
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgGrantAllowanceTypeUrl,
       granter,
       MsgGrantAllowanceSDKTypeEIP712,
@@ -66,7 +66,7 @@ export class FeeGrant implements IFeeGrant {
   }
 
   public async revokeAllowance(msg: MsgRevokeAllowance) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgRevokeAllowanceTypeUrl,
       msg.granter,
       MsgRevokeAllowanceSDKTypeEIP712,

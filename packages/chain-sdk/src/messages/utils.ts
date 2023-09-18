@@ -3,6 +3,8 @@ import mapValues from 'lodash.mapvalues';
 import sortBy from 'lodash.sortby';
 import { MetaTxInfo } from '..';
 
+export type EIP712Msg = Record<string, Array<{ type: string; name: string }>>;
+
 export const typeWrapper = (type: string, msg: object) => {
   return {
     ...msg,

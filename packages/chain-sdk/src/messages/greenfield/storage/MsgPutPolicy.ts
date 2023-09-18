@@ -1,4 +1,20 @@
-export const MsgPutPolicySDKTypeEIP712 = {
+import type { EIP712Msg } from '@/messages/utils';
+import cloneDeep from 'lodash.clonedeep';
+
+export const getMsgPutPolicySDKTypeEIP712 = (resource: string[]) => {
+  const res: EIP712Msg = cloneDeep(MsgPutPolicySDKTypeEIP712);
+
+  if (resource.length !== 0) {
+    res.TypeMsg1Statements.push({
+      name: 'resources',
+      type: 'string[]',
+    });
+  }
+
+  return res;
+};
+
+const MsgPutPolicySDKTypeEIP712 = {
   Msg1: [
     {
       name: 'type',
@@ -37,20 +53,20 @@ export const MsgPutPolicySDKTypeEIP712 = {
   ],
   TypeMsg1Statements: [
     {
-      name: 'effect',
-      type: 'string',
-    },
-    {
       name: 'actions',
       type: 'string[]',
     },
     {
-      name: 'resources',
-      type: 'string[]',
+      name: 'effect',
+      type: 'string',
     },
     {
       name: 'expiration_time',
       type: 'string',
     },
+    // {
+    //   name: 'resources',
+    //   type: 'string[]',
+    // },
   ],
 };

@@ -1,8 +1,15 @@
-import { GetUserBucketsResponse } from '@/types';
-import { convertStrToBool, formatBucketInfo } from '@/types/sp-xml/Common';
+import type { GetUserBucketsResponse } from '@/types';
+import { convertStrToBool, formatBucketInfo, formatVGF } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
+import { SPMetaInfo } from './metaInfos';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/get_user_buckets
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_user_buckets
+export const getUserBucketMetaInfo = (endpoint: string): Pick<SPMetaInfo, 'url'> => {
+  return {
+    url: endpoint,
+  };
+};
+
 export const parseGetUserBucketsResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,
@@ -24,6 +31,7 @@ export const parseGetUserBucketsResponse = async (data: string) => {
         DeleteAt: Number(item.DeleteAt),
         UpdateAt: Number(item.UpdateAt),
         UpdateTime: Number(item.UpdateTime),
+        Vgf: formatVGF(item.Vgf),
       };
     });
   }

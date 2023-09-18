@@ -1,22 +1,25 @@
 import {
   getAuthorization,
+  HTTPHeaderAppDomain,
   HTTPHeaderAuthorization,
+  HTTPHeaderUserAddress,
   newRequestHeadersByMeta,
 } from '@/clients/spclient/auth';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { ReqMeta } from '@/types/auth';
-import { Headers } from 'cross-fetch';
-import { singleton } from 'tsyringe';
+import { injectable } from 'tsyringe';
+import { getGetObjectMetaInfo } from './spApis/getObject';
+import { getPutObjectMetaInfo } from './spApis/putObject';
 
 /**
- * V1
+ * ECDSA Signature
  */
 export type ECDSA = {
   type: 'ECDSA';
   privateKey: string;
 };
 /**
- * OffChainAuth
+ * EDDSA Signature
  */
 export type EDDSA = {
   type: 'EDDSA';
@@ -38,9 +41,24 @@ export interface ISpClient {
   ): Promise<Response>;
 
   signHeaders(reqMeta: Partial<ReqMeta>, authType: AuthType): Promise<Headers>;
+
+  /**
+   *
+   * ```
+   * const { PUT_OBJECT: getPutObjectMetaInfo } = client.spClient.getMetaInfo(endpoint, payload);
+   * const {reqMeta, url} = await getPutObjectMetaInfo(endpoint, params);
+   *
+   * axios.put(...)
+   * ```
+   *
+   */
+  getMetaInfo(): {
+    PUT_OBJECT: typeof getPutObjectMetaInfo;
+    GET_OBJECT: typeof getGetObjectMetaInfo;
+  };
 }
 
-@singleton()
+@injectable()
 export class SpClient implements ISpClient {
   public async callApi(
     url: string,
@@ -80,15 +98,23 @@ export class SpClient implements ISpClient {
 
   public async signHeaders(reqMeta: Partial<ReqMeta>, authType: AuthType) {
     const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
+
     if (authType.type === 'EDDSA') {
       const { domain, address } = authType;
-      metaHeaders.append('X-Gnfd-User-Address', address);
-      metaHeaders.append('X-Gnfd-App-Domain', domain);
+      metaHeaders.set(HTTPHeaderUserAddress, address);
+      metaHeaders.set(HTTPHeaderAppDomain, domain);
     }
 
     const auth = await getAuthorization(reqMeta, metaHeaders, authType);
     metaHeaders.set(HTTPHeaderAuthorization, auth);
 
     return metaHeaders;
+  }
+
+  public getMetaInfo() {
+    return {
+      PUT_OBJECT: getPutObjectMetaInfo,
+      GET_OBJECT: getGetObjectMetaInfo,
+    };
   }
 }

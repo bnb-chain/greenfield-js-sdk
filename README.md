@@ -10,38 +10,46 @@ You can find some package documentation below:
 | [@bnb-chain/greenfield-js-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain |
 | [@bnb-chain/greenfiled-file-handle](./packages/file-handle/README.md) | WASM module that handle file, such as `checksums` |
 | [@bnb-chain/greenfield-zk-crypto](./packages/zk-crypto/README.md) | WASM module about sign crypto |
+| [@bnb-chain/create-gnfd-app](./packages/create-gnfd-app/README.md) | Create Greenfield App Quickly |
 
-## Document
-[Document](./packages/chain-sdk/README.md)
+## Online Examples
 
-## Examples
+* [Nextjs](https://codesandbox.io/p/github/rrr523/greenfield-nextjs-template/main)
+* [Create React App](https://codesandbox.io/p/github/rrr523/greenfield-cra-template/main)
+* [Vite](https://codesandbox.io/p/github/rrr523/greenfield-vite-template/main)
 
-There are runnable examples included in the [examples](./examples/) folder
+## Quick Start
+
+You can use [`create-gnfd-app`](./packages/create-gnfd-app/README.md) to create a app quickly.
+
+```bash
+> npx @bnb-chain/create-gnfd-app
+```
+
+![](./packages/create-gnfd-app/example.gif)
+
+
+<!-- There are runnable examples included in the [examples](./examples/) folder
 
 * [Next.js Example(TypeScript)](./examples/nextjs/README.md)
-* [Nodejs](./examples/nodejs/README.md)
+* [Nodejs](./examples/nodejs/README.md) -->
 
-### Try in Stackblitz
 
-You can try out some examples directly in your browser through Stackblitz:
+<!-- 
+1. Clone the project and install dependencies:
 
-* [Next.js Exmaple(Typescript)](https://stackblitz.com/edit/github-kikred?file=src%2Fpages%2Ftx.tsx)
-
-### Running Examples Locally
-
-Clone the project and install dependencies:
 ```bash
 > git clone git@github.com:bnb-chain/greenfield-js-sdk.git
 > cd greenfield-js-sdk
 > pnpm install
 ```
 
-and build package:
+2. Build package:
 ```bash
-> pnpm run -r build
+> pnpm run -F "./packages/**" -r build
 ```
 
-and then copy env template file:
+3. copy env template file:
 ```bash
 > cp .env.simple .env
 ```
@@ -59,13 +67,12 @@ NEXT_PUBLIC_TOKEN_HUB_CONTRACT_ADDRESS=
 NEXT_PUBLIC_CROSS_CHAIN_CONTRACT_ADDRESS=
 ```
 
-> The contract address may be outdated due to Greenfield reset, refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list get the latest contract address.
+> The contract address may be outdated due to Greenfield reset, refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list get the latest contract address. -->
 
-
-abd then run example:
+<!-- abd then run example:
 ```bash
 > npx next dev
-```
+``` -->
 
 ## Supported JS environments
 

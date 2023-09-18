@@ -1,3 +1,5 @@
+import { TxClient } from '@/clients/txClient';
+import { MsgSettleSDKTypeEIP712 } from '@/messages/greenfield/virtualgroup/MsgSettle';
 import {
   QueryGlobalVirtualGroupByFamilyIDRequest,
   QueryGlobalVirtualGroupByFamilyIDResponse,
@@ -9,7 +11,9 @@ import {
   QueryGlobalVirtualGroupResponse,
   QueryParamsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/query';
-import { container, singleton } from 'tsyringe';
+import { MsgSettle } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/tx';
+import { container, delay, inject, injectable } from 'tsyringe';
+import { MsgSettleTypeUrl, TxResponse } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 
 export interface IVirtualGroup {
@@ -30,10 +34,13 @@ export interface IVirtualGroup {
   getGlobalVirtualGroupFamily(
     request: QueryGlobalVirtualGroupFamilyRequest,
   ): Promise<QueryGlobalVirtualGroupFamilyResponse>;
+
+  settle(address: string, msg: MsgSettle): Promise<TxResponse>;
 }
 
-@singleton()
+@injectable()
 export class VirtualGroup implements IVirtualGroup {
+  constructor(@inject(delay(() => TxClient)) private txClient: TxClient) {}
   private queryClient = container.resolve(RpcQueryClient);
 
   public async params() {
@@ -59,5 +66,15 @@ export class VirtualGroup implements IVirtualGroup {
   public async getGlobalVirtualGroupFamily(request: QueryGlobalVirtualGroupFamilyRequest) {
     const rpc = await this.queryClient.getVirtualGroupClient();
     return await rpc.GlobalVirtualGroupFamily(request);
+  }
+
+  public async settle(address: string, msg: MsgSettle) {
+    return await this.txClient.tx(
+      MsgSettleTypeUrl,
+      address,
+      MsgSettleSDKTypeEIP712,
+      MsgSettle.toSDK(msg),
+      MsgSettle.encode(msg).finish(),
+    );
   }
 }

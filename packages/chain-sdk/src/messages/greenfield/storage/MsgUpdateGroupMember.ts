@@ -1,3 +1,4 @@
+import type { EIP712Msg } from '@/messages/utils';
 import { MsgGroupMember } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import cloneDeep from 'lodash.clonedeep';
 
@@ -8,9 +9,7 @@ export const getMsgUpdateGroupMemberSDKTypeEIP712 = ({
   membersToAdd: MsgGroupMember[];
   membersToDelete: string[];
 }) => {
-  const res: Record<string, Array<{ type: string; name: string }>> = cloneDeep(
-    MsgUpdateGroupMemberSDKTypeEIP712,
-  );
+  const res: EIP712Msg = cloneDeep(MsgUpdateGroupMemberSDKTypeEIP712);
 
   if (membersToAdd.length > 0) {
     res.Msg1.push({

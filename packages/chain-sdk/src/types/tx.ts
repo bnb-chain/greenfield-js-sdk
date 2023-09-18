@@ -44,3 +44,22 @@ export type TxResponse = {
   broadcast: (opts: Readonly<BroadcastOptions>) => Promise<DeliverTxResponse>;
   metaTxInfo: MetaTxInfo;
 };
+
+export type CustomTx = {
+  /**
+   * account
+   */
+  address: string;
+  /**
+   * txRaw infomation (hex string)
+   */
+  txRawHex: string;
+  /**
+   * EIP712 structure
+   */
+  eip712MsgType: object;
+  /**
+   * tx message
+   */
+  msgData: object;
+};

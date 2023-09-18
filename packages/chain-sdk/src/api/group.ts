@@ -1,3 +1,4 @@
+import { TxClient } from '@/clients/txClient';
 import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateGroup';
 import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
 import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
@@ -22,7 +23,7 @@ import {
   MsgUpdateGroupExtra,
   MsgUpdateGroupMember,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { container, delay, inject, singleton } from 'tsyringe';
+import { container, delay, inject, injectable } from 'tsyringe';
 import {
   fromTimestamp,
   MsgCreateGroupTypeUrl,
@@ -32,7 +33,6 @@ import {
   MsgUpdateGroupMemberTypeUrl,
   TxResponse,
 } from '..';
-import { Basic } from './basic';
 import { RpcQueryClient } from '../clients/queryclient';
 import { Storage } from './storage';
 
@@ -98,17 +98,17 @@ export interface IGroup {
   ): Promise<TxResponse>;
 }
 
-@singleton()
+@injectable()
 export class Group implements IGroup {
   constructor(
-    @inject(delay(() => Basic)) private basic: Basic,
+    @inject(delay(() => TxClient)) private txClient: TxClient,
     @inject(delay(() => Storage)) private storage: Storage,
   ) {}
 
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async createGroup(msg: MsgCreateGroup) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgCreateGroupTypeUrl,
       msg.creator,
       MsgCreateGroupSDKTypeEIP712,
@@ -118,7 +118,7 @@ export class Group implements IGroup {
   }
 
   public async deleteGroup(msg: MsgDeleteGroup) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDeleteGroupTypeUrl,
       msg.operator,
       MsgDeleteGroupSDKTypeEIP712,
@@ -136,7 +136,7 @@ export class Group implements IGroup {
       throw new Error('no update member');
     }
 
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgUpdateGroupMemberTypeUrl,
       msg.operator,
       getMsgUpdateGroupMemberSDKTypeEIP712({
@@ -157,7 +157,7 @@ export class Group implements IGroup {
   }
 
   public async updateGroupExtra(msg: MsgUpdateGroupExtra) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgUpdateGroupExtraTypeUrl,
       msg.operator,
       MsgUpdateGroupExtraSDKTypeEIP712,
@@ -167,7 +167,7 @@ export class Group implements IGroup {
   }
 
   public async leaveGroup(address: string, msg: MsgLeaveGroup) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgLeaveGroupTypeUrl,
       address,
       MsgLeaveGroupSDKTypeEIP712,

@@ -1,8 +1,8 @@
-import { convertStrToBool, formatObjectInfo } from '@/types/sp-xml/Common';
-import { ListObjectsByBucketNameResponse } from '@/types/sp-xml/ListObjectsByBucketNameResponse';
+import { convertStrToBool, formatObjectInfo } from '@/types/sp/Common';
+import { ListObjectsByBucketNameResponse } from '@/types/sp/ListObjectsByBucketName';
 import { XMLParser } from 'fast-xml-parser';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storgae-provider-rest/list_objects_by_bucket
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_objects_by_bucket
 export const parseListObjectsByBucketNameResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,

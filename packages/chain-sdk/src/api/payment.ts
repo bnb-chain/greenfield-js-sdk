@@ -1,39 +1,56 @@
+import {
+  getListUserPaymentAccountMetaInfo,
+  parseListUserPaymentAccountResponse,
+} from '@/clients/spclient/spApis/listUserPaymentAccounts';
+import { AuthType, SpClient } from '@/clients/spclient/spClient';
+import { TxClient } from '@/clients/txClient';
 import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
 import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
 import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
 import {
   QueryAutoSettleRecordsRequest,
   QueryAutoSettleRecordsResponse,
-  QueryPaymentAccountCountsRequest,
-  QueryPaymentAccountCountsResponse,
-  QueryPaymentAccountsRequest,
-  QueryPaymentAccountsResponse,
-  QueryStreamRecordsRequest,
-  QueryStreamRecordsResponse,
   QueryDynamicBalanceRequest,
   QueryDynamicBalanceResponse,
+  QueryGetStreamRecordResponse,
+  QueryOutFlowsRequest,
+  QueryOutFlowsResponse,
+  QueryParamsByTimestampRequest,
+  QueryParamsByTimestampResponse,
+  QueryParamsResponse,
   QueryPaymentAccountCountRequest,
   QueryPaymentAccountCountResponse,
+  QueryPaymentAccountCountsRequest,
+  QueryPaymentAccountCountsResponse,
   QueryPaymentAccountRequest,
   QueryPaymentAccountResponse,
   QueryPaymentAccountsByOwnerRequest,
   QueryPaymentAccountsByOwnerResponse,
-  QueryGetStreamRecordResponse,
-  QueryParamsByTimestampRequest,
-  QueryParamsByTimestampResponse,
-  QueryParamsResponse,
-  QueryOutFlowsRequest,
-  QueryOutFlowsResponse,
+  QueryPaymentAccountsRequest,
+  QueryPaymentAccountsResponse,
+  QueryStreamRecordsRequest,
+  QueryStreamRecordsResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import {
   MsgDeposit,
   MsgDisableRefund,
   MsgWithdraw,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
-import { container, singleton } from 'tsyringe';
-import { MsgDepositTypeUrl, MsgDisableRefundTypeUrl, MsgWithdrawTypeUrl, TxResponse } from '..';
-import { Basic } from './basic';
+import { container, delay, inject, injectable } from 'tsyringe';
+import {
+  MsgDepositTypeUrl,
+  MsgDisableRefundTypeUrl,
+  MsgWithdrawTypeUrl,
+  NORMAL_ERROR_CODE,
+  SpResponse,
+  TxResponse,
+} from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import {
+  ListUserPaymentAccountsResponse,
+  ListUserPaymentAccountsResquest,
+} from '../types/sp/ListUserPaymentAccounts';
+import { Sp } from './sp';
 
 export interface IPayment {
   /**
@@ -92,11 +109,20 @@ export interface IPayment {
   ): Promise<QueryAutoSettleRecordsResponse>;
 
   getOutFlows(request: QueryOutFlowsRequest): Promise<QueryOutFlowsResponse>;
+
+  listUserPaymentAccounts(
+    params: ListUserPaymentAccountsResquest,
+    authType: AuthType,
+  ): Promise<SpResponse<ListUserPaymentAccountsResponse>>;
 }
 
-@singleton()
+@injectable()
 export class Payment implements IPayment {
-  private basic: Basic = container.resolve(Basic);
+  constructor(
+    @inject(delay(() => TxClient)) private txClient: TxClient,
+    @inject(delay(() => Sp)) private sp: Sp,
+  ) {}
+  private spClient = container.resolve(SpClient);
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async getStreamRecord(account: string) {
@@ -162,7 +188,7 @@ export class Payment implements IPayment {
   }
 
   public async deposit(msg: MsgDeposit) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDepositTypeUrl,
       msg.creator,
       MsgDepositSDKTypeEIP712,
@@ -172,7 +198,7 @@ export class Payment implements IPayment {
   }
 
   public async withdraw(msg: MsgWithdraw) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgWithdrawTypeUrl,
       msg.creator,
       MsgWithdrawSDKTypeEIP712,
@@ -182,12 +208,49 @@ export class Payment implements IPayment {
   }
 
   public async disableRefund(msg: MsgDisableRefund) {
-    return await this.basic.tx(
+    return await this.txClient.tx(
       MsgDisableRefundTypeUrl,
       msg.owner,
       MsgDisableRefundSDKTypeEIP712,
       MsgDisableRefund.toSDK(msg),
       MsgDisableRefund.encode(msg).finish(),
     );
+  }
+
+  public async listUserPaymentAccounts(
+    params: ListUserPaymentAccountsResquest,
+    authType: AuthType,
+  ) {
+    try {
+      const sp = await this.sp.getInServiceSP();
+
+      const { url, optionsWithOutHeaders, reqMeta } = getListUserPaymentAccountMetaInfo(
+        sp.endpoint,
+        params,
+      );
+
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+      const result = await this.spClient.callApi(url, {
+        ...optionsWithOutHeaders,
+        headers: signHeaders,
+      });
+
+      const xml = await result.text();
+      const res = parseListUserPaymentAccountResponse(xml);
+
+      return {
+        code: 0,
+        message: 'Get bucket success.',
+        statusCode: result.status,
+        body: res,
+      };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
   }
 }

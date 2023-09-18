@@ -36,7 +36,7 @@ export const MultiMsg = () => {
 
             console.log(transferOutTx.metaTxInfo);
 
-            const txs = await client.basic.multiTx([transferTx, transferOutTx]);
+            const txs = await client.txClient.multiTx([transferTx, transferOutTx]);
 
             const simuluateInfo = await txs.simulate({
               denom: 'BNB',
