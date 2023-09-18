@@ -1,5 +1,15 @@
 # @demo/wallet
 
+## 0.0.7-alpha.0
+
+### Patch Changes
+
+- Updated dependencies
+  [[`00a2cdd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/00a2cddf98623c59780b6f8a8892674124d910c9),
+  [`10c5723`](https://github.com/bnb-chain/greenfield-js-sdk/commit/10c572370abfa76c30c5f2f4b288cbc76efed6b1)]:
+  - @bnb-chain/greenfiled-file-handle@0.2.2-alpha.0
+  - @bnb-chain/greenfield-js-sdk@0.2.6-alpha.0
+
 ## 0.0.6
 
 ### Patch Changes

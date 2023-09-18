@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfiled-file-handle",
-  "version": "0.2.1",
+  "version": "0.2.2-alpha.0",
   "description": "checksums wasm package",
   "module": "./dist/browser/esm/index.js",
   "main": "./dist/node/index.js",

@@ -1,5 +1,17 @@
 # @bnb-chain/zk-crypto
 
+## 0.0.4-alpha.0
+
+### Patch Changes
+
+- [#346](https://github.com/bnb-chain/greenfield-js-sdk/pull/346)
+  [`00a2cdd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/00a2cddf98623c59780b6f8a8892674124d910c9)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Update package.json
+
+- [#347](https://github.com/bnb-chain/greenfield-js-sdk/pull/347)
+  [`10c5723`](https://github.com/bnb-chain/greenfield-js-sdk/commit/10c572370abfa76c30c5f2f4b288cbc76efed6b1)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Update deps
+
 ## 0.0.3
 
 ### Patch Changes
