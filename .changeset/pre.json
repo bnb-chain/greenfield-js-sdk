@@ -9,5 +9,8 @@
     "@bnb-chain/greenfiled-file-handle": "0.2.1",
     "@bnb-chain/greenfield-zk-crypto": "0.0.3"
   },
-  "changesets": []
+  "changesets": [
+    "great-teachers-thank",
+    "tame-pandas-deny"
+  ]
 }
