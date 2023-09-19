@@ -8,10 +8,10 @@ You can find some package documentation below:
 
 | Package | Description | Version | 
 | --- | --- | --- |
-| [@bnb-chain/greenfield-js-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain | ![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfield-js-sdk?color=blue) |
-| [@bnb-chain/greenfiled-file-handle](./packages/file-handle/README.md) | WASM module that handle file, such as `checksums` | ![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfiled-file-handle?color=blue) |
-| [@bnb-chain/greenfield-zk-crypto](./packages/zk-crypto/README.md) | WASM module about sign crypto | ![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfield-zk-crypto?color=blue) |
-| [@bnb-chain/create-gnfd-app](./packages/create-gnfd-app/README.md) | Create Greenfield App Quickly | ![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fcreate-gnfd-app?color=blue) |
+| [@bnb-chain/greenfield-js-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfield-js-sdk?color=blue)](https://www.npmjs.com/package/@bnb-chain/greenfield-js-sdk) |
+| [@bnb-chain/greenfiled-file-handle](./packages/file-handle/README.md) | WASM module that handle file, such as `checksums` | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfiled-file-handle?color=blue)](https://www.npmjs.com/package/@bnb-chain/greenfiled-file-handle) |
+| [@bnb-chain/greenfield-zk-crypto](./packages/zk-crypto/README.md) | WASM module about sign crypto | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfield-zk-crypto?color=blue)](https://www.npmjs.com/package/@bnb-chain/greenfield-zk-crypto) |
+| [@bnb-chain/create-gnfd-app](./packages/create-gnfd-app/README.md) | Create Greenfield App Quickly | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fcreate-gnfd-app?color=blue)](https://www.npmjs.com/package/@bnb-chain/create-gnfd-app) |
 
 ## Online Examples
 
