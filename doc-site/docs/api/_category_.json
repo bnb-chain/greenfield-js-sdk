@@ -1,0 +1,14 @@
+{
+  "position": 2,
+  "label": "API",
+  "collapsible": true,
+  "collapsed": true,
+  "className": "red",
+  "link": {
+    "type": "generated-index",
+    "title": "API"
+  },
+  "customProps": {
+    "description": ""
+  }
+}

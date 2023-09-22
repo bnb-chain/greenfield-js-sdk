@@ -35,15 +35,15 @@ const config = {
 
   presets: [
     [
-      'classic',
+      '@docusaurus/preset-classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/bnb-chain/greenfield-js-sdk/tree/docs_sit/doc-site/',
         },
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -63,19 +63,12 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
-          {
-            type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Tutorial',
-          },
           // {
           //   type: 'docSidebar',
-          //   sidebarId: 'apiSidebar',
+          //   sidebarId: 'GettingStartSidebar',
           //   position: 'left',
-          //   label: 'API',
+          //   label: 'Getting Started',
           // },
-          // { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: 'https://github.com/bnb-chain/greenfield-js-sdk',
             label: 'GitHub',
@@ -90,8 +83,8 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/overview',
+                label: 'Getting Started',
+                to: '/docs/getting-started',
               },
             ],
           },
