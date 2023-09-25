@@ -73,6 +73,9 @@ export interface IGroup {
     member: string,
   ): Promise<QueryHeadGroupMemberResponse>;
 
+  /**
+   * @deprecated
+   */
   listGroup(request: QueryListGroupsRequest): Promise<QueryListGroupsResponse>;
 
   headGroupNFT(request: QueryNFTRequest): Promise<QueryGroupNFTResponse>;

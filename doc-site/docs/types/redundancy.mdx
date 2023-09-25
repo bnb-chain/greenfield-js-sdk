@@ -1,0 +1,15 @@
+---
+id: redundancy
+title: RedundancyType
+---
+
+RedundancyType represents the redundancy algorithm type for object data, which can be either
+multi-replica or erasure coding.
+
+```tsx
+export enum RedundancyType {
+  REDUNDANCY_EC_TYPE = 0,
+  REDUNDANCY_REPLICA_TYPE = 1,
+  UNRECOGNIZED = -1,
+}
+```
