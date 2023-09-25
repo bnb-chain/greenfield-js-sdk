@@ -1,0 +1,68 @@
+---
+id: virtual-group
+title: 'VirtualGroup'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## getGlobalVirtualGroup <ApiTypes type="Query" />
+
+| params               | description      |
+| -------------------- | ---------------- |
+| globalVirtualGroupId | virtual group id |
+
+```jsx title="example"
+await client.virtualGroup.getGlobalVirtualGroup({
+  globalVirtualGroupId: 11,
+});
+```
+
+## getGlobalVirtualGroupByFamilyID <ApiTypes type="Query" />
+
+Query the virtual group family by ID.
+
+Virtual group family(VGF) serve as a means of grouping global virtual groups. Each bucket must be
+associated with a unique global virtual group family and cannot cross families.
+
+| params                     | description |
+| -------------------------- | ----------- |
+| globalVirtualGroupFamilyId | VGF id      |
+
+```jsx title="example"
+await client.virtualGroup.getGlobalVirtualGroupByFamilyID({
+  globalVirtualGroupFamilyId: 11,
+});
+```
+
+## getGlobalVirtualGroupFamily <ApiTypes type="Query" />
+
+| params   | description |
+| -------- | ----------- |
+| familyId | family id   |
+
+```jsx title="example"
+await client.virtualGroup.getGlobalVirtualGroupFamily({
+  familyId: 11,
+});
+```
+
+## getGlobalVirtualGroupFamilies <ApiTypes type="Query" />
+
+Get All global virtual group families.
+
+| params     | description                     |
+| ---------- | ------------------------------- |
+| pagination | [Pagination](/types/pagination) |
+
+```jsx title="example"
+await client.virtualGroup.getGlobalVirtualGroupFamilies({
+  pagination: {
+    countTotal: true,
+    key: Uint8Array.from([]),
+    limit: Long.fromInt(10),
+    offset: Long.fromInt(0),
+    reverse: false,
+  },
+});
+```

@@ -1,0 +1,114 @@
+---
+id: account
+title: 'Account'
+---
+
+import Tx from '../../src/components/snippers/tx.mdx';
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+
+## getAccount <ApiTypes type="Query" />
+
+Retrieve on-chain account information for a given address.
+
+| params  | description                      |
+| ------- | -------------------------------- |
+| address | The given address for retrieving |
+
+```jsx title="example"
+await client.getAccount('0x0000000000000000000000000000000000000001');
+```
+
+## getAccountBalance <ApiTypes type="Query" />
+
+Get the bank balance for the given address.
+
+| params  | description                          |
+| ------- | ------------------------------------ |
+| address | the address to query balances for    |
+| denom   | the coin denom to query balances for |
+
+```jsx title="example"
+await client.getAccountBalance({
+  address: '0x0000000000000000000000000000000000000001',
+  denom: 'BNB',
+});
+```
+
+## getModuleAccounts <ApiTypes type="Query" />
+
+Get all module accounts.
+
+```jsx title="example"
+await client.getModuleAccounts();
+```
+
+## getModuleAccountByName <ApiTypes type="Query" />
+
+Get module account by module name.
+
+| params | description                       |
+| ------ | --------------------------------- |
+| name   | the address to query balances for |
+
+```jsx title="example"
+await client.getModuleAccountByName('module_name');
+```
+
+## getPaymentAccountsByOwner <ApiTypes type="Query" />
+
+Get all payment accounts owned by the given owner address.
+
+| params  | description                                    |
+| ------- | ---------------------------------------------- |
+| address | The given owner account address for retrieving |
+
+```jsx title="example"
+await client.getPaymentAccountsByOwner('0x0000000000000000000000000000000000000001');
+```
+
+## createPaymentAccount <ApiTypes type="Tx" />
+
+<Tx />
+
+Create a new payment account for the given address.
+
+The payment account is used to pay for the storage and read quota fee of objects. When you need to
+pay for different buckets separately, you can create different payment accounts to do so. Note that
+the payment account does not have a private key, and only the owner of the payment account can
+withdraw funds from it. Once the owner revokes permission for withdrawal, the funds in the payment
+account can only be utilized to cover storage and read quota fees.
+
+| params  | description                                  |
+| ------- | -------------------------------------------- |
+| creator | The owner address of the new payment account |
+
+```jsx title="example"
+const tx = await client.account.createPaymentAccount({
+  creator: address,
+});
+```
+
+## transfer <ApiTypes type="Tx" />
+
+<Tx />
+
+Transfer BNB from sender to receiver.
+
+| params      | description                          |
+| ----------- | ------------------------------------ |
+| fromAddress | The address who will send the BNB    |
+| toAddress   | The address who will receive the BNB |
+| amount      | transfer coin                        |
+
+```jsx title="example"
+const tx = await client.account.transfer({
+  fromAddress: '0x0000000000000000000000000000000000000000',
+  toAddress: '0x0000000000000000000000000000000000000001',
+  amount: [
+    {
+      denom: 'BNB',
+      amount: '1000000000',
+    },
+  ],
+});
+```

@@ -1,0 +1,108 @@
+---
+id: payment
+title: 'Payment'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## getStreamRecord <ApiTypes type="Query" />
+
+Retrieve stream record information for a given stream address.
+
+| params  | description                                     |
+| ------- | ----------------------------------------------- |
+| account | The address of the stream record to be queried. |
+
+```jsx title="example"
+await client.payment.getStreamRecord('0x...');
+```
+
+## deposit <ApiTypes type="Tx" />
+
+Deposit BNB to a payment account.
+
+| params  | description                                                 |
+| ------- | ----------------------------------------------------------- | ------------------ |
+| to      | payment address of the stream record to receive the deposit |
+| creator |                                                             | operator's account |
+| amount  | the amount to deposit                                       |
+
+```jsx title="example"
+const tx = await client.payment.deposit({
+  amount: '1000000000',
+  creator: '0x...',
+  to: '0x...',
+});
+```
+
+<Tx />
+
+## withdraw <ApiTypes type="Tx" />
+
+Withdraws BNB from a payment account.
+
+Withdrawal will trigger settlement, i.e., updating static balance and buffer balance. If the
+withdrawal amount is greater than the static balance after settlement it will fail. If the
+withdrawal amount is equal to or greater than 100BNB, it will be timelock-ed for 1 day duration. And
+after the duration, a message without `from` field should be sent to get the funds.
+
+| params  | description            |
+| ------- | ---------------------- |
+| creator | operator's account     |
+| amount  | the amount to withdraw |
+| from    | payment address        |
+
+```jsx title="example"
+const tx = await client.payment.withdraw({
+  amount: '100000000',
+  creator: '0x...',
+  from: '0x..',
+});
+```
+
+<Tx />
+
+## disableRefund <ApiTypes type="Tx" />
+
+Disable refund/withdrawal for a payment account. After disabling withdrawal of a payment account, no
+more withdrawal can be executed. The action cannot be reverted.
+
+| params | description      |
+| ------ | ---------------- |
+| owner  | operator address |
+| addr   | payment address  |
+
+```jsx title="example"
+const tx = await client.payment.disableRefund({
+  owner: address,
+  addr: paymentAccount,
+});
+```
+
+<Tx />
+
+## listUserPaymentAccounts <ApiTypes type="Storage Provider" />
+
+list user payment info.
+
+| params   | description                            |
+| -------- | -------------------------------------- |
+| account  | the address of user                    |
+| authType | [AuthType](/client/sp-client#authtype) |
+
+```jsx title="example"
+const res = await client.payment.listUserPaymentAccounts(
+  {
+    account: address,
+  },
+  {
+    type: 'EDDSA',
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+    address,
+  },
+);
+```
+
+List payment info by a user address.

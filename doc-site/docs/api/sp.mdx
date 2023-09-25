@@ -1,0 +1,106 @@
+---
+id: sp
+title: 'Sp'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## getStorageProviders <ApiTypes type="Query" />
+
+List the storage providers info on chain.
+
+```jsx title="example"
+await client.sp.getStorageProviders();
+```
+
+## getStorageProviderInfo <ApiTypes type="Query" />
+
+Get the specified storage providers info on chain.
+
+| params | description |
+| ------ | ----------- |
+| spId   | sp's id     |
+
+```jsx title="example"
+await client.sp.getStorageProviderInfo(1);
+```
+
+## getQuerySpStoragePrice <ApiTypes type="Query" />
+
+Get the storage price details for a particular storage provider, including update time, read price,
+store price and .etc.
+
+| params | description            |
+| ------ | ---------------------- |
+| spAddr | operator address of sp |
+
+```jsx title="example"
+await client.sp.getQuerySpStoragePrice({
+  spAddr: '0x..',
+});
+```
+
+<!-- ## getQueryGlobalSpStorePriceByTime <ApiTypes type="Query" />
+
+Get the global storage price details, including update time and store price. -->
+
+<!-- ## getStorageProviderByOperatorAddress <ApiTypes type="Query" />
+
+## getStorageProviderMaintenanceRecordsByOperatorAddress <ApiTypes type="Query" /> -->
+
+## listGroups <ApiTypes type="Storage Provider" />
+
+Get the group list by name and prefix. It provides fuzzy searches by inputting a specific name and
+prefix.
+
+More details:
+https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_group_list.
+
+```jsx title="example"
+await client.sp.listGroups({
+  name: groupName,
+  prefix: '',
+  sourceType: 'SOURCE_TYPE_ORIGIN',
+  limit: 1000,
+  offset: 0,
+});
+```
+
+## listGroupsMembers <ApiTypes type="Storage Provider" />
+
+Query a list of group members by a given group id.
+
+| params  | description |
+| ------- | ----------- |
+| groupId | group id    |
+
+```jsx title="example"
+await client.sp.listGroupsMembers({
+  groupId: 269,
+});
+```
+
+## listUserGroups <ApiTypes type="Storage Provider" />
+
+Query a list of groups by a given user.
+
+```jsx title="example"
+await client.sp.listUserGroups({
+  address: '0x000..',
+  limit: 10,
+  startAfter: '0',
+});
+```
+
+## listUserOwnedGroups <ApiTypes type="Storage Provider" />
+
+Retrieve groups where the user is the owner.
+
+```jsx title="example"
+await client.sp.listUserOwnedGroups({
+  address: '0x000..',
+  limit: 10,
+  startAfter: '0',
+});
+```

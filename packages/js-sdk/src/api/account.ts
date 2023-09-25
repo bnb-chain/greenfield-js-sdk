@@ -34,15 +34,24 @@ export interface IAccount {
    */
   getAccountBalance(request: QueryBalanceRequest): Promise<QueryBalanceResponse>;
 
+  /**
+   * Get all module accounts.
+   */
   getModuleAccounts(): Promise<QueryModuleAccountsResponse>;
 
+  /**
+   * Get module account by module name.
+   */
   getModuleAccountByName(name: string): Promise<QueryModuleAccountByNameResponse>;
 
   /**
-   * retrieves all payment accounts owned by the given address
+   * Get all payment accounts owned by the given owner address.
    */
   getPaymentAccountsByOwner(owner: string): Promise<QueryPaymentAccountsByOwnerResponse>;
 
+  /**
+   * Create a new payment account for the given address.
+   */
   createPaymentAccount(msg: MsgCreatePaymentAccount): Promise<TxResponse>;
 
   /**

@@ -1,0 +1,23 @@
+---
+id: visibility
+title: VisibilityType
+---
+
+visibility means the bucket is private or public. if private, only bucket owner or grantee can read
+it,otherwise every greenfield user can read it.
+
+## VisibilityType
+
+`VisibilityType` is enum:
+
+```jsx
+/** VisibilityType is the resources public status. */
+export declare enum VisibilityType {
+    VISIBILITY_TYPE_UNSPECIFIED = 0,
+    VISIBILITY_TYPE_PUBLIC_READ = 1,
+    VISIBILITY_TYPE_PRIVATE = 2,
+    /** VISIBILITY_TYPE_INHERIT - If the bucket Visibility is inherit, it's finally set to private. If the object Visibility is inherit, it's the same as bucket. */
+    VISIBILITY_TYPE_INHERIT = 3,
+    UNRECOGNIZED = -1
+}
+```

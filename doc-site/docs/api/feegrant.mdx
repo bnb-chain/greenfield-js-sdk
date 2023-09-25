@@ -1,0 +1,90 @@
+---
+id: feegrant
+title: 'Feegrant'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## grantAllowance <ApiTypes type="Tx" />
+
+Provides a way to grant allowance, the user needs to construct the desired type of allowance.
+
+| params          | description                                                                 |
+| --------------- | --------------------------------------------------------------------------- |
+| amount          | amount of [Coin](/types/coin)                                               |
+| denom           | denom of [Coin](/types/coin)                                                |
+| allowedMessages | array of [Msg Type URL](/constants/msg-type-url)                            |
+| granter         | the address of the user granting an allowance of their funds                |
+| grantee         | the address of the user being granted an allowance of another user's funds. |
+| expirationTime  | [Timestamp](/types/timestamp)                                               |
+
+```jsx title="example"
+const tx = await client.feegrant.grantAllowance({
+  granter: '0x00...',
+  grantee: '0x00...',
+  allowedMessages: [MsgDeleteObjectTypeUrl],
+  amount: parseEther('0.09').toString(),
+  denom: 'BNB',
+  expirationTime: toTimestamp(date),
+});
+```
+
+<Tx />
+
+## revokeAllowance <ApiTypes type="Tx" />
+
+revokes allowance on a grantee by the granter.
+
+| params  | description                                                                           |
+| ------- | ------------------------------------------------------------------------------------- |
+| granter | the address of the user granting an allowance of their funds                          |
+| grantee | grantee is the address of the user being granted an allowance of another user's funds |
+
+```jsx title="example"
+const tx = await client.feegrant.revokeAllowance({
+  granter: '0x00...',
+  grantee: '0x00...',
+});
+```
+
+<Tx />
+
+## getAllowence <ApiTypes type="Query" />
+
+queries the BasicAllowance.
+
+| params  | description                                                                           |
+| ------- | ------------------------------------------------------------------------------------- |
+| granter | the address of the user granting an allowance of their funds                          |
+| grantee | grantee is the address of the user being granted an allowance of another user's funds |
+
+```jsx title="example"
+await client.feegrant.getAllowence({
+  granter: '0x00...',
+  grantee: '0x00...',
+});
+```
+
+## getAllowences <ApiTypes type="Query" />
+
+queries the BasicAllowance by account address.
+
+| params     | description                                                                           |
+| ---------- | ------------------------------------------------------------------------------------- |
+| grantee    | grantee is the address of the user being granted an allowance of another user's funds |
+| pagination | [Pagination](/types/pagination)                                                       |
+
+```jsx title="example"
+import { Long } from '@bnb-chain/greenfield-js-sdk';
+await client.feegrant.getAllowences({
+  grantee: '0x00...',
+  pagination: {
+    limit: Long.fromInt(10),
+    offset: Long.fromInt(0),
+    countTotal: true,
+    key: Uint8Array.from([]),
+    reverse: false,
+  },
+});
+```

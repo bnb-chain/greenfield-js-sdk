@@ -71,6 +71,7 @@ import {
   CreateObjectApprovalRequest,
   CreateObjectApprovalResponse,
   GetListObjectPoliciesRequest,
+  GetListObjectPoliciesResponse,
   GetPrivewObject,
   ListObjectsByBucketNameRequest,
   ListObjectsByIDsRequest,
@@ -169,7 +170,9 @@ export interface IObject {
 
   listObjectsByIds(params: ListObjectsByIDsRequest): Promise<SpResponse<ListObjectsByIDsResponse>>;
 
-  listObjectPolicies(params: GetListObjectPoliciesRequest): Promise<any>;
+  listObjectPolicies(
+    params: GetListObjectPoliciesRequest,
+  ): Promise<SpResponse<GetListObjectPoliciesResponse>>;
   // TODO: GetObjectUploadProgress
   // TODO: getObjectStatusFromSP
 }

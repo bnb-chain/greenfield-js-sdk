@@ -1,0 +1,340 @@
+---
+id: object
+title: 'Object'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## cancelCreateObject <ApiTypes type="Tx" />
+
+Send `CancelCreateObject` txn to greenfield chain.
+
+| params     | description                         |
+| ---------- | ----------------------------------- |
+| operator   | the account address of the operator |
+| bucketName | the name of the bucket              |
+| objectName | the name of the object              |
+
+<!-- <Tx /> -->
+
+## createFolder <ApiTypes type="Storage Provider" /> <ApiTypes type="Tx" />
+
+Send create empty object txn to greenfield chain.
+
+| params     | description                            |
+| ---------- | -------------------------------------- |
+| bucketName | bucket name                            |
+| objectName | object name                            |
+| creator    | the creator of object                  |
+| authType   | [AuthType](/client/sp-client#authtype) |
+
+```jsx title="example"
+const tx = await client.object.createFolder(
+  {
+    bucketName: createObjectInfo.bucketName,
+    objectName: createObjectInfo.objectName + '/',
+    creator: address,
+  },
+  {
+    type: 'EDDSA',
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+    address,
+  },
+);
+```
+
+## createObject <ApiTypes type="Storage Provider" /> <ApiTypes type="Tx" />
+
+Get approval of creating object and send createObject txn to greenfield chain.
+
+| params          | description                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| bucketName      | bucket name                                                             |
+| objectName      | object name                                                             |
+| creator         | the creator of object                                                   |
+| visibility      | [VisibilityType](/types/visibility)                                     |
+| fileType        | [file type](https://developer.mozilla.org/en-US/docs/Web/API/File/type) |
+| redundancyType  | [RedundancyType](/types/redundancy)                                     |
+| authType        | [AuthType](/client/sp-client#authtype)                                  |
+| contentLength   | file content length                                                     |
+| expectCheckSums | file's expectCheckSums                                                  |
+
+```jsx title="example"
+const tx = await client.object.createObject(
+  {
+    bucketName: 'bucket_name',
+    objectName: 'object_name',
+    creator: '0x...',
+    visibility: 'VISIBILITY_TYPE_PRIVATE',
+    fileType: 'json',
+    redundancyType: 'REDUNDANCY_EC_TYPE',
+    contentLength: 13311,
+    expectCheckSums: JSON.parse(expectCheckSums),
+  },
+  {
+    type: 'EDDSA',
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+    address,
+  },
+);
+```
+
+<Tx />
+
+## deleteObject <ApiTypes type="Tx" />
+
+Send DeleteObject msg to greenfield chain and return txn hash.
+
+| params     | description                                                                                         |
+| ---------- | --------------------------------------------------------------------------------------------------- |
+| operator   | the account address of the operator who has the DeleteObject permission of the object to be deleted |
+| bucketName | the name of the bucket where the object which to be deleted is stored                               |
+| objectName | the name of the object which to be deleted                                                          |
+
+```jsx title="example"
+const tx = await client.object.deleteObject({
+  bucketName: 'bucket_name',
+  objectName: 'object_name',
+  operator: '0x000..',
+});
+```
+
+<Tx />
+
+## deleteObjectPolicy <ApiTypes type="Tx" />
+
+Delete the object policy of the principal.
+
+| params        | description                                               |
+| ------------- | --------------------------------------------------------- |
+| operator      | the granter who grant the permission to another principal |
+| bucketName    | the name of the bucket                                    |
+| objectName    | the name of the object                                    |
+| principalAddr | principal address                                         |
+| principal     | [PrincipalType](/types/principal)                         |
+
+```jsx title="example"
+const tx = await client.object.deleteObjectPolicy(
+  '0x000..', // operator
+  'bucket_name', // bucket name
+  'object_name', // object name
+  '0x000..', // principalAddr
+  'PRINCIPAL_TYPE_GNFD_GROUP', // PrincipalType
+);
+```
+
+<Tx />
+
+## downloadFile <ApiTypes type="Storage Provider" />
+
+Download s3 object payload and return the related object info.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+| objectName | object name |
+
+```jsx title="example"
+await client.object.downloadFile(
+  {
+    bucketName,
+    objectName,
+  },
+  {
+    type: 'EDDSA',
+    address,
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+  },
+);
+```
+
+## getObjectPolicy <ApiTypes type="Query" />
+
+Get the object policy info of the user specified by principalAddr.
+
+| params        | description       |
+| ------------- | ----------------- |
+| bucketName    | bucket name       |
+| objectName    | object name       |
+| principalAddr | principal address |
+
+```jsx title="example"
+const tx = await client.object.getObjectPolicy('bucket_name', 'object_name', '0x...');
+```
+
+## getObjectPreviewUrl <ApiTypes type="Storage Provider" />
+
+Get the object preview url.
+
+```jsx title="example"
+const res = await client.object.getObjectPreviewUrl(
+  {
+    bucketName: 'bucket_name',
+    objectName: 'object_name',
+    queryMap: {
+      view: '1',
+      'X-Gnfd-User-Address': address,
+      'X-Gnfd-App-Domain': window.location.origin,
+      'X-Gnfd-Expiry-Timestamp': '2023-09-03T09%3A23%3A39Z',
+    },
+  },
+  {
+    type: 'EDDSA',
+    address,
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+  },
+);
+```
+
+## headObject <ApiTypes type="Query" />
+
+Query the objectInfo on chain to check the object id, return the object info if exists.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+| objectName | object name |
+
+```jsx title="example"
+await client.object.headObject(bucketName, objectName);
+```
+
+## headObjectById <ApiTypes type="Query" />
+
+Query the objectInfo on chain by object id, return the object info if exists.
+
+```jsx title="example"
+await client.object.headObjectById('12');
+```
+
+<!-- ## headObjectNFT <ApiTypes type="Query" /> -->
+
+## listObjects <ApiTypes type="Storage Provider" />
+
+Lists the object info of the bucket.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+
+```jsx title="example"
+const res = await client.object.listObjects({
+  bucketName,
+});
+```
+
+## listObjectsByIds <ApiTypes type="Storage Provider" />
+
+List objects by object ids.
+
+| params | description      |
+| ------ | ---------------- |
+| ids    | object ids array |
+
+```jsx title="example"
+await client.object.listObjectsByIds({
+  ids: ['1', '2'],
+});
+```
+
+## listObjectPolicies <ApiTypes type="Storage Provider" />
+
+List object policies by object info and action type.
+
+| params     | description                 |
+| ---------- | --------------------------- |
+| bucketName | bucket name                 |
+| objectName | object name                 |
+| actionType | [ActionType](/types/action) |
+
+```jsx title="example"
+const res = await client.object.listObjectPolicies({
+  bucketName: 'bucket_name',
+  objectName: 'object_name',
+  actionType: 'ACTION_GET_OBJECT',
+});
+```
+
+## putObjectPolicy <ApiTypes type="Tx" />
+
+| params    | description                   |
+| --------- | ----------------------------- |
+| operator  | operator address              |
+| principal | [Principal](/types/principal) |
+
+Apply object policy to the principal, return the txn hash.
+
+```jsx title="example"
+import { PermissionTypes } from '@bnb-chain/greenfield-js-sdk';
+const statement: PermissionTypes.Statement = {
+  effect: PermissionTypes.Effect.EFFECT_ALLOW,
+  actions: [PermissionTypes.ActionType.ACTION_GET_OBJECT],
+  resources: [],
+};
+await client.object.putObjectPolicy('bucket_name', 'object_name', {
+  operator: '0x...',
+  statements: [statement],
+  principal: {
+    type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+    value: '0x0000000000000000000000000000000000000001',
+  },
+});
+```
+
+<Tx />
+
+## updateObjectInfo <ApiTypes type="Tx" />
+
+Update object info by sending message to greenfield.
+
+| params     | description                         |
+| ---------- | ----------------------------------- |
+| bucketName | bucket name                         |
+| objectName | object name                         |
+| operator   | operator address                    |
+| visibility | [VisibilityType](/types/visibility) |
+
+```jsx title="example"
+const tx = await client.object.updateObjectInfo({
+  bucketName: 'bucket_name',
+  objectName: 'object_name',
+  operator: '0x...',
+  visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+});
+```
+
+<Tx />
+
+## uploadObject <ApiTypes type="Storage Provider" />
+
+Uploading the object to bucket.
+
+| params     | description                            |
+| ---------- | -------------------------------------- |
+| bucketName | bucket name                            |
+| objectName | object name                            |
+| body       | file                                   |
+| txnHash    | [createObject](#createobject) 's hash  |
+| authType   | [AuthType](/client/sp-client#authtype) |
+
+```jsx title="example"
+const uploadRes = await client.object.uploadObject(
+  {
+    bucketName: createObjectInfo.bucketName,
+    objectName: createObjectInfo.objectName,
+    body: file,
+    txnHash: txHash,
+  },
+  {
+    type: 'EDDSA',
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+    address,
+  },
+);
+```
