@@ -84,27 +84,35 @@ const config = {
             items: [
               {
                 label: 'Getting Started',
-                to: '/docs/getting-started',
+                to: '/',
+              },
+              {
+                label: 'Client',
+                to: '/category/client',
+              },
+              {
+                label: 'API',
+                to: '/category/api',
+              },
+              {
+                label: 'types',
+                to: '/category/types',
               },
             ],
           },
-          /* {
-            title: 'Community',
+          {
+            title: 'Github',
             items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+                label: 'JS SDK',
+                href: 'https://github.com/bnb-chain/greenfield-js-sdk',
               },
               {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
+                label: 'Go SDK',
+                href: 'https://github.com/bnb-chain/greenfield-go-sdk',
               },
             ],
-          }, */
+          },
           /* {
             title: 'More',
             items: [

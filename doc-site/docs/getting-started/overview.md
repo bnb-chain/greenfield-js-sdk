@@ -1,5 +1,5 @@
 ---
-id: overview
+id: getting-started-overview
 sidebar_position: 1
 slug: /
 ---
