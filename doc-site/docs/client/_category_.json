@@ -1,12 +1,12 @@
 {
-  "position": 3,
-  "label": "API",
+  "position": 2,
+  "label": "Client",
   "collapsible": true,
   "collapsed": true,
   "className": "red",
   "link": {
     "type": "generated-index",
-    "title": "apis"
+    "title": "clients"
   },
   "customProps": {
     "description": ""

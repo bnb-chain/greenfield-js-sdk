@@ -1,0 +1,122 @@
+---
+id: query-client
+title: 'Query Client'
+sidebar_position: 2
+---
+
+It's actually an encapsulation of the
+[Blockchain API](https://docs.bnbchain.org/greenfield-docs/docs/api/blockchain-rest).
+
+:::info
+
+In most cases, you probably don't need to use the ‘Query Client` directly.
+
+:::
+
+## getAuthQueryClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getAuthQueryClient();
+await rpc.Account({
+  address: '0x0000000000000000000000000000000000000001',
+});
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/account-info
+
+## getBankQueryClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getBankQueryClient();
+await rpc.Balance({
+  address: '0x0000000000000000000000000000000000000001',
+  denom: 'BNB',
+});
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/account-info
+
+## getBridgeQueryClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getBridgeQueryClient();
+await rpc.Params();
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/bridge-params
+
+## getChallengeQueryClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getChallengeQueryClient();
+await rpc.Params();
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/attested-challenge
+
+## getCrosschainQueryClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getCrosschainQueryClient();
+await rpc.Params();
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/attested-challenge
+
+## getFeeGrantQueryClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getFeeGrantQueryClient();
+await rpc.Params();
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/allowance
+
+## getGashubClient
+
+```jsx title="example"
+const rpc = await this.queryClient.getGashubClient();
+await rpc.MsgGasParams(request);
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/msg-gas-params
+
+## getPaymentQueryClient
+
+```jsx title="example"
+const rpc = await this.queryClient.getPaymentQueryClient();
+await rpc.Params();
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/msg-gas-params
+
+## getSpQueryClient
+
+```jsx title="example"
+const rpc = await this.queryClient.getSpQueryClient();
+await rpc.Params();
+```
+
+More apis:
+https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/query-global-sp-store-price-by-time
+
+## getStorageQueryClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getStorageQueryClient();
+await rpc.HeadBucketById({
+  bucketId: '1',
+});
+```
+
+More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/query-group-members-exist
+
+## getVirtualGroupClient
+
+```jsx title="example"
+const rpc = await client.queryClient.getVirtualGroupClient();
+await rpc.Params();
+```
+
+More apis:
+https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/available-global-virtual-group-families

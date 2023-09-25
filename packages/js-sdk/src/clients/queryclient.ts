@@ -10,10 +10,7 @@ import { QueryClientImpl as BridgeQueryClientImpl } from '@bnb-chain/greenfield-
 import { QueryClientImpl as ChallengeQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/challenge/query';
 import { QueryClientImpl as PaymentQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/query';
 import { QueryClientImpl as SpQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/sp/query';
-import {
-  QueryClientImpl as BucketQueryClientImpl,
-  QueryClientImpl as StorageQueryClientImpl,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
+import { QueryClientImpl as StorageQueryClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import { QueryClientImpl as VirtualGroupClientImpl } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/query';
 import {
   AuthExtension,
@@ -76,11 +73,6 @@ export class RpcQueryClient {
   public async getPaymentQueryClient() {
     const rpcClient = await this.getRpcClient();
     return new PaymentQueryClientImpl(rpcClient);
-  }
-
-  public async getBucketQueryClient() {
-    const rpcClient = await this.getRpcClient();
-    return new BucketQueryClientImpl(rpcClient);
   }
 
   public async getSpQueryClient() {

@@ -181,6 +181,9 @@ export interface IBucket {
 
   putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
 
+  /**
+   * Update the bucket meta on chain, including read quota, payment address or visibility. It will send the MsgUpdateBucketInfo msg to greenfield to update the meta.
+   */
   updateBucketInfo(
     srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota?: string },
   ): Promise<TxResponse>;
@@ -320,21 +323,21 @@ export class Bucket implements IBucket {
   }
 
   public async headBucket(bucketName: string) {
-    const rpc = await this.queryClient.getBucketQueryClient();
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.HeadBucket({
       bucketName,
     });
   }
 
   public async headBucketById(bucketId: string) {
-    const rpc = await this.queryClient.getBucketQueryClient();
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.HeadBucketById({
       bucketId,
     });
   }
 
   public async headBucketExtra(bucketName: string) {
-    const rpc = await this.queryClient.getBucketQueryClient();
+    const rpc = await this.queryClient.getStorageQueryClient();
     return await rpc.HeadBucketExtra({
       bucketName,
     });
@@ -346,7 +349,7 @@ export class Bucket implements IBucket {
   }
 
   public async getVerifyPermission(bucketName: string, operator: string, actionType: ActionType) {
-    const rpc = await this.queryClient.getBucketQueryClient();
+    const rpc = await this.queryClient.getStorageQueryClient();
     return rpc.VerifyPermission({
       bucketName,
       operator,
