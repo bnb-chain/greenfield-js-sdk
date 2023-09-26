@@ -1,0 +1,290 @@
+---
+id: bucket
+title: 'Bucket'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## createBucket <ApiTypes type="Storage Provider" /> <ApiTypes type="Tx" />
+
+Create a new bucket in greenfield. This API sends a request to the storage provider to get approval
+for creating bucket and sends the createBucket transaction to the Greenfield.
+
+| params           | description                                             |
+| ---------------- | ------------------------------------------------------- |
+| bucketName       | bucket name                                             |
+| creator          | creator account address                                 |
+| visibility       | [VisibilityType](/types/visibility)                     |
+| chargedReadQuota | defines the traffic quota that you read from primary sp |
+| spInfo           | primary sp address                                      |
+| paymentAddress   | payment address                                         |
+| authType         | [AuthType](/client/sp-client#authtype)                  |
+
+```jsx title="example"
+const tx = await client.bucket.createBucket(
+  {
+    bucketName: 'bucket_name',
+    creator: address,
+    visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+    chargedReadQuota: '0',
+    spInfo: {
+      primarySpAddress: 'primary_sp_address',
+    },
+    paymentAddress: address,
+  },
+  {
+    type: 'EDDSA',
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+    address,
+  },
+);
+```
+
+## deleteBucket <ApiTypes type="Tx" />
+
+Send DeleteBucket msg to greenfield chain and return txn hash.
+
+| params     | description                          |
+| ---------- | ------------------------------------ |
+| bucketName | The name of the bucket to be deleted |
+| operator   | operator account address             |
+
+```jsx title="example"
+const tx = await client.bucket.deleteBucket({
+  bucketName: bucketName,
+  operator: address,
+});
+```
+
+<Tx />
+
+## deleteBucketPolicy <ApiTypes type="Tx" />
+
+Delete the bucket policy of the principal.
+
+| params        | description                                                            |
+| ------------- | ---------------------------------------------------------------------- |
+| operator      |                                                                        |
+| bucketName    | The bucket name identifies the bucket                                  |
+| principalAddr | Principal define the roles that can grant permissions                  |
+| principalType | PrincipalType refers to the identity type of system users or entities. |
+
+```jsx title="example"
+const tx = await client.bucket.deleteBucketPolicy(
+  address,
+  bucketName,
+  address,
+  'PRINCIPAL_TYPE_GNFD_ACCOUNT',
+);
+```
+
+<Tx />
+
+## getBucketMeta <ApiTypes type="Storage Provider" />
+
+This API is used to get bucket meta by bucket name.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+
+```jsx title="example"
+const bucketInfo = await client.bucket.getBucketMeta({
+  bucketName,
+});
+```
+
+## getBucketPolicy <ApiTypes type="Query" />
+
+Get the bucket policy info of the user specified by principalAddr.
+
+```jsx title="example"
+import { GRNToString, newBucketGRN } from '@bnb-chain/greenfield-js-sdk';
+await client.bucket.getBucketPolicy({
+  resource: GRNToString(newBucketGRN(bucketName)),
+  principalAddress: '0x00..',
+});
+```
+
+## getBucketReadQuota <ApiTypes type="Storage Provider" />
+
+Query the quota info of the specific bucket of current month.
+
+| params     | description                            |
+| ---------- | -------------------------------------- |
+| bucketName | bucket name                            |
+| authType   | [AuthType](/client/sp-client#authtype) |
+
+```jsx title="example"
+await client.bucket.getBucketReadQuota(
+  {
+    bucketName,
+  },
+  {
+    type: 'EDDSA',
+    seed: offChainData.seedString,
+    domain: window.location.origin,
+    address,
+  },
+);
+```
+
+## headBucket <ApiTypes type="Query" />
+
+query the bucketInfo on chain, return the bucket info if exists.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+
+```jsx title="example"
+const bucketInfo = await client.bucket.headBucket(bucketName);
+```
+
+## headBucketById <ApiTypes type="Query" />
+
+| params   | description |
+| -------- | ----------- |
+| bucketId | bucket id   |
+
+```jsx title="example"
+const bucketInfo = await client.bucket.headBucketById(bucketId);
+```
+
+## headBucketExtra <ApiTypes type="Query" />
+
+Queries a bucket extra info (with gvg bindings and price time) with specify name.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+
+```jsx title="example"
+const bucketInfo = await client.bucket.headBucketExtra(bucketName);
+```
+
+<!-- ## headBucketNFT <ApiTypes type="Query" /> -->
+
+## listBucketReadRecords <ApiTypes type="Storage Provider" />
+
+List the download record info of the specific bucket of the current month.
+
+| params     | description                            |
+| ---------- | -------------------------------------- |
+| bucketName | bucket name                            |
+| authType   | [AuthType](/client/sp-client#authtype) |
+
+```jsx title="example"
+await client.bucket.listBucketReadRecords(
+  {
+    bucketName,
+    startTimeStamp,
+    endTimeStamp,
+    maxRecords: 1000,
+  },
+  {
+    type: 'EDDSA',
+    domain: window.location.origin,
+    seed: offChainData.seedString,
+    address,
+  },
+);
+```
+
+## listBuckets <ApiTypes type="Storage Provider" />
+
+Lists the bucket info of the user.
+
+| params  | description  |
+| ------- | ------------ |
+| address | user account |
+
+```jsx title="example"
+const res = await client.bucket.listBuckets({
+  address,
+});
+```
+
+## listBucketsByIds <ApiTypes type="Storage Provider" />
+
+Lists the bucket info of the user.
+
+| params | description      |
+| ------ | ---------------- |
+| ids    | bucket ids array |
+
+```jsx title="example"
+await client.bucket.listBucketsByIds({
+  ids: ['1', '2'],
+});
+```
+
+## listBucketsByPaymentAccount <ApiTypes type="Storage Provider" />
+
+List bucket info by payment account.
+
+| params         | description             |
+| -------------- | ----------------------- |
+| paymentAccount | payment account address |
+
+```jsx title="example"
+const res = await client.bucket.listBucketsByPaymentAccount({
+  paymentAccount: '0x00...',
+});
+```
+
+## putBucketPolicy <ApiTypes type="Tx" />
+
+Apply bucket policy to the principal, return the txn hash.
+
+| params     | description                                                                                                                                                   |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bucketName | bucket name                                                                                                                                                   |
+| statements | Policies outline the specific details of permissions, including the Effect, ActionList, and Resources.                                                        |
+| principal  | Indicates the marshaled principal content of greenfield permission types, users can generate it by NewPrincipalWithAccount or NewPrincipalWithGroupId method. |
+
+```jsx title="example"
+import { GRNToString, newBucketGRN, PermissionTypes } from '@bnb-chain/greenfield-js-sdk';
+const statement: PermissionTypes.Statement = {
+  effect: PermissionTypes.Effect.EFFECT_ALLOW,
+  actions: [PermissionTypes.ActionType.ACTION_UPDATE_BUCKET_INFO],
+  resources: [GRNToString(newBucketGRN(bucketName))],
+};
+const tx = await client.bucket.putBucketPolicy(bucketName, {
+  operator: address,
+  statements: [statement],
+  principal: {
+    type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+    value: '0x0000000000000000000000000000000000000001',
+  },
+});
+```
+
+<Tx />
+
+## updateBucketInfo <ApiTypes type="Tx" />
+
+Update the bucket meta on chain, including read quota, payment address or visibility. It will send
+the MsgUpdateBucketInfo msg to greenfield to update the meta.
+
+| params           | description                                             |
+| ---------------- | ------------------------------------------------------- |
+| bucketName       | bucket name                                             |
+| operator         | operator account address                                |
+| visibility       | [VisibilityType](/types/visibility)                     |
+| paymentAddress   | payment address                                         |
+| chargedReadQuota | defines the traffic quota that you read from primary sp |
+
+```jsx title="example"
+await client.bucket.updateBucketInfo({
+  bucketName: bucketName,
+  operator: address,
+  visibility: 1,
+  paymentAddress: address,
+  chargedReadQuota: '100',
+});
+```
+
+<Tx />

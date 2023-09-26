@@ -1,0 +1,275 @@
+---
+id: group
+title: 'Group'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## createGroup <ApiTypes type="Tx" />
+
+Create a new group without group members on Greenfield blockchain, and group members can be added by
+[updateGroupMember](#updategroupmember) transaction.
+
+A `Group` is a collection of accounts that share the same permissions, allowing them to be handled
+as a single entity.
+
+Examples of permissions include:
+
+- `Put`, `List`, `Get`, `Delete`, `Copy`, and `Execute` data objects;
+- `Create`, `Delete`, and `List` buckets
+- `Create`, `Delete`, `ListMembers`, `Leave groups`
+- `Create`, `Associate payment accounts`
+- `Grant`, `Revoke` the above permissions
+
+For more details regarding `Group`, please refer to
+https://docs.bnbchain.org/greenfield-docs/docs/guide/greenfield-blockchain/modules/permission.
+
+| params    | description                                             |
+| --------- | ------------------------------------------------------- |
+| creator   | the account address of group owner who create the group |
+| groupName | the name of the group. it's not globally unique         |
+| extra     | extra info for the group                                |
+
+```jsx title="example"
+const tx = await client.group.createGroup({
+  creator: '0x00..',
+  groupName: 'group_name',
+  extra: 'extra_info',
+});
+```
+
+<Tx />
+
+## deleteGroup <ApiTypes type="Tx" />
+
+Delete a group on Greenfield blockchain. The sender **MUST** only be the group owner, group members
+or others would fail to send this transaction.
+
+:::warning
+
+Deleting a group will result in granted permission revoked. Members within the group will no longer
+have access to resources (bucket, object) which granted permission on.
+
+:::
+
+| params    | description                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| operator  | the account address of the operator who has the DeleteGroup permission of the group to be deleted |
+| groupName | the name of the group which to be deleted                                                         |
+
+```jsx title="example"
+const tx = await client.group.deleteGroup({
+  groupName: 'group_name',
+  operator: '0x00..',
+});
+```
+
+<Tx />
+
+## getBucketPolicyOfGroup <ApiTypes type="Query" />
+
+Queries a bucket of policy that grants permission to a group.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+| groupId    | group id    |
+
+```jsx title="example"
+await client.group.getBucketPolicyOfGroup('bucket_name', 1);
+```
+
+## getObjectPolicyOfGroup <ApiTypes type="Query" />
+
+Queries a object of policy that grants permission to a group.
+
+| params     | description |
+| ---------- | ----------- |
+| bucketName | bucket name |
+| objectName | object name |
+| groupId    | group id    |
+
+```jsx title="example"
+await client.group.getObjectPolicyOfGroup('bucket_name', 'object_name', 1);
+```
+
+<!-- ## getPolicyOfGroup <ApiTypes type="Query" />
+
+Queries a group of policy that grants permission to a group. -->
+
+## headGroup <ApiTypes type="Query" />
+
+Query the groupInfo on chain, return the group info if exists.
+
+| params     | description    |
+| ---------- | -------------- |
+| groupName  | group name     |
+| groupOwner | owner of group |
+
+```jsx title="example"
+await client.group.headGroup('group_name', '0x00..');
+```
+
+## headGroupMember <ApiTypes type="Query" />
+
+Query the group member info on chain, return true if the member exists in group.
+
+| params     | description     |
+| ---------- | --------------- |
+| groupName  | group name      |
+| groupOwner | owner of group  |
+| member     | member of group |
+
+```jsx title="example"
+await client.group.headGroupMember(
+  'groupName',
+  '0x00..',
+  '0x903904936a4328fac5477c0d96acf2E2bCaCD33d',
+);
+```
+
+<!-- ## headGroupNFT <ApiTypes type="Query" />
+
+Queries a group with EIP712 standard metadata info.
+
+
+
+```jsx title="example"
+await client.group.headGroupNFT({
+  tokenId: '11';
+});
+``` -->
+
+## leaveGroup <ApiTypes type="Tx" />
+
+Leave a group. A group member initially leaves a group.
+
+| params     | description                                                   |
+| ---------- | ------------------------------------------------------------- |
+| address    | operator address                                              |
+| member     | the account address of the member who want to leave the group |
+| groupOwner | the owner of the group you want to leave                      |
+| groupName  | the name of the group you want to leave                       |
+
+```jsx title="example"
+await client.group.leaveGroup(
+  '0x...', // address
+  {
+    member: '0x...',
+    groupOwner: '0x...',
+    groupName: 'group_name',
+  },
+);
+```
+
+<Tx />
+
+## putGroupPolicy <ApiTypes type="Tx" />
+
+Apply group policy to user specified by principalAddr, the sender needs to be the owner of the
+group.
+
+| params    | description    |
+| --------- | -------------- |
+| owner     | owner of group |
+| groupName | name of group  |
+
+<!-- staments -->
+
+```tsx title="example"
+import { PermissionTypes } from '@bnb-chain/greenfield-js-sdk';
+const statement: PermissionTypes.Statement = {
+  effect: PermissionTypes.Effect.EFFECT_ALLOW,
+  actions: [PermissionTypes.ActionType.ACTION_UPDATE_GROUP_MEMBER],
+  resources: [],
+};
+
+await client.group.putGroupPolicy(
+  '0x...', // owner
+  'group_name',
+  {
+    operator: '0x...', // address
+    statements: [statement],
+    principal: {
+      type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+      value: '0x0000000000000000000000000000000000000001',
+    },
+  },
+);
+```
+
+<Tx />
+
+## updateGroupExtra <ApiTypes type="Tx" />
+
+Update a group extra.
+
+| params     | description                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| operator   | the account address of the operator who has the UpdateGroupMember permission of the group |
+| groupOwner | the account address of the group owner                                                    |
+| groupName  | the name of the group which to be updated                                                 |
+| extra      | extra info for the group to update                                                        |
+
+```jsx title="example"
+await client.group.updateGroupExtra({
+  operator: '0x...',
+  groupOwner: '0x...',
+  groupName: 'group_name',
+  extra: 'extra info',
+});
+```
+
+<Tx />
+
+## updateGroupMember <ApiTypes type="Tx" />
+
+Update a group by adding or removing members. The sender can be the group owner or any individual
+account(Principle) that has been granted permission by the group owner.
+
+| params          | description                                                                               |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| operator        | the account address of the operator who has the UpdateGroupMember permission of the group |
+| groupOwner      | the account address of the group owner                                                    |
+| groupName       | the name of the group which to be updated                                                 |
+| membersToAdd    | MsgGroupMember[]                                                                          |
+| membersToDelete | string[]                                                                                  |
+
+<Tabs>
+<TabItem value="add" label="add members">
+
+```jsx title="example"
+await client.group.updateGroupMember({
+  operator: '0x..',
+  groupOwner: '0x..',
+  groupName: 'group_name',
+  membersToAdd: [
+    {
+      expirationTime: toTimestamp(date),
+      member: '0x903904936a4328fac5477c0d96acf2E2bCaCD33d',
+    },
+  ],
+  membersToDelete: [],
+});
+```
+
+</TabItem>
+<TabItem value="del" label="delete members">
+
+```jsx title="example"
+await client.group.updateGroupMember({
+  operator: '0x..',
+  groupOwner: '0x..',
+  groupName: 'group_name',
+  membersToAdd: [],
+  membersToDelete: ['0x903904936a4328fac5477c0d96acf2E2bCaCD33d'],
+});
+```
+
+</TabItem>
+</Tabs>
+
+<Tx />

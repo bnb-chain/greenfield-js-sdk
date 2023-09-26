@@ -1,0 +1,120 @@
+---
+id: tx-client
+sidebar_position: 1
+title: 'Tx Client'
+---
+
+## About Tx
+
+A transaction contains at least:
+
+1. construct a transaction: The sdk already provides each transaction type
+2. simulate: [txClient.simulate](#simulate)
+3. broadcast [txClient.broadcast](#broadcast)
+
+## simulate
+
+Just Simulate a transaction and valid transaction.
+
+| params | description                          |
+| ------ | ------------------------------------ |
+| denom  | the coin denom to query balances for |
+
+```jsx title="simulate tx"
+// `tx` is a transaction constructed by the sdk
+const simulateInfo = await tx.simulate({
+  denom: 'BNB',
+});
+```
+
+## broadcast
+
+Broadcast the transaction to the chain.
+
+| params                | description                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| denom                 | the coin denom to query balances for                                                                              |
+| gasLimit              | can be set to any number, but not too small or the transaction may fail (recommended use `simulateInfo.gasLimit`) |
+| gasPrice              | 1 unit of Gas that the transaction sender is willing to pay.                                                      |
+| payer                 | transaction sender                                                                                                |
+| granter               | transaction ganter (Generally empty `''`)                                                                         |
+| signTypedDataCallback | broadcast use `window.ethereum` as signature provider by default.                                                 |
+| privateKey            | If you broadcast in Nodejs, you can broadcast a tx by privateKey                                                  |
+
+```jsx title="broadcast tx"
+// broadcast tx
+const broadcastRes = await transferTx.broadcast({
+  denom: 'BNB',
+  gasLimit: Number(simulateInfo.gasLimit),
+  gasPrice: simulateInfo.gasPrice,
+  payer: '0x0000000000000000000000000000000000000001',
+  granter: '',
+});
+```
+
+:::tip
+
+If you want to use others wallet, you can set `signTypedDataCallback`:
+
+```jsx
+// trustwallet:
+const broadcastRes = await transferTx.broadcast({
+  // ...
+  signTypedDataCallback: async (addr: string, message: string) => {
+    return await window.trustwallet.request({
+      method: 'eth_signTypedData_v4',
+      params: [addr, message],
+    });
+  },
+});
+```
+
+If you broadcast in Nodejs, you can broadcast a tx by privateKey:
+
+```jsx
+const broadcastRes = await transferTx.broadcast({
+  // ...
+  privateKey: '0x.......',
+});
+```
+
+:::
+
+## Example
+
+Take `transfer` tx as an example.
+
+### 1. construct a transaction
+
+```jsx title="construct tx"
+const transferTx = await client.account.transfer({
+  fromAddress: address,
+  toAddress: transferInfo.to,
+  amount: [
+    {
+      denom: 'BNB',
+      amount: '1000000000',
+    },
+  ],
+});
+```
+
+### 2. simulate
+
+```jsx title="simulate tx"
+const simulateInfo = await transferTx.simulate({
+  denom: 'BNB',
+});
+```
+
+### 3. broadcast
+
+```jsx title="broadcast tx"
+const broadcastRes = await transferTx.broadcast({
+  denom: 'BNB',
+  gasLimit: Number(simulateInfo.gasLimit),
+  gasPrice: simulateInfo.gasPrice,
+  payer: address,
+  granter: '',
+});
+```

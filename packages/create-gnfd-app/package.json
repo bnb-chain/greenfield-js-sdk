@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/create-gnfd-app",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "help you create greenfield project quickly",
   "main": "index.js",
   "bin": {
@@ -11,7 +11,8 @@
     "url": "https://github.com/bnb-chain/greenfield-js-sdk",
     "directory": "packages/create-gnfd-app"
   },
-  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/packages/create-gnfd-app#readme",
+  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/tree/alpha/packages/create-gnfd-app#readme",
+  "bugs": "https://github.com/bnb-chain/greenfield-js-sdk/issues",
   "scripts": {
     "dev": "rollup -cw",
     "build": "rollup -c"

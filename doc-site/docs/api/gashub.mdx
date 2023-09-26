@@ -1,0 +1,27 @@
+---
+id: gashub
+title: 'Gashub'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## getMsgGasParams <ApiTypes type="Query" />
+
+| params      | description                                 |
+| ----------- | ------------------------------------------- |
+| msgTypeUrls | [Message Type URL](/constants/msg-type-url) |
+| pagination  | [Pagination](/types/pagination)             |
+
+```jsx title="example"
+await client.gashub.getMsgGasParams({
+  msgTypeUrls: [],
+  pagination: {
+    countTotal: true,
+    key: Uint8Array.from([]),
+    limit: Long.fromInt(10),
+    offset: Long.fromInt(0),
+    reverse: false,
+  },
+});
+```
