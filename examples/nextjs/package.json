@@ -11,11 +11,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.23",
     "@bnb-chain/greenfield-js-sdk": "workspace:*",
     "@bnb-chain/greenfiled-file-handle": "workspace:*",
     "@cosmjs/encoding": "^0.29.5",
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
+    "@ethersproject/bytes": "5.7.0",
     "@ethersproject/signing-key": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
@@ -29,6 +31,7 @@
     "eslint": "^8.21.0",
     "eslint-config-next": "13.1.6",
     "evmosjs": "^0.2.17",
+    "lodash": "^4.17.21",
     "long": "^5.2.1",
     "next": "13.1.6",
     "react": "18.2.0",
@@ -38,6 +41,7 @@
     "wagmi": "^1.2.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.199",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.3"
   }

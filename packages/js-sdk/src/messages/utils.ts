@@ -1,5 +1,11 @@
 import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
+import * as base64 from '@ethersproject/base64';
+import { hexlify } from '@ethersproject/bytes';
+import { toUtf8String } from '@ethersproject/strings';
+import cloneDeep from 'lodash.clonedeep';
+import get from 'lodash.get';
 import mapValues from 'lodash.mapvalues';
+import set from 'lodash.set';
 import sortBy from 'lodash.sortby';
 import { MetaTxInfo } from '..';
 
@@ -51,6 +57,10 @@ export const generateMessage = (
     fee,
     timeout_height: timeoutHeight,
   };
+
+  if (Object.keys(msg).length == 0) {
+    return res;
+  }
 
   if (msg.hasOwnProperty('msg1')) {
     res = {
@@ -119,6 +129,17 @@ export const generateTypes = (newTypes: object) => {
       });
     }
     Object.assign(types, ...newTypes);
+  } else if (typeof newTypes === 'object') {
+    const msgLen = Object.keys(newTypes).filter((k) => k.startsWith('Msg')).length;
+
+    for (let i = 0; i < msgLen; i++) {
+      types.Tx.push({
+        name: `msg${i + 1}`,
+        type: `Msg${i + 1}`,
+      });
+    }
+
+    Object.assign(types, newTypes);
   } else {
     types.Tx.push({
       name: 'msg1',
@@ -182,4 +203,48 @@ export const mergeMultiMessage = (txs: MetaTxInfo[]) => {
   });
 
   return res;
+};
+
+export const findAnyType = (msgData: object): string[][] => {
+  const results: string[][] = [];
+
+  function findTypeAnyFields(obj: object, path: string[] = []) {
+    if (typeof obj === 'object' && obj !== null) {
+      for (const key in obj) {
+        const newPath: string[] = [...path, key];
+        // console.log(newPath.join('.'));
+        if (key === 'value') {
+          results.push(newPath);
+        }
+        findTypeAnyFields((obj as any)[key], newPath);
+      }
+    } else {
+      // console.log(obj);
+    }
+  }
+
+  findTypeAnyFields(msgData);
+  return results;
+};
+
+export const convertAnyTypeData = (msgData: object, fields: string[][]) => {
+  const resData = cloneDeep(msgData);
+
+  fields.forEach((field) => {
+    const path = field.join('.');
+    const anyValue = get(resData, path);
+
+    // console.log('path', path, anyValue);
+    if (anyValue.startsWith('ZXl')) {
+      // TypeAny: need base64 decode
+      set(resData, path, toUtf8String(base64.decode(anyValue)));
+    } else if (anyValue.startsWith('eyJ')) {
+      // TypeAny[]: need base64 decode and encode hex
+      set(resData, path, hexlify(base64.decode(anyValue)));
+    } else {
+      // throw new Error('not support value' + anyValue);
+    }
+  });
+
+  return resData;
 };

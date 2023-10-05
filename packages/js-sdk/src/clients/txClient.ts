@@ -39,7 +39,7 @@ import {
   mergeMultiEip712,
   mergeMultiMessage,
 } from '../messages';
-import { generateMsg } from '../messages/utils';
+import { convertAnyTypeData, findAnyType, generateMsg } from '../messages/utils';
 import { eip712Hash, makeCosmsPubKey, recoverPk } from '../sign';
 
 export interface ITxClient {
@@ -141,11 +141,11 @@ export class TxClient implements ITxClient {
   }: CustomTx): Promise<Omit<TxResponse, 'metaTxInfo'>> {
     const accountInfo = await this.account.getAccount(address);
     const txRawBytes = arrayify(txRawHex);
-    const txRawP = TxRaw.decode(txRawBytes);
+    const txRawData = TxRaw.decode(txRawBytes);
 
     return {
       simulate: async (opts: SimulateOptions) => {
-        return await this.simulateRawTx(txRawP.bodyBytes, accountInfo, opts);
+        return await this.simulateRawTx(txRawData.bodyBytes, accountInfo, opts);
       },
       broadcast: async (opts: BroadcastOptions) => {
         const {
@@ -165,14 +165,21 @@ export class TxClient implements ITxClient {
           payer,
           granter,
         );
+        // console.log('eip712MsgType', eip712MsgType);
         const wrapperTypes = generateTypes(eip712MsgType);
+
+        // find type any and convert
+        const anyFields = findAnyType(msgData);
+        // console.log('anyFields', anyFields);
+        const convertedMsg = convertAnyTypeData(msgData, anyFields);
+
         const messages = generateMessage(
           accountInfo.accountNumber.toString(),
           accountInfo.sequence.toString(),
           this.chainId,
           '',
           fee,
-          msgData,
+          convertedMsg,
           '0',
         );
 
@@ -193,7 +200,7 @@ export class TxClient implements ITxClient {
         });
 
         const txRaw = TxRaw.fromPartial({
-          bodyBytes: txRawP.bodyBytes,
+          bodyBytes: txRawData.bodyBytes,
           authInfoBytes,
           signatures: [arrayify(signature)],
         });
@@ -243,6 +250,7 @@ export class TxClient implements ITxClient {
   ) {
     const signature = await signTypedDataCallback(address, JSON.stringify(eip712));
     const messageHash = eip712Hash(JSON.stringify(eip712));
+    // console.log('eip712 hash', hexlify(messageHash));
 
     const pk = recoverPk({
       signature,
@@ -364,6 +372,7 @@ export class TxClient implements ITxClient {
         );
 
         const eip712 = createEIP712(wrapperTypes, this.chainId, messages);
+        // console.log('eip712', eip712);
 
         const { pubKey, signature } = privateKey
           ? this.getSignByPriKey(eip712, privateKey)
