@@ -1,0 +1,14 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "greenfield-js-sdk-docs": "0.0.0",
+    "@demo/wallet": "0.0.7",
+    "@demo/nodejs": "0.0.10",
+    "@bnb-chain/create-gnfd-app": "0.0.3",
+    "@bnb-chain/greenfiled-file-handle": "0.2.2",
+    "@bnb-chain/greenfield-js-sdk": "0.2.6",
+    "@bnb-chain/greenfield-zk-crypto": "0.0.4"
+  },
+  "changesets": []
+}
