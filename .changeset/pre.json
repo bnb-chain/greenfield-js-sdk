@@ -10,5 +10,7 @@
     "@bnb-chain/greenfield-js-sdk": "0.2.6",
     "@bnb-chain/greenfield-zk-crypto": "0.0.4"
   },
-  "changesets": []
+  "changesets": [
+    "wicked-pots-teach"
+  ]
 }

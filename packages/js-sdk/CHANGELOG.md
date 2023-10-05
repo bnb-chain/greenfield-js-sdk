@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.7-alpha.0
+
+### Patch Changes
+
+- [#355](https://github.com/bnb-chain/greenfield-js-sdk/pull/355)
+  [`76a18f1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/76a18f1ea3dc44ea56c964003de4d9e323532405)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Custom Tx support Any Type!
+
 ## 0.2.6
 
 ### Patch Changes
