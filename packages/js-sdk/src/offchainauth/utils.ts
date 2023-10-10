@@ -58,18 +58,20 @@ export const updateSpsPubKey = async ({
   expireDate,
   authorization,
 }: IUpdateSpsPubKeyParams) => {
-  return sps.map((sp: ISp) =>
-    Promise.race([
-      updateUserAccountKey({
-        address,
-        domain,
-        sp,
-        pubKey,
-        expireDate,
-        authorization,
-      }),
-      delay(3000, { code: -1, data: { address } }),
-    ]),
+  return Promise.all(
+    sps.map((sp: ISp) =>
+      Promise.race([
+        updateUserAccountKey({
+          address,
+          domain,
+          sp,
+          pubKey,
+          expireDate,
+          authorization,
+        }),
+        delay(3000, { code: -1, data: { address } }),
+      ]),
+    ),
   );
 };
 
