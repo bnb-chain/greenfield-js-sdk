@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 0.2.7-alpha.1
+
+### Patch Changes
+
+- [#358](https://github.com/bnb-chain/greenfield-js-sdk/pull/358)
+  [`c981fff`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c981fff3943fb5f351df7986a498021cf7cbff9d)
+  Thanks [@aiden-cao](https://github.com/aiden-cao)! - fix: Offchain auth ei.data undefined
+
 ## 0.2.7-alpha.0
 
 ### Patch Changes

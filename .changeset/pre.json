@@ -11,6 +11,7 @@
     "@bnb-chain/greenfield-zk-crypto": "0.0.4"
   },
   "changesets": [
-    "wicked-pots-teach"
+    "wicked-pots-teach",
+    "witty-bikes-flash"
   ]
 }
