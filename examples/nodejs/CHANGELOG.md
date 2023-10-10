@@ -1,5 +1,13 @@
 # @demo/nodejs
 
+## 0.0.11-alpha.2
+
+### Patch Changes
+
+- Updated dependencies
+  [[`9f7feb5`](https://github.com/bnb-chain/greenfield-js-sdk/commit/9f7feb58a264b303a40a93cfb471e61df4170e6b)]:
+  - @bnb-chain/greenfield-js-sdk@0.2.7-alpha.2
+
 ## 0.0.11-alpha.1
 
 ### Patch Changes
