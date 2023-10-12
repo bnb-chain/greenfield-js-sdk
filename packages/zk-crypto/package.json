@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfield-zk-crypto",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0",
   "description": "Zk crypto wasm module",
   "scripts": {
     "predev": "rimraf ./dist",
