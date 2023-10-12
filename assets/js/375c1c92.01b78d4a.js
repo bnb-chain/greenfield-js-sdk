@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkgreenfield_js_sdk_docs=self.webpackChunkgreenfield_js_sdk_docs||[]).push([[235],{4308:e=>{e.exports=JSON.parse('{"title":"apis","slug":"/category/api","permalink":"/category/api","navigation":{"previous":{"title":"Storage Provider Client","permalink":"/client/sp-client"},"next":{"title":"Overview","permalink":"/api/api-overview"}}}')}}]);
