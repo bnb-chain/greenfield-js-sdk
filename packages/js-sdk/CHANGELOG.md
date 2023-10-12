@@ -1,5 +1,31 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.0
+
+### Major Changes
+
+- [#365](https://github.com/bnb-chain/greenfield-js-sdk/pull/365)
+  [`57082ea`](https://github.com/bnb-chain/greenfield-js-sdk/commit/57082eace1beff17c2ab9b21d099ba6563fe94bf)
+  Thanks [@rrr523](https://github.com/rrr523)! - release 1.0.0 version
+
+### Patch Changes
+
+- [#360](https://github.com/bnb-chain/greenfield-js-sdk/pull/360)
+  [`9f7feb5`](https://github.com/bnb-chain/greenfield-js-sdk/commit/9f7feb58a264b303a40a93cfb471e61df4170e6b)
+  Thanks [@aiden-cao](https://github.com/aiden-cao)! - fix: Offchain auth ei.data undefined
+
+- [#355](https://github.com/bnb-chain/greenfield-js-sdk/pull/355)
+  [`76a18f1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/76a18f1ea3dc44ea56c964003de4d9e323532405)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Custom Tx support Any Type!
+
+- [#358](https://github.com/bnb-chain/greenfield-js-sdk/pull/358)
+  [`c981fff`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c981fff3943fb5f351df7986a498021cf7cbff9d)
+  Thanks [@aiden-cao](https://github.com/aiden-cao)! - fix: Offchain auth ei.data undefined
+
+- Updated dependencies
+  [[`57082ea`](https://github.com/bnb-chain/greenfield-js-sdk/commit/57082eace1beff17c2ab9b21d099ba6563fe94bf)]:
+  - @bnb-chain/greenfield-zk-crypto@1.0.0
+
 ## 1.0.0-alpha.3
 
 ### Major Changes
