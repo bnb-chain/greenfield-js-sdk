@@ -8,7 +8,7 @@ import {
 import { getNonce } from '@/clients/spclient/spApis/getNonce';
 import { updateUserAccountKey } from '@/clients/spclient/spApis/updateUserAccountKey';
 
-const delay = (ms: number, value: { code: number; nonce?: null | number; message?: any }) =>
+const delay = <T>(ms: number, value: T) =>
   new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
 export const promiseRaceAll = async (
@@ -58,19 +58,21 @@ export const updateSpsPubKey = async ({
   expireDate,
   authorization,
 }: IUpdateSpsPubKeyParams) => {
-  const promises = sps.map((sp: ISp) =>
-    updateUserAccountKey({
-      address,
-      domain,
-      sp,
-      pubKey,
-      expireDate,
-      authorization,
-    }),
+  return Promise.all(
+    sps.map((sp: ISp) =>
+      Promise.race([
+        updateUserAccountKey({
+          address,
+          domain,
+          sp,
+          pubKey,
+          expireDate,
+          authorization,
+        }),
+        delay(3000, { code: -1, data: { address } }),
+      ]),
+    ),
   );
-  const res = await promiseRaceAll(promises, 3000);
-
-  return res;
 };
 
 export const getSpsEndpoint = (sps: ISp[]) => {

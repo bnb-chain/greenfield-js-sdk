@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfield-js-sdk",
-  "version": "0.2.6",
+  "version": "1.0.0",
   "description": "greenfield js chain and sp sdk",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -68,6 +68,7 @@
     "@cosmjs/proto-signing": "^0.30.1",
     "@cosmjs/stargate": "^0.30.1",
     "@cosmjs/tendermint-rpc": "^0.30.1",
+    "@ethersproject/base64": "^5.7.0",
     "@ethersproject/bytes": "5.7.0",
     "@ethersproject/signing-key": "^5.7.0",
     "@ethersproject/strings": "5.7.0",
@@ -79,7 +80,9 @@
     "ethereum-cryptography": "^2.0.0",
     "fast-xml-parser": "^4.2.7",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.get": "^4.4.2",
     "lodash.mapvalues": "^4.6.0",
+    "lodash.set": "^4.3.2",
     "lodash.sortby": "^4.7.0",
     "long": "^5.2.1",
     "reflect-metadata": "^0.1.13",
@@ -87,9 +90,12 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
+    "@rollup/plugin-typescript": "^11.1.3",
     "@types/jest": "^29.5.1",
     "@types/lodash.clonedeep": "^4.5.7",
+    "@types/lodash.get": "^4.4.7",
     "@types/lodash.mapvalues": "^4.6.7",
+    "@types/lodash.set": "^4.3.7",
     "@types/lodash.sortby": "^4.7.7",
     "@types/mime": "^3.0.1",
     "@types/xml2js": "^0.4.11",
@@ -98,7 +104,6 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.0",
-    "typescript": "^4.9.5",
-    "@rollup/plugin-typescript": "^11.1.3"
+    "typescript": "^4.9.5"
   }
 }

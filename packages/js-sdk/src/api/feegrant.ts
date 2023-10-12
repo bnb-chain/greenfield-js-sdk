@@ -59,6 +59,8 @@ export class FeeGrant implements IFeeGrant {
         allowance: {
           type: grantAllowance.allowance?.typeUrl,
           value: base64FromBytes(arrayify('0x' + encodeToHex(JSON.stringify(marshal)))),
+          // TODO: @roshan next version should return hex string
+          // value: '0x' + encodeToHex(JSON.stringify(marshal)),
         },
       },
       MsgGrantAllowance.encode(grantAllowance).finish(),
