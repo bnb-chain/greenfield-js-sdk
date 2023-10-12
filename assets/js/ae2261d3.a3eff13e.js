@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkgreenfield_js_sdk_docs=self.webpackChunkgreenfield_js_sdk_docs||[]).push([[991],{9226:e=>{e.exports=JSON.parse('{"title":"Types","slug":"/category/types","permalink":"/category/types","navigation":{"previous":{"title":"VirtualGroup","permalink":"/api/virtual-group"},"next":{"title":"ActionType","permalink":"/types/action"}}}')}}]);
