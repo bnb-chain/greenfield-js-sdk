@@ -22,8 +22,3 @@ export interface GfSPListUserPaymentAccountsResponse {
     StreamRecord: StreamRecord;
   }[];
 }
-
-export interface StreamRecords {
-  StreamRecord: StreamRecord;
-  Refundable: string;
-}
