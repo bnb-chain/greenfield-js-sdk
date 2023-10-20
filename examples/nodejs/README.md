@@ -6,4 +6,4 @@
 > node storage.js
 ```
 
-[More examples](../../packages/chain-sdk/tests/)
+[More examples](../../packages/js-sdk/tests/)
