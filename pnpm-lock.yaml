@@ -241,6 +241,9 @@ importers:
       '@bnb-chain/greenfiled-file-handle':
         specifier: workspace:*
         version: link:../../packages/file-handle
+      mime-types:
+        specifier: ^2.1.35
+        version: 2.1.35
     devDependencies:
       cross-env:
         specifier: ^7.0.3

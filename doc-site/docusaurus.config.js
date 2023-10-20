@@ -41,7 +41,7 @@ const config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/bnb-chain/greenfield-js-sdk/tree/docs_sit/doc-site/',
+          editUrl: 'https://github.com/bnb-chain/greenfield-js-sdk/tree/main/doc-site/',
         },
         blog: false,
         theme: {
