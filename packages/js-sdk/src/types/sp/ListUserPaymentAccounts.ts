@@ -8,11 +8,17 @@ export type ListUserPaymentAccountsResponse = {
   GfSpListUserPaymentAccountsResponse: GfSPListUserPaymentAccountsResponse;
 };
 
-export interface GfSPListUserPaymentAccountsResponse {
-  StreamRecords: StreamRecords[];
-}
+export type PaymentAccount = {
+  Address: string;
+  Owner: string;
+  Refundable: boolean;
+  UpdateAt: number;
+  UpdateTime: number;
+};
 
-export interface StreamRecords {
-  StreamRecord: StreamRecord;
-  Refundable: string;
+export interface GfSPListUserPaymentAccountsResponse {
+  PaymentAccounts: {
+    PaymentAccount: PaymentAccount;
+    StreamRecord: StreamRecord;
+  }[];
 }

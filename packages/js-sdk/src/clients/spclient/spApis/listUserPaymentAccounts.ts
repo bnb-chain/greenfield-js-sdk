@@ -1,5 +1,6 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
 import { ReqMeta } from '@/types';
+import { convertStrToBool } from '@/types/sp/Common';
 import {
   ListUserPaymentAccountsResponse,
   ListUserPaymentAccountsResquest,
@@ -7,6 +8,7 @@ import {
 import { XMLParser } from 'fast-xml-parser';
 import { getSortQuery, getSortQueryParams } from '../auth';
 
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_user_payment_accounts
 export const getListUserPaymentAccountMetaInfo = (
   endpoint: string,
   params: ListUserPaymentAccountsResquest,
@@ -47,15 +49,27 @@ export const parseListUserPaymentAccountResponse = (data: string) => {
   });
   const res = xmlParser.parse(data) as ListUserPaymentAccountsResponse;
 
-  let StreamRecords = res.GfSpListUserPaymentAccountsResponse.StreamRecords || [];
+  let PaymentAccounts = res.GfSpListUserPaymentAccountsResponse.PaymentAccounts || [];
 
-  if (StreamRecords) {
-    if (!Array.isArray(StreamRecords)) {
-      StreamRecords = [StreamRecords];
+  if (PaymentAccounts) {
+    if (!Array.isArray(PaymentAccounts)) {
+      PaymentAccounts = [PaymentAccounts];
     }
+
+    PaymentAccounts = PaymentAccounts.map((item) => {
+      item.PaymentAccount = {
+        ...item.PaymentAccount,
+        // @ts-ignore
+        Refundable: convertStrToBool(item.PaymentAccount.Refundable),
+        UpdateAt: Number(item.PaymentAccount.UpdateAt),
+        UpdateTime: Number(item.PaymentAccount.UpdateTime),
+      };
+
+      return item;
+    });
   }
 
-  res.GfSpListUserPaymentAccountsResponse.StreamRecords = StreamRecords;
+  res.GfSpListUserPaymentAccountsResponse.PaymentAccounts = PaymentAccounts;
 
   return res;
 };
