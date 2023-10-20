@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.1
+
+### Patch Changes
+
+- [#370](https://github.com/bnb-chain/greenfield-js-sdk/pull/370)
+  [`5c2d075`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5c2d0753d1514fd24f8d5733e44cf0fbb758792e)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix(types): Payment listUserPaymentAccounts return
+  response
+
 ## 1.0.1-alpha.0
 
 ### Patch Changes
