@@ -22,12 +22,10 @@ const signMessagePersonalAPI = async (
   message: Uint8Array,
   address: string,
 ): Promise<string> => {
-  return provider.send('personal_sign', [hexlify(message), address]).then(
-    (sign: string) => sign,
-    (err: Error) => {
-      throw err;
-    },
-  );
+  return provider.request({
+    method: 'personal_sign',
+    params: [hexlify(message), address],
+  });
 };
 
 const generateSeed = async (
@@ -36,7 +34,7 @@ const generateSeed = async (
 ) => {
   const signedBytes = typeof message === 'string' ? toUtf8Bytes(message) : arrayify(message);
   const res = (await signMessagePersonalAPI(provider, signedBytes, address)) as any;
-  const seed = arrayify(res?.result);
+  const seed = arrayify(res);
 
   return { seed };
 };
