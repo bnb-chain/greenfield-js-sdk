@@ -1,5 +1,20 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.2
+
+### Patch Changes
+
+- [#381](https://github.com/bnb-chain/greenfield-js-sdk/pull/381)
+  [`c399ff9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c399ff9f7722d8b237e88b7ece7c58a61b1efbc0)
+  Thanks [@aiden-cao](https://github.com/aiden-cao)! - fix: Replace legacy method, Some third-party
+  plug-ins (e.g. wallet guard) will automatically convert deprecated methods and are not compatible
+  with the return value of deprecated methods.
+  https://github.com/wallet-guard/wallet-guard-extension/blob/221ad3eb329ad7681b16a37c7ddfaf173dba6e7f/src/injected/injectWalletGuard.tsx#L49-L62
+
+- [#384](https://github.com/bnb-chain/greenfield-js-sdk/pull/384)
+  [`b98cc0c`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b98cc0ccbcf96e947ec56ea521eab63055177de5)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Update deps
+
 ## 1.0.1
 
 ### Patch Changes

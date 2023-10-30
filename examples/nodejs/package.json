@@ -1,12 +1,13 @@
 {
   "name": "@demo/nodejs",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "commonjs",
   "private": true,
   "scripts": {},
   "dependencies": {
     "@bnb-chain/greenfield-js-sdk": "workspace:*",
-    "@bnb-chain/greenfiled-file-handle": "workspace:*"
+    "@bnb-chain/greenfiled-file-handle": "workspace:*",
+    "mime-types": "^2.1.35"
   },
   "devDependencies": {
     "cross-env": "^7.0.3"
