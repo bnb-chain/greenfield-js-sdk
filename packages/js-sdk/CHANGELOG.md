@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.3
+
+### Patch Changes
+
+- [#387](https://github.com/bnb-chain/greenfield-js-sdk/pull/387)
+  [`f14f3a1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f14f3a15b80c91b89d20aaf17ccdc8797418ad1c)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: don't use alias path
+
 ## 1.0.2
 
 ### Patch Changes
