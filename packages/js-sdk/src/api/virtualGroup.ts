@@ -1,5 +1,3 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgSettleSDKTypeEIP712 } from '@/messages/greenfield/virtualgroup/MsgSettle';
 import {
   QueryGlobalVirtualGroupByFamilyIDRequest,
   QueryGlobalVirtualGroupByFamilyIDResponse,
@@ -15,6 +13,8 @@ import { MsgSettle } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtual
 import { container, delay, inject, injectable } from 'tsyringe';
 import { MsgSettleTypeUrl, TxResponse } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { TxClient } from '../clients/txClient';
+import { MsgSettleSDKTypeEIP712 } from '../messages/greenfield/virtualgroup/MsgSettle';
 
 export interface IVirtualGroup {
   params(): Promise<QueryParamsResponse>;

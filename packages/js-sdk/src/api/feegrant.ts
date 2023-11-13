@@ -1,6 +1,6 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgGrantAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgGrantAllowance';
-import { MsgRevokeAllowanceSDKTypeEIP712 } from '@/messages/feegrant/MsgRevokeAllowance';
+import { TxClient } from '../clients/txClient';
+import { MsgGrantAllowanceSDKTypeEIP712 } from '../messages/feegrant/MsgGrantAllowance';
+import { MsgRevokeAllowanceSDKTypeEIP712 } from '../messages/feegrant/MsgRevokeAllowance';
 import {
   QueryAllowanceRequest,
   QueryAllowanceResponse,

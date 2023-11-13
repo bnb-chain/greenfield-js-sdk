@@ -1,10 +1,10 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgCreateGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateGroup';
-import { MsgDeleteGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteGroup';
-import { MsgLeaveGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgLeaveGroup';
-import { MsgUpdateGroupExtraSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupExtra';
-import { getMsgUpdateGroupMemberSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateGroupMember';
-import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '@/utils/grn';
+import { TxClient } from '../clients/txClient';
+import { MsgCreateGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateGroup';
+import { MsgDeleteGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteGroup';
+import { MsgLeaveGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgLeaveGroup';
+import { MsgUpdateGroupExtraSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateGroupExtra';
+import { getMsgUpdateGroupMemberSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateGroupMember';
+import { GRNToString, newBucketGRN, newGroupGRN, newObjectGRN } from '../utils/grn';
 import {
   QueryGroupNFTResponse,
   QueryHeadGroupMemberResponse,

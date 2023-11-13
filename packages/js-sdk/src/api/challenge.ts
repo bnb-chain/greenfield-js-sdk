@@ -1,6 +1,3 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgAttestSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgAttest';
-import { MsgSubmitSDKTypeEIP712 } from '@/messages/greenfield/chanenge/MsgSubmit';
 import {
   QueryInturnAttestationSubmitterResponse,
   QueryLatestAttestedChallengesResponse,
@@ -10,6 +7,9 @@ import { MsgAttest, MsgSubmit } from '@bnb-chain/greenfield-cosmos-types/greenfi
 import { container, delay, inject, injectable } from 'tsyringe';
 import { MsgAttestTypeUrl, MsgSubmitTypeUrl, TxResponse } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { TxClient } from '../clients/txClient';
+import { MsgAttestSDKTypeEIP712 } from '../messages/greenfield/chanenge/MsgAttest';
+import { MsgSubmitSDKTypeEIP712 } from '../messages/greenfield/chanenge/MsgSubmit';
 
 export interface IChallenge {
   // TODO: getChallengeInfo();

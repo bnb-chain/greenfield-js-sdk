@@ -1,16 +1,16 @@
-import { encodePath, HTTPHeaderUserAddress } from '@/clients/spclient/auth';
+import { encodePath, HTTPHeaderUserAddress } from '../clients/spclient/auth';
 import {
   getListGroupMetaInfo,
   parseListGroupsResponse,
-} from '@/clients/spclient/spApis/listGroups';
-import { parseListGroupsMembersResponse } from '@/clients/spclient/spApis/listGroupsMembers';
-import { parseListUserGroupsResponse } from '@/clients/spclient/spApis/listUserGroups';
-import { parseListUserOwnedGroupsResponse } from '@/clients/spclient/spApis/listUserOwnedGroups';
-import { parseError } from '@/clients/spclient/spApis/parseError';
-import { parseVerifyPermissionResponse } from '@/clients/spclient/spApis/verifyPermission';
-import { SpClient } from '@/clients/spclient/spClient';
-import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
-import { ListUserOwnedGroupsResponse } from '@/types/sp/ListUserOwnedGroups';
+} from '../clients/spclient/spApis/listGroups';
+import { parseListGroupsMembersResponse } from '../clients/spclient/spApis/listGroupsMembers';
+import { parseListUserGroupsResponse } from '../clients/spclient/spApis/listUserGroups';
+import { parseListUserOwnedGroupsResponse } from '../clients/spclient/spApis/listUserOwnedGroups';
+import { parseError } from '../clients/spclient/spApis/parseError';
+import { parseVerifyPermissionResponse } from '../clients/spclient/spApis/verifyPermission';
+import { SpClient } from '../clients/spclient/spClient';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
+import { ListUserOwnedGroupsResponse } from '../types/sp/ListUserOwnedGroups';
 import { actionTypeFromJSON } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
   QueryGlobalSpStorePriceByTimeRequest,

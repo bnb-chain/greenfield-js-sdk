@@ -1,13 +1,4 @@
 import {
-  getListUserPaymentAccountMetaInfo,
-  parseListUserPaymentAccountResponse,
-} from '@/clients/spclient/spApis/listUserPaymentAccounts';
-import { AuthType, SpClient } from '@/clients/spclient/spClient';
-import { TxClient } from '@/clients/txClient';
-import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
-import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
-import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
-import {
   QueryAutoSettleRecordsRequest,
   QueryAutoSettleRecordsResponse,
   QueryDynamicBalanceRequest,
@@ -46,6 +37,15 @@ import {
   TxResponse,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import {
+  getListUserPaymentAccountMetaInfo,
+  parseListUserPaymentAccountResponse,
+} from '../clients/spclient/spApis/listUserPaymentAccounts';
+import { AuthType, SpClient } from '../clients/spclient/spClient';
+import { TxClient } from '../clients/txClient';
+import { MsgDepositSDKTypeEIP712 } from '../messages/greenfield/payment/MsgDeposit';
+import { MsgDisableRefundSDKTypeEIP712 } from '../messages/greenfield/payment/MsgDisableRefund';
+import { MsgWithdrawSDKTypeEIP712 } from '../messages/greenfield/payment/MsgWithdraw';
 import {
   ListUserPaymentAccountsResponse,
   ListUserPaymentAccountsResquest,
