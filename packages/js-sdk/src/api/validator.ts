@@ -1,8 +1,3 @@
-import { RpcQueryClient } from '@/clients/queryclient';
-import { TxClient } from '@/clients/txClient';
-import { MsgCreateValidatorSDKTypeEIP712 } from '@/messages/cosmos/staking/MsgCreateValidator';
-import { MsgEditValidatorSDKTypeEIP712 } from '@/messages/cosmos/staking/MsgEditValidator';
-import { MsgSubmitProposal } from '@bnb-chain/greenfield-cosmos-types/cosmos/gov/v1/tx';
 import {
   QueryValidatorsRequest,
   QueryValidatorsResponse,
@@ -11,16 +6,12 @@ import {
   MsgCreateValidator,
   MsgEditValidator,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/staking/v1beta1/tx';
-import { arrayify } from '@ethersproject/bytes';
 import { container, delay, inject, injectable } from 'tsyringe';
-import {
-  base64FromBytes,
-  bytesFromBase64,
-  encodeToHex,
-  MsgCreateValidatorTypeUrl,
-  MsgEditValidatorTypeUrl,
-  TxResponse,
-} from '..';
+import { MsgCreateValidatorTypeUrl, MsgEditValidatorTypeUrl, TxResponse } from '..';
+import { RpcQueryClient } from '../clients/queryclient';
+import { TxClient } from '../clients/txClient';
+import { MsgCreateValidatorSDKTypeEIP712 } from '../messages/cosmos/staking/MsgCreateValidator';
+import { MsgEditValidatorSDKTypeEIP712 } from '../messages/cosmos/staking/MsgEditValidator';
 import { Proposal } from './proposal';
 
 export interface IValidator {

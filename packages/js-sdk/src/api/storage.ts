@@ -1,6 +1,6 @@
-import { TxClient } from '@/clients/txClient';
-import { getMsgPutPolicySDKTypeEIP712 } from '@/messages/greenfield';
-import { MsgDeletePolicySDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeletePolicy';
+import { TxClient } from '../clients/txClient';
+import { getMsgPutPolicySDKTypeEIP712 } from '../messages/greenfield';
+import { MsgDeletePolicySDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeletePolicy';
 import {
   QueryGroupMembersExistRequest,
   QueryGroupMembersExistResponse,

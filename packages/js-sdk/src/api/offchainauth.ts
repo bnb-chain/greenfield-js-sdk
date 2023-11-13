@@ -1,4 +1,4 @@
-import { NORMAL_ERROR_CODE } from '@/constants/http';
+import { NORMAL_ERROR_CODE } from '../constants/http';
 import {
   fetchNonces,
   genLocalSignMsg,
@@ -7,7 +7,7 @@ import {
   getCurrentSeedString,
   personalSign,
   updateSpsPubKey,
-} from '@/offchainauth';
+} from '../offchainauth';
 import { hexlify } from '@ethersproject/bytes';
 import { injectable } from 'tsyringe';
 import { convertTimeStampToDate, getUtcZeroTimestamp, SpResponse } from '..';

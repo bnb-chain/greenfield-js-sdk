@@ -1,7 +1,7 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgMultiSendSDKTypeEIP712 } from '@/messages/bank/MsgMultiSend';
-import { MsgSendSDKTypeEIP712 } from '@/messages/bank/MsgSend';
-import { MsgCreatePaymentAccountSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgCreatePaymentAccount';
+import { TxClient } from '../clients/txClient';
+import { MsgMultiSendSDKTypeEIP712 } from '../messages/bank/MsgMultiSend';
+import { MsgSendSDKTypeEIP712 } from '../messages/bank/MsgSend';
+import { MsgCreatePaymentAccountSDKTypeEIP712 } from '../messages/greenfield/payment/MsgCreatePaymentAccount';
 import { BaseAccount } from '@bnb-chain/greenfield-cosmos-types/cosmos/auth/v1beta1/auth';
 import {
   QueryModuleAccountByNameResponse,

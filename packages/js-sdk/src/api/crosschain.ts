@@ -1,9 +1,3 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgClaimSDKTypeEIP712 } from '@/messages/cosmos/oracle/MsgClaim';
-import { MsgTransferOutSDKTypeEIP712 } from '@/messages/greenfield/bridge/MsgTransferOut';
-import { MsgMirrorBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorBucket';
-import { MsgMirrorGroupSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorGroup';
-import { MsgMirrorObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMirrorObject';
 import {
   QueryCrossChainPackageRequest,
   QueryCrossChainPackageResponse,
@@ -31,6 +25,12 @@ import {
   TxResponse,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { TxClient } from '../clients/txClient';
+import { MsgClaimSDKTypeEIP712 } from '../messages/cosmos/oracle/MsgClaim';
+import { MsgTransferOutSDKTypeEIP712 } from '../messages/greenfield/bridge/MsgTransferOut';
+import { MsgMirrorBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgMirrorBucket';
+import { MsgMirrorGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgMirrorGroup';
+import { MsgMirrorObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgMirrorObject';
 
 export interface ICrossChain {
   /**

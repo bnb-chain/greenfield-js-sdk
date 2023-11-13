@@ -1,38 +1,3 @@
-import { HTTPHeaderUserAddress } from '@/clients/spclient/auth';
-import { getApprovalMetaInfo } from '@/clients/spclient/spApis/approval';
-import {
-  getBucketMetaInfo,
-  parseGetBucketMetaResponse,
-} from '@/clients/spclient/spApis/getBucketMeta';
-import {
-  getUserBucketMetaInfo,
-  parseGetUserBucketsResponse,
-} from '@/clients/spclient/spApis/getUserBuckets';
-import {
-  getListBucketReadRecordMetaInfo,
-  parseListBucketReadRecordResponse,
-} from '@/clients/spclient/spApis/listBucketReadRecords';
-import {
-  getListBucketsByIDsMetaInfo,
-  parseListBucketsByIdsResponse,
-} from '@/clients/spclient/spApis/listBucketsByIds';
-import {
-  getListBucketByPaymentMetaInfo,
-  parseListBucketByPaymentResponse,
-} from '@/clients/spclient/spApis/listBucketsByPayment';
-import { parseError } from '@/clients/spclient/spApis/parseError';
-import {
-  getQueryBucketReadQuotaMetaInfo,
-  parseReadQuotaResponse,
-} from '@/clients/spclient/spApis/queryBucketReadQuota';
-import { TxClient } from '@/clients/txClient';
-import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
-import { MsgCreateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateBucket';
-import { MsgDeleteBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket';
-import { MsgMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgMigrateBucket';
-import { MsgUpdateBucketInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateBucketInfo';
-import { decodeObjectFromHexString } from '@/utils/encoding';
-import { isValidAddress, isValidBucketName, isValidUrl } from '@/utils/s3';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
   ActionType,
@@ -73,7 +38,40 @@ import {
   TxResponse,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { HTTPHeaderUserAddress } from '../clients/spclient/auth';
+import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
+import {
+  getBucketMetaInfo,
+  parseGetBucketMetaResponse,
+} from '../clients/spclient/spApis/getBucketMeta';
+import {
+  getUserBucketMetaInfo,
+  parseGetUserBucketsResponse,
+} from '../clients/spclient/spApis/getUserBuckets';
+import {
+  getListBucketReadRecordMetaInfo,
+  parseListBucketReadRecordResponse,
+} from '../clients/spclient/spApis/listBucketReadRecords';
+import {
+  getListBucketsByIDsMetaInfo,
+  parseListBucketsByIdsResponse,
+} from '../clients/spclient/spApis/listBucketsByIds';
+import {
+  getListBucketByPaymentMetaInfo,
+  parseListBucketByPaymentResponse,
+} from '../clients/spclient/spApis/listBucketsByPayment';
+import { parseError } from '../clients/spclient/spApis/parseError';
+import {
+  getQueryBucketReadQuotaMetaInfo,
+  parseReadQuotaResponse,
+} from '../clients/spclient/spApis/queryBucketReadQuota';
 import { AuthType, SpClient } from '../clients/spclient/spClient';
+import { TxClient } from '../clients/txClient';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
+import { MsgCreateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateBucket';
+import { MsgDeleteBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteBucket';
+import { MsgMigrateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgMigrateBucket';
+import { MsgUpdateBucketInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateBucketInfo';
 import type {
   CreateBucketApprovalRequest,
   CreateBucketApprovalResponse,
@@ -93,6 +91,8 @@ import type {
   ReadQuotaRequest,
   SpResponse,
 } from '../types/sp';
+import { decodeObjectFromHexString } from '../utils/encoding';
+import { isValidAddress, isValidBucketName, isValidUrl } from '../utils/s3';
 import { Sp } from './sp';
 import { Storage } from './storage';
 
