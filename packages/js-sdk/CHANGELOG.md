@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.4
+
+### Patch Changes
+
+- [#392](https://github.com/bnb-chain/greenfield-js-sdk/pull/392)
+  [`1c24bde`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1c24bdec7016c5338ae8a6e35a07876a3cb96998)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: ListUserPaymentAccounts add config for
+  endpoint
+
 ## 1.0.3
 
 ### Patch Changes
