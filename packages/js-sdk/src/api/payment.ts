@@ -50,6 +50,7 @@ import {
   ListUserPaymentAccountsResponse,
   ListUserPaymentAccountsResquest,
 } from '../types/sp/ListUserPaymentAccounts';
+import { SpConfig } from './config';
 import { Sp } from './sp';
 
 export interface IPayment {
@@ -220,12 +221,19 @@ export class Payment implements IPayment {
   public async listUserPaymentAccounts(
     params: ListUserPaymentAccountsResquest,
     authType: AuthType,
+    config?: SpConfig,
   ) {
     try {
-      const sp = await this.sp.getInServiceSP();
+      let endpoint = '';
+      if (config && config.endpoint) {
+        endpoint = config.endpoint;
+      } else {
+        const sp = await this.sp.getInServiceSP();
+        endpoint = sp.endpoint;
+      }
 
       const { url, optionsWithOutHeaders, reqMeta } = getListUserPaymentAccountMetaInfo(
-        sp.endpoint,
+        endpoint,
         params,
       );
 
