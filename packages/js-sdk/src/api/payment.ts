@@ -114,6 +114,7 @@ export interface IPayment {
   listUserPaymentAccounts(
     params: ListUserPaymentAccountsResquest,
     authType: AuthType,
+    config?: SpConfig,
   ): Promise<SpResponse<ListUserPaymentAccountsResponse>>;
 }
 
