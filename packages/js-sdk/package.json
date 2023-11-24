@@ -65,9 +65,9 @@
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.23",
     "@bnb-chain/greenfield-zk-crypto": "workspace:*",
-    "@cosmjs/proto-signing": "^0.30.1",
-    "@cosmjs/stargate": "^0.30.1",
-    "@cosmjs/tendermint-rpc": "^0.30.1",
+    "@cosmjs/proto-signing": "^0.32.0",
+    "@cosmjs/stargate": "^0.32.0",
+    "@cosmjs/tendermint-rpc": "^0.32.0",
     "@ethersproject/base64": "^5.7.0",
     "@ethersproject/bytes": "5.7.0",
     "@ethersproject/signing-key": "^5.7.0",
