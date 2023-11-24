@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.5
+
+### Patch Changes
+
+- [#397](https://github.com/bnb-chain/greenfield-js-sdk/pull/397)
+  [`f20db2a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f20db2aaca603834dda619179f72c1a1e346090c)
+  Thanks [@rrr523](https://github.com/rrr523)! - build(deps): Upgrade cosmos SDK version
+
 ## 1.0.4
 
 ### Patch Changes
