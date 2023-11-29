@@ -247,10 +247,6 @@ importers:
       mime-types:
         specifier: ^2.1.35
         version: 2.1.35
-    devDependencies:
-      cross-env:
-        specifier: ^7.0.3
-        version: 7.0.3
 
   packages/create-gnfd-app:
     dependencies:

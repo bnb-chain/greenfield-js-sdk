@@ -17,15 +17,15 @@ Build packages:
 pnpm run -F "./packages/**"  -r build
 ```
 
-### Run the demo application
+### Config
 
 ```bash
 > cp .env.simple .env
 ```
 
-Fill your account's private key and address in [env](./env).
+Fill your account's private key and address in [.env](./.env).
 
-## Execure example
+## Run Example
 
 ```bash
 > node ./cases/storage.js
