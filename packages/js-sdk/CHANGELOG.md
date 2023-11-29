@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.6
+
+### Patch Changes
+
+- [#401](https://github.com/bnb-chain/greenfield-js-sdk/pull/401)
+  [`5919a96`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5919a9627491c62ee683a32e23c191146324a359)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix(spApi): Compatibility with 429 code
+
 ## 1.0.5
 
 ### Patch Changes
