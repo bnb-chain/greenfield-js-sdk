@@ -6,6 +6,7 @@ import {
   newRequestHeadersByMeta,
 } from '@/clients/spclient/auth';
 import { parseError } from '@/clients/spclient/spApis/parseError';
+import { SP_NOT_AVAILABLE_ERROR_CODE, SP_NOT_AVAILABLE_ERROR_MSG } from '@/constants/http';
 import { ReqMeta } from '@/types/auth';
 import { injectable } from 'tsyringe';
 import { getGetObjectMetaInfo } from './spApis/getObject';
@@ -79,6 +80,14 @@ export class SpClient implements ISpClient {
       clearTimeout(_id);
 
       const { status } = response;
+
+      if (status === SP_NOT_AVAILABLE_ERROR_CODE) {
+        throw {
+          code: SP_NOT_AVAILABLE_ERROR_CODE,
+          message: SP_NOT_AVAILABLE_ERROR_MSG,
+          statusCode: status,
+        };
+      }
 
       if (!response.ok) {
         const xmlError = await response.text();
