@@ -1,0 +1,7 @@
+const ACCOUNT_ADDRESS = process.env.ACCOUNT_ADDRESS;
+const ACCOUNT_PRIVATEKEY = process.env.ACCOUNT_PRIVATEKEY;
+
+module.exports = {
+  ACCOUNT_ADDRESS,
+  ACCOUNT_PRIVATEKEY,
+};

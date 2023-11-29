@@ -1,11 +1,12 @@
 const { Client } = require('@bnb-chain/greenfield-js-sdk');
-const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('./env');
-
-const client = Client.create('https://gnfd-testnet-fullnode-tendermint-ap.bnbchain.org', '5600');
+const client = Client.create(
+  process.env.NEXT_PUBLIC_GREENFIELD_RPC_URL,
+  process.env.NEXT_PUBLIC_GREEN_CHAIN_ID,
+);
 
 const getSps = async () => {
   const sps = await client.sp.getStorageProviders();
-  const finalSps = (sps ?? []).filter((v) => v.endpoint.includes('https'));
+  const finalSps = (sps ?? []).filter((v) => v.endpoint.includes('nodereal'));
 
   return finalSps;
 };
@@ -56,8 +57,6 @@ const generateString = (length) => {
 
 module.exports = {
   client,
-  ACCOUNT_ADDRESS,
-  ACCOUNT_PRIVATEKEY,
   selectSp,
   generateString,
 };

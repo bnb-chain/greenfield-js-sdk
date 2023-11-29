@@ -1,5 +1,6 @@
-const { client, selectSp, generateString } = require('./client');
-const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('./env');
+require('dotenv').config();
+const { client, selectSp, generateString } = require('../client');
+const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('../env');
 
 (async () => {
   const spInfo = await selectSp();

@@ -1,9 +1,10 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const mimeTypes = require('mime-types');
 const { getCheckSums } = require('@bnb-chain/greenfiled-file-handle');
-const { client, selectSp, generateString } = require('./client');
-const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('./env');
+const { client, selectSp, generateString } = require('../client');
+const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('../env');
 
 const filePath = './CHANGELOG.md';
 const bucketName = generateString(10);
