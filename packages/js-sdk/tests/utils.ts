@@ -1,13 +1,8 @@
 import { Client } from '../src';
 import { ISimulateGasFee } from '../src/types';
-import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY, GREENFIELD_CHAIN_ID, GRPC_URL } from './.env';
+import { GREENFIELD_CHAIN_ID, GREENFIELD_URL } from './env';
 
-export const client = Client.create(GRPC_URL, GREENFIELD_CHAIN_ID);
-
-export const ACCOUNT = {
-  address: ACCOUNT_ADDRESS,
-  privateKey: ACCOUNT_PRIVATEKEY,
-};
+export const client = Client.create(GREENFIELD_URL, GREENFIELD_CHAIN_ID);
 
 export const ZERO_ACCOUNT_ADDRESS = '0x0000000000000000000000000000000000000000';
 

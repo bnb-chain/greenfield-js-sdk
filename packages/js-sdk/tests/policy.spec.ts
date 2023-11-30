@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
-import { ACCOUNT, client, generateString } from './config.spec';
+import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } from './env';
+import { client, generateString } from './utils';
 
 const GROUP_NAME = generateString(10);
 const EXTRA = generateString(10);
@@ -13,7 +14,7 @@ describe('groupTx', () => {
 
     test('create group', async () => {
       const createGroupTx = await client.group.createGroup({
-        creator: ACCOUNT.address,
+        creator: ACCOUNT_ADDRESS,
         extra: EXTRA,
         groupName: GROUP_NAME,
       });
@@ -29,15 +30,15 @@ describe('groupTx', () => {
         gasLimit: Number(simulateInfo.gasLimit),
         gasPrice: simulateInfo.gasPrice,
         granter: '',
-        payer: ACCOUNT.address,
-        privateKey: ACCOUNT.privateKey,
+        payer: ACCOUNT_ADDRESS,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(res.code).toEqual(0);
     }, 300000);
 
     test('group info', async () => {
-      const { groupInfo } = await client.group.headGroup(GROUP_NAME, ACCOUNT.address);
+      const { groupInfo } = await client.group.headGroup(GROUP_NAME, ACCOUNT_ADDRESS);
 
       expect(groupInfo?.groupName).toEqual(GROUP_NAME);
       expect(groupInfo?.extra).toEqual(EXTRA);
@@ -49,8 +50,8 @@ describe('groupTx', () => {
       const newExtra = generateString(10);
       const updateGroupTx = await client.group.updateGroupExtra({
         groupName: GROUP_NAME,
-        groupOwner: ACCOUNT.address,
-        operator: ACCOUNT.address,
+        groupOwner: ACCOUNT_ADDRESS,
+        operator: ACCOUNT_ADDRESS,
         extra: newExtra,
       });
 
@@ -65,8 +66,8 @@ describe('groupTx', () => {
         gasLimit: Number(simulateInfo.gasLimit),
         gasPrice: simulateInfo.gasPrice,
         granter: '',
-        payer: ACCOUNT.address,
-        privateKey: ACCOUNT.privateKey,
+        payer: ACCOUNT_ADDRESS,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(res.code).toEqual(0);
@@ -77,7 +78,7 @@ describe('groupTx', () => {
     test('delete group', async () => {
       const deleteGroupTx = await client.group.deleteGroup({
         groupName: GROUP_NAME,
-        operator: ACCOUNT.address,
+        operator: ACCOUNT_ADDRESS,
       });
 
       const simulateInfo = await deleteGroupTx.simulate({
@@ -91,8 +92,8 @@ describe('groupTx', () => {
         gasLimit: Number(simulateInfo.gasLimit),
         gasPrice: simulateInfo.gasPrice,
         granter: '',
-        payer: ACCOUNT.address,
-        privateKey: ACCOUNT.privateKey,
+        payer: ACCOUNT_ADDRESS,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(res.code).toEqual(0);

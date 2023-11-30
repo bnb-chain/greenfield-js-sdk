@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import Long from 'long';
-import { client, selectSp } from './config.spec';
+import { client, selectSp } from './utils';
 
 describe('query storage api', () => {
   test('query lock fee', async () => {
