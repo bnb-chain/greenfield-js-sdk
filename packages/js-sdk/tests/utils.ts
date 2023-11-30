@@ -26,7 +26,7 @@ export function generateString(length: number) {
 
 export const getSps = async () => {
   const sps = await client.sp.getStorageProviders();
-  const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
+  const finalSps = (sps ?? []).filter((v) => v.endpoint.includes('nodereal'));
 
   return finalSps;
 };
