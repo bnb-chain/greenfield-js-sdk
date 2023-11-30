@@ -350,9 +350,6 @@ importers:
       dayjs:
         specifier: ^1.11.7
         version: 1.11.7
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
       ethereum-cryptography:
         specifier: ^2.0.0
         version: 2.0.0
@@ -414,6 +411,9 @@ importers:
       '@types/xml2js':
         specifier: ^0.4.11
         version: 0.4.11
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
       jest:
         specifier: ^29.5.0
         version: 29.5.0(@types/node@18.16.18)(ts-node@10.9.1)

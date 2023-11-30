@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
-import { ACCOUNT, client, generateString, selectSp } from './config.spec';
+import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } from './env';
+import { client, generateString, selectSp } from './utils';
 
 const BUCKET_NAME = generateString(10);
 const OBJECT_NAME = generateString(10);
@@ -18,17 +19,17 @@ describe('storageTx', () => {
       const createBucketTx = await client.bucket.createBucket(
         {
           bucketName: BUCKET_NAME,
-          creator: ACCOUNT.address,
+          creator: ACCOUNT_ADDRESS,
           visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
           chargedReadQuota: '0',
           spInfo: {
             primarySpAddress: spInfo.primarySpAddress,
           },
-          paymentAddress: ACCOUNT.address,
+          paymentAddress: ACCOUNT_ADDRESS,
         },
         {
           type: 'ECDSA',
-          privateKey: ACCOUNT.privateKey,
+          privateKey: ACCOUNT_PRIVATEKEY,
         },
       );
 
@@ -42,9 +43,9 @@ describe('storageTx', () => {
         denom: 'BNB',
         gasLimit: Number(simulateInfo?.gasLimit),
         gasPrice: simulateInfo?.gasPrice || '5000000000',
-        payer: ACCOUNT.address,
+        payer: ACCOUNT_ADDRESS,
         granter: '',
-        privateKey: ACCOUNT.privateKey,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(res.code).toEqual(0);
@@ -79,11 +80,11 @@ describe('storageTx', () => {
             '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
             '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
           ],
-          creator: ACCOUNT.address,
+          creator: ACCOUNT_ADDRESS,
         },
         {
           type: 'ECDSA',
-          privateKey: ACCOUNT.privateKey,
+          privateKey: ACCOUNT_PRIVATEKEY,
         },
       );
 
@@ -97,9 +98,9 @@ describe('storageTx', () => {
         denom: 'BNB',
         gasLimit: Number(simulateInfo?.gasLimit),
         gasPrice: simulateInfo?.gasPrice || '50000000000',
-        payer: ACCOUNT.address,
+        payer: ACCOUNT_ADDRESS,
         granter: '',
-        privateKey: ACCOUNT.privateKey,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
       expect(rxRes.code).toBe(0);
     }, 30000);
@@ -116,7 +117,7 @@ describe('storageTx', () => {
       const deleteObjectTx = await client.object.deleteObject({
         bucketName: BUCKET_NAME,
         objectName: OBJECT_NAME,
-        operator: ACCOUNT.address,
+        operator: ACCOUNT_ADDRESS,
       });
 
       const simulateInfo = await deleteObjectTx.simulate({
@@ -129,9 +130,9 @@ describe('storageTx', () => {
         denom: 'BNB',
         gasLimit: Number(simulateInfo?.gasLimit),
         gasPrice: simulateInfo?.gasPrice || '5000000000',
-        payer: ACCOUNT.address,
+        payer: ACCOUNT_ADDRESS,
         granter: '',
-        privateKey: ACCOUNT.privateKey,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(res.code).toBe(0);
@@ -140,7 +141,7 @@ describe('storageTx', () => {
     test('delete bucket', async () => {
       const deleteBucketTx = await client.bucket.deleteBucket({
         bucketName: BUCKET_NAME,
-        operator: ACCOUNT.address,
+        operator: ACCOUNT_ADDRESS,
       });
 
       const simulateInfo = await deleteBucketTx.simulate({
@@ -153,9 +154,9 @@ describe('storageTx', () => {
         denom: 'BNB',
         gasLimit: Number(simulateInfo?.gasLimit),
         gasPrice: simulateInfo?.gasPrice || '5000000000',
-        payer: ACCOUNT.address,
+        payer: ACCOUNT_ADDRESS,
         granter: '',
-        privateKey: ACCOUNT.privateKey,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(res.code).toEqual(0);

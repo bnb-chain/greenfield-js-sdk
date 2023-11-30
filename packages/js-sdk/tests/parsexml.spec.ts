@@ -326,6 +326,11 @@ describe('parseGetUserBucketsResponse', () => {
 		<UpdateTxHash>0xea5f91a6ba8e558e35ecc416579b4585cc494d5dcc99bce519cc54968b0b1292</UpdateTxHash>
 		<UpdateAt>363707</UpdateAt>
 		<UpdateTime>1693279149</UpdateTime>
+    <Vgf>
+			<Id>30</Id>
+			<PrimarySpId>6</PrimarySpId>
+			<VirtualPaymentAddress>0x3dBB43836cF80F141C338Cba7709aBffAfB8F4bC</VirtualPaymentAddress>
+		</Vgf>
 	</Buckets>
 	<Buckets>
 		<BucketInfo>
@@ -348,6 +353,11 @@ describe('parseGetUserBucketsResponse', () => {
 		<UpdateTxHash>0xea5f91a6ba8e558e35ecc416579b4585cc494d5dcc99bce519cc54968b0b1292</UpdateTxHash>
 		<UpdateAt>363707</UpdateAt>
 		<UpdateTime>1693279149</UpdateTime>
+    <Vgf>
+			<Id>31</Id>
+			<PrimarySpId>6</PrimarySpId>
+			<VirtualPaymentAddress>0x3dBB43836cF80F141C338Cba7709aBffAfB8F4bC</VirtualPaymentAddress>
+		</Vgf>
 	</Buckets>
 </GfSpGetUserBucketsResponse>`;
 
@@ -375,6 +385,11 @@ describe('parseGetUserBucketsResponse', () => {
         UpdateTxHash: '0xea5f91a6ba8e558e35ecc416579b4585cc494d5dcc99bce519cc54968b0b1292',
         UpdateAt: 363707,
         UpdateTime: 1693279149,
+        Vgf: {
+          Id: 30,
+          PrimarySpId: 6,
+          VirtualPaymentAddress: '0x3dBB43836cF80F141C338Cba7709aBffAfB8F4bC',
+        },
       },
       {
         BucketInfo: {
@@ -397,6 +412,11 @@ describe('parseGetUserBucketsResponse', () => {
         UpdateTxHash: '0xea5f91a6ba8e558e35ecc416579b4585cc494d5dcc99bce519cc54968b0b1292',
         UpdateAt: 363707,
         UpdateTime: 1693279149,
+        Vgf: {
+          Id: 31,
+          PrimarySpId: 6,
+          VirtualPaymentAddress: '0x3dBB43836cF80F141C338Cba7709aBffAfB8F4bC',
+        },
       },
     ]);
   });
@@ -424,6 +444,11 @@ describe('parseGetUserBucketsResponse', () => {
 		<UpdateTxHash>0xea5f91a6ba8e558e35ecc416579b4585cc494d5dcc99bce519cc54968b0b1292</UpdateTxHash>
 		<UpdateAt>363707</UpdateAt>
 		<UpdateTime>1693279149</UpdateTime>
+    <Vgf>
+			<Id>30</Id>
+			<PrimarySpId>6</PrimarySpId>
+			<VirtualPaymentAddress>0x3dBB43836cF80F141C338Cba7709aBffAfB8F4bC</VirtualPaymentAddress>
+		</Vgf>
 	</Buckets>
 </GfSpGetUserBucketsResponse>`;
 
@@ -451,6 +476,11 @@ describe('parseGetUserBucketsResponse', () => {
         UpdateTxHash: '0xea5f91a6ba8e558e35ecc416579b4585cc494d5dcc99bce519cc54968b0b1292',
         UpdateAt: 363707,
         UpdateTime: 1693279149,
+        Vgf: {
+          Id: 30,
+          PrimarySpId: 6,
+          VirtualPaymentAddress: '0x3dBB43836cF80F141C338Cba7709aBffAfB8F4bC',
+        },
       },
     ]);
   });
