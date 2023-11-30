@@ -43,9 +43,9 @@ You can use [`create-gnfd-app`](./packages/create-gnfd-app/README.md) to create 
 > pnpm install
 ```
 
-2. Build package:
+2. Build packages:
 ```bash
-> pnpm run build
+> pnpm -F "@bnb-chain/**" build
 ```
 
 Look over [CONTRIBUTING](./CONTRIBUTING.md)
