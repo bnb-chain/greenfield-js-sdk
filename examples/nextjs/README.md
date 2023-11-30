@@ -15,7 +15,7 @@ pnpm install
 Build package:
 
 ```bash
-pnpm run -F "./packages/**"  -r build
+pnpm -F "@bnb-chain/**" build
 ```
 
 
