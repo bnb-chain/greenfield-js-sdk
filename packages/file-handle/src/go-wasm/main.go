@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"syscall/js"
 
 	lib "github.com/bnb-chain/greenfield-common/go/hash"
@@ -42,8 +41,6 @@ func encodeRawSegment(this js.Value, args []js.Value) interface{} {
 	array := args[0]
 	dataBlocks := args[1].Int()
 	parityBlocks := args[2].Int()
-
-	fmt.Print("array: ", array, dataBlocks, parityBlocks)
 
 	byteLength := array.Get("byteLength").Int()
 	data := make([]byte, byteLength)
