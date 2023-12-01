@@ -61,9 +61,7 @@ func encodeRawSegment(this js.Value, args []js.Value) interface{} {
 
 func main() {
 	done := make(chan int, 0)
-	js.Global().Set("greenfieldSdk", map[string]interface{}{
-		"getCheckSums":     js.FuncOf(hashFunc),
-		"encodeRawSegment": js.FuncOf(encodeRawSegment),
-	})
+	js.Global().Set("getCheckSums", js.FuncOf(hashFunc))
+	js.Global().Set("encodeRawSegment", js.FuncOf(encodeRawSegment))
 	<-done
 }

@@ -17,4 +17,4 @@ export function getCheckSums(
 
 export async function generateCheckSumV2(file: File): Promise<THashResult>;
 
-export function getChecksumApiWorker(): generateCheckSumV2;
+export function getCheckSumsWorker(): generateCheckSumV2;

@@ -1,11 +1,8 @@
 import { CreateObject } from './create';
 import { DeleteObject } from './del';
 import { ObjectInfo } from './info';
-import { getChecksumApiWorker } from '@bnb-chain/greenfiled-file-handle';
 
 export const ObjectComponent = () => {
-  console.log('getChecksumApi', getChecksumApiWorker, getChecksumApiWorker());
-
   return (
     <>
       <h2>Object</h2>

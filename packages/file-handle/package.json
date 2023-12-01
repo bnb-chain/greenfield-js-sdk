@@ -64,7 +64,6 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
-    "comlink": "^4.4.1",
     "hash-wasm": "^4.11.0",
     "lodash-es": "^4.17.21"
   }
