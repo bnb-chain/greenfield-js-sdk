@@ -2,6 +2,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = [
   // Browser ESM
@@ -49,6 +50,14 @@ module.exports = [
     plugins: [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: 'src/browser/worker/wasm_exec-worker.js',
+            to: 'wasm_exec-worker.js',
+          },
+        ],
       }),
       new CleanWebpackPlugin(),
     ],
@@ -101,6 +110,14 @@ module.exports = [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
       }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: 'src/browser/worker/wasm_exec-worker.js',
+            to: 'wasm_exec-worker.js',
+          },
+        ],
+      }),
       new CleanWebpackPlugin(),
     ],
   },
@@ -136,6 +153,14 @@ module.exports = [
         Buffer: ['buffer', 'Buffer'],
       }),
       new CleanWebpackPlugin(),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: 'src/wasm/file-handle-worker.wasm',
+            to: 'file-handle-worker.wasm',
+          },
+        ],
+      }),
     ],
   },
 ];
