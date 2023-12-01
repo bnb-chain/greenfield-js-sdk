@@ -13,7 +13,11 @@ const fileBuffer = fs.readFileSync(filePath);
 const extname = path.extname(filePath);
 const fileType = mimeTypes.lookup(extname);
 
-(async () => {
+console.log('bucketName', bucketName);
+console.log(
+  'objectName',
+  objectName,
+)(async () => {
   const spInfo = await selectSp();
 
   // create bucket example:
@@ -86,4 +90,21 @@ const fileType = mimeTypes.lookup(extname);
   });
 
   console.log('create object success', createObjectTxRes);
+
+  const uploadRes = await client.object.uploadObject(
+    {
+      bucketName: bucketName,
+      objectName: objectName,
+      body: fileBuffer,
+      txnHash: createObjectTxRes.transactionHash,
+    },
+    {
+      type: 'ECDSA',
+      privateKey: ACCOUNT_PRIVATEKEY,
+    },
+  );
+
+  if (uploadRes.code === 0) {
+    console.log('upload object success', uploadRes);
+  }
 })();
