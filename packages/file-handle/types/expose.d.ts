@@ -15,6 +15,6 @@ export function getCheckSums(
   redundancyVal: number;
 }>;
 
-export async function generateCheckSumV2(file: File): Promise<THashResult>;
-
-export function getCheckSumsWorker(): generateCheckSumV2;
+export function getCheckSumsWorker(): {
+  generateCheckSumV2(file: File): Promise<THashResult>;
+};

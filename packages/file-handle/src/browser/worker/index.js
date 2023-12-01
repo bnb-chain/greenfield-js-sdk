@@ -68,7 +68,7 @@ export function getChecksumApi() {
 
   const workerScript = `
   importScripts('https://unpkg.com/hash-wasm@4.11.0/dist/sha256.umd.min.js')
-  importScripts('http://unpkg.com/@bnb-chain/greenfiled-file-handle/dist/browser/esm/wasm_exec-worker.js');
+  importScripts('https://unpkg.com/@bnb-chain/greenfiled-file-handle/dist/browser/esm/wasm_exec-worker.js');
   function getDecodeBase64Length(data) {
     let bufferLength = Math.floor(data.length * 0.75);
     const len = data.length;
@@ -114,7 +114,7 @@ export function getChecksumApi() {
   const init = async () => {
     const go = new Go();
     const result = await WebAssembly.instantiateStreaming(
-      fetch('https://unpkg.com/@bnb-chain/greenfiled-file-handle/dist/browser/esm/index.js'),
+      fetch('https://unpkg.com/@bnb-chain/greenfiled-file-handle/dist/node/file-handle-worker.wasm'),
       go.importObject,
     );
     if (result) {
