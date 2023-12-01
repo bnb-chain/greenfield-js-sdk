@@ -1,5 +1,13 @@
 # @demo/nodejs
 
+## 0.0.19
+
+### Patch Changes
+
+- Updated dependencies
+  [[`b97b305`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b97b305ced1af7b9642f873be71167f673b84728)]:
+  - @bnb-chain/greenfiled-file-handle@1.0.2
+
 ## 0.0.18
 
 ### Patch Changes
