@@ -1,5 +1,6 @@
 import { ensureServiceIsRunning, initialize, instantiateWASM } from './init';
 import { DEFAULT_DATA_BLOCKS, DEFAULT_PARITY_BLOCKS, DEFAULT_SEGMENT_SIZE } from '../constants';
+import { getChecksumApi } from './worker/index';
 
 // 1. modify method of `exports` and `globalThis` export.
 export const startRunningService = async (wasmURL) => {
@@ -26,3 +27,6 @@ export const getCheckSums = async (
   await initialize();
   return ensureServiceIsRunning().getCheckSums(bytes, segmentSize, dataBlocks, parityBlocks);
 };
+
+// please keep singleton
+export const getCheckSumsWorker = getChecksumApi;

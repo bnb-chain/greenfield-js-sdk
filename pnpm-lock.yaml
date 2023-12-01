@@ -289,6 +289,16 @@ importers:
         version: 4.0.0
 
   packages/file-handle:
+    dependencies:
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      hash-wasm:
+        specifier: ^4.11.0
+        version: 4.11.0
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
     devDependencies:
       clean-webpack-plugin:
         specifier: ^4.0.0
@@ -6632,7 +6642,7 @@ packages:
     resolution: {integrity: sha512-sdPRb9K6iL5XZOmBubg8yiFp5yS/JdUDQsq5e6h95km91MCYMuvp7mh1fjPEYUhvHepKpZOjnEaMBR4PxjWDzg==}
     dependencies:
       '@types/estree': 1.0.1
-      '@types/json-schema': 7.0.12
+      '@types/json-schema': 7.0.15
     dev: true
 
   /@types/eslint@8.44.7:
@@ -6959,7 +6969,7 @@ packages:
     resolution: {integrity: sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.2.12
+      '@types/react': 18.2.38
 
   /@types/react@18.2.12:
     resolution: {integrity: sha512-ndmBMLCgn38v3SntMeoJaIrO6tGHYKMEBohCUmw8HoLLQdRMOIGXfeYaBTLe2lsFaSB3MOK1VXscYFnmLtTSmw==}
@@ -7288,7 +7298,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.48.0)
-      '@types/json-schema': 7.0.12
+      '@types/json-schema': 7.0.15
       '@types/semver': 7.5.0
       '@typescript-eslint/scope-manager': 5.59.7
       '@typescript-eslint/types': 5.59.7
@@ -12402,6 +12412,10 @@ packages:
       safe-buffer: 5.2.1
     dev: false
 
+  /hash-wasm@4.11.0:
+    resolution: {integrity: sha512-HVusNXlVqHe0fzIzdQOGolnFN6mX/fqcrSAOcTBXdvzrXVHwTz11vXeKRmkR5gTuwVpvHZEIyKoePDvuAR+XwQ==}
+    dev: false
+
   /hash.js@1.1.7:
     resolution: {integrity: sha512-taOaskGt4z4SOANNseOviYDvjEJinIkRgmp7LbKP2YTTmVxWBl87s/uzK9r+44BclBSp2X7K1hqeNfz9JbBeXA==}
     dependencies:
@@ -14247,6 +14261,10 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       p-locate: 6.0.0
+    dev: false
+
+  /lodash-es@4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
     dev: false
 
   /lodash.camelcase@4.3.0:

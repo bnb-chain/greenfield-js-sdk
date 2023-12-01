@@ -61,5 +61,10 @@
     "typescript": "^5.1.6",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "hash-wasm": "^4.11.0",
+    "lodash-es": "^4.17.21"
   }
 }
