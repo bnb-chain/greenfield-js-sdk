@@ -14,7 +14,7 @@ export const startRunningService = async () => {
   // const { add } = exports;
 
   // `globalThis` is a map to complex way of `syscall/js` way.
-  const { getCheckSums } = globalThis;
+  const { getCheckSums } = globalThis.greenfieldSdk;
 
   return {
     getCheckSums,
