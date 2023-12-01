@@ -14,10 +14,9 @@ const extname = path.extname(filePath);
 const fileType = mimeTypes.lookup(extname);
 
 console.log('bucketName', bucketName);
-console.log(
-  'objectName',
-  objectName,
-)(async () => {
+console.log('objectName', objectName);
+
+(async () => {
   const spInfo = await selectSp();
 
   // create bucket example:
