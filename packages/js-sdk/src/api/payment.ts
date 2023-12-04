@@ -1,13 +1,4 @@
 import {
-  getListUserPaymentAccountMetaInfo,
-  parseListUserPaymentAccountResponse,
-} from '@/clients/spclient/spApis/listUserPaymentAccounts';
-import { AuthType, SpClient } from '@/clients/spclient/spClient';
-import { TxClient } from '@/clients/txClient';
-import { MsgDepositSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDeposit';
-import { MsgDisableRefundSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgDisableRefund';
-import { MsgWithdrawSDKTypeEIP712 } from '@/messages/greenfield/payment/MsgWithdraw';
-import {
   QueryAutoSettleRecordsRequest,
   QueryAutoSettleRecordsResponse,
   QueryDynamicBalanceRequest,
@@ -47,9 +38,19 @@ import {
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import {
+  getListUserPaymentAccountMetaInfo,
+  parseListUserPaymentAccountResponse,
+} from '../clients/spclient/spApis/listUserPaymentAccounts';
+import { AuthType, SpClient } from '../clients/spclient/spClient';
+import { TxClient } from '../clients/txClient';
+import { MsgDepositSDKTypeEIP712 } from '../messages/greenfield/payment/MsgDeposit';
+import { MsgDisableRefundSDKTypeEIP712 } from '../messages/greenfield/payment/MsgDisableRefund';
+import { MsgWithdrawSDKTypeEIP712 } from '../messages/greenfield/payment/MsgWithdraw';
+import {
   ListUserPaymentAccountsResponse,
   ListUserPaymentAccountsResquest,
 } from '../types/sp/ListUserPaymentAccounts';
+import { SpConfig } from './config';
 import { Sp } from './sp';
 
 export interface IPayment {
@@ -113,6 +114,7 @@ export interface IPayment {
   listUserPaymentAccounts(
     params: ListUserPaymentAccountsResquest,
     authType: AuthType,
+    config?: SpConfig,
   ): Promise<SpResponse<ListUserPaymentAccountsResponse>>;
 }
 
@@ -220,12 +222,19 @@ export class Payment implements IPayment {
   public async listUserPaymentAccounts(
     params: ListUserPaymentAccountsResquest,
     authType: AuthType,
+    config?: SpConfig,
   ) {
     try {
-      const sp = await this.sp.getInServiceSP();
+      let endpoint = '';
+      if (config && config.endpoint) {
+        endpoint = config.endpoint;
+      } else {
+        const sp = await this.sp.getInServiceSP();
+        endpoint = sp.endpoint;
+      }
 
       const { url, optionsWithOutHeaders, reqMeta } = getListUserPaymentAccountMetaInfo(
-        sp.endpoint,
+        endpoint,
         params,
       );
 

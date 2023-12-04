@@ -1,3 +1,9 @@
+export type THashResult = {
+  contentLength: number;
+  expectCheckSums: string[];
+  fileChunks: number;
+};
+
 export function getCheckSums(
   bytes: Uint8Array,
   segmentSize?: number,
@@ -8,3 +14,7 @@ export function getCheckSums(
   contentLength: number;
   redundancyVal: number;
 }>;
+
+export function getCheckSumsWorker(): {
+  generateCheckSumV2(file: File): Promise<THashResult>;
+};

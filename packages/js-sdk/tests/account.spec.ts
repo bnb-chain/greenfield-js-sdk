@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
-import { ACCOUNT, client } from './config.spec';
+import { ACCOUNT_ADDRESS } from './env';
+import { client } from './utils';
 
 /**
  * test account information
@@ -8,7 +9,7 @@ import { ACCOUNT, client } from './config.spec';
 describe('accountQuery', () => {
   describe('getAccount', () => {
     test('it works', async () => {
-      const res = await client.account.getAccount(ACCOUNT.address);
+      const res = await client.account.getAccount(ACCOUNT_ADDRESS);
 
       expect(res).not.toBeNull();
     });
@@ -17,7 +18,7 @@ describe('accountQuery', () => {
   describe('getAccountBalance', () => {
     test('it works', async () => {
       const res = await client.account.getAccountBalance({
-        address: ACCOUNT.address,
+        address: ACCOUNT_ADDRESS,
         denom: 'BNB',
       });
 

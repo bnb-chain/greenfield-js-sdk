@@ -1,19 +1,11 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgSubmitProposalSDKTypeEIP712 } from '@/messages/cosmos/gov/MsgSubmitProposal';
-import { MsgVoteSDKTypeEIP712 } from '@/messages/cosmos/gov/MsgVote';
 import { voteOptionToJSON } from '@bnb-chain/greenfield-cosmos-types/cosmos/gov/v1/gov';
 import { MsgSubmitProposal, MsgVote } from '@bnb-chain/greenfield-cosmos-types/cosmos/gov/v1/tx';
 import { MsgCreateValidator } from '@bnb-chain/greenfield-cosmos-types/cosmos/staking/v1beta1/tx';
-import { Any } from '@bnb-chain/greenfield-cosmos-types/google/protobuf/any';
-import { arrayify, hexlify } from '@ethersproject/bytes';
 import { delay, inject, injectable } from 'tsyringe';
-import {
-  base64FromBytes,
-  encodeToHex,
-  MsgSubmitProposalTypeUrl,
-  MsgVoteTypeUrl,
-  TxResponse,
-} from '..';
+import { encodeToHex, MsgSubmitProposalTypeUrl, MsgVoteTypeUrl, TxResponse } from '..';
+import { TxClient } from '../clients/txClient';
+import { MsgSubmitProposalSDKTypeEIP712 } from '../messages/cosmos/gov/MsgSubmitProposal';
+import { MsgVoteSDKTypeEIP712 } from '../messages/cosmos/gov/MsgVote';
 
 export interface IProposal {
   /**

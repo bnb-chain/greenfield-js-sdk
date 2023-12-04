@@ -22,20 +22,6 @@ jobs:
       - name: Build
         run: pnpm -F greenfield-js-sdk-docs build
 
-      # - uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 18
-      #     cache: yarn
-      # - uses: pnpm/action-setup@v2
-      #   name: Install pnpm
-      #   id: pnpm-install
-      #   with:
-      #     version: 7
-      #     run_install: false
-
-      # - name: Install dependencies
-      #   run: pnpm install
-
       # Popular action to deploy to GitHub Pages:
       # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
       - name: Deploy to GitHub Pages

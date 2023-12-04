@@ -1,5 +1,53 @@
 # @demo/nodejs
 
+## 0.0.19
+
+### Patch Changes
+
+- Updated dependencies
+  [[`b97b305`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b97b305ced1af7b9642f873be71167f673b84728)]:
+  - @bnb-chain/greenfiled-file-handle@1.0.2
+
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5330912`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5330912ee04935f7733e2453f75eca30f9cc7544)]:
+  - @bnb-chain/greenfiled-file-handle@1.0.1
+
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5919a96`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5919a9627491c62ee683a32e23c191146324a359)]:
+  - @bnb-chain/greenfield-js-sdk@1.0.6
+
+## 0.0.16
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f20db2a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f20db2aaca603834dda619179f72c1a1e346090c)]:
+  - @bnb-chain/greenfield-js-sdk@1.0.5
+
+## 0.0.15
+
+### Patch Changes
+
+- Updated dependencies
+  [[`1c24bde`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1c24bdec7016c5338ae8a6e35a07876a3cb96998)]:
+  - @bnb-chain/greenfield-js-sdk@1.0.4
+
+## 0.0.14
+
+### Patch Changes
+
+- Updated dependencies
+  [[`f14f3a1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f14f3a15b80c91b89d20aaf17ccdc8797418ad1c)]:
+  - @bnb-chain/greenfield-js-sdk@1.0.3
+
 ## 0.0.13
 
 ### Patch Changes

@@ -1,5 +1,38 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.0.6
+
+### Patch Changes
+
+- [#401](https://github.com/bnb-chain/greenfield-js-sdk/pull/401)
+  [`5919a96`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5919a9627491c62ee683a32e23c191146324a359)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix(spApi): Compatibility with 429 code
+
+## 1.0.5
+
+### Patch Changes
+
+- [#397](https://github.com/bnb-chain/greenfield-js-sdk/pull/397)
+  [`f20db2a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f20db2aaca603834dda619179f72c1a1e346090c)
+  Thanks [@rrr523](https://github.com/rrr523)! - build(deps): Upgrade cosmos SDK version
+
+## 1.0.4
+
+### Patch Changes
+
+- [#392](https://github.com/bnb-chain/greenfield-js-sdk/pull/392)
+  [`1c24bde`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1c24bdec7016c5338ae8a6e35a07876a3cb96998)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: ListUserPaymentAccounts add config for
+  endpoint
+
+## 1.0.3
+
+### Patch Changes
+
+- [#387](https://github.com/bnb-chain/greenfield-js-sdk/pull/387)
+  [`f14f3a1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/f14f3a15b80c91b89d20aaf17ccdc8797418ad1c)
+  Thanks [@rrr523](https://github.com/rrr523)! - refactor: don't use alias path
+
 ## 1.0.2
 
 ### Patch Changes

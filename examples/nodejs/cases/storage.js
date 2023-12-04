@@ -1,9 +1,10 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const mimeTypes = require('mime-types');
 const { getCheckSums } = require('@bnb-chain/greenfiled-file-handle');
-const { client, selectSp, generateString } = require('./client');
-const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('./env');
+const { client, selectSp, generateString } = require('../client');
+const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('../env');
 
 const filePath = './CHANGELOG.md';
 const bucketName = generateString(10);
@@ -11,6 +12,9 @@ const objectName = generateString(10);
 const fileBuffer = fs.readFileSync(filePath);
 const extname = path.extname(filePath);
 const fileType = mimeTypes.lookup(extname);
+
+console.log('bucketName', bucketName);
+console.log('objectName', objectName);
 
 (async () => {
   const spInfo = await selectSp();
@@ -85,4 +89,21 @@ const fileType = mimeTypes.lookup(extname);
   });
 
   console.log('create object success', createObjectTxRes);
+
+  const uploadRes = await client.object.uploadObject(
+    {
+      bucketName: bucketName,
+      objectName: objectName,
+      body: fileBuffer,
+      txnHash: createObjectTxRes.transactionHash,
+    },
+    {
+      type: 'ECDSA',
+      privateKey: ACCOUNT_PRIVATEKEY,
+    },
+  );
+
+  if (uploadRes.code === 0) {
+    console.log('upload object success', uploadRes);
+  }
 })();

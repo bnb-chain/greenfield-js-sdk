@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
-import { ACCOUNT, client, DEFAULT_SIMULATE_INFO, ZERO_ACCOUNT_ADDRESS } from './config.spec';
+import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } from './env';
+import { client, DEFAULT_SIMULATE_INFO, ZERO_ACCOUNT_ADDRESS } from './utils';
 
 /**
  * test wallet transaction:
@@ -25,8 +26,8 @@ describe('walletTx', () => {
         gasLimit: Number(simulateInfo.gasLimit),
         gasPrice: simulateInfo.gasPrice,
         granter: '',
-        payer: ACCOUNT.address,
-        privateKey: ACCOUNT.privateKey,
+        payer: ACCOUNT_ADDRESS,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(broadcastInfo.code).toEqual(0);
@@ -36,7 +37,7 @@ describe('walletTx', () => {
   describe('withdraw', () => {
     test('it works', async () => {
       const transferOutTx = await client.crosschain.transferOut({
-        from: ACCOUNT.address,
+        from: ACCOUNT_ADDRESS,
         to: '0x0000000000000000000000000000000000000001',
         amount: {
           amount: '10000000000000000',
@@ -54,9 +55,9 @@ describe('walletTx', () => {
         denom: 'BNB',
         gasLimit: Number(simulateGasFee.gasLimit),
         gasPrice: simulateGasFee.gasPrice,
-        payer: ACCOUNT.address,
+        payer: ACCOUNT_ADDRESS,
         granter: '',
-        privateKey: ACCOUNT.privateKey,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(res.code).toEqual(0);
@@ -79,8 +80,8 @@ describe('walletTx', () => {
         gasLimit: Number(simulateInfo.gasLimit),
         gasPrice: simulateInfo.gasPrice,
         granter: '',
-        payer: ACCOUNT.address,
-        privateKey: ACCOUNT.privateKey,
+        payer: ACCOUNT_ADDRESS,
+        privateKey: ACCOUNT_PRIVATEKEY,
       });
 
       expect(broadcastInfo.code).toEqual(0);
@@ -89,10 +90,10 @@ describe('walletTx', () => {
 });
 
 async function makeMultiTransferTx() {
-  return await client.account.multiTransfer(ACCOUNT.address, {
+  return await client.account.multiTransfer(ACCOUNT_ADDRESS, {
     inputs: [
       {
-        address: ACCOUNT.address,
+        address: ACCOUNT_ADDRESS,
         coins: [
           {
             amount: '10',
@@ -123,7 +124,7 @@ async function makeTransferTx() {
         denom: 'BNB',
       },
     ],
-    fromAddress: ACCOUNT.address,
+    fromAddress: ACCOUNT_ADDRESS,
     toAddress: ZERO_ACCOUNT_ADDRESS,
   });
 }

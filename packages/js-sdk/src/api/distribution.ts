@@ -1,15 +1,10 @@
-import { TxClient } from '@/clients/txClient';
-import { MsgFundCommunityPoolTypeUrlSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgFundCommunityPoolTypeUrl';
-import { MsgSetWithdrawAddressSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgSetWithdrawAddress';
-import { MsgWithdrawDelegatorRewardSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgWithdrawDelegatorReward';
-import { MsgWithdrawValidatorCommissionSDKTypeEIP712 } from '@/messages/cosmos/distribution/MsgWithdrawValidatorCommission';
 import {
   MsgFundCommunityPool,
   MsgSetWithdrawAddress,
   MsgWithdrawDelegatorReward,
   MsgWithdrawValidatorCommission,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/distribution/v1beta1/tx';
-import { container, delay, inject, injectable } from 'tsyringe';
+import { delay, inject, injectable } from 'tsyringe';
 import {
   MsgFundCommunityPoolTypeUrl,
   MsgSetWithdrawAddressTypeUrl,
@@ -17,7 +12,11 @@ import {
   MsgWithdrawValidatorCommissionTypeUrl,
   TxResponse,
 } from '..';
-import { RpcQueryClient } from '../clients/queryclient';
+import { TxClient } from '../clients/txClient';
+import { MsgFundCommunityPoolTypeUrlSDKTypeEIP712 } from '../messages/cosmos/distribution/MsgFundCommunityPoolTypeUrl';
+import { MsgSetWithdrawAddressSDKTypeEIP712 } from '../messages/cosmos/distribution/MsgSetWithdrawAddress';
+import { MsgWithdrawDelegatorRewardSDKTypeEIP712 } from '../messages/cosmos/distribution/MsgWithdrawDelegatorReward';
+import { MsgWithdrawValidatorCommissionSDKTypeEIP712 } from '../messages/cosmos/distribution/MsgWithdrawValidatorCommission';
 export interface IDistribution {
   /**
    * sets the withdrawal address for a delegator address

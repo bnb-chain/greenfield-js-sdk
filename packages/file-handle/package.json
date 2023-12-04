@@ -1,6 +1,6 @@
 {
   "name": "@bnb-chain/greenfiled-file-handle",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "checksums wasm package",
   "module": "./dist/browser/esm/index.js",
   "main": "./dist/node/index.js",
@@ -61,5 +61,10 @@
     "typescript": "^5.1.6",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "hash-wasm": "^4.11.0",
+    "lodash-es": "^4.17.21"
   }
 }

@@ -1,13 +1,8 @@
 import { Client } from '../src';
 import { ISimulateGasFee } from '../src/types';
-import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY, GREENFIELD_CHAIN_ID, GRPC_URL } from './.env';
+import { GREENFIELD_CHAIN_ID, GREENFIELD_URL } from './env';
 
-export const client = Client.create(GRPC_URL, GREENFIELD_CHAIN_ID);
-
-export const ACCOUNT = {
-  address: ACCOUNT_ADDRESS,
-  privateKey: ACCOUNT_PRIVATEKEY,
-};
+export const client = Client.create(GREENFIELD_URL, GREENFIELD_CHAIN_ID);
 
 export const ZERO_ACCOUNT_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -31,7 +26,7 @@ export function generateString(length: number) {
 
 export const getSps = async () => {
   const sps = await client.sp.getStorageProviders();
-  const finalSps = (sps ?? []).filter((v: any) => v?.description?.moniker !== 'QATest');
+  const finalSps = (sps ?? []).filter((v) => v.endpoint.includes('nodereal'));
 
   return finalSps;
 };

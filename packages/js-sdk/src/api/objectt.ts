@@ -1,32 +1,32 @@
-import { encodePath, getMsgToSign, getSortQuery, secpSign } from '@/clients/spclient/auth';
-import { getApprovalMetaInfo } from '@/clients/spclient/spApis/approval';
-import { getGetObjectMetaInfo } from '@/clients/spclient/spApis/getObject';
+import { encodePath, getMsgToSign, getSortQuery, secpSign } from '../clients/spclient/auth';
+import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
+import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
 import {
   getObjectMetaInfo,
   parseGetObjectMetaResponse,
-} from '@/clients/spclient/spApis/getObjectMeta';
+} from '../clients/spclient/spApis/getObjectMeta';
 import {
   getListObjectPoliciesMetaInfo,
   parseGetListObjectPoliciesResponse,
-} from '@/clients/spclient/spApis/listObjectPolicies';
-import { parseListObjectsByBucketNameResponse } from '@/clients/spclient/spApis/listObjectsByBucket';
+} from '../clients/spclient/spApis/listObjectPolicies';
+import { parseListObjectsByBucketNameResponse } from '../clients/spclient/spApis/listObjectsByBucket';
 import {
   getListObjectsByIDsMetaInfo,
   parseListObjectsByIdsResponse,
-} from '@/clients/spclient/spApis/listObjectsByIds';
-import { parseError } from '@/clients/spclient/spApis/parseError';
-import { getPutObjectMetaInfo } from '@/clients/spclient/spApis/putObject';
-import { TxClient } from '@/clients/txClient';
-import { METHOD_GET, NORMAL_ERROR_CODE } from '@/constants/http';
-import { MsgCancelCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelCreateObject';
-import { MsgCreateObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCreateObject';
-import { MsgDeleteObjectSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteObject';
-import { MsgUpdateObjectInfoSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgUpdateObjectInfo';
-import { signSignatureByEddsa } from '@/offchainauth';
-import { GetObjectRequest } from '@/types/sp/GetObject';
-import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp/GetObjectMeta';
-import { ListObjectsByBucketNameResponse } from '@/types/sp/ListObjectsByBucketName';
-import { PutObjectRequest } from '@/types/sp/PutObject';
+} from '../clients/spclient/spApis/listObjectsByIds';
+import { parseError } from '../clients/spclient/spApis/parseError';
+import { getPutObjectMetaInfo } from '../clients/spclient/spApis/putObject';
+import { TxClient } from '../clients/txClient';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
+import { MsgCancelCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCancelCreateObject';
+import { MsgCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateObject';
+import { MsgDeleteObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteObject';
+import { MsgUpdateObjectInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateObjectInfo';
+import { signSignatureByEddsa } from '../offchainauth';
+import { GetObjectRequest } from '../types/sp/GetObject';
+import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
+import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
+import { PutObjectRequest } from '../types/sp/PutObject';
 import {
   ActionType,
   Principal,
@@ -173,8 +173,6 @@ export interface IObject {
   listObjectPolicies(
     params: GetListObjectPoliciesRequest,
   ): Promise<SpResponse<GetListObjectPoliciesResponse>>;
-  // TODO: GetObjectUploadProgress
-  // TODO: getObjectStatusFromSP
 }
 
 @injectable()

@@ -3,6 +3,7 @@ import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
+import { getCheckSumsWorker } from '@bnb-chain/greenfiled-file-handle';
 
 export const CreateObject = () => {
   const { address, connector } = useAccount();
@@ -58,6 +59,10 @@ export const CreateObject = () => {
               alert('No offchain, please create offchain pairs first');
               return;
             }
+
+            const checksumWorker = getCheckSumsWorker();
+            const multiCal = await checksumWorker.generateCheckSumV2(file);
+            console.log('multiCal', multiCal);
 
             const fileBytes = await file.arrayBuffer();
             const hashResult = await (window as any).FileHandle.getCheckSums(

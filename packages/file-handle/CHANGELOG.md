@@ -1,5 +1,21 @@
 # @bnb-chain/greenfiled-file-handle
 
+## 1.0.2
+
+### Patch Changes
+
+- [#409](https://github.com/bnb-chain/greenfield-js-sdk/pull/409)
+  [`b97b305`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b97b305ced1af7b9642f873be71167f673b84728)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Multi cal hash
+
+## 1.0.1
+
+### Patch Changes
+
+- [#407](https://github.com/bnb-chain/greenfield-js-sdk/pull/407)
+  [`5330912`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5330912ee04935f7733e2453f75eca30f9cc7544)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: support multi thread hash cal.
+
 ## 1.0.0
 
 ### Major Changes

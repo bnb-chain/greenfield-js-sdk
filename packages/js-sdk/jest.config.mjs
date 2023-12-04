@@ -20,4 +20,5 @@ export default {
       },
     ],
   },
+  setupFilesAfterEnv: ['<rootDir>/tests/env.ts', '<rootDir>/tests/utils.ts']
 };
