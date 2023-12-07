@@ -30,6 +30,9 @@ console.log('objectName', objectName);
         primarySpAddress: spInfo.primarySpAddress,
       },
       paymentAddress: ACCOUNT_ADDRESS,
+      tags: {
+        tags: [],
+      },
     },
     {
       type: 'ECDSA',
@@ -68,6 +71,9 @@ console.log('objectName', objectName);
       redundancyType: 'REDUNDANCY_EC_TYPE',
       contentLength,
       expectCheckSums: JSON.parse(expectCheckSums),
+      tags: {
+        tags: [],
+      },
     },
     {
       type: 'ECDSA',
