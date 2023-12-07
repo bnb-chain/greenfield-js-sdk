@@ -10,5 +10,7 @@
     "@bnb-chain/greenfield-js-sdk": "1.0.6",
     "@bnb-chain/greenfield-zk-crypto": "1.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "tricky-chicken-knock"
+  ]
 }
