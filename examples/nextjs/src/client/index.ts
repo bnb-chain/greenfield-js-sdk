@@ -9,6 +9,8 @@ export const getSps = async () => {
   const sps = await client.sp.getStorageProviders();
   const finalSps = (sps ?? []).filter((v: any) => v.endpoint.includes('nodereal'));
 
+  // const finalSps = sps.filter((v) => v.id === 4);
+
   return finalSps;
 };
 

@@ -9,7 +9,7 @@ import { Distribution, IDistribution } from './api/distribution';
 import { FeeGrant, IFeeGrant } from './api/feegrant';
 import { Gashub, IGashub } from './api/gashub';
 import { Group, IGroup } from './api/group';
-import { IObject, Objectt } from './api/objectt';
+import { IObject, Objects } from './api/objects';
 import { IOffChainAuth, OffChainAuth } from './api/offchainauth';
 import { IPayment, Payment } from './api/payment';
 import { IProposal, Proposal } from './api/proposal';
@@ -51,7 +51,7 @@ export class Client {
     const feegrant = container.resolve<FeeGrant>(FeeGrant);
     const gashub = container.resolve<Gashub>(Gashub);
     const group = container.resolve<Group>(Group);
-    const objectt = container.resolve<Objectt>(Objectt);
+    const objects = container.resolve<Objects>(Objects);
     const payment = container.resolve<Payment>(Payment);
     const proposal = container.resolve<Proposal>(Proposal);
     const queryClient = container.resolve<RpcQueryClient>(RpcQueryClient);
@@ -73,7 +73,7 @@ export class Client {
       feegrant,
       gashub,
       group,
-      objectt,
+      objects,
       payment,
       proposal,
       queryClient,
