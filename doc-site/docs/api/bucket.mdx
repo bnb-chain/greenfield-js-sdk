@@ -19,6 +19,7 @@ for creating bucket and sends the createBucket transaction to the Greenfield.
 | chargedReadQuota | defines the traffic quota that you read from primary sp |
 | spInfo           | primary sp address                                      |
 | paymentAddress   | payment address                                         |
+| tags  |  defines a list of tags which will be set to the bucket |
 | authType         | [AuthType](/client/sp-client#authtype)                  |
 
 ```jsx title="example"
@@ -32,6 +33,9 @@ const tx = await client.bucket.createBucket(
       primarySpAddress: 'primary_sp_address',
     },
     paymentAddress: address,
+    tags: {
+      tags: [],
+    },
   },
   {
     type: 'EDDSA',

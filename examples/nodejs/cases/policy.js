@@ -11,6 +11,9 @@ const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('../env');
     creator: ACCOUNT_ADDRESS,
     extra: EXTRA,
     groupName: GROUP_NAME,
+    tags: {
+      tags: [],
+    },
   });
 
   const createGroupTxSimulateInfo = await createGroupTx.simulate({
