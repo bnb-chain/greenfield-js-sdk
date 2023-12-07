@@ -23,6 +23,7 @@ import {
   MsgPutPolicy,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import { ResourceTags } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
 import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
@@ -68,7 +69,7 @@ import {
 import { AuthType, SpClient } from '../clients/spclient/spClient';
 import { TxClient } from '../clients/txClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
-import { MsgCreateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateBucket';
+import { getMsgCreateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateBucket';
 import { MsgDeleteBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteBucket';
 import { MsgMigrateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgMigrateBucket';
 import { MsgUpdateBucketInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateBucketInfo';
@@ -212,6 +213,7 @@ export class Bucket implements IBucket {
       spInfo,
       duration,
       paymentAddress,
+      tags,
     } = params;
 
     try {
@@ -240,6 +242,7 @@ export class Bucket implements IBucket {
           },
           charged_read_quota: chargedReadQuota,
           payment_address: paymentAddress,
+          tags: tags,
         });
 
       const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
@@ -271,6 +274,10 @@ export class Bucket implements IBucket {
   }
 
   private async createBucketTx(msg: MsgCreateBucket, signedMsg: CreateBucketApprovalResponse) {
+    const isTagsEmpty = msg?.tags?.tags?.length === 0;
+
+    const MsgCreateBucketSDKTypeEIP712 = getMsgCreateBucketSDKTypeEIP712(isTagsEmpty);
+
     return await this.txClient.tx(
       MsgCreateBucketTypeUrl,
       msg.creator,
@@ -307,6 +314,7 @@ export class Bucket implements IBucket {
       },
       chargedReadQuota: Long.fromString(signedMsg.charged_read_quota),
       paymentAddress: signedMsg.payment_address,
+      tags: ResourceTags.fromJSON(signedMsg.tags),
     };
 
     return await this.createBucketTx(msg, signedMsg);
