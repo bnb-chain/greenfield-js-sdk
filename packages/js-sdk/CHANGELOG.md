@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.1.0-alpha.0
+
+### Minor Changes
+
+- [#413](https://github.com/bnb-chain/greenfield-js-sdk/pull/413)
+  [`47d59a1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/47d59a1355b0a7788727daaf077a644206ffcc05)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat(BREAKING CHANGE): create group / bucket /
+  object must have `tags` arguments and supply `setMsg` method to update tags.
+
 ## 1.0.6
 
 ### Patch Changes
