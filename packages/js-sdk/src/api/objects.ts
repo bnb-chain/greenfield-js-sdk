@@ -176,7 +176,7 @@ export interface IObject {
 }
 
 @injectable()
-export class Objectt implements IObject {
+export class Objects implements IObject {
   constructor(
     @inject(delay(() => TxClient)) private txClient: TxClient,
     @inject(delay(() => Storage)) private storage: Storage,
