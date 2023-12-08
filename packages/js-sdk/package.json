@@ -42,10 +42,6 @@
   ],
   "author": "",
   "license": "GPLv3",
-  "engines": {
-    "yarn": "please use pnpm",
-    "npm": "please use pnpm"
-  },
   "files": [
     "dist",
     "types"
