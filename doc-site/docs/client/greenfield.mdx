@@ -20,7 +20,7 @@ const client = Client.create(GRPC_URL, GREEN_CHAIN_ID);
 // Browser
 const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
   zkCryptoUrl:
-    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto@1.0.0/dist/node/zk-crypto.wasm',
+    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto/dist/node/zk-crypto.wasm',
 });
 ```
 
@@ -29,8 +29,6 @@ const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
 Browser need load wasm manually.
 
 :::
-
-## Usage
 
 The JS SDK consists of two parts:
 
