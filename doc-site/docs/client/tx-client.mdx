@@ -4,6 +4,9 @@ sidebar_position: 1
 title: 'Tx Client'
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## About Tx
 
 A transaction contains at least:
@@ -41,8 +44,10 @@ Broadcast the transaction to the chain.
 | signTypedDataCallback | broadcast use `window.ethereum` as signature provider by default.                                                 |
 | privateKey            | If you broadcast in Nodejs, you can broadcast a tx by privateKey                                                  |
 
-```jsx title="broadcast tx"
-// broadcast tx
+<Tabs>
+<TabItem value="Browser" label="Browser">
+
+```js title="broadcast tx"
 const broadcastRes = await transferTx.broadcast({
   denom: 'BNB',
   gasLimit: Number(simulateInfo.gasLimit),
@@ -56,7 +61,7 @@ const broadcastRes = await transferTx.broadcast({
 
 If you want to use others wallet, you can set `signTypedDataCallback`:
 
-```jsx
+```js
 // trustwallet:
 const broadcastRes = await transferTx.broadcast({
   // ...
@@ -68,21 +73,31 @@ const broadcastRes = await transferTx.broadcast({
   },
 });
 ```
+:::
 
-If you broadcast in Nodejs, you can broadcast a tx by privateKey:
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
 
-```jsx
+If you broadcast in Nodejs, you can broadcast a tx by `privateKey`:
+
+```js title="broadcast tx"
 const broadcastRes = await transferTx.broadcast({
-  // ...
+  denom: 'BNB',
+  gasLimit: Number(simulateInfo.gasLimit),
+  gasPrice: simulateInfo.gasPrice,
+  payer: '0x0000000000000000000000000000000000000001',
+  granter: '',
+  // highlight-start
   privateKey: '0x.......',
+  // highlight-end
 });
 ```
-
-:::
+</TabItem>
+</Tabs>
 
 ## Example
 
-Take `transfer` tx as an example.
+Take `transfer` tx as a complete example:
 
 ### 1. construct a transaction
 

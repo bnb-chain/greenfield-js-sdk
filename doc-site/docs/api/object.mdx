@@ -5,6 +5,8 @@ title: 'Object'
 
 import ApiTypes from '../../src/components/snippers/api-types.tsx';
 import Tx from '../../src/components/snippers/tx.mdx';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 ## cancelCreateObject <ApiTypes type="Tx" />
 
@@ -29,21 +31,50 @@ Send create empty object txn to greenfield chain.
 | creator    | the creator of object                  |
 | authType   | [AuthType](/client/sp-client#authtype) |
 
-```jsx title="example"
+<Tabs>
+<TabItem value="Browser" label="Browser">
+
+```jsx
 const tx = await client.object.createFolder(
   {
     bucketName: createObjectInfo.bucketName,
     objectName: createObjectInfo.objectName + '/',
     creator: address,
   },
+  // highlight-start
   {
     type: 'EDDSA',
     domain: window.location.origin,
     seed: offChainData.seedString,
     address,
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+const tx = await client.object.createFolder(
+  {
+    bucketName: bucketName,
+    objectName: objectName + '/',
+    creator: ACCOUNT_ADDRESS,
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+</Tabs>
+
+<Tx />
 
 ## createObject <ApiTypes type="Storage Provider" /> <ApiTypes type="Tx" />
 
@@ -61,7 +92,11 @@ Get approval of creating object and send createObject txn to greenfield chain.
 | contentLength   | file content length                                                     |
 | expectCheckSums | file's expectCheckSums                                                  |
 
-```jsx title="example"
+<Tabs>
+<TabItem value="Browser" label="Browser">
+
+```jsx
+// https://github.com/bnb-chain/greenfield-js-sdk/blob/main/examples/nextjs/src/components/object/create/index.tsx#L76-L95
 const tx = await client.object.createObject(
   {
     bucketName: 'bucket_name',
@@ -73,14 +108,43 @@ const tx = await client.object.createObject(
     contentLength: 13311,
     expectCheckSums: JSON.parse(expectCheckSums),
   },
+  // highlight-start
   {
     type: 'EDDSA',
     domain: window.location.origin,
     seed: offChainData.seedString,
     address,
   },
+  // highlight-end
 );
 ```
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+// https://github.com/bnb-chain/greenfield-js-sdk/blob/main/examples/nodejs/cases/storage.js#L61-L76
+const tx = await client.object.createObject(
+  {
+    bucketName: bucketName,
+    objectName: objectName,
+    creator: ACCOUNT_ADDRESS,
+    visibility: 'VISIBILITY_TYPE_PRIVATE',
+    fileType: fileType,
+    redundancyType: 'REDUNDANCY_EC_TYPE',
+    contentLength,
+    expectCheckSums: JSON.parse(expectCheckSums),
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+</Tabs>
 
 <Tx />
 
@@ -94,7 +158,7 @@ Send DeleteObject msg to greenfield chain and return txn hash.
 | bucketName | the name of the bucket where the object which to be deleted is stored                               |
 | objectName | the name of the object which to be deleted                                                          |
 
-```jsx title="example"
+```jsx title="Browser / Nodejs Example"
 const tx = await client.object.deleteObject({
   bucketName: 'bucket_name',
   objectName: 'object_name',
@@ -116,7 +180,7 @@ Delete the object policy of the principal.
 | principalAddr | principal address                                         |
 | principal     | [PrincipalType](/types/principal)                         |
 
-```jsx title="example"
+```jsx title="Browser / Nodejs Example"
 const tx = await client.object.deleteObjectPolicy(
   '0x000..', // operator
   'bucket_name', // bucket name
@@ -137,20 +201,45 @@ Download s3 object payload and return the related object info.
 | bucketName | bucket name |
 | objectName | object name |
 
-```jsx title="example"
+<Tabs>
+<TabItem value="Browser" label="Browser">
+
+```jsx
 await client.object.downloadFile(
   {
     bucketName,
     objectName,
   },
+  // highlight-start
   {
     type: 'EDDSA',
     address,
     domain: window.location.origin,
     seed: offChainData.seedString,
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+await client.object.downloadFile(
+  {
+    bucketName,
+    objectName,
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  },
+  // highlight-end
+);
+```
+</TabItem>
+</Tabs>
 
 ## getObjectPolicy <ApiTypes type="Query" />
 
@@ -170,7 +259,7 @@ const tx = await client.object.getObjectPolicy('bucket_name', 'object_name', '0x
 
 Get the object preview url.
 
-```jsx title="example"
+```jsx title="Browser"
 const res = await client.object.getObjectPreviewUrl(
   {
     bucketName: 'bucket_name',
@@ -322,7 +411,10 @@ Uploading the object to bucket.
 | txnHash    | [createObject](#createobject) 's hash  |
 | authType   | [AuthType](/client/sp-client#authtype) |
 
-```jsx title="example"
+<Tabs>
+<TabItem value="Browser" label="Browser">
+
+```jsx
 const uploadRes = await client.object.uploadObject(
   {
     bucketName: createObjectInfo.bucketName,
@@ -330,11 +422,36 @@ const uploadRes = await client.object.uploadObject(
     body: file,
     txnHash: txHash,
   },
+  // highlight-start
   {
     type: 'EDDSA',
     domain: window.location.origin,
     seed: offChainData.seedString,
     address,
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+const uploadRes = await client.object.uploadObject(
+  {
+    bucketName: bucketName,
+    objectName: objectName,
+    body: fileBuffer,
+    txnHash: createObjectTxRes.transactionHash,
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+</Tabs>
