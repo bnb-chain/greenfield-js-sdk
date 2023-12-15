@@ -54,26 +54,17 @@ const broadcastRes = await transferTx.broadcast({
   gasPrice: simulateInfo.gasPrice,
   payer: '0x0000000000000000000000000000000000000001',
   granter: '',
-});
-```
-
-:::tip
-
-If you want to use others wallet, you can set `signTypedDataCallback`:
-
-```js
-// trustwallet:
-const broadcastRes = await transferTx.broadcast({
-  // ...
+  // highlight-start
+  // If you want to use others wallet(such as trustwallet), you can set `signTypedDataCallback`:
   signTypedDataCallback: async (addr: string, message: string) => {
     return await window.trustwallet.request({
       method: 'eth_signTypedData_v4',
       params: [addr, message],
     });
   },
+  // highlight-end
 });
 ```
-:::
 
 </TabItem>
 <TabItem value="Nodejs" label="Nodejs">
@@ -92,6 +83,7 @@ const broadcastRes = await transferTx.broadcast({
   // highlight-end
 });
 ```
+
 </TabItem>
 </Tabs>
 
