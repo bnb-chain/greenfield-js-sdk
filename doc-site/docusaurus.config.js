@@ -11,6 +11,7 @@ const config = {
   title: 'Greenfield JavaScript SDK',
   tagline: `An easy-to-use tool designed to help developers build decentralized applications (DApps) on the Greenfield blockchain.`,
   favicon: 'img/favicon.ico',
+  staticDirectories: ['static'],
 
   // Set the production url of your site here
   url: 'https://greenfield-js-sdk.netlify.app',
@@ -25,6 +26,17 @@ const config = {
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+
+  plugins: [
+    '@docusaurus/plugin-ideal-image',
+    // {
+    //   quality: 70,
+    //   max: 1030, // max resized image's size.
+    //   min: 640, // min resized image's size. if original is lower, use that size.
+    //   steps: 2, // the max number of images generated between min and max (inclusive)
+    //   disableInDev: false,
+    // },
+  ],
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
