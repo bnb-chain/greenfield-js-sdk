@@ -60,9 +60,9 @@ export const CreateObject = () => {
               return;
             }
 
-            const checksumWorker = getCheckSumsWorker();
-            const multiCal = await checksumWorker.generateCheckSumV2(file);
-            console.log('multiCal', multiCal);
+            // const checksumWorker = getCheckSumsWorker();
+            // const multiCal = await checksumWorker.generateCheckSumV2(file);
+            // console.log('multiCal', multiCal);
 
             const fileBytes = await file.arrayBuffer();
             const hashResult = await (window as any).FileHandle.getCheckSums(
