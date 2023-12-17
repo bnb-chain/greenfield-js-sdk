@@ -10,8 +10,60 @@ Compatible with [greenfield-common](https://github.com/bnb-chain/greenfield-comm
 > npm install @bnb-chain/reed-solomon
 ```
 
-<!-- ## Usage
+## Usage
 
-```bash
-import {} from 
-``` -->
+### Browser
+
+Use directly in the browser via script tag:
+
+```html
+<input type="file" id="file" />
+<button id="btn">
+  get reed solomon
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/index.aio.js"></script>
+<script>
+  const fileInput = document.getElementById('file');
+
+  document.getElementById('btn').onclick = async function() {
+    const selectFile = fileInput.files[0];
+    const arrBuffer = await selectFile.arrayBuffer()
+
+    if (!arrBuffer) alert('no file selected');
+
+    const rs = new RS.ReedSolomon();
+    const res = rs.encode(new Uint8Array(arrBuffer))
+  }
+</script>
+```
+
+### ESM
+
+```js
+import {ReedSolomon} from '@bnb-chain/reed-solomon'
+
+const rs = new RS.ReedSolomon();
+const res = rs.encode(new Uint8Array(fileBuffer))
+```
+
+### CommonJS
+
+```js
+const { ReedSolomon } = require('@bnb-chain/reed-solomon')
+
+const fileBuffer = fs.readFileSync('./output_file');
+
+const rs = new ReedSolomon();
+const res = rs.encode(Uint8Array.from(fileBuffer))
+```
+
+## API
+
+### encode
+
+TODO...
+
+### encodeSegment
+
+TODO...
