@@ -40,6 +40,8 @@ Use directly in the browser via script tag:
 
 ### ESM
 
+If you use module bundler such as [Webpack](https://webpack.js.org/), [Rollup](https://rollupjs.org/guide/en/), etc:
+
 ```js
 import {ReedSolomon} from '@bnb-chain/reed-solomon'
 
@@ -47,7 +49,9 @@ const rs = new RS.ReedSolomon();
 const res = rs.encode(new Uint8Array(fileBuffer))
 ```
 
-### CommonJS
+### Nodejs
+
+Using in Nodejs:
 
 ```js
 const { ReedSolomon } = require('@bnb-chain/reed-solomon')
