@@ -1,0 +1,47 @@
+{
+  "name": "@bnb-chain/reed-solomon",
+  "version": "1.0.0",
+  "description": "lighting implement for reed solomon",
+  "module": "./dist/index.esm.js",
+  "main": "./dist/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.aio.js",
+      "require": "./dist/index.js",
+      "main": "./dist/index.js",
+      "default": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    }
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnb-chain/greenfield-js-sdk",
+    "directory": "packages/reed-solomon"
+  },
+  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/tree/alpha/packages/reed-solomon#readme",
+  "bugs": "https://github.com/bnb-chain/greenfield-js-sdk/issues",
+  "keywords": [
+    "greenfiled",
+    "checksums",
+    "reed-solomon"
+  ],
+  "author": "",
+  "license": "GPLv3",
+  "files": [
+    "dist",
+    "types"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "dependencies": {
+    "@ethersproject/base64": "^5.7.0",
+    "ethereum-cryptography": "^2.0.0"
+  }
+}
