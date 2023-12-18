@@ -10,7 +10,7 @@ Compatible with [greenfield-common](https://github.com/bnb-chain/greenfield-comm
 > npm install @bnb-chain/reed-solomon
 ```
 
-## Usage
+## Usage Examples
 
 ### Browser
 
@@ -54,20 +54,13 @@ const res = rs.encode(new Uint8Array(fileBuffer))
 Using in Nodejs:
 
 ```js
-const { ReedSolomon } = require('@bnb-chain/reed-solomon')
+const { NodeAdapterReedSolomon } = require('@bnb-chain/reed-solomon/node.adapter');
 
 const fileBuffer = fs.readFileSync('./output_file');
 
-const rs = new ReedSolomon();
-const res = rs.encode(Uint8Array.from(fileBuffer))
+const rs = new NodeAdapterReedSolomon();
+const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer))
 ```
 
-## API
-
-### encode
-
-TODO...
-
-### encodeSegment
-
-TODO...
+* [calcute single file](./examples/singlefile.js)
+* [calcute several file in a folder](./examples/folder.js)
