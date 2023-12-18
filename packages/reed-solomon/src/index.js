@@ -50,14 +50,14 @@ export class ReedSolomon {
     // console.log('perShard', perShard)
 
     let tmp = Array.prototype.slice.call(data);
-    if (16777216 > data.length) {
-      if (16777216 > needTotal) {
+    if (this.segmentSize > data.length) {
+      if (this.segmentSize > needTotal) {
         tmp = tmp.slice(0, needTotal);
         for (let i = data.length; i < needTotal; i++) {
           tmp.push(0);
         }
       } else {
-        for (let i = data.length; i < 16777216; i++) {
+        for (let i = data.length; i < this.segmentSize; i++) {
           tmp[i] = 0;
         }
       }
@@ -71,7 +71,6 @@ export class ReedSolomon {
       padding = this.allocAligned(this.totalShards - fullShards, perShard);
 
       if (dataLen > perShard * fullShards) {
-        // 复制剩余的分片
         const copyFrom = data.slice(perShard * fullShards, dataLen);
         for (let i = 0; i < padding.length; i++) {
           if (copyFrom.length > 0) {
@@ -152,9 +151,15 @@ export class ReedSolomon {
   encode(sourceData) {
     let chunkList = [];
     let cur = 0;
+
+    // TODO: if totalShards is not
+    if (sourceData.length == 0) {
+      return new Array(this.totalShards + 1).fill('47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
+    }
+
     while (cur < sourceData.length) {
-      chunkList.push(sourceData.slice(cur, cur + 16777216));
-      cur += 16777216;
+      chunkList.push(sourceData.slice(cur, cur + this.segmentSize));
+      cur += this.segmentSize;
     }
 
     let encodeDataHash = new Array(6);
