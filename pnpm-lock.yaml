@@ -241,6 +241,9 @@ importers:
       '@bnb-chain/greenfiled-file-handle':
         specifier: workspace:*
         version: link:../../packages/file-handle
+      '@bnb-chain/reed-solomon':
+        specifier: workspace:*
+        version: link:../../packages/reed-solomon
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
