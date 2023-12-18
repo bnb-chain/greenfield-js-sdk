@@ -13,7 +13,16 @@
       "default": "./dist/index.js",
       "types": "./types/index.d.ts"
     },
-    "./utils": "./dist/utils.js"
+    "./node.adapter": {
+      "default": "./dist/node.adapter.js",
+      "types": "./types/node.adapter.d.ts",
+      "node": "./dist/node.adapter.js",
+      "require": "./dist/node.adapter.js"
+    },
+    "./utils": {
+      "default": "./dist/utils.js",
+      "types": "./types/utils.d.ts"
+    }
   },
   "scripts": {
     "prebuild": "rimraf ./dist",
