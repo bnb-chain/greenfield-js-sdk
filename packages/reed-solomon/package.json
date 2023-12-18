@@ -12,7 +12,8 @@
       "main": "./dist/index.js",
       "default": "./dist/index.js",
       "types": "./types/index.d.ts"
-    }
+    },
+    "./utils": "./dist/utils.js"
   },
   "scripts": {
     "prebuild": "rimraf ./dist",

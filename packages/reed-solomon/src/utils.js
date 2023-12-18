@@ -26,3 +26,18 @@ export function toBase64(hashList) {
   }
   return res;
 }
+
+/**
+ * split data to same length price
+ */
+export function splitPrice(data, size) {
+  let chunkList = [];
+  let cur = 0;
+
+  while (cur < data.length) {
+    chunkList.push(data.slice(cur, cur + size));
+    cur += size;
+  }
+
+  return chunkList;
+}

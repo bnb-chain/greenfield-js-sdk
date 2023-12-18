@@ -1,7 +1,7 @@
 import { sha256 } from 'ethereum-cryptography/sha256.js';
 import { galMulSlice, galMulSliceXor } from './galois';
 import { buildMatrix } from './matrix';
-import { concat, getIntegrityUint8Array, toBase64 } from './utils';
+import { concat, getIntegrityUint8Array, splitPrice, toBase64 } from './utils';
 
 export class ReedSolomon {
   constructor(
@@ -16,7 +16,7 @@ export class ReedSolomon {
     this.segmentSize = segmentSize;
   }
 
-  allocAligned(shards, each) {
+  _allocAligned(shards, each) {
     // const eachAligned = (parseInt((each + 63) / 64)) * 64; // Use Math.ceil instead of ((each + 63) / 64) * 64
 
     const eachAligned = ((each + 63) >>> 6) << 6;
@@ -31,7 +31,7 @@ export class ReedSolomon {
     return res;
   }
 
-  split(data) {
+  _split(data) {
     if (data.length === 0) {
       return [];
     }
@@ -68,7 +68,7 @@ export class ReedSolomon {
     if (data.length < needTotal) {
       const fullShards = data.length / perShard;
       // padding = new Array(this.totalShards - fullShards).fill(0);
-      padding = this.allocAligned(this.totalShards - fullShards, perShard);
+      padding = this._allocAligned(this.totalShards - fullShards, perShard);
 
       if (dataLen > perShard * fullShards) {
         const copyFrom = data.slice(perShard * fullShards, dataLen);
@@ -97,30 +97,7 @@ export class ReedSolomon {
     return dst;
   }
 
-  encodeSegment(data) {
-    if (data.length == 0) throw new Error('data buffer length is 0');
-
-    const shared = this.split(data);
-
-    const output = shared.slice(this.dataShards);
-
-    // r.m
-    const matrix = buildMatrix(this.totalShards, this.dataShards);
-
-    let parity = [];
-    for (let i = 0; i < this.parityShards; i++) {
-      parity.push(matrix[this.dataShards + i]);
-    }
-
-    return this.codeSomeShards(
-      parity,
-      shared.slice(0, this.dataShards),
-      output.slice(0, this.parityShards),
-      shared[0].length,
-    );
-  }
-
-  codeSomeShards(matrixRows, inputs, outputs) {
+  _codeSomeShards(matrixRows, inputs, outputs) {
     let start = 0;
     let end = inputs[0].length;
 
@@ -150,44 +127,60 @@ export class ReedSolomon {
     return concat(inputs, outputs);
   }
 
+  encodeSegment(data) {
+    if (data.length == 0) throw new Error('data buffer length is 0');
+
+    const shared = this._split(data);
+
+    const output = shared.slice(this.dataShards);
+
+    // r.m
+    const matrix = buildMatrix(this.totalShards, this.dataShards);
+
+    let parity = [];
+    for (let i = 0; i < this.parityShards; i++) {
+      parity.push(matrix[this.dataShards + i]);
+    }
+
+    return this._codeSomeShards(
+      parity,
+      shared.slice(0, this.dataShards),
+      output.slice(0, this.parityShards),
+      shared[0].length,
+    );
+  }
+
   encode(sourceData) {
-    let chunkList = [];
-    let cur = 0;
-
-    // TODO: if totalShards is not `5JCeuQeRkm5NMpJWZG3hSuFU=`
     if (sourceData.length == 0) {
-      return new Array(this.totalShards + 1).fill('47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
+      throw new Error('file buffer is empty');
     }
 
-    while (cur < sourceData.length) {
-      chunkList.push(sourceData.slice(cur, cur + this.segmentSize));
-      cur += this.segmentSize;
+    const chunkList = splitPrice(sourceData, this.segmentSize);
+
+    let encodeDataHashList = new Array(this.totalShards);
+    for (let i = 0; i < encodeDataHashList.length; i++) {
+      encodeDataHashList[i] = [];
     }
-
-    let encodeDataHash = new Array(this.totalShards);
-
-    for (let i = 0; i < encodeDataHash.length; i++) {
-      encodeDataHash[i] = [];
-    }
-
     let hashList = [];
     let segChecksumList = [];
+
     for (let i = 0; i < chunkList.length; i++) {
       const data = chunkList[i];
       // console.log('data i', i)
       const encodeShards = this.encodeSegment(data);
-      // console.log('data i done')
+      // console.log('data done', i)
       segChecksumList.push(sha256(data));
+
       for (let i = 0; i < encodeShards.length; i++) {
         const priceHash = sha256(encodeShards[i]);
-        encodeDataHash[i].push(priceHash);
+        encodeDataHashList[i].push(priceHash);
       }
     }
 
     hashList[0] = sha256(getIntegrityUint8Array(segChecksumList));
 
-    for (let i = 0; i < encodeDataHash.length; i++) {
-      hashList[i + 1] = sha256(getIntegrityUint8Array(encodeDataHash[i]));
+    for (let i = 0; i < encodeDataHashList.length; i++) {
+      hashList[i + 1] = sha256(getIntegrityUint8Array(encodeDataHashList[i]));
     }
 
     return toBase64(hashList);

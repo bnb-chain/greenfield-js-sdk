@@ -27,10 +27,11 @@ export default async () => {
       ],
     },
     {
-      input: './src/index.js',
+      input: ['./src/index.js', './src/node.adapter.js', './src/utils.js'],
       output: {
         format: 'cjs',
-        file: 'dist/index.js',
+        // file: 'dist/index.js',
+        dir: 'dist',
         sourcemap: true,
       },
       external: resolveExternal(),
