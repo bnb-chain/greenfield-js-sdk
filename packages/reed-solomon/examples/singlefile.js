@@ -9,8 +9,8 @@ const rs = new NodeAdapterReedSolomon();
 
 // single file
 (async () => {
-  const start = Date.now();
+  console.time('cost');
   const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer));
   console.log('res', res);
-  console.log('cost time', Date.now() - start);
+  console.timeEnd('cost');
 })();

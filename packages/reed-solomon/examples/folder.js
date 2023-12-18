@@ -8,7 +8,7 @@ const folderPath = './dist';
 
 (async () => {
   async function traverse(currentPath) {
-    const start = Date.now();
+    console.time('total');
     const files = await fs.readdir(currentPath);
 
     for (let i = 0; i < files.length; i++) {
@@ -16,14 +16,15 @@ const folderPath = './dist';
       const filePath = path.join(currentPath, file);
       const stat = await fs.stat(filePath);
 
-      const start = Date.now();
+      console.time('file', file);
       const fileBuffer = await fs.readFile(filePath);
       const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer));
-      console.log('res', file, Date.now() - start, res);
+      console.timeEnd('file');
+      console.log(file, 'res: ', res);
     }
 
     console.log('files count: ', files.length);
-    console.log('total cost time: ', Date.now() - start);
+    console.timeEnd('total');
   }
 
   await traverse(folderPath);
