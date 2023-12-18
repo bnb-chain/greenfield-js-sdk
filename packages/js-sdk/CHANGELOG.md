@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.1.0-alpha.1
+
+### Patch Changes
+
+- [#418](https://github.com/bnb-chain/greenfield-js-sdk/pull/418)
+  [`a940e06`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a940e065954aadd021c76bcb59be69254f50735e)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Remove engines filed in package.json
+
 ## 1.1.0-alpha.0
 
 ### Minor Changes
