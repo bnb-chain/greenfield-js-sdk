@@ -98,6 +98,8 @@ export class ReedSolomon {
   }
 
   encodeSegment(data) {
+    if (data.length == 0) throw new Error('data buffer length is 0');
+
     const shared = this.split(data);
 
     const output = shared.slice(this.dataShards);
@@ -152,7 +154,7 @@ export class ReedSolomon {
     let chunkList = [];
     let cur = 0;
 
-    // TODO: if totalShards is not
+    // TODO: if totalShards is not `5JCeuQeRkm5NMpJWZG3hSuFU=`
     if (sourceData.length == 0) {
       return new Array(this.totalShards + 1).fill('47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=');
     }
@@ -162,7 +164,7 @@ export class ReedSolomon {
       cur += this.segmentSize;
     }
 
-    let encodeDataHash = new Array(6);
+    let encodeDataHash = new Array(this.totalShards);
 
     for (let i = 0; i < encodeDataHash.length; i++) {
       encodeDataHash[i] = [];
@@ -172,7 +174,9 @@ export class ReedSolomon {
     let segChecksumList = [];
     for (let i = 0; i < chunkList.length; i++) {
       const data = chunkList[i];
+      // console.log('data i', i)
       const encodeShards = this.encodeSegment(data);
+      // console.log('data i done')
       segChecksumList.push(sha256(data));
       for (let i = 0; i < encodeShards.length; i++) {
         const priceHash = sha256(encodeShards[i]);
