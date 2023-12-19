@@ -1,5 +1,21 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.1.0-alpha.3
+
+### Patch Changes
+
+- [#427](https://github.com/bnb-chain/greenfield-js-sdk/pull/427)
+  [`d579137`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d579137fd6ecd0d226f4d79fcc0b3f9b44f8952b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add bucket meta types
+
+## 1.1.0-alpha.2
+
+### Patch Changes
+
+- [#424](https://github.com/bnb-chain/greenfield-js-sdk/pull/424)
+  [`a999960`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a9999603b3a66e360952580da09716e85d26cc5c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add SP create API types
+
 ## 1.1.0-alpha.1
 
 ### Patch Changes
