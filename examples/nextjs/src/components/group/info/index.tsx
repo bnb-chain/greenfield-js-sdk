@@ -37,7 +37,7 @@ export const GroupInfo = () => {
           console.log('headGroupMember', headGroupMember);
         }}
       >
-        get group info
+        get group member info
       </button>
     </div>
   );
