@@ -29,6 +29,7 @@ Send create empty object txn to greenfield chain.
 | bucketName | bucket name                            |
 | objectName | object name                            |
 | creator    | the creator of object                  |
+| tags | defines a list of tags which will be set to the object |
 | authType   | [AuthType](/client/sp-client#authtype) |
 
 <Tabs groupId="example">
@@ -40,6 +41,9 @@ const tx = await client.object.createFolder(
     bucketName: createObjectInfo.bucketName,
     objectName: createObjectInfo.objectName + '/',
     creator: address,
+    tags: {
+      tags: [],
+    },
   },
   // highlight-start
   {
@@ -91,6 +95,7 @@ Get approval of creating object and send createObject txn to greenfield chain.
 | authType        | [AuthType](/client/sp-client#authtype)                                  |
 | contentLength   | file content length                                                     |
 | expectCheckSums | file's expectCheckSums                                                  |
+| tags | defines a list of tags which will be set to the object |
 
 <Tabs groupId="example">
 <TabItem value="Browser" label="Browser">
@@ -107,6 +112,9 @@ const tx = await client.object.createObject(
     redundancyType: 'REDUNDANCY_EC_TYPE',
     contentLength: 13311,
     expectCheckSums: JSON.parse(expectCheckSums),
+    tags: {
+      tags: [],
+    },
   },
   // highlight-start
   {

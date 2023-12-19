@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const mimeTypes = require('mime-types');
 const { getCheckSums } = require('@bnb-chain/greenfiled-file-handle');
+const { NodeAdapterReedSolomon } = require('@bnb-chain/reed-solomon/node.adapter');
 const { client, selectSp, generateString } = require('../client');
 const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('../env');
 
@@ -12,6 +13,7 @@ const objectName = generateString(10);
 const fileBuffer = fs.readFileSync(filePath);
 const extname = path.extname(filePath);
 const fileType = mimeTypes.lookup(extname);
+const rs = new NodeAdapterReedSolomon();
 
 console.log('bucketName', bucketName);
 console.log('objectName', objectName);
@@ -30,6 +32,9 @@ console.log('objectName', objectName);
         primarySpAddress: spInfo.primarySpAddress,
       },
       paymentAddress: ACCOUNT_ADDRESS,
+      tags: {
+        tags: [],
+      },
     },
     {
       type: 'ECDSA',
@@ -55,8 +60,7 @@ console.log('objectName', objectName);
   console.log('create bucket success', createBucketTxRes);
 
   // create object example:
-  const hashResult = await getCheckSums(fileBuffer);
-  const { contentLength, expectCheckSums } = hashResult;
+  const expectCheckSums = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer));
 
   const createObjectTx = await client.object.createObject(
     {
@@ -66,8 +70,11 @@ console.log('objectName', objectName);
       visibility: 'VISIBILITY_TYPE_PRIVATE',
       fileType: fileType,
       redundancyType: 'REDUNDANCY_EC_TYPE',
-      contentLength,
-      expectCheckSums: JSON.parse(expectCheckSums),
+      contentLength: fileBuffer.length,
+      expectCheckSums,
+      tags: {
+        tags: [],
+      },
     },
     {
       type: 'ECDSA',

@@ -1,5 +1,4 @@
 import { client, selectSp } from '@/client';
-import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -48,6 +47,20 @@ export const CreateBucket = () => {
                 primarySpAddress: spInfo.primarySpAddress,
               },
               paymentAddress: address,
+              // empty tags
+              tags: {
+                tags: [],
+              },
+
+              // with tags:
+              // tags: {
+              //   tags: [
+              //     {
+              //       key: 'test',
+              //       value: 'test',
+              //     },
+              //   ],
+              // },
             },
             {
               // type: 'ECDSA',

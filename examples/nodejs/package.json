@@ -1,12 +1,13 @@
 {
   "name": "@demo/nodejs",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "type": "commonjs",
   "private": true,
   "scripts": {},
   "dependencies": {
     "@bnb-chain/greenfield-js-sdk": "workspace:*",
     "@bnb-chain/greenfiled-file-handle": "workspace:*",
+    "@bnb-chain/reed-solomon": "workspace:*",
     "dotenv": "^16.0.3",
     "mime-types": "^2.1.35"
   }

@@ -1,29 +1,8 @@
 import type { EIP712Msg } from '@/messages/utils';
 import cloneDeep from 'lodash.clonedeep';
 
-const MsgCreateGroupSDKTypeEIP712 = {
-  Msg1: [
-    {
-      name: 'creator',
-      type: 'string',
-    },
-    {
-      name: 'extra',
-      type: 'string',
-    },
-    {
-      name: 'group_name',
-      type: 'string',
-    },
-    {
-      name: 'type',
-      type: 'string',
-    },
-  ],
-};
-
-export const getMsgCreateGroupSDKTypeWithTagEIP712 = (isTagsEmpty: boolean) => {
-  const res: EIP712Msg = cloneDeep(MsgCreateGroupSDKTypeEIP712);
+export const getMsgSetTagSDKTypeEIP712 = (isTagsEmpty: boolean) => {
+  const res: EIP712Msg = cloneDeep(MsgSetTagSDKTypeEIP712);
 
   if (!isTagsEmpty) {
     res.Msg1.push({
@@ -62,4 +41,21 @@ export const getMsgCreateGroupSDKTypeWithTagEIP712 = (isTagsEmpty: boolean) => {
   }
 
   return res;
+};
+
+const MsgSetTagSDKTypeEIP712 = {
+  Msg1: [
+    {
+      name: 'operator',
+      type: 'string',
+    },
+    {
+      name: 'resource',
+      type: 'string',
+    },
+    {
+      name: 'type',
+      type: 'string',
+    },
+  ],
 };
