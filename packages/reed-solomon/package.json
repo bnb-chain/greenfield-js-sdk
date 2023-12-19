@@ -34,15 +34,9 @@
   },
   "typesVersions": {
     "*": {
-      "node.adapter": [
-        "./types/node.adapter.d.ts"
-      ],
-      "web.adapter": [
-        "./types/web.adapter.d.ts"
-      ],
-      "utils": [
-        "./types/utils.d.ts"
-      ]
+      "node.adapter": ["./types/node.adapter.d.ts"],
+      "web.adapter": ["./types/web.adapter.d.ts"],
+      "utils": ["./types/utils.d.ts"]
     }
   },
   "scripts": {
