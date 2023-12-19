@@ -1,5 +1,13 @@
 # @bnb-chain/reed-solomon
 
+## 1.0.1-alpha.1
+
+### Patch Changes
+
+- [#429](https://github.com/bnb-chain/greenfield-js-sdk/pull/429)
+  [`afb5464`](https://github.com/bnb-chain/greenfield-js-sdk/commit/afb54644683c8da508d250731a6462676cf44747)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support Web Worker
+
 ## 1.0.1-alpha.0
 
 ### Patch Changes
