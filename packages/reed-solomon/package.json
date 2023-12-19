@@ -1,12 +1,13 @@
 {
   "name": "@bnb-chain/reed-solomon",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.1-alpha.1",
   "description": "lighting implement for reed solomon",
   "module": "./dist/index.esm.js",
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
   "exports": {
     ".": {
+      "import": "./dist/index.js",
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "main": "./dist/index.js",
@@ -24,7 +25,15 @@
       "types": "./types/web.adapter.d.ts",
       "import": "./dist/web.adapter.js"
     },
+    "./web.adapter": {
+      "default": "./dist/web.adapter.js",
+      "types": "./types/web.adapter.d.ts",
+      "import": "./dist/web.adapter.js"
+    },
     "./utils": {
+      "import": "./dist/utils.esm.js",
+      "require": "./dist/utils.js",
+      "main": "./dist/utils.js",
       "import": "./dist/utils.esm.js",
       "require": "./dist/utils.js",
       "main": "./dist/utils.js",

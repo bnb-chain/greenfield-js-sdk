@@ -34,6 +34,7 @@ Use directly in the browser via script tag:
 </button>
 
 <script src="https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/index.aio.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/index.aio.js"></script>
 <script>
   const fileInput = document.getElementById('file');
 
