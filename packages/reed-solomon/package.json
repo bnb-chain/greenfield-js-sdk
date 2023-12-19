@@ -7,7 +7,7 @@
   "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.aio.js",
+      "import": "./dist/index.js",
       "require": "./dist/index.js",
       "main": "./dist/index.js",
       "default": "./dist/index.js",

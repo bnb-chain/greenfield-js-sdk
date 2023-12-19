@@ -12,6 +12,7 @@ export default async () => {
     {
       input: './src/index.js',
       output: {
+        format: 'es',
         file: 'dist/index.esm.js',
         sourcemap: true,
       },
