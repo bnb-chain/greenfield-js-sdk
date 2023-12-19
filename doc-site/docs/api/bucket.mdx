@@ -3,6 +3,8 @@ id: bucket
 title: 'Bucket'
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import ApiTypes from '../../src/components/snippers/api-types.tsx';
 import Tx from '../../src/components/snippers/tx.mdx';
 
@@ -22,7 +24,11 @@ for creating bucket and sends the createBucket transaction to the Greenfield.
 | tags  |  defines a list of tags which will be set to the bucket |
 | authType         | [AuthType](/client/sp-client#authtype)                  |
 
-```jsx title="example"
+
+<Tabs groupId="example">
+<TabItem value="Browser" label="Browser">
+
+```jsx
 const tx = await client.bucket.createBucket(
   {
     bucketName: 'bucket_name',
@@ -37,14 +43,43 @@ const tx = await client.bucket.createBucket(
       tags: [],
     },
   },
+  // highlight-start
   {
     type: 'EDDSA',
     domain: window.location.origin,
     seed: offChainData.seedString,
     address,
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+const createBucketTx = await client.bucket.createBucket(
+  {
+    bucketName: bucketName,
+    creator: ACCOUNT_ADDRESS,
+    visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
+    chargedReadQuota: '0',
+    spInfo: {
+      primarySpAddress: spInfo.primarySpAddress,
+    },
+    paymentAddress: ACCOUNT_ADDRESS,
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+</Tabs>
 
 ## deleteBucket <ApiTypes type="Tx" />
 
@@ -55,7 +90,7 @@ Send DeleteBucket msg to greenfield chain and return txn hash.
 | bucketName | The name of the bucket to be deleted |
 | operator   | operator account address             |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const tx = await client.bucket.deleteBucket({
   bucketName: bucketName,
   operator: address,
@@ -75,7 +110,7 @@ Delete the bucket policy of the principal.
 | principalAddr | Principal define the roles that can grant permissions                  |
 | principalType | PrincipalType refers to the identity type of system users or entities. |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const tx = await client.bucket.deleteBucketPolicy(
   address,
   bucketName,
@@ -94,7 +129,7 @@ This API is used to get bucket meta by bucket name.
 | ---------- | ----------- |
 | bucketName | bucket name |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const bucketInfo = await client.bucket.getBucketMeta({
   bucketName,
 });
@@ -104,7 +139,7 @@ const bucketInfo = await client.bucket.getBucketMeta({
 
 Get the bucket policy info of the user specified by principalAddr.
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 import { GRNToString, newBucketGRN } from '@bnb-chain/greenfield-js-sdk';
 await client.bucket.getBucketPolicy({
   resource: GRNToString(newBucketGRN(bucketName)),
@@ -121,19 +156,44 @@ Query the quota info of the specific bucket of current month.
 | bucketName | bucket name                            |
 | authType   | [AuthType](/client/sp-client#authtype) |
 
-```jsx title="example"
-await client.bucket.getBucketReadQuota(
+<Tabs groupId="example">
+<TabItem value="Browser" label="Browser">
+
+```jsx
+const tx = await client.bucket.getBucketReadQuota(
   {
     bucketName,
   },
+  // highlight-start
   {
     type: 'EDDSA',
     seed: offChainData.seedString,
     domain: window.location.origin,
     address,
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+const tx = await client.bucket.getBucketReadQuota(
+  {
+    bucketName,
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+</Tabs>
 
 ## headBucket <ApiTypes type="Query" />
 
@@ -143,7 +203,7 @@ query the bucketInfo on chain, return the bucket info if exists.
 | ---------- | ----------- |
 | bucketName | bucket name |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const bucketInfo = await client.bucket.headBucket(bucketName);
 ```
 
@@ -153,7 +213,7 @@ const bucketInfo = await client.bucket.headBucket(bucketName);
 | -------- | ----------- |
 | bucketId | bucket id   |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const bucketInfo = await client.bucket.headBucketById(bucketId);
 ```
 
@@ -165,7 +225,7 @@ Queries a bucket extra info (with gvg bindings and price time) with specify name
 | ---------- | ----------- |
 | bucketName | bucket name |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const bucketInfo = await client.bucket.headBucketExtra(bucketName);
 ```
 
@@ -180,22 +240,50 @@ List the download record info of the specific bucket of the current month.
 | bucketName | bucket name                            |
 | authType   | [AuthType](/client/sp-client#authtype) |
 
-```jsx title="example"
-await client.bucket.listBucketReadRecords(
+<Tabs groupId="example">
+<TabItem value="Browser" label="Browser">
+
+```jsx
+const tx = await client.bucket.listBucketReadRecords(
   {
     bucketName,
     startTimeStamp,
     endTimeStamp,
     maxRecords: 1000,
   },
+  // highlight-start
   {
     type: 'EDDSA',
     domain: window.location.origin,
     seed: offChainData.seedString,
     address,
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+const tx = await client.bucket.listBucketReadRecords(
+  {
+    bucketName,
+    startTimeStamp,
+    endTimeStamp,
+    maxRecords: 1000,
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+</Tabs>
 
 ## listBuckets <ApiTypes type="Storage Provider" />
 
@@ -205,7 +293,7 @@ Lists the bucket info of the user.
 | ------- | ------------ |
 | address | user account |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const res = await client.bucket.listBuckets({
   address,
 });
@@ -219,7 +307,7 @@ Lists the bucket info of the user.
 | ------ | ---------------- |
 | ids    | bucket ids array |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 await client.bucket.listBucketsByIds({
   ids: ['1', '2'],
 });
@@ -233,7 +321,7 @@ List bucket info by payment account.
 | -------------- | ----------------------- |
 | paymentAccount | payment account address |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 const res = await client.bucket.listBucketsByPaymentAccount({
   paymentAccount: '0x00...',
 });
@@ -249,7 +337,7 @@ Apply bucket policy to the principal, return the txn hash.
 | statements | Policies outline the specific details of permissions, including the Effect, ActionList, and Resources.                                                        |
 | principal  | Indicates the marshaled principal content of greenfield permission types, users can generate it by NewPrincipalWithAccount or NewPrincipalWithGroupId method. |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 import { GRNToString, newBucketGRN, PermissionTypes } from '@bnb-chain/greenfield-js-sdk';
 const statement: PermissionTypes.Statement = {
   effect: PermissionTypes.Effect.EFFECT_ALLOW,
@@ -281,7 +369,7 @@ the MsgUpdateBucketInfo msg to greenfield to update the meta.
 | paymentAddress   | payment address                                         |
 | chargedReadQuota | defines the traffic quota that you read from primary sp |
 
-```jsx title="example"
+```jsx title="Browser | Nodejs"
 await client.bucket.updateBucketInfo({
   bucketName: bucketName,
   operator: address,

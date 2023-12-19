@@ -113,4 +113,33 @@ console.log('objectName', objectName);
   if (uploadRes.code === 0) {
     console.log('upload object success', uploadRes);
   }
+
+  // create folder example:
+  const createFolderTx = await client.object.createFolder(
+    {
+      bucketName: bucketName,
+      objectName: objectName + '/',
+      creator: ACCOUNT_ADDRESS,
+    },
+    {
+      type: 'ECDSA',
+      privateKey: ACCOUNT_PRIVATEKEY,
+    },
+  );
+  const simulateInfo = await createFolderTx.simulate({
+    denom: 'BNB',
+  });
+
+  const res = await createFolderTx.broadcast({
+    denom: 'BNB',
+    gasLimit: Number(simulateInfo?.gasLimit),
+    gasPrice: simulateInfo?.gasPrice || '5000000000',
+    payer: ACCOUNT_ADDRESS,
+    granter: '',
+    privateKey: ACCOUNT_PRIVATEKEY,
+  });
+
+  if (res.code === 0) {
+    console.log('create folder success', res);
+  }
 })();

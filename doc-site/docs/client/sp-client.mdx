@@ -4,6 +4,9 @@ sidebar_position: 3
 title: 'Storage Provider Client'
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 The api related to storage provider are some troublesome.
 
 ## AuthType
@@ -45,9 +48,9 @@ browser). -->
 
 ## Sp Api Example
 
-`getBucketReadQuota` as example:
+Take `getBucketReadQuota` as a complete example:
 
-```jsx title="browser"
+```js title="offchainAuth"
 const getAllSps = async () => {
   const sps = await getSps();
 
@@ -72,20 +75,30 @@ const offchainAuthRes = await client.offchainauth.genOffChainAuthKeyPairAndUploa
   },
   provider: 'wallet provider',
 );
+```
 
+<Tabs>
+<TabItem value="Browser" label="Browser">
+
+```jsx title="browser"
 // request sp api
 const bucketQuota = await client.bucket.getBucketReadQuota(
   {
     bucketName,
   },
+  // highlight-start
   {
     type: 'EDDSA',
     seed: offchainAuthRes.seedString,
     domain: window.location.origin,
-    address: 'your address',
+    address: '0x...',
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
 
 ```jsx title="Nodejs"
 // request sp api
@@ -93,9 +106,14 @@ const bucketQuota = await client.bucket.getBucketReadQuota(
   {
     bucketName,
   },
+  // highlight-start
   {
     type: 'ECDSA',
     privateKey: '0x....',
   },
+  // highlight-end
 );
 ```
+
+</TabItem>
+</Tabs>

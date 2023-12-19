@@ -60,9 +60,9 @@ export const CreateObject = () => {
               return;
             }
 
-            const checksumWorker = getCheckSumsWorker();
-            const multiCal = await checksumWorker.generateCheckSumV2(file);
-            console.log('multiCal', multiCal);
+            // const checksumWorker = getCheckSumsWorker();
+            // const multiCal = await checksumWorker.generateCheckSumV2(file);
+            // console.log('multiCal', multiCal);
 
             const rs = new ReedSolomon();
             const fileBytes = await file.arrayBuffer();

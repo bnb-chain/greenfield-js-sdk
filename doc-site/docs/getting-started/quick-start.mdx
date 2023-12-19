@@ -1,0 +1,115 @@
+---
+id: quick-start
+sidebar_position: 3
+---
+
+import Image from '@theme/IdealImage';
+
+# Quick Start
+
+We provide templates that can run `React` ([Next.js](https://nextjs.org/), [Vite](https://vitejs.dev/) and [CRA](https://create-react-app.dev/) etc) directly.
+
+You can use [`create-gnfd-app`](https://github.com/bnb-chain/greenfield-js-sdk/tree/main/packages/create-gnfd-app) to create a app quickly:
+
+```bash
+> npx @bnb-chain/create-gnfd-app
+```
+
+![create-gnfd-app](/img/quick-start/gnfd-template.gif)
+
+## Using Template
+
+### 1. Fill Application name
+
+Here I take `my-gnfd-app` as an example:
+
+```bash
+> npx @bnb-chain/create-gnfd-app
+# highlight-start
+? What is your project named? my-gnfd-app
+# highlight-end
+```
+
+### 2. Select a template
+
+Here I take `nextjs` as an example:
+
+```bash
+> npx @bnb-chain/create-gnfd-app
+? What is your project named? my-gnfd-app
+? select a template? (Use arrow keys)
+# highlight-start
+❯ nextjs
+  create-react-app
+  vite
+# highlight-end
+```
+
+### 3. Select a package manager
+
+Here I take `pnpm` as an example:
+
+```bash
+> npx @bnb-chain/create-gnfd-app
+? What is your project named? my-gnfd-app
+? select a template? nextjs
+# highlight-start
+? select a package manager?
+  npm
+  yarn
+❯ pnpm
+# highlight-end
+```
+
+### 4. Download template
+
+Now downloading template:
+
+```bash
+? What is your project named? my-gnfd-app
+? select a template? nextjs
+? select a package manager? pnpm
+# highlight-start
+Creating a new Greenfield app in my-gnfd-app.
+🎉 download template - nextjs success
+
+⠧ Installing dependencies with pnpm......
+# highlight-end
+```
+
+After a while you will see this line:
+
+```bash
+? What is your project named? my-gnfd-app
+? select a template? nextjs
+? select a package manager? pnpm
+Creating a new Greenfield app in my-gnfd-app.
+# highlight-start
+🎉 download template - nextjs success
+
+🎉 Install dependencies successfully.
+# highlight-end
+```
+
+## Run Application
+
+```bash
+> cd my-gnfd-app
+> npm run dev
+```
+
+### 1. You can see `Connect Wallet` button
+
+  ![init](/img/quick-start/init.png)
+
+### 2. Click the button and select a wallet
+
+  <Image img={require('/img/quick-start/select-wallet.png')} width="500" />
+
+### 3. You can this page
+
+  <Image img={require('/img/quick-start/details.png')} width="500" />
+
+### 4. Create a Bucket
+
+  <Image img={require('/img/quick-start/create-bucket.png')} />
