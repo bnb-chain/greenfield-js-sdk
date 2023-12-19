@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RS webworker</title>
+</head>
+<body>
+  <input type="file" id="file" />
+
+  <button id="worker-btn">
+    get reed solomon (webworker)
+  </button>
+
+  <script src="../dist/web.adapter.aio.js"></script>
+  <script src="../dist/utils.aio.js"></script>
+  <script type="module">
+    const fileInput = document.getElementById('file');
+
+    // use webworker
+    document.getElementById('worker-btn').onclick = async function() {
+      const selectFile = fileInput.files[0];
+      const arrBuffer = await selectFile.arrayBuffer()
+      if (!arrBuffer) alert('no file selected');
+
+      const sourceData = new Uint8Array(arrBuffer)
+      console.time('webworker cost')
+      console.log('file size', sourceData.length / 1024 / 1024, 'm')
+      const rs = new WebAdapter.WebAdapterReedSolomon()
+      const res = await rs.encodeInWorker(injectWorker, sourceData)
+      console.log('res', res)
+      console.timeEnd('webworker cost')
+    }
+
+    function injectWorker() {
+      importScripts('http://localhost:9002/dist/web.adapter.aio.js');
+      importScripts('http://localhost:9002/dist/utils.aio.js');
+
+      const rs = new WebAdapter.WebAdapterReedSolomon();
+
+      onmessage = function (event) {
+        const { index, chunk } = event.data;
+        const encodeShards = rs.encodeSegment(chunk);
+        let encodeDataHash = [];
+
+        for (let i = 0; i < encodeShards.length; i++) {
+          const priceHash = RSUtils.sha256(encodeShards[i]);
+          encodeDataHash.push(priceHash);
+        }
+
+        postMessage({
+          index,
+          segChecksum: RSUtils.sha256(chunk),
+          encodeDataHash,
+        });
+
+        self.close();
+      };
+    }
+
+  </script>
+</body>
+</html>
