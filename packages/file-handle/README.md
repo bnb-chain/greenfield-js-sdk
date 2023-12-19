@@ -1,4 +1,6 @@
-# Greenfield Files JS SDK
+# Greenfield Files JS SDK (Deprecated!)
+
+> Move to [reed-solomon](../reed-solomon/README.md)
 
 WASM module that handle file, such as `checksums` method.
 
