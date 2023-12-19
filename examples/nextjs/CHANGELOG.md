@@ -1,5 +1,22 @@
 # @demo/wallet
 
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies
+  [[`18891a4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/18891a45cf06120b042427493422fd469a5c393f),
+  [`afb5464`](https://github.com/bnb-chain/greenfield-js-sdk/commit/afb54644683c8da508d250731a6462676cf44747),
+  [`a999960`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a9999603b3a66e360952580da09716e85d26cc5c),
+  [`a940e06`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a940e065954aadd021c76bcb59be69254f50735e),
+  [`18891a4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/18891a45cf06120b042427493422fd469a5c393f),
+  [`18891a4`](https://github.com/bnb-chain/greenfield-js-sdk/commit/18891a45cf06120b042427493422fd469a5c393f),
+  [`2e9fce0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/2e9fce0c5b3da426feb0d6b03d95450ac83a6491),
+  [`d579137`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d579137fd6ecd0d226f4d79fcc0b3f9b44f8952b),
+  [`47d59a1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/47d59a1355b0a7788727daaf077a644206ffcc05)]:
+  - @bnb-chain/reed-solomon@1.0.1
+  - @bnb-chain/greenfield-js-sdk@1.1.0
+
 ## 0.0.17-alpha.5
 
 ### Patch Changes
