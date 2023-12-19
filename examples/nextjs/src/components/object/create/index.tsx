@@ -1,9 +1,9 @@
 import { client } from '@/client';
-import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { getCheckSumsWorker } from '@bnb-chain/greenfiled-file-handle';
+import { ReedSolomon } from '@bnb-chain/reed-solomon';
 
 export const CreateObject = () => {
   const { address, connector } = useAccount();
@@ -64,14 +64,11 @@ export const CreateObject = () => {
             const multiCal = await checksumWorker.generateCheckSumV2(file);
             console.log('multiCal', multiCal);
 
+            const rs = new ReedSolomon();
             const fileBytes = await file.arrayBuffer();
-            const hashResult = await (window as any).FileHandle.getCheckSums(
-              new Uint8Array(fileBytes),
-            );
-            const { contentLength, expectCheckSums } = hashResult;
+            const expectCheckSums = rs.encode(new Uint8Array(fileBytes));
 
             console.log('offChainData', offChainData);
-            console.log('hashResult', hashResult);
 
             const createObjectTx = await client.object.createObject(
               {
@@ -81,8 +78,8 @@ export const CreateObject = () => {
                 visibility: 'VISIBILITY_TYPE_PRIVATE',
                 fileType: file.type,
                 redundancyType: 'REDUNDANCY_EC_TYPE',
-                contentLength,
-                expectCheckSums: JSON.parse(expectCheckSums),
+                contentLength: fileBytes.byteLength,
+                expectCheckSums: expectCheckSums,
                 // empty tags
                 // tags: {
                 //   tags: [],
