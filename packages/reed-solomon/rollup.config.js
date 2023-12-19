@@ -9,10 +9,13 @@ function resolveExternal() {
 
 export default async () => {
   return [
+    // ESM
     {
-      input: './src/index.js',
+      input: ['./src/index.js', './src/web.adapter.js'],
       output: {
-        file: 'dist/index.esm.js',
+        format: 'es',
+        dir: 'dist',
+        entryFileNames: '[name].esm.js',
         sourcemap: true,
       },
       external: resolveExternal(),
@@ -26,6 +29,8 @@ export default async () => {
         }),
       ],
     },
+
+    // CJS
     {
       input: ['./src/index.js', './src/node.adapter.js', './src/utils.js'],
       output: {
@@ -43,12 +48,46 @@ export default async () => {
         // }),
       ],
     },
+
+    // UMD
     {
       input: './src/index.js',
       output: {
         format: 'umd',
         file: 'dist/index.aio.js',
         name: 'RS',
+        sourcemap: true,
+      },
+      plugins: [
+        commonjs(),
+        resolve({
+          browser: true,
+          preferBuiltins: false,
+        }),
+      ],
+    },
+    {
+      input: './src/web.adapter.js',
+      output: {
+        format: 'umd',
+        file: 'dist/web.adapter.aio.js',
+        name: 'WebAdapter',
+        sourcemap: true,
+      },
+      plugins: [
+        commonjs(),
+        resolve({
+          browser: true,
+          preferBuiltins: false,
+        }),
+      ],
+    },
+    {
+      input: './src/utils.js',
+      output: {
+        format: 'umd',
+        file: 'dist/utils.aio.js',
+        name: 'RSUtils',
         sourcemap: true,
       },
       plugins: [

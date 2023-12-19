@@ -1,4 +1,5 @@
 import { encode } from '@ethersproject/base64';
+export { sha256 } from 'ethereum-cryptography/sha256.js';
 
 export function concat(a, b) {
   let res = [];

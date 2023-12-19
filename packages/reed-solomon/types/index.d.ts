@@ -7,7 +7,3 @@ declare module '@bnb-chain/reed-solomon' {
     encode(data: Uint8Arary): string[];
   }
 }
-
-// declare class NodeAdapterReedSolomon {
-//   encodeInWorker(p: string, data: Uint8Array): Promise<string[]>;
-// }

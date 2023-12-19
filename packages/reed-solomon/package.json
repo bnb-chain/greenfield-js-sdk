@@ -7,7 +7,7 @@
   "types": "./types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.aio.js",
+      "import": "./dist/index.js",
       "require": "./dist/index.js",
       "main": "./dist/index.js",
       "default": "./dist/index.js",
@@ -19,9 +19,24 @@
       "node": "./dist/node.adapter.js",
       "require": "./dist/node.adapter.js"
     },
+    "./web.adapter": {
+      "default": "./dist/web.adapter.js",
+      "types": "./types/web.adapter.d.ts",
+      "import": "./dist/web.adapter.js"
+    },
     "./utils": {
+      "import": "./dist/utils.esm.js",
+      "require": "./dist/utils.js",
+      "main": "./dist/utils.js",
       "default": "./dist/utils.js",
       "types": "./types/utils.d.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "node.adapter": ["./types/node.adapter.d.ts"],
+      "web.adapter": ["./types/web.adapter.d.ts"],
+      "utils": ["./types/utils.d.ts"]
     }
   },
   "scripts": {

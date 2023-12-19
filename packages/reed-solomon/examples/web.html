@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <input type="file" id="file" />
+
+  <button id="btn">
+    get reed solomon
+  </button>
+
+  <button id="worker-btn">
+    get reed solomon (webworker)
+  </button>
+
+  <script src="../dist/index.aio.js"></script>
+  <script src="../dist/web.adapter.aio.js"></script>
+  <script src="../dist/utils.aio.js"></script>
+  <script type="module">
+    const fileInput = document.getElementById('file');
+
+    // not use webworker
+    document.getElementById('btn').onclick = async function() {
+      const selectFile = fileInput.files[0];
+      const arrBuffer = await selectFile.arrayBuffer()
+      if (!arrBuffer) alert('no file selected');
+
+      const sourceData = new Uint8Array(arrBuffer)
+      console.time('cost')
+      console.log('file size', sourceData.length / 1024 / 1024, 'm')
+      const rs = new RS.ReedSolomon()
+      const res = await rs.encode(sourceData)
+      console.log('res', res)
+      console.timeEnd('cost')
+    }
+
+    // use webworker
+    document.getElementById('worker-btn').onclick = async function() {
+      const selectFile = fileInput.files[0];
+      const arrBuffer = await selectFile.arrayBuffer()
+      if (!arrBuffer) alert('no file selected');
+
+      const sourceData = new Uint8Array(arrBuffer)
+      console.time('webworker cost')
+      console.log('file size', sourceData.length / 1024 / 1024, 'm')
+      const rs = new WebAdapter.WebAdapterReedSolomon()
+      const res = await rs.encodeInWorker(WebAdapter.injectWorker, sourceData)
+      console.log('res', res)
+      console.timeEnd('webworker cost')
+    }
+
+  </script>
+</body>
+</html>
