@@ -31,7 +31,7 @@ import {
   TxResponse,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
-import { MsgSetTagSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgSetTag';
+import { getMsgSetTagSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgSetTag';
 
 export interface IStorage {
   params(): Promise<QueryParamsResponse>;
@@ -108,6 +108,10 @@ export class Storage implements IStorage {
   }
 
   public async setTag(msg: MsgSetTag) {
+    const isTagsEmpty = msg?.tags?.tags?.length === 0;
+
+    const MsgSetTagSDKTypeEIP712 = getMsgSetTagSDKTypeEIP712(isTagsEmpty);
+
     return await this.txClient.tx(
       MsgSetTagTypeUrl,
       msg.operator,

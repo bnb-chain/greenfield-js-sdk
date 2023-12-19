@@ -125,7 +125,7 @@ export const GroupUpdate = () => {
         onClick={async () => {
           if (!address) return;
 
-          const resource = GRNToString(newGroupGRN(address, 'zzxc1'));
+          const resource = GRNToString(newGroupGRN(address, groupName));
 
           const updateGroupTx = await client.storage.setTag({
             operator: address,
