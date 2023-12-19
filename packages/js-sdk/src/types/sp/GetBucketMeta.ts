@@ -1,4 +1,4 @@
-import { BucketMeta, StreamRecord } from './Common';
+import { BucketMetaWithVGF, StreamRecord } from './Common';
 
 export interface GetBucketMetaRequest {
   bucketName: string;
@@ -10,6 +10,6 @@ export interface GetBucketMetaResponse {
 }
 
 export interface GfSPGetBucketMetaResponse {
-  Bucket: BucketMeta;
+  Bucket: BucketMetaWithVGF;
   StreamRecord: StreamRecord;
 }
