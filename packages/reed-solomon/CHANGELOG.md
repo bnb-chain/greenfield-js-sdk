@@ -1,5 +1,13 @@
 # @bnb-chain/reed-solomon
 
+## 1.0.1-alpha.2
+
+### Patch Changes
+
+- [#431](https://github.com/bnb-chain/greenfield-js-sdk/pull/431)
+  [`2e9fce0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/2e9fce0c5b3da426feb0d6b03d95450ac83a6491)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add Types
+
 ## 1.0.1-alpha.1
 
 ### Patch Changes
