@@ -1,5 +1,28 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.1.0
+
+### Minor Changes
+
+- [#413](https://github.com/bnb-chain/greenfield-js-sdk/pull/413)
+  [`47d59a1`](https://github.com/bnb-chain/greenfield-js-sdk/commit/47d59a1355b0a7788727daaf077a644206ffcc05)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat(BREAKING CHANGE): create group / bucket /
+  object must have `tags` arguments and supply `setMsg` method to update tags.
+
+### Patch Changes
+
+- [#424](https://github.com/bnb-chain/greenfield-js-sdk/pull/424)
+  [`a999960`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a9999603b3a66e360952580da09716e85d26cc5c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add SP create API types
+
+- [#418](https://github.com/bnb-chain/greenfield-js-sdk/pull/418)
+  [`a940e06`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a940e065954aadd021c76bcb59be69254f50735e)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Remove engines filed in package.json
+
+- [#427](https://github.com/bnb-chain/greenfield-js-sdk/pull/427)
+  [`d579137`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d579137fd6ecd0d226f4d79fcc0b3f9b44f8952b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add bucket meta types
+
 ## 1.1.0-alpha.3
 
 ### Patch Changes
