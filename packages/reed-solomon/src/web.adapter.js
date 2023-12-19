@@ -2,17 +2,14 @@ import { ReedSolomon } from '.';
 import { sha256, getIntegrityUint8Array, toBase64, splitPrice } from './utils';
 
 export class WebAdapterReedSolomon extends ReedSolomon {
-  async encodeInWorker(workerFn, sourceData, { webAdapterUrl, utilsUrl }) {
+  async encodeInWorker(workerFn, sourceData) {
     const chunkList = splitPrice(sourceData, this.segmentSize);
 
     const workers = [];
 
     for (let i = 0; i < chunkList.length; i++) {
       // const worker = new Worker('worker.js');
-      const worker = createWorker(workerFn, {
-        webAdapterUrl,
-        utilsUrl,
-      });
+      const worker = createWorker(workerFn);
       workers.push(worker);
       worker.postMessage({
         index: i,
@@ -60,41 +57,9 @@ export class WebAdapterReedSolomon extends ReedSolomon {
   }
 }
 
-function createWorker(f, { webAdapterUrl, utilsUrl }) {
-  var blob = new Blob([
-    '(' + f.toString() + ')(' + `'${webAdapterUrl}'` + ',' + `'${utilsUrl}'` + ')',
-  ]);
+function createWorker(f) {
+  var blob = new Blob(['(' + f.toString() + ')()']);
   var url = window.URL.createObjectURL(blob);
   var worker = new Worker(url);
   return worker;
-}
-
-// inject worker script
-export function injectWorker(cdnsUrls) {
-  importScripts(
-    cdnsUrls.webAdapterUrl ||
-      'https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/index.aio.js',
-  );
-  importScripts('https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/utils.aio.js');
-
-  const rs = new WebAdapter.WebAdapterReedSolomon();
-
-  onmessage = function (event) {
-    const { index, chunk } = event.data;
-    const encodeShards = rs.encodeSegment(chunk);
-    let encodeDataHash = [];
-
-    for (let i = 0; i < encodeShards.length; i++) {
-      const priceHash = RSUtils.sha256(encodeShards[i]);
-      encodeDataHash.push(priceHash);
-    }
-
-    postMessage({
-      index,
-      segChecksum: RSUtils.sha256(chunk),
-      encodeDataHash,
-    });
-
-    self.close();
-  };
 }
