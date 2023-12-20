@@ -1,5 +1,17 @@
 # @bnb-chain/reed-solomon
 
+## 1.0.2
+
+### Patch Changes
+
+- [#435](https://github.com/bnb-chain/greenfield-js-sdk/pull/435)
+  [`327e4cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/327e4cdbdc0e1b71236731f425db3efbe7abb4f6)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Shards to int
+
+- [#436](https://github.com/bnb-chain/greenfield-js-sdk/pull/436)
+  [`522e6bc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/522e6bc7adb81f393e677d8cc09b8d00420bf0a5)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Pnpm install
+
 ## 1.0.1
 
 ### Patch Changes
