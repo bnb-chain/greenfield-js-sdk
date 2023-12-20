@@ -66,7 +66,7 @@ export class ReedSolomon {
 
     let padding = [];
     if (data.length < needTotal) {
-      const fullShards = data.length / perShard;
+      const fullShards = parseInt(data.length / perShard);
       // padding = new Array(this.totalShards - fullShards).fill(0);
       padding = this._allocAligned(this.totalShards - fullShards, perShard);
 
