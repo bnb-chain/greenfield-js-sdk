@@ -322,8 +322,8 @@ importers:
   packages/js-sdk:
     dependencies:
       '@bnb-chain/greenfield-cosmos-types':
-        specifier: 0.4.0-alpha.25
-        version: 0.4.0-alpha.25
+        specifier: 0.4.0-alpha.23
+        version: 0.4.0-alpha.23
       '@bnb-chain/greenfield-zk-crypto':
         specifier: workspace:*
         version: link:../zk-crypto
@@ -454,7 +454,7 @@ importers:
     devDependencies:
       '@rollup/plugin-terser':
         specifier: ^0.4.4
-        version: 0.4.4
+        version: 0.4.4(rollup@2.79.1)
 
   packages/zk-crypto:
     devDependencies:
@@ -3387,6 +3387,13 @@ packages:
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.23:
+    resolution: {integrity: sha512-VAuk5CxTSbiOa8HvlEY/uf8zoTvgyRvQMwQs0S/7wjoloE0I7hSZXWPUEeFmypB1xZuggDtyCfizS2faL/NKeg==}
+    dependencies:
+      long: 4.0.0
+      protobufjs: 6.11.4
+    dev: false
 
   /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.25:
     resolution: {integrity: sha512-A/v0X/rhwmWN8cNmkFCRIzT0sHQn2sb/mPrdwdIgUbjEV49s9KncSAKxRMIz3+ph0KeROmxjUWaDsJ9/KGU2tQ==}
@@ -6368,7 +6375,7 @@ packages:
       rollup: 2.79.1
     dev: true
 
-  /@rollup/plugin-terser@0.4.4:
+  /@rollup/plugin-terser@0.4.4(rollup@2.79.1):
     resolution: {integrity: sha512-XHeJC5Bgvs8LfukDwWZp7yeqin6ns8RTl2B9avbejt6tZqsqvVoWI7ZTQrcNsfKEDWBTnTxM8nMDkO2IFFbd0A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -6377,6 +6384,7 @@ packages:
       rollup:
         optional: true
     dependencies:
+      rollup: 2.79.1
       serialize-javascript: 6.0.1
       smob: 1.4.1
       terser: 5.24.0

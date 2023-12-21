@@ -79,18 +79,6 @@ export const CreateObject = () => {
                 redundancyType: 'REDUNDANCY_EC_TYPE',
                 contentLength: fileBytes.byteLength,
                 expectCheckSums: expectCheckSums,
-                // empty tags
-                // tags: {
-                //   tags: [],
-                // },
-                tags: {
-                  tags: [
-                    {
-                      key: 'test',
-                      value: 'test',
-                    },
-                  ],
-                },
               },
               {
                 type: 'EDDSA',
@@ -180,18 +168,6 @@ export const CreateObject = () => {
                 bucketName: createObjectInfo.bucketName,
                 objectName: createObjectInfo.objectName + '/',
                 creator: address,
-                // empty tags
-                // tags: {
-                //   tags: [],
-                // },
-                tags: {
-                  tags: [
-                    {
-                      key: 'test',
-                      value: 'test',
-                    },
-                  ],
-                },
               },
               {
                 type: 'EDDSA',

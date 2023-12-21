@@ -1,5 +1,13 @@
 # @bnb-chain/reed-solomon
 
+## 1.0.3
+
+### Patch Changes
+
+- [#441](https://github.com/bnb-chain/greenfield-js-sdk/pull/441)
+  [`7a652ff`](https://github.com/bnb-chain/greenfield-js-sdk/commit/7a652ffe0e984b8f3781d85b007900f88bde92e5)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Update Rollup Config - terser
+
 ## 1.0.2
 
 ### Patch Changes

@@ -28,9 +28,6 @@ export const CreateGroup = () => {
             creator: address,
             groupName: createGroupInfo.groupName,
             extra: 'extra info',
-            tags: {
-              tags: [],
-            },
           });
 
           const simulateInfo = await createGroupTx.simulate({
@@ -61,49 +58,7 @@ export const CreateGroup = () => {
           console.log(res);
         }}
       >
-        create group with empty tags
-      </button>
-
-      <button
-        onClick={async () => {
-          if (!address) return;
-
-          const createGroupTx = await client.group.createGroup({
-            creator: address,
-            groupName: createGroupInfo.groupName,
-            extra: 'extra info',
-            tags: {
-              tags: [
-                {
-                  key: 'key',
-                  value: 'value',
-                },
-              ],
-            },
-          });
-
-          const simulateInfo = await createGroupTx.simulate({
-            denom: 'BNB',
-          });
-
-          console.log(simulateInfo);
-
-          const res = await createGroupTx.broadcast({
-            denom: 'BNB',
-            gasLimit: Number(simulateInfo.gasLimit),
-            gasPrice: simulateInfo.gasPrice,
-            payer: address,
-            granter: '',
-          });
-
-          if (res.code === 0) {
-            alert('create group success');
-          }
-
-          console.log(res);
-        }}
-      >
-        create group with tags
+        create group
       </button>
     </div>
   );

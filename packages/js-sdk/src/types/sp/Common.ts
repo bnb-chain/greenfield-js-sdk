@@ -194,10 +194,3 @@ export interface PolicyMeta {
    */
   ExpirationTime: number;
 }
-
-/**
- * create bucket / object approval's tags
- */
-export type TagsInCreateTxApproval = {
-  tags: string[] | { key: string; value: string }[];
-};
