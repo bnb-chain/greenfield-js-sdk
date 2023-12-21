@@ -27,14 +27,17 @@
       console.time('webworker cost')
       console.log('file size', sourceData.length / 1024 / 1024, 'm')
       const rs = new WebAdapter.WebAdapterReedSolomon()
-      const res = await rs.encodeInWorker(injectWorker, sourceData)
+      const res = await rs.encodeInWorker(sourceData, {
+        workerNum: 12,
+        injectWorker,
+      })
       console.log('res', res)
       console.timeEnd('webworker cost')
     }
 
     function injectWorker() {
-      importScripts('https://localhost:9002/dist/web.adapter.aio.js');
-      importScripts('https://localhost:9002/dist/utils.aio.js');
+      importScripts('http://localhost:9002/dist/web.adapter.aio.js');
+      importScripts('http://localhost:9002/dist/utils.aio.js');
 
       const rs = new WebAdapter.WebAdapterReedSolomon();
 
@@ -54,7 +57,7 @@
           encodeDataHash,
         });
 
-        self.close();
+        // self.close();
       };
     }
 

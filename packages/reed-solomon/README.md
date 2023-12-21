@@ -66,7 +66,10 @@ Use directly in the browser via script tag:
 
     const sourceData = new Uint8Array(arrBuffer)
     const rs = new WebAdapter.WebAdapterReedSolomon()
-    const res = await rs.encodeInWorker(injectWorker, sourceData)
+    const res = await rs.encodeInWorker(sourceData, {
+      workerNum: 12,
+      injectWorker,
+    })
   }
 
   // inject worker
@@ -92,8 +95,6 @@ Use directly in the browser via script tag:
         segChecksum: RSUtils.sha256(chunk),
         encodeDataHash,
       });
-
-      self.close();
     };
   }
 </script>
