@@ -47,20 +47,6 @@ export const CreateBucket = () => {
                 primarySpAddress: spInfo.primarySpAddress,
               },
               paymentAddress: address,
-              // empty tags
-              tags: {
-                tags: [],
-              },
-
-              // with tags:
-              // tags: {
-              //   tags: [
-              //     {
-              //       key: 'test',
-              //       value: 'test',
-              //     },
-              //   ],
-              // },
             },
             {
               // type: 'ECDSA',

@@ -19,7 +19,7 @@ import { getPutObjectMetaInfo } from '../clients/spclient/spApis/putObject';
 import { TxClient } from '../clients/txClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
 import { MsgCancelCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCancelCreateObject';
-import { getMsgCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateObject';
+import { MsgCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateObjectInfo';
 import { signSignatureByEddsa } from '../offchainauth';
@@ -88,7 +88,6 @@ import {
 } from '../utils/s3';
 import { Sp } from './sp';
 import { Storage } from './storage';
-import { ResourceTags } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/types';
 
 export interface IObject {
   getCreateObjectApproval(
@@ -198,7 +197,6 @@ export class Objects implements IObject {
       redundancyType = 'REDUNDANCY_EC_TYPE',
       contentLength,
       expectCheckSums,
-      tags,
     } = params;
 
     try {
@@ -231,7 +229,6 @@ export class Objects implements IObject {
           },
           redundancy_type: redundancyType,
           visibility,
-          tags,
         });
 
       const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
@@ -271,10 +268,6 @@ export class Objects implements IObject {
   }
 
   private async createObjectTx(msg: MsgCreateObject, signedMsg: CreateObjectApprovalResponse) {
-    const isTagsEmpty = msg?.tags?.tags?.length === 0;
-
-    const MsgCreateObjectSDKTypeEIP712 = getMsgCreateObjectSDKTypeEIP712(isTagsEmpty);
-
     return await this.txClient.tx(
       MsgCreateObjectTypeUrl,
       msg.creator,
@@ -313,7 +306,6 @@ export class Objects implements IObject {
         sig: bytesFromBase64(signedMsg.primary_sp_approval.sig || ''),
         globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
       },
-      tags: ResourceTags.fromJSON(signedMsg.tags),
     };
 
     return await this.createObjectTx(msg, signedMsg);
@@ -629,7 +621,6 @@ export class Objects implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
       ],
       creator: getApprovalParams.creator,
-      tags: getApprovalParams.tags,
     };
 
     return this.createObject(params, authType);

@@ -28,7 +28,7 @@ import {
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { TxClient } from '../clients/txClient';
-import { getMsgCreateGroupSDKTypeWithTagEIP712 } from '../messages/greenfield/storage/MsgCreateGroup';
+import { MsgCreateGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateGroup';
 import { MsgDeleteGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteGroup';
 import { MsgLeaveGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgLeaveGroup';
 import { MsgUpdateGroupExtraSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateGroupExtra';
@@ -111,10 +111,6 @@ export class Group implements IGroup {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async createGroup(msg: MsgCreateGroup) {
-    const isTagsEmpty = msg?.tags?.tags?.length === 0;
-
-    const MsgCreateGroupSDKTypeEIP712 = getMsgCreateGroupSDKTypeWithTagEIP712(isTagsEmpty);
-
     return await this.txClient.tx(
       MsgCreateGroupTypeUrl,
       msg.creator,
