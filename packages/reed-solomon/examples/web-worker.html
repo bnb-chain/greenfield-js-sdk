@@ -12,8 +12,6 @@
     get reed solomon (webworker)
   </button>
 
-  <link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js" />
-  <link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js" />
   <script src="../dist/web.adapter.aio.js"></script>
   <script src="../dist/utils.aio.js"></script>
   <script type="module">
@@ -35,8 +33,8 @@
     }
 
     function injectWorker() {
-      importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js');
-      importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js');
+      importScripts('https://localhost:9002/dist/web.adapter.aio.js');
+      importScripts('https://localhost:9002/dist/utils.aio.js');
 
       const rs = new WebAdapter.WebAdapterReedSolomon();
 
