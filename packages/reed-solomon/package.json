@@ -74,5 +74,8 @@
   "dependencies": {
     "@ethersproject/base64": "^5.7.0",
     "ethereum-cryptography": "^2.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4"
   }
 }
