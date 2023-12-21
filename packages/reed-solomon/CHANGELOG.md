@@ -1,5 +1,17 @@
 # @bnb-chain/reed-solomon
 
+## 1.1.0
+
+### Minor Changes
+
+- [#446](https://github.com/bnb-chain/greenfield-js-sdk/pull/446)
+  [`65333cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/65333cdcae483eace027459b803a17f0f93a3be5)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Clean InjectWorker
+
+- [#446](https://github.com/bnb-chain/greenfield-js-sdk/pull/446)
+  [`65333cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/65333cdcae483eace027459b803a17f0f93a3be5)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support setting worker counts
+
 ## 1.0.3
 
 ### Patch Changes
