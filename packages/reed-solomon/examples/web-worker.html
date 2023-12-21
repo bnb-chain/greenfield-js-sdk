@@ -12,6 +12,10 @@
     get reed solomon (webworker)
   </button>
 
+  <button id="test">test</button>
+
+  <link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js" />
+  <link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js" />
   <script src="../dist/web.adapter.aio.js"></script>
   <script src="../dist/utils.aio.js"></script>
   <script type="module">
@@ -59,5 +63,21 @@
     }
 
   </script>
+
+  <script src="https://www.unpkg.com/workerpool@9.0.3/dist/workerpool.js"></script>
+  <script>
+
+    const pool = workerpool.pool('./worker.js', {
+      maxWorkers: 7,
+      minWorkers: 3,
+    })
+
+    document.getElementById('test').onclick = async () => {
+      const res = await pool.exec('log', [123])
+      console.log('res',  res)
+    }
+
+  </script>
+
 </body>
 </html>
