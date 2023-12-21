@@ -140,27 +140,13 @@ export interface GroupInfo {
   SourceType: number;
   Id: number;
   Extra: string;
-  Tags: {
-    Tags: {
-      Key: string;
-      Value: string;
-    }[];
-  };
 }
 
 export function formatGroupInfo(o: GroupInfo): GroupInfo {
-  let tags = o.Tags.Tags || [];
-  if (!Array.isArray(tags)) {
-    tags = [tags];
-  }
-
   return {
     ...o,
     SourceType: Number(o.SourceType),
     Id: Number(o.Id),
-    Tags: {
-      Tags: tags,
-    },
   };
 }
 
