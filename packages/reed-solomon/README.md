@@ -59,17 +59,19 @@ Use directly in the browser via script tag:
 <link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js" />
 <script src="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js"></script>
 <script>
+  const rs = new WebAdapter.WebAdapterReedSolomon()
+  rs.initWorkers({
+    workerNum: 6,
+    injectWorker,
+  })
+
   document.getElementById('worker-btn').onclick = async function() {
     const selectFile = fileInput.files[0];
     const arrBuffer = await selectFile.arrayBuffer()
     if (!arrBuffer) alert('no file selected');
 
     const sourceData = new Uint8Array(arrBuffer)
-    const rs = new WebAdapter.WebAdapterReedSolomon()
-    const res = await rs.encodeInWorker(sourceData, {
-      workerNum: 12,
-      injectWorker,
-    })
+    const res = await rs.encodeInWorker(sourceData)
   }
 
   // inject worker
@@ -79,22 +81,10 @@ Use directly in the browser via script tag:
     importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js');
 
     const rs = new WebAdapter.WebAdapterReedSolomon();
-
     onmessage = function (event) {
       const { index, chunk } = event.data;
-      const encodeShards = rs.encodeSegment(chunk);
-      let encodeDataHash = [];
-
-      for (let i = 0; i < encodeShards.length; i++) {
-        const priceHash = RSUtils.sha256(encodeShards[i]);
-        encodeDataHash.push(priceHash);
-      }
-
-      postMessage({
-        index,
-        segChecksum: RSUtils.sha256(chunk),
-        encodeDataHash,
-      });
+      const encodeShard = rs.getEncodeShard(chunk, index)
+      postMessage(encodeShard);
     };
   }
 </script>
