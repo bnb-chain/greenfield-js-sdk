@@ -2,7 +2,6 @@ import {
   RedundancyType,
   VisibilityType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { TagsInCreateTxApproval } from './Common';
 
 export type CreateObjectApprovalRequest = {
   bucketName: string;
@@ -14,7 +13,6 @@ export type CreateObjectApprovalRequest = {
   duration?: number;
   contentLength: number;
   expectCheckSums: string[];
-  tags: TagsInCreateTxApproval;
   endpoint?: string;
 };
 
@@ -34,5 +32,4 @@ export type CreateObjectApprovalResponse = {
   // expect_secondary_sp_addresses: string[];
   redundancy_type: keyof typeof RedundancyType;
   // charged_read_quota: string;
-  tags: TagsInCreateTxApproval;
 };
