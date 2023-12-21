@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.1.1
+
+### Patch Changes
+
+- [#443](https://github.com/bnb-chain/greenfield-js-sdk/pull/443)
+  [`7a2e9d2`](https://github.com/bnb-chain/greenfield-js-sdk/commit/7a2e9d263648c1032f3422235518eb748d99eeab)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Tag Compatibility
+
 ## 1.1.0
 
 ### Minor Changes
