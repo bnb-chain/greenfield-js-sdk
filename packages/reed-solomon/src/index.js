@@ -166,7 +166,7 @@ export class ReedSolomon {
       return this.getEncodeShard(chunk, index);
     });
 
-    return this._getChecksumsByEncodeShards(encodeShards);
+    return this.getChecksumsByEncodeShards(encodeShards);
   }
 
   getEncodeShard(chunk, index) {
@@ -186,7 +186,7 @@ export class ReedSolomon {
   /**
    * @param {Array[{index, segChecksum, encodeDataHash}]} encodeShards
    */
-  _getChecksumsByEncodeShards(encodeShards) {
+  getChecksumsByEncodeShards(encodeShards) {
     let hashList = [];
     let segChecksumList = [];
     let encodeDataHashList = new Array(this.totalShards);
@@ -211,5 +211,9 @@ export class ReedSolomon {
     }
 
     return toBase64(hashList);
+  }
+
+  sortByIndex(encodeShards) {
+    return encodeShards.sort((a, b) => a.index - b.index);
   }
 }

@@ -41,16 +41,12 @@ export class WebAdapterReedSolomon extends ReedSolomon {
 
           if (completedWorkers === queue.length) {
             // console.log('RES', RES)
-            const sortedRes = this._sortByIndex(RES);
-            resolve(this._getChecksumsByEncodeShards(sortedRes));
+            const sortedRes = this.sortByIndex(RES);
+            resolve(this.getChecksumsByEncodeShards(sortedRes));
           }
         };
       }
     });
-  }
-
-  _sortByIndex(encodeShards) {
-    return encodeShards.sort((a, b) => a.index - b.index);
   }
 }
 

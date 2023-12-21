@@ -13,5 +13,7 @@ declare module '@bnb-chain/reed-solomon' {
     encode(data: Uint8Arary): string[];
 
     getEncodeShard(chunk: Uint8Array, index: number): EncodeShard;
+
+    getChecksumsByEncodeShards(encodeShards: EncodeShard[]): string[];
   }
 }
