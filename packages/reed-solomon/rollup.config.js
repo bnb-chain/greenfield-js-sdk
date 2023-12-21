@@ -1,5 +1,6 @@
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
+import terser from '@rollup/plugin-terser';
 import pkg from './package.json';
 // const pathResolve = (p) => path.resolve(__dirname, p);
 
@@ -27,6 +28,7 @@ export default async () => {
           browser: true,
           preferBuiltins: false,
         }),
+        terser(),
       ],
     },
 
@@ -64,6 +66,7 @@ export default async () => {
           browser: true,
           preferBuiltins: false,
         }),
+        terser(),
       ],
     },
     {
@@ -80,6 +83,7 @@ export default async () => {
           browser: true,
           preferBuiltins: false,
         }),
+        terser(),
       ],
     },
     {
@@ -96,6 +100,7 @@ export default async () => {
           browser: true,
           preferBuiltins: false,
         }),
+        terser(),
       ],
     },
   ];
