@@ -131,6 +131,6 @@ const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer))
 
 [Code](./examples/node-worker.js)
 
-## Benchark
+## Benchmark
 
 [benchmark](./benchmark.md)
