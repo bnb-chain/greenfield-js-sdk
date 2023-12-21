@@ -161,19 +161,46 @@ export class ReedSolomon {
     for (let i = 0; i < encodeDataHashList.length; i++) {
       encodeDataHashList[i] = [];
     }
+
+    let encodeShards = chunkList.map((chunk, index) => {
+      return this.getEncodeShard(chunk, index);
+    });
+
+    return this.getChecksumsByEncodeShards(encodeShards);
+  }
+
+  getEncodeShard(chunk, index) {
+    const encodeShards = this.encodeSegment(chunk);
+    let encodeDataHash = [];
+    for (let i = 0; i < encodeShards.length; i++) {
+      const priceHash = sha256(encodeShards[i]);
+      encodeDataHash.push(priceHash);
+    }
+    return {
+      index,
+      segChecksum: sha256(chunk),
+      encodeDataHash,
+    };
+  }
+
+  /**
+   * @param {Array[{index, segChecksum, encodeDataHash}]} encodeShards
+   */
+  getChecksumsByEncodeShards(encodeShards) {
     let hashList = [];
     let segChecksumList = [];
+    let encodeDataHashList = new Array(this.totalShards);
+    for (let i = 0; i < encodeDataHashList.length; i++) {
+      encodeDataHashList[i] = [];
+    }
 
-    for (let i = 0; i < chunkList.length; i++) {
-      const data = chunkList[i];
-      // console.log('data i', i)
-      const encodeShards = this.encodeSegment(data);
-      // console.log('data done', i)
-      segChecksumList.push(sha256(data));
+    for (let i = 0; i < encodeShards.length; i++) {
+      segChecksumList.push(encodeShards[i].segChecksum);
+    }
 
-      for (let i = 0; i < encodeShards.length; i++) {
-        const priceHash = sha256(encodeShards[i]);
-        encodeDataHashList[i].push(priceHash);
+    for (let i = 0; i < encodeShards.length; i++) {
+      for (let j = 0; j < encodeDataHashList.length; j++) {
+        encodeDataHashList[j][i] = encodeShards[i].encodeDataHash[j];
       }
     }
 
@@ -184,5 +211,9 @@ export class ReedSolomon {
     }
 
     return toBase64(hashList);
+  }
+
+  sortByIndex(encodeShards) {
+    return encodeShards.sort((a, b) => a.index - b.index);
   }
 }

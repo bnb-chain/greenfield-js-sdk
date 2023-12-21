@@ -1,58 +1,51 @@
 import { ReedSolomon } from '.';
-import { sha256, getIntegrityUint8Array, toBase64, splitPrice } from './utils';
+import { splitPrice } from './utils';
 
 export class WebAdapterReedSolomon extends ReedSolomon {
-  async encodeInWorker(workerFn, sourceData) {
-    const chunkList = splitPrice(sourceData, this.segmentSize);
+  initWorkers({ injectWorker, workerNum = 10 }) {
+    this.workerNum = workerNum;
+    this.workers = [];
+    for (let i = 0; i < workerNum; i++) {
+      const worker = createWorker(injectWorker);
+      this.workers.push(worker);
+    }
+  }
 
-    const workers = [];
+  async encodeInWorker(sourceData) {
+    // RES is `encodeShards` Array
+    let RES = [];
+    const chunkList = splitPrice(sourceData, this.segmentSize);
+    const queue = [];
 
     for (let i = 0; i < chunkList.length; i++) {
-      // const worker = new Worker('worker.js');
-      const worker = createWorker(workerFn);
-      workers.push(worker);
-      worker.postMessage({
+      queue.push({
         index: i,
         chunk: chunkList[i],
       });
     }
 
-    const plist = workers.map(
-      (worker) =>
-        new Promise((resolve) => {
-          worker.onmessage = (e) => {
-            resolve(e.data);
-          };
-        }),
-    );
+    return new Promise((resolve) => {
+      let completedWorkers = 0;
 
-    return Promise.all(plist).then((RES) => {
-      let hashList = [];
-      let segChecksumList = [];
-      let encodeDataHashList = new Array(this.totalShards);
-      for (let i = 0; i < encodeDataHashList.length; i++) {
-        encodeDataHashList[i] = [];
+      for (let i = 0; i < queue.length; i++) {
+        const worker = this.workers[i % this.workerNum];
+        worker.postMessage({
+          index: queue[i].index,
+          chunk: queue[i].chunk,
+        });
+
+        worker.onmessage = (e) => {
+          // console.log('worker data', e.data)
+          completedWorkers++;
+          RES.push(e.data);
+
+          if (completedWorkers === queue.length) {
+            // console.log('RES', RES)
+            const sortedRes = this.sortByIndex(RES);
+            resolve(this.getChecksumsByEncodeShards(sortedRes));
+          }
+        };
       }
-
-      for (let i = 0; i < RES.length; i++) {
-        segChecksumList.push(RES[i].segChecksum);
-      }
-
-      for (let i = 0; i < chunkList.length; i++) {
-        for (let j = 0; j < encodeDataHashList.length; j++) {
-          encodeDataHashList[j][i] = RES[i].encodeDataHash[j];
-        }
-      }
-
-      hashList[0] = sha256(getIntegrityUint8Array(segChecksumList));
-
-      for (let i = 0; i < encodeDataHashList.length; i++) {
-        hashList[i + 1] = sha256(getIntegrityUint8Array(encodeDataHashList[i]));
-      }
-
-      const res = toBase64(hashList);
-
-      return res;
     });
   }
 }

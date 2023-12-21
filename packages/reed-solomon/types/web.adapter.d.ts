@@ -1,5 +1,7 @@
 declare module '@bnb-chain/reed-solomon/web.adapter' {
   export class WebAdapterReedSolomon {
-    encodeInWorker(workerFn: () => void, data: Uint8Array): Promise<string[]>;
+    initWorkers(workersOpts: { workerNum?: number; injectWorker: () => void }): void;
+
+    encodeInWorker(data: Uint8Array): Promise<string[]>;
   }
 }

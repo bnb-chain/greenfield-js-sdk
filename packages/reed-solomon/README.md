@@ -34,7 +34,6 @@ Use directly in the browser via script tag:
 </button>
 
 <script src="https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/index.aio.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/index.aio.js"></script>
 <script>
   const fileInput = document.getElementById('file');
 
@@ -55,42 +54,37 @@ Use directly in the browser via script tag:
 ### Browser(WebWorker)
 
 ```html
+<!-- prefetch js -->
+<link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js" />
+<link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js" />
+<script src="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js"></script>
 <script>
+  const rs = new WebAdapter.WebAdapterReedSolomon()
+  rs.initWorkers({
+    workerNum: 6,
+    injectWorker,
+  })
+
   document.getElementById('worker-btn').onclick = async function() {
     const selectFile = fileInput.files[0];
     const arrBuffer = await selectFile.arrayBuffer()
     if (!arrBuffer) alert('no file selected');
 
     const sourceData = new Uint8Array(arrBuffer)
-    const rs = new WebAdapter.WebAdapterReedSolomon()
-    const res = await rs.encodeInWorker(injectWorker, sourceData)
+    const res = await rs.encodeInWorker(sourceData)
   }
 
   // inject worker
   function injectWorker() {
-    // replace your CDN url
-    importScripts('http://localhost:9002/dist/web.adapter.aio.js');
-    importScripts('http://localhost:9002/dist/utils.aio.js');
+    // or download this file and put it to your CDN server
+    importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js');
+    importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js');
 
     const rs = new WebAdapter.WebAdapterReedSolomon();
-
     onmessage = function (event) {
       const { index, chunk } = event.data;
-      const encodeShards = rs.encodeSegment(chunk);
-      let encodeDataHash = [];
-
-      for (let i = 0; i < encodeShards.length; i++) {
-        const priceHash = RSUtils.sha256(encodeShards[i]);
-        encodeDataHash.push(priceHash);
-      }
-
-      postMessage({
-        index,
-        segChecksum: RSUtils.sha256(chunk),
-        encodeDataHash,
-      });
-
-      self.close();
+      const encodeShard = rs.getEncodeShard(chunk, index)
+      postMessage(encodeShard);
     };
   }
 </script>
@@ -128,6 +122,6 @@ const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer))
 
 [Code](./examples/node-worker.js)
 
-## Benchark
+## Benchmark
 
 [benchmark](./benchmark.md)
