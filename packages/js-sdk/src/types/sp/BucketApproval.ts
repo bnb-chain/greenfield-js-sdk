@@ -1,5 +1,4 @@
 import { VisibilityType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import { TagsInCreateTxApproval } from './Common';
 
 export type CreateBucketApprovalRequest = {
   bucketName: string;
@@ -11,7 +10,6 @@ export type CreateBucketApprovalRequest = {
   };
   duration?: number;
   paymentAddress: string;
-  tags: TagsInCreateTxApproval;
 };
 
 export interface CreateBucketApprovalResponse {
@@ -26,5 +24,4 @@ export interface CreateBucketApprovalResponse {
     global_virtual_group_family_id: number;
   };
   charged_read_quota: string;
-  tags: TagsInCreateTxApproval;
 }

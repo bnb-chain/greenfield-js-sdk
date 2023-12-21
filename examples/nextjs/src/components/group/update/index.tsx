@@ -120,45 +120,6 @@ export const GroupUpdate = () => {
       >
         updateGroupExtra
       </button>
-      <br />
-      <button
-        onClick={async () => {
-          if (!address) return;
-
-          const resource = GRNToString(newGroupGRN(address, groupName));
-
-          const updateGroupTx = await client.storage.setTag({
-            operator: address,
-            resource,
-            tags: {
-              tags: [
-                {
-                  key: 'x',
-                  value: 'xx',
-                },
-              ],
-            },
-          });
-
-          const simulateInfo = await updateGroupTx.simulate({
-            denom: 'BNB',
-          });
-
-          console.log(simulateInfo);
-
-          const res = await updateGroupTx.broadcast({
-            denom: 'BNB',
-            gasLimit: Number(simulateInfo.gasLimit),
-            gasPrice: simulateInfo.gasPrice,
-            payer: address,
-            granter: '',
-          });
-
-          console.log('res', res);
-        }}
-      >
-        update group tags
-      </button>
     </div>
   );
 };
