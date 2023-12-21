@@ -34,7 +34,6 @@ Use directly in the browser via script tag:
 </button>
 
 <script src="https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/index.aio.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@bnb-chain/reed-solomon/dist/index.aio.js"></script>
 <script>
   const fileInput = document.getElementById('file');
 
@@ -55,6 +54,10 @@ Use directly in the browser via script tag:
 ### Browser(WebWorker)
 
 ```html
+<!-- prefetch js -->
+<link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js" />
+<link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js" />
+<script src="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js"></script>
 <script>
   document.getElementById('worker-btn').onclick = async function() {
     const selectFile = fileInput.files[0];
@@ -68,9 +71,9 @@ Use directly in the browser via script tag:
 
   // inject worker
   function injectWorker() {
-    // replace your CDN url
-    importScripts('http://localhost:9002/dist/web.adapter.aio.js');
-    importScripts('http://localhost:9002/dist/utils.aio.js');
+    // or download this file and put it to your CDN server
+    importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js');
+    importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js');
 
     const rs = new WebAdapter.WebAdapterReedSolomon();
 
