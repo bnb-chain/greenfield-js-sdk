@@ -1,0 +1,18 @@
+{
+  "name": "@demo/nodejs",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@bnb-chain/greenfield-js-sdk": "^1.1.2",
+    "@bnb-chain/reed-solomon": "^1.1.1",
+    "dotenv": "^16.3.1",
+    "mime-types": "^2.1.35"
+  }
+}
