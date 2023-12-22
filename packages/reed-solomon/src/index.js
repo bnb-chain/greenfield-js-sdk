@@ -42,12 +42,9 @@ export class ReedSolomon {
 
     const dataLen = data.length;
 
-    const perShard = parseInt((dataLen + this.dataShards - 1) / this.dataShards);
+    // Calculate number of bytes per data shard.
+    const perShard = Math.floor((dataLen + this.dataShards - 1) / this.dataShards);
     const needTotal = this.totalShards * perShard;
-
-    // console.log('dataLen', dataLen)
-    // console.log('needTotal', needTotal)
-    // console.log('perShard', perShard)
 
     let tmp = Array.prototype.slice.call(data);
     if (this.segmentSize > data.length) {
@@ -66,12 +63,11 @@ export class ReedSolomon {
 
     let padding = [];
     if (data.length < needTotal) {
-      const fullShards = parseInt(data.length / perShard);
-      // padding = new Array(this.totalShards - fullShards).fill(0);
+      const fullShards = Math.floor(data.length / perShard);
       padding = this._allocAligned(this.totalShards - fullShards, perShard);
 
       if (dataLen > perShard * fullShards) {
-        const copyFrom = data.slice(perShard * fullShards, dataLen);
+        let copyFrom = data.slice(perShard * fullShards, dataLen);
         for (let i = 0; i < padding.length; i++) {
           if (copyFrom.length > 0) {
             padding[i] = copyFrom.slice(0, perShard);
@@ -146,7 +142,6 @@ export class ReedSolomon {
       parity,
       shared.slice(0, this.dataShards),
       output.slice(0, this.parityShards),
-      shared[0].length,
     );
   }
 
