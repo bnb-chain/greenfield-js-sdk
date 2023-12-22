@@ -1,5 +1,13 @@
 # @bnb-chain/reed-solomon
 
+## 1.1.1
+
+### Patch Changes
+
+- [#448](https://github.com/bnb-chain/greenfield-js-sdk/pull/448)
+  [`5364771`](https://github.com/bnb-chain/greenfield-js-sdk/commit/53647715b26e77a12a44f7ee875e136b2d7db54a)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Lint Code
+
 ## 1.1.0
 
 ### Minor Changes
