@@ -1,5 +1,13 @@
 # @demo/wallet
 
+## 0.0.22
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5364771`](https://github.com/bnb-chain/greenfield-js-sdk/commit/53647715b26e77a12a44f7ee875e136b2d7db54a)]:
+  - @bnb-chain/reed-solomon@1.1.1
+
 ## 0.0.21
 
 ### Patch Changes
