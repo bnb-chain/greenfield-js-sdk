@@ -248,6 +248,21 @@ importers:
         specifier: ^2.1.35
         version: 2.1.35
 
+  examples/nodejs-file-management:
+    dependencies:
+      '@bnb-chain/greenfield-js-sdk':
+        specifier: ^1.1.2
+        version: link:../../packages/js-sdk
+      '@bnb-chain/reed-solomon':
+        specifier: ^1.1.1
+        version: link:../../packages/reed-solomon
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      mime-types:
+        specifier: ^2.1.35
+        version: 2.1.35
+
   packages/create-gnfd-app:
     dependencies:
       '@inquirer/prompts':
@@ -11009,6 +11024,11 @@ packages:
   /dotenv@16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
+
+  /dotenv@16.3.1:
+    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /dotenv@8.6.0:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
