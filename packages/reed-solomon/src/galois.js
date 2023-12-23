@@ -7,7 +7,7 @@ const galExp = function (a, n) {
   }
 
   const logA = logTable[a];
-  const logResult = Math.floor(logA * n);
+  let logResult = Math.floor(logA * n);
   while (logResult >= 255) {
     logResult -= 255;
   }
