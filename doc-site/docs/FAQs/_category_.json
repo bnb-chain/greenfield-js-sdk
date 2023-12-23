@@ -1,0 +1,14 @@
+{
+  "position": 9,
+  "label": "FAQs",
+  "collapsible": true,
+  "collapsed": false,
+  "className": "red",
+  "link": {
+    "type": "generated-index",
+    "title": "FAQs"
+  },
+  "customProps": {
+    "description": ""
+  }
+}
