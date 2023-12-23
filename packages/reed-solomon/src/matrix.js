@@ -139,7 +139,7 @@ function gaussianElimination(m) {
     // }
     // Scale to 1.
     if (m[r][r] !== 1) {
-      let scale = galDivide(1, m[r][r]);
+      const scale = galDivide(1, m[r][r]);
       for (let c = 0; c < columns; c++) {
         m[r][c] = galMultiply(m[r][c], scale);
       }
@@ -149,7 +149,7 @@ function gaussianElimination(m) {
     // both exclusive or in the Galois field.)
     for (let rowBelow = r + 1; rowBelow < rows; rowBelow++) {
       if (m[rowBelow][r] !== 0) {
-        let scale = m[rowBelow][r];
+        const scale = m[rowBelow][r];
         for (let c = 0; c < columns; c++) {
           m[rowBelow][c] ^= galMultiply(scale, m[r][c]);
         }
@@ -161,7 +161,7 @@ function gaussianElimination(m) {
   for (let d = 0; d < rows; d++) {
     for (let rowAbove = 0; rowAbove < d; rowAbove++) {
       if (m[rowAbove][d] !== 0) {
-        let scale = m[rowAbove][d];
+        const scale = m[rowAbove][d];
         for (let c = 0; c < columns; c++) {
           m[rowAbove][c] ^= galMultiply(scale, m[d][c]);
         }

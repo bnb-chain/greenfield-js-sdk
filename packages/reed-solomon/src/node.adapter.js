@@ -7,7 +7,7 @@ export class NodeAdapterReedSolomon extends ReedSolomon {
     return new Promise((resolve, reject) => {
       if (isMainThread) {
         // RES is `encodeShards` Array
-        let RES = [];
+        const RES = [];
         const chunkList = splitPrice(sourceData, this.segmentSize);
         const threads = new Set();
 
@@ -21,7 +21,7 @@ export class NodeAdapterReedSolomon extends ReedSolomon {
           threads.add(worker);
         }
 
-        for (let w of threads) {
+        for (const w of threads) {
           w.on('error', (err) => {
             throw err;
           });
