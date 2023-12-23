@@ -1,5 +1,13 @@
 # @bnb-chain/reed-solomon
 
+## 1.1.2
+
+### Patch Changes
+
+- [#454](https://github.com/bnb-chain/greenfield-js-sdk/pull/454)
+  [`a95f377`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a95f3770ab1b1a8197271300587b3a5be1a42e92)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Lint Matrix method
+
 ## 1.1.1
 
 ### Patch Changes
