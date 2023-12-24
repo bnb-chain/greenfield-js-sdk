@@ -40,7 +40,7 @@ const rs = new RS.ReedSolomon();
 const res = rs.encode(new Uint8Array(fileBuffer))
 ```
 
-If the file is larger, this method may cause the page to freeze when calculating. In this case, we recommend using the worker mode:
+It also supports UMD mode calls (simpler and more convenient):
 
 ```html title="core lib (UMD)"
 <!-- prefetch js -->
@@ -74,7 +74,9 @@ If the file is larger, this method may cause the page to freeze when calculating
 </body>
 ```
 
-```html title="web worker (only support UMD)"
+If the file is larger, this method may cause the page to freeze when calculating. We recommend using the worker mode:
+
+```html title="webworker (only support UMD)"
 <!-- prefetch js -->
 <link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js" />
 <link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js" />
@@ -124,7 +126,7 @@ If the file is larger, this method may cause the page to freeze when calculating
 </TabItem>
 <TabItem value="nodejs" label="Nodejs">
 
-Nodejs can also be used in two ways, directly with core library, or with [worker_threads](https://nodejs.org/api/worker_threads.html) (when calculating large files).
+Nodejs can also be used in two ways, directly with core library, or with [worker_threads](https://nodejs.org/api/worker_threads.html) (calculating large files).
 
 ```js title="core lib"
 const { ReedSolomon } = require('@bnb-chain/reed-solomon')
