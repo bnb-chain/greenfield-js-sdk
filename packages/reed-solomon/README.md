@@ -19,7 +19,7 @@ If you use module bundler such as [Webpack](https://webpack.js.org/), [Rollup](h
 ```js
 import {ReedSolomon} from '@bnb-chain/reed-solomon'
 
-const rs = new RS.ReedSolomon();
+const rs = new ReedSolomon();
 const res = rs.encode(new Uint8Array(fileBuffer))
 ```
 
