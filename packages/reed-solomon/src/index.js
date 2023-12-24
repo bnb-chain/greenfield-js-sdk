@@ -178,9 +178,6 @@ export class ReedSolomon {
     };
   }
 
-  /**
-   * @param {Array[{index, segChecksum, encodeDataHash}]} encodeShards
-   */
   getChecksumsByEncodeShards(encodeShards) {
     let hashList = [];
     let segChecksumList = [];
