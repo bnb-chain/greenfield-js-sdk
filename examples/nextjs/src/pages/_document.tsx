@@ -8,12 +8,6 @@ export default function Document() {
         <Main />
         <NextScript />
       </body>
-      <script src="https://unpkg.com/@bnb-chain/greenfiled-file-handle@0.2.1/dist/browser/umd/index.js"></script>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.__PUBLIC_FILE_HANDLE_WASM_PATH__ = 'https://unpkg.com/@bnb-chain/greenfiled-file-handle@0.2.1/dist/node/file-handle.wasm'`,
-        }}
-      ></script>
     </Html>
   );
 }
