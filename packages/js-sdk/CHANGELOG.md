@@ -1,5 +1,12 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.2.0-alpha.1
+
+### Patch Changes
+
+- [`b41fdf0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b41fdf057b7b4b0f416a74fb04ed0793c52c51f7)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: pnpm --no-frozen-lockfile
+
 ## 1.2.0-alpha.0
 
 ### Minor Changes
