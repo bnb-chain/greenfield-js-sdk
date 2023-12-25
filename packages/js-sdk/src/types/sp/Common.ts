@@ -100,11 +100,6 @@ export interface ObjectInfo {
 }
 
 export function formatBucketInfo(o: BucketInfo): BucketInfo {
-  let tags = o.Tags.Tags || [];
-  if (!Array.isArray(tags)) {
-    tags = [tags];
-  }
-
   return {
     ...o,
     // PrimarySpId: Number(item.BucketInfo.PrimarySpId),
@@ -121,11 +116,6 @@ export function formatBucketInfo(o: BucketInfo): BucketInfo {
 }
 
 export function formatObjectInfo(o: ObjectInfo): ObjectInfo {
-  let tags = o.Tags.Tags || [];
-  if (!Array.isArray(tags)) {
-    tags = [tags];
-  }
-
   return {
     ...o,
     CreateAt: Number(o.CreateAt),
@@ -177,11 +167,6 @@ export interface GroupInfo {
 }
 
 export function formatGroupInfo(o: GroupInfo): GroupInfo {
-  let tags = o.Tags.Tags || [];
-  if (!Array.isArray(tags)) {
-    tags = [tags];
-  }
-
   return {
     ...o,
     SourceType: Number(o.SourceType),

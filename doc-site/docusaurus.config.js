@@ -76,12 +76,6 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
-          // {
-          //   type: 'docSidebar',
-          //   sidebarId: 'GettingStartSidebar',
-          //   position: 'left',
-          //   label: 'Getting Started',
-          // },
           {
             href: 'https://github.com/bnb-chain/greenfield-js-sdk',
             label: 'GitHub',

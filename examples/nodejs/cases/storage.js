@@ -72,9 +72,6 @@ console.log('objectName', objectName);
       redundancyType: 'REDUNDANCY_EC_TYPE',
       contentLength: fileBuffer.length,
       expectCheckSums,
-      tags: {
-        tags: [],
-      },
     },
     {
       type: 'ECDSA',

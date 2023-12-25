@@ -1,5 +1,53 @@
 # @bnb-chain/reed-solomon
 
+## 1.1.2
+
+### Patch Changes
+
+- [#454](https://github.com/bnb-chain/greenfield-js-sdk/pull/454)
+  [`a95f377`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a95f3770ab1b1a8197271300587b3a5be1a42e92)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Lint Matrix method
+
+## 1.1.1
+
+### Patch Changes
+
+- [#448](https://github.com/bnb-chain/greenfield-js-sdk/pull/448)
+  [`5364771`](https://github.com/bnb-chain/greenfield-js-sdk/commit/53647715b26e77a12a44f7ee875e136b2d7db54a)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Lint Code
+
+## 1.1.0
+
+### Minor Changes
+
+- [#446](https://github.com/bnb-chain/greenfield-js-sdk/pull/446)
+  [`65333cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/65333cdcae483eace027459b803a17f0f93a3be5)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Clean InjectWorker
+
+- [#446](https://github.com/bnb-chain/greenfield-js-sdk/pull/446)
+  [`65333cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/65333cdcae483eace027459b803a17f0f93a3be5)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support setting worker counts
+
+## 1.0.3
+
+### Patch Changes
+
+- [#441](https://github.com/bnb-chain/greenfield-js-sdk/pull/441)
+  [`7a652ff`](https://github.com/bnb-chain/greenfield-js-sdk/commit/7a652ffe0e984b8f3781d85b007900f88bde92e5)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: Update Rollup Config - terser
+
+## 1.0.2
+
+### Patch Changes
+
+- [#435](https://github.com/bnb-chain/greenfield-js-sdk/pull/435)
+  [`327e4cd`](https://github.com/bnb-chain/greenfield-js-sdk/commit/327e4cdbdc0e1b71236731f425db3efbe7abb4f6)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Shards to int
+
+- [#436](https://github.com/bnb-chain/greenfield-js-sdk/pull/436)
+  [`522e6bc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/522e6bc7adb81f393e677d8cc09b8d00420bf0a5)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Pnpm install
+
 ## 1.0.1
 
 ### Patch Changes

@@ -2,7 +2,6 @@ import { client } from '@/client';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
-import { getCheckSumsWorker } from '@bnb-chain/greenfiled-file-handle';
 import { ReedSolomon } from '@bnb-chain/reed-solomon';
 
 export const CreateObject = () => {
@@ -80,18 +79,6 @@ export const CreateObject = () => {
                 redundancyType: 'REDUNDANCY_EC_TYPE',
                 contentLength: fileBytes.byteLength,
                 expectCheckSums: expectCheckSums,
-                // empty tags
-                // tags: {
-                //   tags: [],
-                // },
-                tags: {
-                  tags: [
-                    {
-                      key: 'test',
-                      value: 'test',
-                    },
-                  ],
-                },
               },
               {
                 type: 'EDDSA',

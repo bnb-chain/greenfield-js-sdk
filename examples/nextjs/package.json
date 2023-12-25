@@ -1,6 +1,6 @@
 {
   "name": "@demo/wallet",
-  "version": "0.0.17",
+  "version": "0.0.23",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev",
@@ -13,7 +13,6 @@
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.25",
     "@bnb-chain/greenfield-js-sdk": "workspace:*",
-    "@bnb-chain/greenfiled-file-handle": "workspace:*",
     "@bnb-chain/reed-solomon": "workspace:*",
     "@cosmjs/encoding": "^0.32.0",
     "@cosmjs/proto-signing": "^0.32.0",
@@ -34,7 +33,7 @@
     "evmosjs": "^0.2.17",
     "lodash": "^4.17.21",
     "long": "^5.2.1",
-    "next": "14.0.3",
+    "next": "13.5.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "^4.7.4",

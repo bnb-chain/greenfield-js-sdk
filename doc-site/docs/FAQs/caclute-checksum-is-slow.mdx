@@ -1,0 +1,149 @@
+---
+id: checksums
+title: cacluting checksum is slow
+order: 1
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+We're using [reed-solomon](https://github.com/bnb-chain/greenfield-js-sdk/tree/main/packages/reed-solomon).
+
+It is a lightweight implementation of [klauspost/reedsolomon](https://github.com/klauspost/reedsolomon), just to be compatible with [greenfield-common](https://github.com/bnb-chain/greenfield-common/blob/master/go/hash/hash.go).
+
+As we all know, JavaScript is not good at this kind of intensive computing. In fact, the results we tested on local Nodejs were about 10 times slower than Go.
+
+But to be able to use it in the Javascript, we created [reed-solomon](https://github.com/bnb-chain/greenfield-js-sdk/tree/main/packages/reed-solomon), which is the core library.
+
+## Benchmarking
+
+If not counting big files (how big is depending on the user's device), here are the [results](https://github.com/bnb-chain/greenfield-js-sdk/blob/main/packages/reed-solomon/benchmark.md) of our tests on the Apple M2.
+
+Note, you don't have to have webworker or worker_threads on to get faster performance. Because running worker also has performance loss.
+
+When calculating small files, using core is faster than using worker.
+
+## Usage
+
+You can use core lib directly in the browser and Nodejs, or you can use us to run on the worker(browser use [webworker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers), Nodejs use [worker_threads](https://nodejs.org/api/worker_threads.html)).
+
+<Tabs groupId="example">
+
+<TabItem value="browser" label="Browser">
+
+When you are developing Greenfield and need to create objects, if you are sure that the files are small (maybe less than 5m or 10m), you can directly use the ESM solution:
+
+```javascript title="core lib (ESM)"
+import {ReedSolomon} from '@bnb-chain/reed-solomon'
+
+const rs = new ReedSolomon();
+const res = rs.encode(new Uint8Array(fileBuffer))
+```
+
+It also supports UMD mode calls (simpler and more convenient):
+
+```html title="core lib (UMD)"
+<!-- prefetch js -->
+<link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/index.aio.js" />
+<script src="https://unpkg.com/@bnb-chain/reed-solomon/dist/index.aio.js"></script>
+
+<body>
+  <input type="file" id="file" />
+  <button id="btn">
+    get reed solomon
+  </button>
+  <script type="module">
+    const fileInput = document.getElementById('file');
+
+    // not use webworker
+    document.getElementById('btn').onclick = async function() {
+      const selectFile = fileInput.files[0];
+      const arrBuffer = await selectFile.arrayBuffer()
+      if (!arrBuffer) alert('no file selected');
+
+      const sourceData = new Uint8Array(arrBuffer)
+      console.time('cost')
+      console.log('file size', sourceData.length / 1024 / 1024, 'm')
+      const rs = new RS.ReedSolomon()
+      const res = await rs.encode(sourceData)
+      console.log('res', res)
+      console.timeEnd('cost')
+    }
+
+  </script>
+</body>
+```
+
+If the file is larger, this method may cause the page to freeze when calculating. We recommend using the worker mode:
+
+```html title="webworker (only support UMD)"
+<!-- prefetch js -->
+<link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js" />
+<link rel="prefetch" href="https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js" />
+<script src="https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js"></script>
+
+<body>
+  <input type="file" id="file" />
+
+  <button id="worker-btn">
+    get reed solomon (webworker)
+  </button>
+
+  <script>
+    const rs = new WebAdapter.WebAdapterReedSolomon()
+    // will create 6 webworker
+    rs.initWorkers({
+      workerNum: 6,
+      injectWorker,
+    })
+
+    document.getElementById('worker-btn').onclick = async function() {
+      const selectFile = fileInput.files[0];
+      const arrBuffer = await selectFile.arrayBuffer()
+      if (!arrBuffer) alert('no file selected');
+
+      const sourceData = new Uint8Array(arrBuffer)
+      const res = await rs.encodeInWorker(sourceData)
+    }
+
+    // inject worker
+    function injectWorker() {
+      // or download this file and put it to your CDN server
+      importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/web.adapter.aio.js');
+      importScripts('https://unpkg.com/@bnb-chain/reed-solomon/dist/utils.aio.js');
+
+      const rs = new WebAdapter.WebAdapterReedSolomon();
+      onmessage = function (event) {
+        const { index, chunk } = event.data;
+        const encodeShard = rs.getEncodeShard(chunk, index)
+        postMessage(encodeShard);
+      };
+    }
+  </script>
+</body>
+```
+
+</TabItem>
+<TabItem value="nodejs" label="Nodejs">
+
+Nodejs can also be used in two ways, directly with core library, or with [worker_threads](https://nodejs.org/api/worker_threads.html) (calculating large files).
+
+```js title="core lib"
+const { ReedSolomon } = require('@bnb-chain/reed-solomon')
+
+const rs = new ReedSolomon();
+const res = await rs.encode(Uint8Array.from(fileBuffer));
+```
+
+```js title="worker_threads"
+const { NodeAdapterReedSolomon } = require('@bnb-chain/reed-solomon/node.adapter');
+
+const fileBuffer = fs.readFileSync('./output_file');
+
+const rs = new NodeAdapterReedSolomon();
+const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer))
+```
+
+</TabItem>
+</Tabs>
+

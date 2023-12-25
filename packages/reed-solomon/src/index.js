@@ -42,12 +42,9 @@ export class ReedSolomon {
 
     const dataLen = data.length;
 
-    const perShard = parseInt((dataLen + this.dataShards - 1) / this.dataShards);
+    // Calculate number of bytes per data shard.
+    const perShard = Math.floor((dataLen + this.dataShards - 1) / this.dataShards);
     const needTotal = this.totalShards * perShard;
-
-    // console.log('dataLen', dataLen)
-    // console.log('needTotal', needTotal)
-    // console.log('perShard', perShard)
 
     let tmp = Array.prototype.slice.call(data);
     if (this.segmentSize > data.length) {
@@ -66,12 +63,11 @@ export class ReedSolomon {
 
     let padding = [];
     if (data.length < needTotal) {
-      const fullShards = data.length / perShard;
-      // padding = new Array(this.totalShards - fullShards).fill(0);
+      const fullShards = Math.floor(data.length / perShard);
       padding = this._allocAligned(this.totalShards - fullShards, perShard);
 
       if (dataLen > perShard * fullShards) {
-        const copyFrom = data.slice(perShard * fullShards, dataLen);
+        let copyFrom = data.slice(perShard * fullShards, dataLen);
         for (let i = 0; i < padding.length; i++) {
           if (copyFrom.length > 0) {
             padding[i] = copyFrom.slice(0, perShard);
@@ -146,7 +142,6 @@ export class ReedSolomon {
       parity,
       shared.slice(0, this.dataShards),
       output.slice(0, this.parityShards),
-      shared[0].length,
     );
   }
 
@@ -161,19 +156,46 @@ export class ReedSolomon {
     for (let i = 0; i < encodeDataHashList.length; i++) {
       encodeDataHashList[i] = [];
     }
+
+    let encodeShards = chunkList.map((chunk, index) => {
+      return this.getEncodeShard(chunk, index);
+    });
+
+    return this.getChecksumsByEncodeShards(encodeShards);
+  }
+
+  getEncodeShard(chunk, index) {
+    const encodeShards = this.encodeSegment(chunk);
+    let encodeDataHash = [];
+    for (let i = 0; i < encodeShards.length; i++) {
+      const priceHash = sha256(encodeShards[i]);
+      encodeDataHash.push(priceHash);
+    }
+    return {
+      index,
+      segChecksum: sha256(chunk),
+      encodeDataHash,
+    };
+  }
+
+  /**
+   * @param {Array[{index, segChecksum, encodeDataHash}]} encodeShards
+   */
+  getChecksumsByEncodeShards(encodeShards) {
     let hashList = [];
     let segChecksumList = [];
+    let encodeDataHashList = new Array(this.totalShards);
+    for (let i = 0; i < encodeDataHashList.length; i++) {
+      encodeDataHashList[i] = [];
+    }
 
-    for (let i = 0; i < chunkList.length; i++) {
-      const data = chunkList[i];
-      // console.log('data i', i)
-      const encodeShards = this.encodeSegment(data);
-      // console.log('data done', i)
-      segChecksumList.push(sha256(data));
+    for (let i = 0; i < encodeShards.length; i++) {
+      segChecksumList.push(encodeShards[i].segChecksum);
+    }
 
-      for (let i = 0; i < encodeShards.length; i++) {
-        const priceHash = sha256(encodeShards[i]);
-        encodeDataHashList[i].push(priceHash);
+    for (let i = 0; i < encodeShards.length; i++) {
+      for (let j = 0; j < encodeDataHashList.length; j++) {
+        encodeDataHashList[j][i] = encodeShards[i].encodeDataHash[j];
       }
     }
 
@@ -184,5 +206,9 @@ export class ReedSolomon {
     }
 
     return toBase64(hashList);
+  }
+
+  sortByIndex(encodeShards) {
+    return encodeShards.sort((a, b) => a.index - b.index);
   }
 }

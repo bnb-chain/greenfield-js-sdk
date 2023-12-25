@@ -28,7 +28,7 @@ import {
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { TxClient } from '../clients/txClient';
-import { getMsgCreateGroupSDKTypeWithTagEIP712 } from '../messages/greenfield/storage/MsgCreateGroup';
+import { MsgCreateGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateGroup';
 import { MsgDeleteGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteGroup';
 import { MsgLeaveGroupSDKTypeEIP712 } from '../messages/greenfield/storage/MsgLeaveGroup';
 import { MsgUpdateGroupExtraSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateGroupExtra';
