@@ -2,4 +2,4 @@
 '@bnb-chain/greenfield-js-sdk': patch
 ---
 
-fix: Tag Compatibility
+feat: Upgrade cosmos types to 0.4.0-alpha.30
