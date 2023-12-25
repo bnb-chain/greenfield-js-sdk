@@ -12,5 +12,8 @@
     "@bnb-chain/reed-solomon": "1.1.2",
     "@bnb-chain/greenfield-zk-crypto": "1.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "little-melons-care",
+    "twelve-mice-grin"
+  ]
 }
