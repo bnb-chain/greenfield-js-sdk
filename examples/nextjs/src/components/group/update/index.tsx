@@ -1,7 +1,6 @@
 import { client } from '@/client';
-import { GRNToString, newBucketGRN, newGroupGRN, toTimestamp } from '@bnb-chain/greenfield-js-sdk';
+import { GRNToString, newGroupGRN, toTimestamp } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
-import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
 export const GroupUpdate = () => {
@@ -130,6 +129,9 @@ export const GroupUpdate = () => {
           const updateGroupTx = await client.storage.setTag({
             operator: address,
             resource,
+            // tags: {
+            //   tags: [],
+            // },
             tags: {
               tags: [
                 {

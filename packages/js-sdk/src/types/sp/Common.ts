@@ -42,12 +42,6 @@ export interface BucketInfo {
   PaymentAddress: string;
   SourceType: number;
   Visibility: number;
-  Tags: {
-    Tags: {
-      Key: string;
-      Value: string;
-    }[];
-  };
 }
 
 export interface StreamRecord {
@@ -91,12 +85,6 @@ export interface ObjectInfo {
   RedundancyType: number;
   SourceType: number;
   Visibility: number;
-  Tags: {
-    Tags: {
-      Key: string;
-      Value: string;
-    }[];
-  };
 }
 
 export function formatBucketInfo(o: BucketInfo): BucketInfo {
@@ -109,9 +97,6 @@ export function formatBucketInfo(o: BucketInfo): BucketInfo {
     GlobalVirtualGroupFamilyId: Number(o.GlobalVirtualGroupFamilyId),
     SourceType: Number(o.SourceType),
     Visibility: Number(o.Visibility),
-    Tags: {
-      Tags: tags,
-    },
   };
 }
 
@@ -126,9 +111,6 @@ export function formatObjectInfo(o: ObjectInfo): ObjectInfo {
     RedundancyType: Number(o.RedundancyType),
     SourceType: Number(o.SourceType),
     Visibility: Number(o.Visibility),
-    Tags: {
-      Tags: tags,
-    },
   };
 }
 
@@ -158,12 +140,6 @@ export interface GroupInfo {
   SourceType: number;
   Id: number;
   Extra: string;
-  Tags: {
-    Tags: {
-      Key: string;
-      Value: string;
-    }[];
-  };
 }
 
 export function formatGroupInfo(o: GroupInfo): GroupInfo {
@@ -171,9 +147,6 @@ export function formatGroupInfo(o: GroupInfo): GroupInfo {
     ...o,
     SourceType: Number(o.SourceType),
     Id: Number(o.Id),
-    Tags: {
-      Tags: tags,
-    },
   };
 }
 
@@ -207,10 +180,3 @@ export interface PolicyMeta {
    */
   ExpirationTime: number;
 }
-
-/**
- * create bucket / object approval's tags
- */
-export type TagsInCreateTxApproval = {
-  tags: string[] | { key: string; value: string }[];
-};

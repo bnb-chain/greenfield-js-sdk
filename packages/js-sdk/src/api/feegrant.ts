@@ -57,6 +57,7 @@ export class FeeGrant implements IFeeGrant {
       {
         ...MsgGrantAllowance.toSDK(grantAllowance),
         allowance: {
+          // @ts-ignore
           type: grantAllowance.allowance?.typeUrl,
           value: base64FromBytes(arrayify('0x' + encodeToHex(JSON.stringify(marshal)))),
           // TODO: @roshan next version should return hex string

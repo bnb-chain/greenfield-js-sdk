@@ -111,10 +111,6 @@ export class Group implements IGroup {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
 
   public async createGroup(msg: MsgCreateGroup) {
-    const isTagsEmpty = msg?.tags?.tags?.length === 0;
-
-    const MsgCreateGroupSDKTypeEIP712 = getMsgCreateGroupSDKTypeWithTagEIP712(isTagsEmpty);
-
     return await this.txClient.tx(
       MsgCreateGroupTypeUrl,
       msg.creator,
@@ -155,7 +151,7 @@ export class Group implements IGroup {
         members_to_add: msg.membersToAdd.map((x) => {
           return {
             member: x.member,
-            expiration_time: fromTimestamp(x.expirationTime),
+            expiration_time: x.expirationTime && fromTimestamp(x.expirationTime),
           };
         }),
       },
