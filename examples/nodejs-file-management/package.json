@@ -1,6 +1,6 @@
 {
   "name": "@demo/nodejs",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.0",
   "type": "commonjs",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@bnb-chain/greenfield-js-sdk": "^1.1.2",
+    "@bnb-chain/greenfield-js-sdk": "^1.2.0-alpha.0",
     "@bnb-chain/reed-solomon": "^1.1.1",
     "dotenv": "^16.3.1",
     "mime-types": "^2.1.35"
