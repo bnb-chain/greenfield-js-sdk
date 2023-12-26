@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.2.0-alpha.2
+
+### Patch Changes
+
+- [#464](https://github.com/bnb-chain/greenfield-js-sdk/pull/464)
+  [`24ec472`](https://github.com/bnb-chain/greenfield-js-sdk/commit/24ec472b4507d0f3cba3c8fc55b4e9f924d5b1c7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sp Api Types
+
 ## 1.2.0-alpha.1
 
 ### Patch Changes
