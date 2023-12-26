@@ -42,6 +42,12 @@ export interface BucketInfo {
   PaymentAddress: string;
   SourceType: number;
   Visibility: number;
+  Tags: {
+    Tags: {
+      Key: string;
+      Value: string;
+    }[];
+  };
 }
 
 export interface StreamRecord {
@@ -85,9 +91,20 @@ export interface ObjectInfo {
   RedundancyType: number;
   SourceType: number;
   Visibility: number;
+  Tags: {
+    Tags: {
+      Key: string;
+      Value: string;
+    }[];
+  };
 }
 
 export function formatBucketInfo(o: BucketInfo): BucketInfo {
+  let tags = o.Tags.Tags || [];
+  if (!Array.isArray(tags)) {
+    tags = [tags];
+  }
+
   return {
     ...o,
     // PrimarySpId: Number(item.BucketInfo.PrimarySpId),
@@ -97,10 +114,18 @@ export function formatBucketInfo(o: BucketInfo): BucketInfo {
     GlobalVirtualGroupFamilyId: Number(o.GlobalVirtualGroupFamilyId),
     SourceType: Number(o.SourceType),
     Visibility: Number(o.Visibility),
+    Tags: {
+      Tags: tags,
+    },
   };
 }
 
 export function formatObjectInfo(o: ObjectInfo): ObjectInfo {
+  let tags = o.Tags.Tags || [];
+  if (!Array.isArray(tags)) {
+    tags = [tags];
+  }
+
   return {
     ...o,
     CreateAt: Number(o.CreateAt),
@@ -111,6 +136,9 @@ export function formatObjectInfo(o: ObjectInfo): ObjectInfo {
     RedundancyType: Number(o.RedundancyType),
     SourceType: Number(o.SourceType),
     Visibility: Number(o.Visibility),
+    Tags: {
+      Tags: tags,
+    },
   };
 }
 
@@ -140,13 +168,27 @@ export interface GroupInfo {
   SourceType: number;
   Id: number;
   Extra: string;
+  Tags: {
+    Tags: {
+      Key: string;
+      Value: string;
+    }[];
+  };
 }
 
 export function formatGroupInfo(o: GroupInfo): GroupInfo {
+  let tags = o.Tags.Tags || [];
+  if (!Array.isArray(tags)) {
+    tags = [tags];
+  }
+
   return {
     ...o,
     SourceType: Number(o.SourceType),
     Id: Number(o.Id),
+    Tags: {
+      Tags: tags,
+    },
   };
 }
 

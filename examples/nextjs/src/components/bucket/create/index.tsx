@@ -1,5 +1,7 @@
 import { client, selectSp } from '@/client';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
+import { GRNToString, newBucketGRN, newGroupGRN } from '@bnb-chain/greenfield-js-sdk';
+import { add } from 'lodash';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -58,13 +60,32 @@ export const CreateBucket = () => {
             },
           );
 
-          const simulateInfo = await createBucketTx.simulate({
+          const setTagTx = await client.storage.setTag({
+            operator: address,
+            resource: GRNToString(newBucketGRN(createBucketInfo.bucketName)),
+            tags: {
+              tags: [
+                {
+                  key: 'x',
+                  value: 'xx',
+                },
+                {
+                  key: 'y',
+                  value: 'yy',
+                },
+              ],
+            },
+          });
+
+          const tx = await client.txClient.multiTx([createBucketTx, setTagTx]);
+
+          const simulateInfo = await tx.simulate({
             denom: 'BNB',
           });
 
           console.log('simulateInfo', simulateInfo);
 
-          const res = await createBucketTx.broadcast({
+          const res = await tx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',
