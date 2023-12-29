@@ -1,5 +1,13 @@
 # @bnb-chain/reed-solomon
 
+## 1.1.3
+
+### Patch Changes
+
+- [#458](https://github.com/bnb-chain/greenfield-js-sdk/pull/458)
+  [`4cf4abc`](https://github.com/bnb-chain/greenfield-js-sdk/commit/4cf4abc348c080f73abd8578f0092ca6ab318fe3)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: SwapRows
+
 ## 1.1.2
 
 ### Patch Changes
