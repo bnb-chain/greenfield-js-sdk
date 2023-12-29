@@ -12,6 +12,9 @@ export class WebAdapterReedSolomon extends ReedSolomon {
   }
 
   async encodeInWorker(sourceData) {
+    if (!this.workerNum || !this.workers)
+      throw new Error('`initWorkers` must be executed first to ensure the number of workers');
+
     // RES is `encodeShards` Array
     let RES = [];
     const chunkList = splitPrice(sourceData, this.segmentSize);
