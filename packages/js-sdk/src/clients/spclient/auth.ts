@@ -1,11 +1,10 @@
 import { signSignatureByEddsa } from '@/offchainauth';
-import { ReqMeta } from '@/types/auth';
+import { AuthType, ReqMeta } from '@/types/auth';
 import { hexlify, joinSignature } from '@ethersproject/bytes';
 import { SigningKey } from '@ethersproject/signing-key';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
 import { utf8ToBytes } from 'ethereum-cryptography/utils.js';
-import { AuthType } from './spClient';
 
 export const getCanonicalHeaders = (reqMeta: Partial<ReqMeta>, reqHeaders: Headers) => {
   const sortedHeaders = getSortedHeaders(reqHeaders, SUPPORTED_HEADERS);

@@ -66,8 +66,9 @@ import {
   newObjectGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
-import { AuthType, SpClient } from '../clients/spclient/spClient';
+import { SpClient } from '../clients/spclient/spClient';
 import {
+  AuthType,
   CreateObjectApprovalRequest,
   CreateObjectApprovalResponse,
   GetListObjectPoliciesRequest,

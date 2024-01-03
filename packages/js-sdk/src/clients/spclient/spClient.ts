@@ -7,28 +7,10 @@ import {
 } from '@/clients/spclient/auth';
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { SP_NOT_AVAILABLE_ERROR_CODE, SP_NOT_AVAILABLE_ERROR_MSG } from '@/constants/http';
-import { ReqMeta } from '@/types/auth';
+import { AuthType, ReqMeta } from '@/types/auth';
 import { injectable } from 'tsyringe';
 import { getGetObjectMetaInfo } from './spApis/getObject';
 import { getPutObjectMetaInfo } from './spApis/putObject';
-
-/**
- * ECDSA Signature
- */
-export type ECDSA = {
-  type: 'ECDSA';
-  privateKey: string;
-};
-/**
- * EDDSA Signature
- */
-export type EDDSA = {
-  type: 'EDDSA';
-  seed: string;
-  domain: string;
-  address: string;
-};
-export type AuthType = ECDSA | EDDSA;
 
 export interface ISpClient {
   callApi(

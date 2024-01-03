@@ -29,6 +29,7 @@ import {
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/payment/tx';
 import { container, delay, inject, injectable } from 'tsyringe';
 import {
+  AuthType,
   MsgDepositTypeUrl,
   MsgDisableRefundTypeUrl,
   MsgWithdrawTypeUrl,
@@ -41,7 +42,7 @@ import {
   getListUserPaymentAccountMetaInfo,
   parseListUserPaymentAccountResponse,
 } from '../clients/spclient/spApis/listUserPaymentAccounts';
-import { AuthType, SpClient } from '../clients/spclient/spClient';
+import { SpClient } from '../clients/spclient/spClient';
 import { TxClient } from '../clients/txClient';
 import { MsgDepositSDKTypeEIP712 } from '../messages/greenfield/payment/MsgDeposit';
 import { MsgDisableRefundSDKTypeEIP712 } from '../messages/greenfield/payment/MsgDisableRefund';
