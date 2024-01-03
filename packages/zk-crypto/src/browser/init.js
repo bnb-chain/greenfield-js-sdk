@@ -1,10 +1,9 @@
 import { startRunningService } from '.';
 import Go from './wasm_exec.js';
 
-export const initialize = async () => {
+export const initialize = async (wasmPath) => {
   if (!initializePromise) {
-    const input = window.__PUBLIC_ZKCRYPTO_WASM_PATH__;
-    initializePromise = startRunningService(input).catch((err) => {
+    initializePromise = startRunningService(wasmPath).catch((err) => {
       // Let the caller try again if this fails.
       initializePromise = void 0;
       // But still, throw the error back up the caller.
