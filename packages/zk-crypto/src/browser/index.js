@@ -1,14 +1,22 @@
 import { ensureServiceIsRunning, initialize, instantiateWASM } from './init';
 
-// 1. modify method of `exports` and `globalThis` export.
-export const startRunningService = async (wasmURL) => {
-  const module = await instantiateWASM(wasmURL);
-  module.instance.exports;
+export const eddsaSign = (seed, message) => {
+  return ensureServiceIsRunning().eddsaSign(seed, message);
+};
 
-  // `exports` is a map to `//export` way of TinyGo way.
-  // const { add } = exports;
+export const getEddsaCompressedPublicKey = (seed) => {
+  return ensureServiceIsRunning().getEddsaCompressedPublicKey(seed);
+};
 
-  // `globalThis` is a map to complex way of `syscall/js` way.
+export const startRunningService = async (input) => {
+  if (input === undefined) {
+    input = new URL('../wasm/zk-crypto.wasm', import.meta.url);
+  }
+
+  await instantiateWASM(input);
+  // const module = await instantiateWASM(input);
+  // const exports = module.instance.exports;
+
   const { getEddsaCompressedPublicKey, eddsaSign } = globalThis;
 
   return {
@@ -17,13 +25,4 @@ export const startRunningService = async (wasmURL) => {
   };
 };
 
-// 2. wasm export function:
-export const eddsaSign = async (seed, message) => {
-  await initialize();
-  return ensureServiceIsRunning().eddsaSign(seed, message);
-};
-
-export const getEddsaCompressedPublicKey = async (seed) => {
-  await initialize();
-  return ensureServiceIsRunning().getEddsaCompressedPublicKey(seed);
-};
+export const init = initialize;

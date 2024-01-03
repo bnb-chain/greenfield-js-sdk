@@ -4,7 +4,7 @@ NPM Wrap for [zkbnb-js-sdk](https://github.com/bnb-chain/zkbnb-js-sdk).
 
 ## Usage
 
-```
+```bash
 > npm i @bnb-chain/greenfield-zk-crypto
 ```
 
@@ -13,12 +13,13 @@ NPM Wrap for [zkbnb-js-sdk](https://github.com/bnb-chain/zkbnb-js-sdk).
 #### ESM
 
 ```js
-import {getEddsaCompressedPublicKey} from "@bnb-chain/greenfield-zk-crypto"
-
-// set wasm path: CDN or your server path
-window.__PUBLIC_ZKCRYPTO_WASM_PATH__ = 'zk wasm path';
+import { init, getEddsaCompressedPublicKey } from "@bnb-chain/greenfield-zk-crypto"
 
 ;(async () => {
+  await init(
+    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto/dist/node/zk-crypto.wasm'
+  );
+
   const res = await getEddsaCompressedPublicKey('foo');
   console.log(res)
 })()
@@ -29,10 +30,11 @@ window.__PUBLIC_ZKCRYPTO_WASM_PATH__ = 'zk wasm path';
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@bnb-chain/greenfield-zk-crypto/dist/umd/index.js"></script>
 <script>
-  // set wasm path
-  window.__PUBLIC_CROSS_WASM_PATH__ = 'https://cdn.jsdelivr.net/npm/@bnb-chain/greenfield-zk-crypto/dist/node/zk-crypto.wasm';
-
   ;(async () => {
+    await ZkCrypto.init(
+      'https://unpkg.com/@bnb-chain/greenfield-zk-crypto/dist/node/zk-crypto.wasm'
+    );
+
     const res = await getEddsaCompressedPublicKey('foo');
     console.log(res)
   })()
@@ -47,4 +49,10 @@ const { getEddsaCompressedPublicKey } = require("@bnb-chain/greenfield-zk-crypto
 ;(async () => {
   const res = await getEddsaCompressedPublicKey('foo');
 })()
+```
+
+## Build WASM
+
+```bash
+tinygo build -no-debug -o zk-crypto.wasm -target=wasm main.go
 ```
