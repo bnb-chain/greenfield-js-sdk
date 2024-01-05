@@ -1,5 +1,26 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- [#461](https://github.com/bnb-chain/greenfield-js-sdk/pull/461)
+  [`865be47`](https://github.com/bnb-chain/greenfield-js-sdk/commit/865be476dfd78f86b9d0a7dba3074fbf7ae32bb7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add SetTag API
+
+### Patch Changes
+
+- [#464](https://github.com/bnb-chain/greenfield-js-sdk/pull/464)
+  [`24ec472`](https://github.com/bnb-chain/greenfield-js-sdk/commit/24ec472b4507d0f3cba3c8fc55b4e9f924d5b1c7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Sp Api Types
+
+- [`b41fdf0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b41fdf057b7b4b0f416a74fb04ed0793c52c51f7)
+  Thanks [@rrr523](https://github.com/rrr523)! - chore: pnpm --no-frozen-lockfile
+
+- [#461](https://github.com/bnb-chain/greenfield-js-sdk/pull/461)
+  [`865be47`](https://github.com/bnb-chain/greenfield-js-sdk/commit/865be476dfd78f86b9d0a7dba3074fbf7ae32bb7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Upgrade cosmos types to 0.4.0-alpha.30
+
 ## 1.2.0-alpha.2
 
 ### Patch Changes
