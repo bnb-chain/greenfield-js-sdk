@@ -6,7 +6,10 @@ import {
   QuerySendSequenceRequest,
   QuerySendSequenceResponse,
 } from '@bnb-chain/greenfield-cosmos-types/cosmos/crosschain/v1/query';
-import { QueryInturnRelayerResponse } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
+import {
+  QueryInturnRelayerRequest,
+  QueryInturnRelayerResponse,
+} from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/query';
 import { MsgClaim } from '@bnb-chain/greenfield-cosmos-types/cosmos/oracle/v1/tx';
 import { QueryParamsResponse } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/query';
 import { MsgTransferOut } from '@bnb-chain/greenfield-cosmos-types/greenfield/bridge/tx';
@@ -58,7 +61,7 @@ export interface ICrossChain {
   /**
    * gets the in-turn relayer bls public key and its relay interval
    */
-  getInturnRelayer(): Promise<QueryInturnRelayerResponse>;
+  getInturnRelayer(request: QueryInturnRelayerRequest): Promise<QueryInturnRelayerResponse>;
 
   getCrosschainPackage(
     request: QueryCrossChainPackageRequest,
@@ -117,9 +120,9 @@ export class CrossChain implements ICrossChain {
     return await rpc.ReceiveSequence(request);
   }
 
-  public async getInturnRelayer() {
+  public async getInturnRelayer(request: QueryInturnRelayerRequest) {
     const rpc = await this.queryClient.getOracleQueryClient();
-    return await rpc.InturnRelayer();
+    return await rpc.InturnRelayer(request);
   }
 
   public async getCrosschainPackage(request: QueryCrossChainPackageRequest) {

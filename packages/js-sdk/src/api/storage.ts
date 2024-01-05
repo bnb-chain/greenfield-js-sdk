@@ -20,10 +20,18 @@ import {
 import {
   MsgDeletePolicy,
   MsgPutPolicy,
+  MsgSetTag,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { container, delay, inject, injectable } from 'tsyringe';
-import { fromTimestamp, MsgDeletePolicyTypeUrl, MsgPutPolicyTypeUrl, TxResponse } from '..';
+import {
+  fromTimestamp,
+  MsgDeletePolicyTypeUrl,
+  MsgPutPolicyTypeUrl,
+  MsgSetTagTypeUrl,
+  TxResponse,
+} from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { getMsgSetTagSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgSetTag';
 
 export interface IStorage {
   params(): Promise<QueryParamsResponse>;
@@ -31,6 +39,8 @@ export interface IStorage {
   putPolicy(msg: MsgPutPolicy): Promise<TxResponse>;
 
   deletePolicy(msg: MsgDeletePolicy): Promise<TxResponse>;
+
+  setTag(msg: MsgSetTag): Promise<TxResponse>;
 
   getPolicyForGroup(request: QueryPolicyForGroupRequest): Promise<QueryPolicyForGroupResponse>;
 
@@ -94,6 +104,20 @@ export class Storage implements IStorage {
       MsgDeletePolicySDKTypeEIP712,
       MsgDeletePolicy.toSDK(msg),
       MsgDeletePolicy.encode(msg).finish(),
+    );
+  }
+
+  public async setTag(msg: MsgSetTag) {
+    const isTagsEmpty = msg?.tags?.tags?.length === 0;
+
+    const MsgSetTagSDKTypeEIP712 = getMsgSetTagSDKTypeEIP712(isTagsEmpty);
+
+    return await this.txClient.tx(
+      MsgSetTagTypeUrl,
+      msg.operator,
+      MsgSetTagSDKTypeEIP712,
+      MsgSetTag.toSDK(msg),
+      MsgSetTag.encode(msg).finish(),
     );
   }
 

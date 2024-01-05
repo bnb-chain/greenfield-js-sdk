@@ -11,6 +11,7 @@ import { Wallet } from '@ethersproject/wallet';
 import { ChangeEvent, useState } from 'react';
 import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
+import { ReedSolomon } from '@bnb-chain/reed-solomon';
 
 /**
  * fee grant for creat object
@@ -124,11 +125,9 @@ export const CreateObj = () => {
 
           console.log('temp account', granteeAddr, privateKey);
 
+          const rs = new ReedSolomon();
           const fileBytes = await file.arrayBuffer();
-          const hashResult = await (window as any).FileHandle.getCheckSums(
-            new Uint8Array(fileBytes),
-          );
-          const { contentLength, expectCheckSums } = hashResult;
+          const expectCheckSums = rs.encode(new Uint8Array(fileBytes));
 
           const createObjectTx = await client.object.createObject(
             {
@@ -137,13 +136,13 @@ export const CreateObj = () => {
               objectName: objectName,
               visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
               redundancyType: 'REDUNDANCY_EC_TYPE',
-              contentLength,
+              contentLength: fileBytes.byteLength,
               expectCheckSums,
               fileType: file.type,
             },
             {
               type: 'ECDSA',
-              privateKey: ACCOUNT_PRIVATEKEY,
+              privateKey: privateKey,
             },
           );
 

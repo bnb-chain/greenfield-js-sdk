@@ -151,7 +151,7 @@ export class Group implements IGroup {
         members_to_add: msg.membersToAdd.map((x) => {
           return {
             member: x.member,
-            expiration_time: fromTimestamp(x.expirationTime),
+            expiration_time: x.expirationTime && fromTimestamp(x.expirationTime),
           };
         }),
       },

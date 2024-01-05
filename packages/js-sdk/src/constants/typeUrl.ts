@@ -19,6 +19,7 @@ export const MsgDeleteBucketTypeUrl = '/greenfield.storage.MsgDeleteBucket';
 export const MsgDeleteGroupTypeUrl = '/greenfield.storage.MsgDeleteGroup';
 export const MsgDeleteObjectTypeUrl = '/greenfield.storage.MsgDeleteObject';
 export const MsgDeletePolicyTypeUrl = '/greenfield.storage.MsgDeletePolicy';
+export const MsgSetTagTypeUrl = '/greenfield.storage.MsgSetTag';
 export const MsgLeaveGroupTypeUrl = '/greenfield.storage.MsgLeaveGroup';
 export const MsgMirrorBucketTypeUrl = '/greenfield.storage.MsgMirrorBucket';
 export const MsgMirrorGroupTypeUrl = '/greenfield.storage.MsgMirrorGroup';

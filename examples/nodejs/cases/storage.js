@@ -32,6 +32,9 @@ console.log('objectName', objectName);
         primarySpAddress: spInfo.primarySpAddress,
       },
       paymentAddress: ACCOUNT_ADDRESS,
+      tags: {
+        tags: [],
+      },
     },
     {
       type: 'ECDSA',
