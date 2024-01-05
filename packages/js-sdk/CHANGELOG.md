@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.1.3
+
+### Patch Changes
+
+- [#466](https://github.com/bnb-chain/greenfield-js-sdk/pull/466)
+  [`159cb9c`](https://github.com/bnb-chain/greenfield-js-sdk/commit/159cb9c896d3d44b92715b2c12a6db1aeed20081)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Export Auth type
+
 ## 1.1.2
 
 ### Patch Changes
