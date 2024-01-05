@@ -125,7 +125,7 @@ function gaussianElimination(m) {
     if (m[r][r] === 0) {
       for (let rowBelow = r + 1; rowBelow < rows; rowBelow++) {
         if (m[rowBelow][r] !== 0) {
-          let err = SwapRows(r, rowBelow);
+          let err = SwapRows(m, r, rowBelow);
           if (err !== null) {
             return err;
           }

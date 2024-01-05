@@ -29,6 +29,7 @@ import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import Long from 'long';
 import { container, delay, inject, injectable } from 'tsyringe';
 import {
+  AuthType,
   GRNToString,
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
@@ -65,7 +66,7 @@ import {
   getQueryBucketReadQuotaMetaInfo,
   parseReadQuotaResponse,
 } from '../clients/spclient/spApis/queryBucketReadQuota';
-import { AuthType, SpClient } from '../clients/spclient/spClient';
+import { SpClient } from '../clients/spclient/spClient';
 import { TxClient } from '../clients/txClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
 import { MsgCreateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateBucket';

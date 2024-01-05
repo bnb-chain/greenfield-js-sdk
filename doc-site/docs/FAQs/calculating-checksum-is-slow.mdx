@@ -1,6 +1,6 @@
 ---
 id: checksums
-title: cacluting checksum is slow
+title: calculating checksum is slow
 order: 1
 ---
 
@@ -21,7 +21,7 @@ If not counting big files (how big is depending on the user's device), here are 
 
 Note, you don't have to have webworker or worker_threads on to get faster performance. Because running worker also has performance loss.
 
-When calculating small files, using core is faster than using worker.
+When calculating small files, using the core is faster than using the worker.
 
 ## Usage
 
@@ -126,7 +126,7 @@ If the file is larger, this method may cause the page to freeze when calculating
 </TabItem>
 <TabItem value="nodejs" label="Nodejs">
 
-Nodejs can also be used in two ways, directly with core library, or with [worker_threads](https://nodejs.org/api/worker_threads.html) (calculating large files).
+Nodejs can also be used in two ways, directly with the core library, or with [worker_threads](https://nodejs.org/api/worker_threads.html) (calculating large files).
 
 ```js title="core lib"
 const { ReedSolomon } = require('@bnb-chain/reed-solomon')

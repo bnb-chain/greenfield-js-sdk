@@ -11,20 +11,20 @@ import TabItem from '@theme/TabItem';
 
 A transaction contains at least:
 
-1. construct a transaction: The sdk already provides each transaction type
+1. construct a transaction: The SDK already provides each transaction type
 2. simulate: [txClient.simulate](#simulate)
 3. broadcast [txClient.broadcast](#broadcast)
 
 ## simulate
 
-Just Simulate a transaction and valid transaction.
+Just Simulate a transaction and a valid transaction.
 
 | params | description                          |
 | ------ | ------------------------------------ |
 | denom  | the coin denom to query balances for |
 
 ```jsx title="simulate tx"
-// `tx` is a transaction constructed by the sdk
+// `tx` is a transaction constructed by the SDK
 const simulateInfo = await tx.simulate({
   denom: 'BNB',
 });
