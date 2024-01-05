@@ -290,7 +290,7 @@ importers:
   examples/nodejs-file-management:
     dependencies:
       '@bnb-chain/greenfield-js-sdk':
-        specifier: ^1.2.0-alpha.0
+        specifier: ^1.2.0
         version: link:../../packages/js-sdk
       '@bnb-chain/reed-solomon':
         specifier: ^1.1.1
