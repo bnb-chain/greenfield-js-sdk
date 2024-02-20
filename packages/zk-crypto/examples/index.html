@@ -6,14 +6,15 @@
   <title>Document</title>
 </head>
 <body>
-  <script src="../dist/browser/umd/index.js"></script>
+  <script src="../dist/index.umd.js"></script>
   <script>
     // WASM exports as `ZkCrypto` UMD module.
     console.log('UMD', ZkCrypto);
 
     ;(async () => {
       await ZkCrypto.init(
-        'https://unpkg.com/@bnb-chain/greenfield-zk-crypto/dist/node/zk-crypto.wasm'
+        // 'https://unpkg.com/@bnb-chain/greenfield-zk-crypto/dist/node/zk-crypto.wasm'
+        'http://localhost:9003/dist/zk-crypto.wasm'
       );
 
       console.log('getEddsaCompressedPublicKey', ZkCrypto.getEddsaCompressedPublicKey('xx'))

@@ -8,8 +8,8 @@ module.exports = [
   {
     entry: './src/browser/index.js',
     output: {
-      path: path.resolve(__dirname, 'dist/browser/esm'),
-      filename: 'index.js',
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'index.esm.js',
       library: {
         type: 'commonjs',
       },
@@ -19,6 +19,7 @@ module.exports = [
     target: 'web',
     experiments: {
       asyncWebAssembly: true,
+      outputModule: true,
     },
     module: {
       rules: [
@@ -50,7 +51,7 @@ module.exports = [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
       }),
-      new CleanWebpackPlugin(),
+      // new CleanWebpackPlugin(),
     ],
   },
 
@@ -58,8 +59,8 @@ module.exports = [
   {
     entry: './src/browser/index.js',
     output: {
-      path: path.resolve(__dirname, 'dist/browser/umd'),
-      filename: 'index.js',
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'index.umd.js',
       library: {
         name: 'ZkCrypto',
         type: 'umd',
@@ -101,7 +102,7 @@ module.exports = [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
       }),
-      new CleanWebpackPlugin(),
+      // new CleanWebpackPlugin(),
     ],
   },
 
@@ -109,7 +110,7 @@ module.exports = [
   {
     entry: './src/node/index.js',
     output: {
-      path: path.resolve(__dirname, 'dist/node'),
+      path: path.resolve(__dirname, 'dist'),
       filename: 'index.js',
       library: {
         type: 'commonjs',
@@ -135,7 +136,7 @@ module.exports = [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
       }),
-      new CleanWebpackPlugin(),
+      // new CleanWebpackPlugin(),
     ],
   },
 ];

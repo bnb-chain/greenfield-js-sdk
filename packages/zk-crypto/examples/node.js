@@ -1,5 +1,5 @@
 /* eslint-disable */
-const { getEddsaCompressedPublicKey, eddsaSign } = require('../dist/node/index');
+const { getEddsaCompressedPublicKey, eddsaSign } = require('../dist/index');
 
 (async () => {
   console.log('getEddsaCompressedPublicKey', await getEddsaCompressedPublicKey('xx'));
