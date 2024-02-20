@@ -11,7 +11,7 @@ module.exports = [
       path: path.resolve(__dirname, 'dist'),
       filename: 'index.esm.js',
       library: {
-        type: 'commonjs',
+        type: 'module',
       },
       wasmLoading: 'fetch',
       enabledWasmLoadingTypes: ['fetch'],
