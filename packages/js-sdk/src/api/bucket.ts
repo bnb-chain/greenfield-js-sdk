@@ -93,7 +93,7 @@ import type {
   ReadQuotaRequest,
   SpResponse,
 } from '../types/sp';
-import { isValidAddress, verifyBucketName, verifyUrl } from '../utils/asserts/s3';
+import { verifyAddress, verifyBucketName, verifyUrl } from '../utils/asserts/s3';
 import { decodeObjectFromHexString } from '../utils/encoding';
 import { Sp } from './sp';
 import { Storage } from './storage';
@@ -359,12 +359,9 @@ export class Bucket implements IBucket {
   public async listBuckets(configParam: GetUserBucketsRequest) {
     try {
       const { address, duration = 30000, endpoint } = configParam;
-      if (!isValidAddress(address)) {
-        throw new Error('Error address');
-      }
-      if (!verifyUrl(endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
+      verifyAddress(address);
+      verifyUrl(endpoint);
+
       const { url } = getUserBucketMetaInfo(endpoint);
 
       const headers = new Headers({
@@ -654,9 +651,7 @@ export class Bucket implements IBucket {
       if (!endpoint) {
         endpoint = await this.sp.getSPUrlByBucket(bucketName);
       }
-      if (!verifyUrl(endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
+      verifyUrl(endpoint);
 
       const { url, optionsWithOutHeaders, reqMeta } = getListBucketReadRecordMetaInfo(
         endpoint,
