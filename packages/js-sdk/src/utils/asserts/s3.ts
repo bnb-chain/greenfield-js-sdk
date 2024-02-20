@@ -4,7 +4,7 @@ const dotdotComponent = '..';
 const dotComponent = '.';
 const slashSeparator = '/';
 
-const isValidBucketName = (bucketName?: string) => {
+const verifyBucketName = (bucketName?: string) => {
   if (!bucketName) {
     throw new Error('Bucket name is empty, please check.');
   }
@@ -33,7 +33,6 @@ const isValidBucketName = (bucketName?: string) => {
       'Bucket name %must start and end with a lowercase letter or number, please check.',
     );
   }
-  return true;
 };
 
 const hasBadPathComponent = (path: string): boolean => {
@@ -57,7 +56,7 @@ const isUTF8 = (str: string): boolean => {
   }
 };
 
-const isValidObjectName = (objectName?: string) => {
+const verifyObjectName = (objectName?: string) => {
   if (!objectName) {
     throw new Error('Object name is empty, please check.');
   }
@@ -73,8 +72,6 @@ const isValidObjectName = (objectName?: string) => {
   if (objectName.includes(`//`)) {
     throw new Error(`Object name that contains a "//" is not supported`);
   }
-
-  return true;
 };
 
 const isValidAddress = (address?: string) => {
@@ -87,7 +84,7 @@ const isValidAddress = (address?: string) => {
   return true;
 };
 
-const isValidUrl = (url?: string) => {
+const verifyUrl = (url?: string) => {
   if (!url || url.length === 0) return false;
   const pattern = new RegExp(
     '^(https?:\\/\\/)?' + // 协议
@@ -99,7 +96,8 @@ const isValidUrl = (url?: string) => {
       '(\\#[-a-zA-Z\\d_]*)?$',
     'i',
   ); // 锚点
-  return pattern.test(url);
+
+  if (!pattern.test(url)) throw new Error('Invalid endpoint');
 };
 
 // remove specified from prefix and suffix of a string
@@ -115,21 +113,17 @@ const trimString = (originString: string, deleteString: string) => {
 };
 
 const generateUrlByBucketName = (endpoint = '', bucketName: string) => {
-  if (!isValidUrl(endpoint)) {
-    throw new Error('Invalid endpoint');
-  }
-  if (!isValidBucketName(bucketName)) {
-    throw new Error('Error bucket name');
-  }
+  verifyBucketName(bucketName);
+  verifyUrl(endpoint);
   const { protocol } = new URL(endpoint);
   return endpoint.replace(`${protocol}//`, `${protocol}//${bucketName}.`);
 };
 
 export {
-  isValidBucketName,
-  isValidObjectName,
+  verifyBucketName,
+  verifyObjectName,
   isValidAddress,
   trimString,
-  isValidUrl,
+  verifyUrl,
   generateUrlByBucketName,
 };

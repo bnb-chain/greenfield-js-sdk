@@ -1,3 +1,4 @@
+import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
   ActionType,
@@ -92,8 +93,8 @@ import type {
   ReadQuotaRequest,
   SpResponse,
 } from '../types/sp';
+import { isValidAddress, verifyBucketName, verifyUrl } from '../utils/asserts/s3';
 import { decodeObjectFromHexString } from '../utils/encoding';
-import { isValidAddress, isValidBucketName, isValidUrl } from '../utils/s3';
 import { Sp } from './sp';
 import { Storage } from './storage';
 
@@ -216,15 +217,10 @@ export class Bucket implements IBucket {
     } = params;
 
     try {
-      if (!spInfo.primarySpAddress) {
-        throw new Error('Primary sp address is missing');
-      }
-      if (!isValidBucketName(bucketName)) {
-        throw new Error('Error bucket name');
-      }
-      if (!creator) {
-        throw new Error('Empty creator address');
-      }
+      assertAuthType(authType);
+      assertStringRequire(spInfo.primarySpAddress, 'Primary sp address is missing');
+      assertStringRequire(creator, 'Empty creator address');
+      verifyBucketName(bucketName);
 
       const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
 
@@ -288,6 +284,7 @@ export class Bucket implements IBucket {
   }
 
   public async createBucket(params: CreateBucketApprovalRequest, authType: AuthType) {
+    assertAuthType(authType);
     const { body } = await this.getCreateBucketApproval(params, authType);
 
     if (!body) {
@@ -365,7 +362,7 @@ export class Bucket implements IBucket {
       if (!isValidAddress(address)) {
         throw new Error('Error address');
       }
-      if (!isValidUrl(endpoint)) {
+      if (!verifyUrl(endpoint)) {
         throw new Error('Invalid endpoint');
       }
       const { url } = getUserBucketMetaInfo(endpoint);
@@ -417,9 +414,10 @@ export class Bucket implements IBucket {
   ): Promise<SpResponse<IQuotaProps>> {
     try {
       const { bucketName, duration = 30000 } = params;
-      if (!isValidBucketName(bucketName)) {
-        throw new Error('Error bucket name');
-      }
+
+      verifyBucketName(bucketName);
+      assertAuthType(authType);
+
       let endpoint = params.endpoint;
       if (!endpoint) {
         endpoint = await this.sp.getSPUrlByBucket(bucketName);
@@ -528,6 +526,7 @@ export class Bucket implements IBucket {
   }
 
   public async getMigrateBucketApproval(params: MigrateBucketApprovalRequest, authType: AuthType) {
+    assertAuthType(authType);
     const { bucketName, operator, dstPrimarySpId } = params;
 
     try {
@@ -579,8 +578,9 @@ export class Bucket implements IBucket {
   }
 
   public async migrateBucket(params: MigrateBucketApprovalRequest, authType: AuthType) {
-    const { signedMsg } = await this.getMigrateBucketApproval(params, authType);
+    assertAuthType(authType);
 
+    const { signedMsg } = await this.getMigrateBucketApproval(params, authType);
     if (!signedMsg) {
       throw new Error('Get migrate bucket approval error');
     }
@@ -621,9 +621,7 @@ export class Bucket implements IBucket {
 
   public async getBucketMeta(params: GetBucketMetaRequest) {
     const { bucketName } = params;
-    if (!isValidBucketName(bucketName)) {
-      throw new Error('Error bucket name');
-    }
+    verifyBucketName(bucketName);
 
     let endpoint = params.endpoint;
     if (!endpoint) {
@@ -649,12 +647,14 @@ export class Bucket implements IBucket {
 
   public async listBucketReadRecords(params: ListBucketReadRecordRequest, authType: AuthType) {
     try {
+      assertAuthType(authType);
+
       const { bucketName } = params;
       let endpoint = params.endpoint;
       if (!endpoint) {
         endpoint = await this.sp.getSPUrlByBucket(bucketName);
       }
-      if (!isValidUrl(endpoint)) {
+      if (!verifyUrl(endpoint)) {
         throw new Error('Invalid endpoint');
       }
 
