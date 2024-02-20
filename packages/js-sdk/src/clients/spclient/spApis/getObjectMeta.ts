@@ -1,6 +1,6 @@
 import { convertStrToBool, formatObjectInfo } from '@/types/sp/Common';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '@/types/sp/GetObjectMeta';
-import { generateUrlByBucketName } from '@/utils/s3';
+import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { XMLParser } from 'fast-xml-parser';
 import { encodePath, getSortQueryParams } from '../auth';
 import type { SPMetaInfo } from './metaInfos';

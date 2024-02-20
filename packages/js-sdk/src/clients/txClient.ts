@@ -21,6 +21,7 @@ import { arrayify, hexlify } from '@ethersproject/bytes';
 import { signTypedData, SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { container, inject, injectable } from 'tsyringe';
 import {
+  assertPrivateKey,
   BroadcastOptions,
   CustomTx,
   ISimulateGasFee,
@@ -228,6 +229,8 @@ export class TxClient implements ITxClient {
     eip712: ReturnType<typeof createEIP712>,
     privateKey: SignOptions['privateKey'],
   ) {
+    assertPrivateKey(privateKey);
+
     const pubKey = getPubKeyByPriKey(privateKey);
     const signature = signTypedData({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
