@@ -4,6 +4,7 @@ import {
   GRNToString,
   MsgCreateObjectTypeUrl,
   newBucketGRN,
+  newObjectGRN,
   PermissionTypes,
   toTimestamp,
 } from '@bnb-chain/greenfield-js-sdk';
@@ -146,13 +147,28 @@ export const CreateObj = () => {
             },
           );
 
-          const simulateInfo = await createObjectTx.simulate({
+          const setTagTx = await client.storage.setTag({
+            operator: granteeAddr,
+            resource: GRNToString(newObjectGRN(bucketName, objectName)),
+            tags: {
+              tags: [
+                {
+                  key: 'x',
+                  value: 'xx',
+                },
+              ],
+            },
+          });
+
+          const multiTx = await client.txClient.multiTx([createObjectTx, setTagTx]);
+
+          const simulateInfo = await multiTx.simulate({
             denom: 'BNB',
           });
 
           console.log('simulateInfo', simulateInfo);
 
-          const res = await createObjectTx.broadcast({
+          const res = await multiTx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',
