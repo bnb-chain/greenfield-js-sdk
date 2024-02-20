@@ -74,14 +74,9 @@ const verifyObjectName = (objectName?: string) => {
   }
 };
 
-const isValidAddress = (address?: string) => {
-  if (!address) {
-    throw new Error('Address is empty, please check.');
-  }
-  if (address.length > 1024) {
-    throw new Error('Address is limited to 1024 at most, please check.');
-  }
-  return true;
+const verifyAddress = (address?: string) => {
+  if (!address) throw new Error('Address is empty, please check.');
+  if (address.length > 1024) throw new Error('Address is limited to 1024 at most, please check.');
 };
 
 const verifyUrl = (url?: string) => {
@@ -93,9 +88,9 @@ const verifyUrl = (url?: string) => {
       '(\\:\\d{1,5})?' + // 端口号
       '(\\/[-a-zA-Z\\d%_.~+]*)*' + // 路径
       '(\\?[;&a-zA-Z\\d%_.~+=-]*)?' + // 查询字符串
-      '(\\#[-a-zA-Z\\d_]*)?$',
+      '(\\#[-a-zA-Z\\d_]*)?$', // 锚点
     'i',
-  ); // 锚点
+  );
 
   if (!pattern.test(url)) throw new Error('Invalid endpoint');
 };
@@ -122,7 +117,7 @@ const generateUrlByBucketName = (endpoint = '', bucketName: string) => {
 export {
   verifyBucketName,
   verifyObjectName,
-  isValidAddress,
+  verifyAddress,
   trimString,
   verifyUrl,
   generateUrlByBucketName,
