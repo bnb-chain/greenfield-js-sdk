@@ -1,20 +1,27 @@
 import { hexlify, arrayify } from '@ethersproject/bytes';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { TGetCurrentSeedStringParams } from '../../types/storage';
-import { getEddsaCompressedPublicKey, eddsaSign } from '@bnb-chain/greenfield-zk-crypto';
 
 const getCurrentAccountPublicKey = async (seedString: string) => {
+  // TODO: this way will be deprecated
   if ((window as any).getEddsaCompressedPublicKey) {
     return (window as any).getEddsaCompressedPublicKey(seedString);
   }
-  return await getEddsaCompressedPublicKey(seedString);
+
+  // NEW METHOD: lazy load @bnb-chain/greenfield-zk-crypto
+  const { zkGetEddsaCompressedPublicKey } = await import('./zkWrapper');
+  return await zkGetEddsaCompressedPublicKey(seedString);
 };
 
 const signSignatureByEddsa = async (seedString: string, message: string) => {
+  // TODO: this way will be deprecated
   if ((window as any).eddsaSign) {
     return (window as any).eddsaSign(seedString, message);
   }
-  return await eddsaSign(seedString, message);
+
+  // NEW METHOD: lazy load @bnb-chain/greenfield-zk-crypto
+  const { zkEddsaSign } = await import('./zkWrapper');
+  return await zkEddsaSign(seedString, message);
 };
 
 const signMessagePersonalAPI = async (
