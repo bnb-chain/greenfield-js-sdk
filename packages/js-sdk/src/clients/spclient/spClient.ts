@@ -8,6 +8,7 @@ import {
 import { parseError } from '@/clients/spclient/spApis/parseError';
 import { SP_NOT_AVAILABLE_ERROR_CODE, SP_NOT_AVAILABLE_ERROR_MSG } from '@/constants/http';
 import { AuthType, ReqMeta } from '@/types/auth';
+import { fetchWithTimeout } from '@/utils/http';
 import { injectable } from 'tsyringe';
 import { getGetObjectMetaInfo } from './spApis/getObject';
 import { getPutObjectMetaInfo } from './spApis/putObject';
@@ -55,7 +56,7 @@ export class SpClient implements ISpClient {
     try {
       const controller = new AbortController();
       const _id = setTimeout(() => controller.abort(), timeout);
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         ...options,
         signal: controller.signal,
       });
