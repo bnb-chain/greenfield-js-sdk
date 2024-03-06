@@ -21,6 +21,7 @@ export default async () => {
       output: {
         dir: './dist/esm',
         format: 'esm',
+        sourcemap: true,
       },
       external: resolveExternal(),
       context: 'window',
@@ -55,6 +56,7 @@ export default async () => {
       output: {
         dir: './dist/cjs',
         format: 'cjs',
+        sourcemap: true,
       },
       external: resolveExternal(),
       plugins: [

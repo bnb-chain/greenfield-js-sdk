@@ -1,32 +1,4 @@
-import { encodePath, getMsgToSign, getSortQuery, secpSign } from '../clients/spclient/auth';
-import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
-import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
-import {
-  getObjectMetaInfo,
-  parseGetObjectMetaResponse,
-} from '../clients/spclient/spApis/getObjectMeta';
-import {
-  getListObjectPoliciesMetaInfo,
-  parseGetListObjectPoliciesResponse,
-} from '../clients/spclient/spApis/listObjectPolicies';
-import { parseListObjectsByBucketNameResponse } from '../clients/spclient/spApis/listObjectsByBucket';
-import {
-  getListObjectsByIDsMetaInfo,
-  parseListObjectsByIdsResponse,
-} from '../clients/spclient/spApis/listObjectsByIds';
-import { parseError } from '../clients/spclient/spApis/parseError';
-import { getPutObjectMetaInfo } from '../clients/spclient/spApis/putObject';
-import { TxClient } from '../clients/txClient';
-import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
-import { MsgCancelCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCancelCreateObject';
-import { MsgCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateObject';
-import { MsgDeleteObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteObject';
-import { MsgUpdateObjectInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateObjectInfo';
-import { signSignatureByEddsa } from '../offchainauth';
-import { GetObjectRequest } from '../types/sp/GetObject';
-import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
-import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
-import { PutObjectRequest } from '../types/sp/PutObject';
+import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import {
   ActionType,
   Principal,
@@ -66,7 +38,32 @@ import {
   newObjectGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
+import { encodePath, getMsgToSign, getSortQuery, secpSign } from '../clients/spclient/auth';
+import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
+import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
+import {
+  getObjectMetaInfo,
+  parseGetObjectMetaResponse,
+} from '../clients/spclient/spApis/getObjectMeta';
+import {
+  getListObjectPoliciesMetaInfo,
+  parseGetListObjectPoliciesResponse,
+} from '../clients/spclient/spApis/listObjectPolicies';
+import { parseListObjectsByBucketNameResponse } from '../clients/spclient/spApis/listObjectsByBucket';
+import {
+  getListObjectsByIDsMetaInfo,
+  parseListObjectsByIdsResponse,
+} from '../clients/spclient/spApis/listObjectsByIds';
+import { parseError } from '../clients/spclient/spApis/parseError';
+import { getPutObjectMetaInfo } from '../clients/spclient/spApis/putObject';
 import { SpClient } from '../clients/spclient/spClient';
+import { TxClient } from '../clients/txClient';
+import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
+import { MsgCancelCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCancelCreateObject';
+import { MsgCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateObject';
+import { MsgDeleteObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteObject';
+import { MsgUpdateObjectInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateObjectInfo';
+import { signSignatureByEddsa } from '../offchainauth';
 import {
   AuthType,
   CreateObjectApprovalRequest,
@@ -81,12 +78,16 @@ import {
   SpResponse,
   TxResponse,
 } from '../types';
+import { GetObjectRequest } from '../types/sp/GetObject';
+import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
+import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
+import { PutObjectRequest } from '../types/sp/PutObject';
 import {
   generateUrlByBucketName,
-  isValidBucketName,
-  isValidObjectName,
-  isValidUrl,
-} from '../utils/s3';
+  verifyBucketName,
+  verifyObjectName,
+  verifyUrl,
+} from '../utils/asserts/s3';
 import { Sp } from './sp';
 import { Storage } from './storage';
 
@@ -201,15 +202,10 @@ export class Objects implements IObject {
     } = params;
 
     try {
-      if (!isValidBucketName(bucketName)) {
-        throw new Error('Error bucket name');
-      }
-      if (!isValidObjectName(objectName)) {
-        throw new Error('Error object name');
-      }
-      if (!creator) {
-        throw new Error('empty creator address');
-      }
+      assertAuthType(authType);
+      verifyBucketName(bucketName);
+      verifyObjectName(objectName);
+      assertStringRequire(creator, 'empty creator address');
 
       let endpoint = params.endpoint;
       if (!endpoint) {
@@ -288,6 +284,8 @@ export class Objects implements IObject {
   }
 
   public async createObject(getApprovalParams: CreateObjectApprovalRequest, authType: AuthType) {
+    assertAuthType(authType);
+
     const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams, authType);
     if (!signedMsg) {
       throw new Error('Get create object approval error');
@@ -316,16 +314,11 @@ export class Objects implements IObject {
     params: PutObjectRequest,
     authType: AuthType,
   ): Promise<SpResponse<null>> {
+    assertAuthType(authType);
     const { bucketName, objectName, txnHash, body, duration = 30000 } = params;
-    if (!isValidBucketName(bucketName)) {
-      throw new Error('Error bucket name');
-    }
-    if (!isValidObjectName(objectName)) {
-      throw new Error('Error object name');
-    }
-    if (!txnHash) {
-      throw new Error('Transaction hash is empty, please check.');
-    }
+    verifyBucketName(bucketName);
+    verifyObjectName(objectName);
+    assertStringRequire(txnHash, 'Transaction hash is empty, please check.');
 
     let endpoint = params.endpoint;
     if (!endpoint) {
@@ -415,13 +408,11 @@ export class Objects implements IObject {
 
   public async getObject(params: GetObjectRequest, authType: AuthType) {
     try {
+      assertAuthType(authType);
       const { bucketName, objectName, duration = 30000 } = params;
-      if (!isValidBucketName(bucketName)) {
-        throw new Error('Error bucket name');
-      }
-      if (!isValidObjectName(objectName)) {
-        throw new Error('Error object name');
-      }
+      verifyBucketName(bucketName);
+      verifyObjectName(objectName);
+
       let endpoint = params.endpoint;
       if (!endpoint) {
         endpoint = await this.sp.getSPUrlByBucket(bucketName);
@@ -471,13 +462,10 @@ export class Objects implements IObject {
   }
 
   public async getObjectPreviewUrl(params: GetPrivewObject, authType: AuthType) {
+    assertAuthType(authType);
     const { bucketName, objectName, queryMap } = params;
-    if (!isValidBucketName(bucketName)) {
-      throw new Error('Error bucket name');
-    }
-    if (!isValidObjectName(objectName)) {
-      throw new Error('Error object name');
-    }
+    verifyBucketName(bucketName);
+    verifyObjectName(objectName);
     let endpoint = params.endpoint;
     if (!endpoint) {
       endpoint = await this.sp.getSPUrlByBucket(bucketName);
@@ -539,12 +527,10 @@ export class Objects implements IObject {
   public async listObjects(configParam: ListObjectsByBucketNameRequest) {
     try {
       const { bucketName, endpoint, duration = 30000, query = new URLSearchParams() } = configParam;
-      if (!isValidBucketName(bucketName)) {
-        throw new Error('Error bucket name');
-      }
-      if (!isValidUrl(endpoint)) {
-        throw new Error('Invalid endpoint');
-      }
+
+      verifyBucketName(bucketName);
+      verifyUrl(endpoint);
+
       const url = `${generateUrlByBucketName(endpoint, bucketName)}?${query?.toString()}`;
       const headers = new Headers();
 
@@ -592,6 +578,7 @@ export class Objects implements IObject {
     >,
     authType: AuthType,
   ) {
+    assertAuthType(authType);
     if (!getApprovalParams.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
@@ -691,12 +678,8 @@ export class Objects implements IObject {
 
   public async getObjectMeta(params: GetObjectMetaRequest) {
     const { bucketName, objectName, endpoint } = params;
-    if (!isValidBucketName(bucketName)) {
-      throw new Error('Error bucket name');
-    }
-    if (!isValidObjectName(objectName)) {
-      throw new Error('Error object name');
-    }
+    verifyBucketName(bucketName);
+    verifyObjectName(objectName);
 
     const { url } = getObjectMetaInfo(endpoint, params);
 

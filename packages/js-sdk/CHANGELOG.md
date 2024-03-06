@@ -1,5 +1,30 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.2.2
+
+### Patch Changes
+
+- [#487](https://github.com/bnb-chain/greenfield-js-sdk/pull/487)
+  [`389119e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/389119ea489441d90b0e1d1f8a3946bc97ca6228)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Support source map
+
+- [#487](https://github.com/bnb-chain/greenfield-js-sdk/pull/487)
+  [`389119e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/389119ea489441d90b0e1d1f8a3946bc97ca6228)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Verify Address
+
+## 1.2.1
+
+### Patch Changes
+
+- [#484](https://github.com/bnb-chain/greenfield-js-sdk/pull/484)
+  [`a467c26`](https://github.com/bnb-chain/greenfield-js-sdk/commit/a467c26f6991a2f482c969235252f548c90c9827)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Using Cross Fetch replace native fetch (occurs
+  on Nodejs 18-)
+
+- [#485](https://github.com/bnb-chain/greenfield-js-sdk/pull/485)
+  [`ec70921`](https://github.com/bnb-chain/greenfield-js-sdk/commit/ec70921011c5b08ea97fb7bd8712de6aa00431a0)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Verify and Assert params
+
 ## 1.2.0
 
 ### Minor Changes

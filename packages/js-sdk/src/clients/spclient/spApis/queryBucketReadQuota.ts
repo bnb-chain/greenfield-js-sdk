@@ -1,7 +1,7 @@
 import { EMPTY_STRING_SHA256, METHOD_GET } from '@/constants';
 import { ReqMeta, ReadQuotaRequest } from '@/types';
 import { ReadQuotaResponse } from '@/types/sp';
-import { generateUrlByBucketName } from '@/utils/s3';
+import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { XMLParser } from 'fast-xml-parser';
 import { getSortQuery } from '../auth';
 

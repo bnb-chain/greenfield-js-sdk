@@ -1,3 +1,4 @@
+import { assertAuthType } from '@/utils/asserts/params';
 import {
   QueryAutoSettleRecordsRequest,
   QueryAutoSettleRecordsResponse,
@@ -226,6 +227,7 @@ export class Payment implements IPayment {
     config?: SpConfig,
   ) {
     try {
+      assertAuthType(authType);
       let endpoint = '';
       if (config && config.endpoint) {
         endpoint = config.endpoint;
