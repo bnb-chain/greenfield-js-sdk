@@ -17,6 +17,9 @@ import {
   ISp,
 } from '../types/storage';
 
+import { ed25519 } from '@noble/curves/ed25519';
+import { toUtf8Bytes } from '@ethersproject/strings';
+
 export interface IOffChainAuth {
   /**
    * generate off-chain auth key pair and upload the public key to meta service, return the seedString for signing message when user need to get approval from sp.
@@ -25,6 +28,11 @@ export interface IOffChainAuth {
     params: IGenOffChainAuthKeyPairAndUpload,
     provider: any,
   ): Promise<SpResponse<IReturnOffChainAuthKeyPairAndUpload>>;
+
+  signAndVerify(messageHash: Uint8Array): {
+    signature: Uint8Array;
+    verified: boolean;
+  };
 }
 
 @injectable()
@@ -34,23 +42,8 @@ export class OffChainAuth implements IOffChainAuth {
     provider: any,
   ) {
     try {
-      // 1. first sign, generate seed string and public key
-      const spsNonceRaw = await fetchNonces({ sps, address, domain });
-      const fetchSpsNonceFailed = spsNonceRaw
-        .filter((item: ISp) => item.nonce === null)
-        .map((item: ISp) => item.address);
-      if (fetchSpsNonceFailed.length === spsNonceRaw.length) {
-        throw new Error(`No SP service is available. Please try again later.`);
-      }
-      const spsWithNonce = spsNonceRaw.filter((item: ISp) => item.nonce !== null);
-      // 2. generate signature key pair
-      const seedMsg = genLocalSignMsg(spsWithNonce, domain);
-      // Uint8Array
-      const seed = await getCurrentSeedString({ message: seedMsg, address, chainId, provider });
-      const seedString = hexlify(seed);
-      const pubKey = await getCurrentAccountPublicKey(seedString);
+      const { privateKey, publicKey } = this.generateKeys();
 
-      // 3. second sign for upload public key to server
       const curUtcZeroTimestamp = getUtcZeroTimestamp();
       const expirationTime = curUtcZeroTimestamp + expirationMs;
       const issuedDate = convertTimeStampToDate(curUtcZeroTimestamp);
@@ -58,11 +51,10 @@ export class OffChainAuth implements IOffChainAuth {
       const signMsg = genSecondSignMsg({
         domain,
         address,
-        pubKey,
+        pubKey: hexlify(publicKey).slice(2),
         chainId,
         issuedDate,
         expireDate,
-        sps: spsWithNonce,
       });
       const signRes = await personalSign({ message: signMsg, address, provider });
       const jsonSignMsg = JSON.stringify(signMsg).replace(/\"/g, '');
@@ -70,16 +62,17 @@ export class OffChainAuth implements IOffChainAuth {
       // 4. upload signature and pubKey to server
       const res = await updateSpsPubKey({
         address,
-        sps: spsWithNonce,
+        sps,
         domain,
-        pubKey,
+        pubKey: hexlify(publicKey).slice(2),
         expireDate,
         authorization,
       });
+
       const uploadSpsPubkeyFailed = res
         .filter((item: any) => item.code !== 0)
         .map((item: any) => item.data.address);
-      if (uploadSpsPubkeyFailed.length === spsWithNonce.length) {
+      if (uploadSpsPubkeyFailed.length === sps.length) {
         throw new Error(`No SP service is available. Please try again later.`);
       }
       const successSps: string[] = [];
@@ -92,16 +85,43 @@ export class OffChainAuth implements IOffChainAuth {
       return {
         code: 0,
         body: {
-          seedString,
-          pubKey,
+          seedString: hexlify(privateKey).slice(2),
+          privateKey: hexlify(privateKey).slice(2),
+          pubKey: hexlify(publicKey),
           expirationTime,
           spAddresses: successSps,
-          failedSpAddresses: [...fetchSpsNonceFailed, ...uploadSpsPubkeyFailed],
+          failedSpAddresses: uploadSpsPubkeyFailed,
         },
         message: 'Sign and upload public key success',
       };
     } catch (error: any) {
       return { code: -1, message: error.message, statusCode: error?.status || NORMAL_ERROR_CODE };
     }
+  }
+
+  private generateKeys() {
+    const privateKey = ed25519.utils.randomPrivateKey();
+    const publicKey = ed25519.getPublicKey(privateKey);
+
+    return {
+      privateKey,
+      publicKey,
+    };
+  }
+
+  public signAndVerify(messageHash: Uint8Array) {
+    const { privateKey, publicKey } = this.generateKeys();
+
+    const signature = ed25519.sign(messageHash, privateKey);
+    const verified = ed25519.verify(messageHash, signature, publicKey);
+
+    return {
+      verified,
+      signature,
+    };
+  }
+
+  testS() {
+    return toUtf8Bytes('Hello, world!');
   }
 }
