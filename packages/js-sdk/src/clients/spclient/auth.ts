@@ -1,7 +1,7 @@
-import { signSignatureByEddsa } from '@/offchainauth';
 import { AuthType, ReqMeta } from '@/types/auth';
 import { hexlify, joinSignature } from '@ethersproject/bytes';
 import { SigningKey } from '@ethersproject/signing-key';
+import { ed25519 } from '@noble/curves/ed25519';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
 import { utf8ToBytes } from 'ethereum-cryptography/utils.js';
@@ -41,11 +41,7 @@ const getSignedHeaders = (reqHeaders: Headers) => {
   return sortedHeaders.join(';');
 };
 
-export const getAuthorization = async (
-  reqMeta: Partial<ReqMeta>,
-  reqHeaders: Headers,
-  authType: AuthType,
-) => {
+export const getCanonicalRequest = (reqMeta: Partial<ReqMeta>, reqHeaders: Headers) => {
   const canonicalHeaders = getCanonicalHeaders(reqMeta, reqHeaders);
   const signedHeaders = getSignedHeaders(reqHeaders);
   const canonicalRequestArr = [
@@ -57,6 +53,11 @@ export const getAuthorization = async (
   ];
 
   const canonicalRequest = canonicalRequestArr.join('\n');
+
+  return canonicalRequest;
+};
+
+export const getAuthorization = (canonicalRequest: string, authType: AuthType) => {
   // console.log('canonicalRequest', canonicalRequest);
 
   const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
@@ -65,8 +66,8 @@ export const getAuthorization = async (
     const sig = secpSign(unsignedMsg, authType.privateKey);
     authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
   } else {
-    const sig = await signSignatureByEddsa(authType.seed, hexlify(unsignedMsg).slice(2));
-    authorization = `GNFD1-EDDSA,Signature=${sig}`;
+    const sig = hexlify(ed25519.sign(hexlify(unsignedMsg).slice(2), authType.seed.slice(2)));
+    authorization = `GNFD2-EDDSA,Signature=${sig.slice(2)}`;
   }
 
   return authorization;
@@ -131,6 +132,7 @@ export const HTTPHeaderContentMD5 = 'Content-MD5';
 export const HTTPHeaderUnsignedMsg = 'X-Gnfd-Unsigned-Msg';
 export const HTTPHeaderUserAddress = 'X-Gnfd-User-Address';
 export const HTTPHeaderAppDomain = 'X-Gnfd-App-Domain';
+export const HTTPHeaderRegPubKey = 'X-Gnfd-App-Reg-Public-Key';
 
 const SUPPORTED_HEADERS = [
   HTTPHeaderContentSHA256.toLocaleLowerCase(),

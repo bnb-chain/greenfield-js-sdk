@@ -1,21 +1,6 @@
-import { hexlify, arrayify } from '@ethersproject/bytes';
+import { arrayify, hexlify } from '@ethersproject/bytes';
 import { toUtf8Bytes } from '@ethersproject/strings';
 import { TGetCurrentSeedStringParams } from '../../types/storage';
-import { getEddsaCompressedPublicKey, eddsaSign } from '@bnb-chain/greenfield-zk-crypto';
-
-const getCurrentAccountPublicKey = async (seedString: string) => {
-  if ((window as any).getEddsaCompressedPublicKey) {
-    return (window as any).getEddsaCompressedPublicKey(seedString);
-  }
-  return await getEddsaCompressedPublicKey(seedString);
-};
-
-const signSignatureByEddsa = async (seedString: string, message: string) => {
-  if ((window as any).eddsaSign) {
-    return (window as any).eddsaSign(seedString, message);
-  }
-  return await eddsaSign(seedString, message);
-};
 
 const signMessagePersonalAPI = async (
   provider: any,
@@ -59,4 +44,4 @@ const getCurrentSeedString = async ({
   return seeds[seedKey].seed;
 };
 
-export { getCurrentAccountPublicKey, signSignatureByEddsa, getCurrentSeedString };
+export { getCurrentSeedString };

@@ -65,6 +65,10 @@ export const Deposit = () => {
           });
 
           console.log(txHash);
+
+          if (txHash) {
+            alert('deposit success');
+          }
         }}
       >
         deposit

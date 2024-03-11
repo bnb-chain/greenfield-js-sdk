@@ -1,7 +1,6 @@
 import { client, selectSp } from '@/client';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
-import { GRNToString, newBucketGRN, newGroupGRN } from '@bnb-chain/greenfield-js-sdk';
-import { add } from 'lodash';
+import { GRNToString, newBucketGRN } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -34,6 +33,7 @@ export const CreateBucket = () => {
 
           const provider = await connector?.getProvider();
           const offChainData = await getOffchainAuthKeys(address, provider);
+          // console.log('offChainData', offChainData);
           if (!offChainData) {
             alert('No offchain, please create offchain pairs first');
             return;

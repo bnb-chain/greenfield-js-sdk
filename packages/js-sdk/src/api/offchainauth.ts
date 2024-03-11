@@ -1,24 +1,13 @@
-import { NORMAL_ERROR_CODE } from '../constants/http';
-import {
-  fetchNonces,
-  genLocalSignMsg,
-  genSecondSignMsg,
-  getCurrentAccountPublicKey,
-  getCurrentSeedString,
-  personalSign,
-  updateSpsPubKey,
-} from '../offchainauth';
 import { hexlify } from '@ethersproject/bytes';
+import { ed25519 } from '@noble/curves/ed25519';
 import { injectable } from 'tsyringe';
 import { convertTimeStampToDate, getUtcZeroTimestamp, SpResponse } from '..';
+import { NORMAL_ERROR_CODE } from '../constants/http';
+import { genSecondSignMsg, personalSign, updateSpsPubKey } from '../offchainauth';
 import {
   IGenOffChainAuthKeyPairAndUpload,
   IReturnOffChainAuthKeyPairAndUpload,
-  ISp,
 } from '../types/storage';
-
-import { ed25519 } from '@noble/curves/ed25519';
-import { toUtf8Bytes } from '@ethersproject/strings';
 
 export interface IOffChainAuth {
   /**
@@ -28,11 +17,6 @@ export interface IOffChainAuth {
     params: IGenOffChainAuthKeyPairAndUpload,
     provider: any,
   ): Promise<SpResponse<IReturnOffChainAuthKeyPairAndUpload>>;
-
-  signAndVerify(messageHash: Uint8Array): {
-    signature: Uint8Array;
-    verified: boolean;
-  };
 }
 
 @injectable()
@@ -85,9 +69,11 @@ export class OffChainAuth implements IOffChainAuth {
       return {
         code: 0,
         body: {
-          seedString: hexlify(privateKey).slice(2),
-          privateKey: hexlify(privateKey).slice(2),
-          pubKey: hexlify(publicKey),
+          seedString: hexlify(privateKey),
+          keypars: {
+            privateKey: hexlify(privateKey),
+            publicKey: hexlify(publicKey),
+          },
           expirationTime,
           spAddresses: successSps,
           failedSpAddresses: uploadSpsPubkeyFailed,
@@ -107,21 +93,5 @@ export class OffChainAuth implements IOffChainAuth {
       privateKey,
       publicKey,
     };
-  }
-
-  public signAndVerify(messageHash: Uint8Array) {
-    const { privateKey, publicKey } = this.generateKeys();
-
-    const signature = ed25519.sign(messageHash, privateKey);
-    const verified = ed25519.verify(messageHash, signature, publicKey);
-
-    return {
-      verified,
-      signature,
-    };
-  }
-
-  testS() {
-    return toUtf8Bytes('Hello, world!');
   }
 }

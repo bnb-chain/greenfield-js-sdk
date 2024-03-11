@@ -1,7 +1,9 @@
 import {
   getAuthorization,
+  getCanonicalRequest,
   HTTPHeaderAppDomain,
   HTTPHeaderAuthorization,
+  HTTPHeaderRegPubKey,
   HTTPHeaderUserAddress,
   newRequestHeadersByMeta,
 } from '@/clients/spclient/auth';
@@ -12,6 +14,8 @@ import { fetchWithTimeout } from '@/utils/http';
 import { injectable } from 'tsyringe';
 import { getGetObjectMetaInfo } from './spApis/getObject';
 import { getPutObjectMetaInfo } from './spApis/putObject';
+import { ed25519 } from '@noble/curves/ed25519';
+import { hexlify } from '@ethersproject/bytes';
 
 export interface ISpClient {
   callApi(
@@ -92,12 +96,16 @@ export class SpClient implements ISpClient {
     const metaHeaders: Headers = newRequestHeadersByMeta(reqMeta);
 
     if (authType.type === 'EDDSA') {
-      const { domain, address } = authType;
+      const { domain, address, seed } = authType;
+      const pubKey = hexlify(ed25519.getPublicKey(seed.slice(2)));
+
       metaHeaders.set(HTTPHeaderUserAddress, address);
       metaHeaders.set(HTTPHeaderAppDomain, domain);
+      metaHeaders.set(HTTPHeaderRegPubKey, pubKey.slice(2));
     }
 
-    const auth = await getAuthorization(reqMeta, metaHeaders, authType);
+    const canonicalRequest = getCanonicalRequest(reqMeta, metaHeaders);
+    const auth = getAuthorization(canonicalRequest, authType);
     metaHeaders.set(HTTPHeaderAuthorization, auth);
 
     return metaHeaders;

@@ -60,7 +60,6 @@
   },
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.30",
-    "@bnb-chain/greenfield-zk-crypto": "workspace:*",
     "@cosmjs/proto-signing": "^0.32.0",
     "@cosmjs/stargate": "^0.32.0",
     "@cosmjs/tendermint-rpc": "^0.32.0",

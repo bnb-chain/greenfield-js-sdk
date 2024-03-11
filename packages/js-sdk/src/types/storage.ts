@@ -20,9 +20,14 @@ export interface IGenOffChainAuthKeyPairAndUpload extends IBaseUser {
 }
 
 export interface IReturnOffChainAuthKeyPairAndUpload {
+  /**
+   * compatibility: private key
+   */
   seedString: string;
-  privateKey: string;
-  pubKey: string;
+  keypars: {
+    privateKey: string;
+    publicKey: string;
+  };
   expirationTime: number;
   spAddresses: string[];
   failedSpAddresses: string[];

@@ -25,9 +25,8 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
-import { hexlify } from '@ethersproject/bytes';
 import { Headers } from 'cross-fetch';
-import { bytesToUtf8, hexToBytes, utf8ToBytes } from 'ethereum-cryptography/utils';
+import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, injectable } from 'tsyringe';
 import {
   GRNToString,
@@ -38,7 +37,7 @@ import {
   newObjectGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
-import { encodePath, getMsgToSign, getSortQuery, secpSign } from '../clients/spclient/auth';
+import { encodePath, getAuthorization, getSortQuery } from '../clients/spclient/auth';
 import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
 import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
 import {
@@ -63,7 +62,6 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '../messages/greenfield/stora
 import { MsgCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateObjectInfo';
-import { signSignatureByEddsa } from '../offchainauth';
 import {
   AuthType,
   CreateObjectApprovalRequest,
@@ -484,17 +482,9 @@ export class Objects implements IObject {
       '\n',
     ].join('\n');
 
-    const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
-    let authorization = '';
-    if (authType.type === 'ECDSA') {
-      const sig = secpSign(unsignedMsg, authType.privateKey);
-      authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
-    } else {
-      const sig = await signSignatureByEddsa(authType.seed, hexlify(unsignedMsg).slice(2));
-      authorization = `GNFD1-EDDSA,Signature=${sig}`;
-    }
+    const auth = getAuthorization(canonicalRequest, authType);
 
-    return `${url}?Authorization=${encodeURIComponent(authorization)}&${queryRaw}`;
+    return `${url}?Authorization=${encodeURIComponent(auth)}&${queryRaw}`;
   }
 
   public async downloadFile(configParam: GetObjectRequest, authType: AuthType): Promise<void> {
