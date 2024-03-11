@@ -20,8 +20,14 @@ export interface IGenOffChainAuthKeyPairAndUpload extends IBaseUser {
 }
 
 export interface IReturnOffChainAuthKeyPairAndUpload {
+  /**
+   * compatibility: private key
+   */
   seedString: string;
-  pubKey: string;
+  keypars: {
+    privateKey: string;
+    publicKey: string;
+  };
   expirationTime: number;
   spAddresses: string[];
   failedSpAddresses: string[];
@@ -40,7 +46,7 @@ export interface TGenSecondSignMsgParams {
   chainId: number;
   issuedDate: string;
   expireDate: string;
-  sps: ISp[];
+  // sps: ISp[];
 }
 
 export interface IUpdateOneSpPubKeyBaseParams {

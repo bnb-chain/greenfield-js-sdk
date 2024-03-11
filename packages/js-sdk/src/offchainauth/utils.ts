@@ -88,27 +88,16 @@ export const genSecondSignMsg = ({
   chainId,
   issuedDate,
   expireDate,
-  sps,
 }: TGenSecondSignMsgParams): string => {
-  let resourceList = '';
-  const spsMsg: string[] = [];
-  sps.forEach((sp: ISp) => {
-    const spMsg = `- SP ${sp.address} (name: ${sp.name || ''}) with nonce: ${sp.nonce}`;
-    spsMsg.push(spMsg);
-  });
-  resourceList = spsMsg.join('\n');
   // NOTICE: DO NOT CHANGE THE TEMPLATE FORMAT
-  const unSignedContentTemplate = `${domain} wants you to sign in with your BNB Greenfield account:${address}
+  return `${domain} wants you to sign in with your BNB Greenfield account:${address}
 Register your identity public key ${pubKey}
 URI: ${domain}
 Version: 1
 Chain ID: ${chainId}
 Issued At: ${issuedDate}
 Expiration Time: ${expireDate}
-Resources:
-${resourceList}`;
-
-  return unSignedContentTemplate;
+`;
 };
 
 export const personalSign = async ({ message, address, provider }: IPersonalSignParams) => {

@@ -60,7 +60,6 @@
   },
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.30",
-    "@bnb-chain/greenfield-zk-crypto": "workspace:*",
     "@cosmjs/proto-signing": "^0.32.0",
     "@cosmjs/stargate": "^0.32.0",
     "@cosmjs/tendermint-rpc": "^0.32.0",
@@ -70,7 +69,8 @@
     "@ethersproject/strings": "5.7.0",
     "@ethersproject/units": "^5.7.0",
     "@metamask/eth-sig-util": "^5.0.2",
-    "cross-fetch": "^3.1.6",
+    "@noble/curves": "^1.3.0",
+    "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.7",
     "ethereum-cryptography": "^2.0.0",
     "fast-xml-parser": "^4.2.7",
