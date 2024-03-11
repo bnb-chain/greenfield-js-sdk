@@ -1,4 +1,6 @@
-# Zk Crypto
+# Zk Crypto  (Deprecated!)
+
+> Using ed25519 since `1.3.0`
 
 NPM Wrap for [zkbnb-js-sdk](https://github.com/bnb-chain/zkbnb-js-sdk).
 
