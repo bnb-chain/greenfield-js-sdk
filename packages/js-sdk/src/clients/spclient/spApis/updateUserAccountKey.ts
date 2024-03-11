@@ -11,12 +11,10 @@ export const updateUserAccountKey = async ({
   authorization,
 }: IUpdateOneSpPubKeyParams) => {
   let result;
-  const url = `${sp.endpoint}/auth/update_key`;
-  const nonce = sp.nonce + '';
+  const url = `${sp.endpoint}/auth/update_key_v2`;
   const headers = new Headers({
     'X-Gnfd-User-Address': address,
     'X-Gnfd-App-Domain': domain,
-    'X-Gnfd-App-Reg-Nonce': nonce,
     'X-Gnfd-App-Reg-Public-Key': pubKey,
     'X-Gnfd-Expiry-Timestamp': expireDate,
     Authorization: authorization,
