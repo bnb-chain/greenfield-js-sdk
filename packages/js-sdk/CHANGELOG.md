@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.3.0-alpha.0
+
+### Minor Changes
+
+- [#489](https://github.com/bnb-chain/greenfield-js-sdk/pull/489)
+  [`d45791`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d45791aa715a5bcef2777c3f2a2213fd8124150e)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Replace zk crypto with ed25519.
+
 ## 1.2.2
 
 ### Patch Changes
