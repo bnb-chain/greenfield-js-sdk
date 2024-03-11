@@ -13,6 +13,7 @@
     "@bnb-chain/greenfield-zk-crypto": "1.0.0"
   },
   "changesets": [
+    "heavy-dolphins-obey",
     "sixty-mayflies-sin"
   ]
 }
