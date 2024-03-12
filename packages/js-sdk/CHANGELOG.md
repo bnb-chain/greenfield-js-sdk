@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.3.0-alpha.1
+
+### Patch Changes
+
+- [#496](https://github.com/bnb-chain/greenfield-js-sdk/pull/496)
+  [`007a4ba`](https://github.com/bnb-chain/greenfield-js-sdk/commit/007a4ba9b0414825279dbfb78c74ef311f34ca65)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: ed25519 support preview api
+
 ## 1.3.0-alpha.0
 
 ### Minor Changes
