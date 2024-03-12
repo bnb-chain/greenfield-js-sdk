@@ -43,7 +43,7 @@ export class OffChainAuth implements IOffChainAuth {
       const signRes = await personalSign({ message: signMsg, address, provider });
       const jsonSignMsg = JSON.stringify(signMsg).replace(/\"/g, '');
       const authorization = `GNFD1-ETH-PERSONAL_SIGN,SignedMsg=${jsonSignMsg},Signature=${signRes}`;
-      // 4. upload signature and pubKey to server
+
       const res = await updateSpsPubKey({
         address,
         sps,
