@@ -25,6 +25,8 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { hexlify } from '@ethersproject/bytes';
+import { ed25519 } from '@noble/curves/ed25519';
 import { Headers } from 'cross-fetch';
 import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, injectable } from 'tsyringe';
@@ -37,7 +39,12 @@ import {
   newObjectGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
-import { encodePath, getAuthorization, getSortQuery } from '../clients/spclient/auth';
+import {
+  encodePath,
+  getAuthorization,
+  getSortQuery,
+  HTTPHeaderRegPubKey,
+} from '../clients/spclient/auth';
 import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
 import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
 import {
@@ -461,6 +468,9 @@ export class Objects implements IObject {
 
   public async getObjectPreviewUrl(params: GetPrivewObject, authType: AuthType) {
     assertAuthType(authType);
+    if (authType.type === 'ECDSA') {
+      throw new Error('Get object preview url only support EDDSA');
+    }
     const { bucketName, objectName, queryMap } = params;
     verifyBucketName(bucketName);
     verifyObjectName(objectName);
@@ -472,7 +482,15 @@ export class Objects implements IObject {
     const path = '/' + encodePath(objectName);
     const url = generateUrlByBucketName(endpoint, bucketName) + path;
 
-    const queryRaw = getSortQuery(queryMap);
+    let pubKey = '';
+    if (authType.type === 'EDDSA') {
+      pubKey = hexlify(ed25519.getPublicKey(authType.seed.slice(2)));
+    }
+
+    const queryRaw = getSortQuery({
+      ...queryMap,
+      [HTTPHeaderRegPubKey]: pubKey.slice(2),
+    });
 
     const canonicalRequest = [
       METHOD_GET,

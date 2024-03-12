@@ -21,10 +21,13 @@ export interface IGenOffChainAuthKeyPairAndUpload extends IBaseUser {
 
 export interface IReturnOffChainAuthKeyPairAndUpload {
   /**
-   * compatibility: private key
+   * compatibility for old version: private key
    */
   seedString: string;
-  keypars: {
+  /**
+   * public key and private key without prefix `0x`
+   */
+  keypairs: {
     privateKey: string;
     publicKey: string;
   };
