@@ -70,9 +70,9 @@ export class OffChainAuth implements IOffChainAuth {
         code: 0,
         body: {
           seedString: hexlify(privateKey),
-          keypars: {
-            privateKey: hexlify(privateKey),
-            publicKey: hexlify(publicKey),
+          keypairs: {
+            privateKey: hexlify(privateKey).slice(2),
+            publicKey: hexlify(publicKey).slice(2),
           },
           expirationTime,
           spAddresses: successSps,

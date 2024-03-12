@@ -94,9 +94,10 @@ export const ObjectInfo = () => {
                 objectName,
                 queryMap: {
                   view: '1',
+                  'X-Gnfd-App-Reg-Public-Key': offChainData.keypairs.publicKey,
                   'X-Gnfd-User-Address': address,
                   'X-Gnfd-App-Domain': window.location.origin,
-                  'X-Gnfd-Expiry-Timestamp': '2023-09-03T09%3A23%3A39Z',
+                  'X-Gnfd-Expiry-Timestamp': '2024-03-12T09:39:22Z',
                 },
               },
               {
