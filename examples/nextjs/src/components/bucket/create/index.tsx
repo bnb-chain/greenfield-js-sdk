@@ -1,6 +1,5 @@
 import { client, selectSp } from '@/client';
-import { getOffchainAuthKeys } from '@/utils/offchainAuth';
-import { GRNToString, newBucketGRN } from '@bnb-chain/greenfield-js-sdk';
+import { GRNToString, Long, newBucketGRN, VisibilityType } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -31,34 +30,14 @@ export const CreateBucket = () => {
           const spInfo = await selectSp();
           console.log('spInfo', spInfo);
 
-          const provider = await connector?.getProvider();
-          const offChainData = await getOffchainAuthKeys(address, provider);
-          // console.log('offChainData', offChainData);
-          if (!offChainData) {
-            alert('No offchain, please create offchain pairs first');
-            return;
-          }
-
-          const createBucketTx = await client.bucket.createBucket(
-            {
-              bucketName: createBucketInfo.bucketName,
-              creator: address,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              chargedReadQuota: '0',
-              spInfo: {
-                primarySpAddress: spInfo.primarySpAddress,
-              },
-              paymentAddress: address,
-            },
-            {
-              // type: 'ECDSA',
-              // privateKey: ACCOUNT_PRIVATEKEY,
-              type: 'EDDSA',
-              domain: window.location.origin,
-              seed: offChainData.seedString,
-              address,
-            },
-          );
+          const createBucketTx = await client.bucket.createBucket({
+            bucketName: createBucketInfo.bucketName,
+            creator: address,
+            visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+            chargedReadQuota: Long.fromString('0'),
+            paymentAddress: address,
+            primarySpAddress: spInfo.primarySpAddress,
+          });
 
           const setTagTx = await client.storage.setTag({
             operator: address,
