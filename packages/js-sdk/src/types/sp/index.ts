@@ -1,4 +1,3 @@
-export * from './BucketApproval';
 export * from './ErrorResponse';
 export * from './GetBucketMeta';
 export * from './GetObject';

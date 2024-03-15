@@ -8,6 +8,10 @@ import {
   QueryGlobalVirtualGroupRequest,
   QueryGlobalVirtualGroupResponse,
   QueryParamsResponse,
+  QuerySPAvailableGlobalVirtualGroupFamiliesRequest,
+  QuerySPAvailableGlobalVirtualGroupFamiliesResponse,
+  QuerySpOptimalGlobalVirtualGroupFamilyRequest,
+  QuerySpOptimalGlobalVirtualGroupFamilyResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/query';
 import { MsgSettle } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/tx';
 import { container, delay, inject, injectable } from 'tsyringe';
@@ -34,6 +38,14 @@ export interface IVirtualGroup {
   getGlobalVirtualGroupFamily(
     request: QueryGlobalVirtualGroupFamilyRequest,
   ): Promise<QueryGlobalVirtualGroupFamilyResponse>;
+
+  getSpOptimalGlobalVirtualGroupFamily(
+    request: QuerySpOptimalGlobalVirtualGroupFamilyRequest,
+  ): Promise<QuerySpOptimalGlobalVirtualGroupFamilyResponse>;
+
+  getSpAvailableGlobalVirtualGroupFamilies(
+    request: QuerySPAvailableGlobalVirtualGroupFamiliesRequest,
+  ): Promise<QuerySPAvailableGlobalVirtualGroupFamiliesResponse>;
 
   settle(address: string, msg: MsgSettle): Promise<TxResponse>;
 }
@@ -66,6 +78,20 @@ export class VirtualGroup implements IVirtualGroup {
   public async getGlobalVirtualGroupFamily(request: QueryGlobalVirtualGroupFamilyRequest) {
     const rpc = await this.queryClient.getVirtualGroupClient();
     return await rpc.GlobalVirtualGroupFamily(request);
+  }
+
+  public async getSpOptimalGlobalVirtualGroupFamily(
+    request: QuerySpOptimalGlobalVirtualGroupFamilyRequest,
+  ) {
+    const rpc = await this.queryClient.getVirtualGroupClient();
+    return await rpc.QuerySpOptimalGlobalVirtualGroupFamily(request);
+  }
+
+  public async getSpAvailableGlobalVirtualGroupFamilies(
+    request: QuerySPAvailableGlobalVirtualGroupFamiliesRequest,
+  ) {
+    const rpc = await this.queryClient.getVirtualGroupClient();
+    return await rpc.QuerySpAvailableGlobalVirtualGroupFamilies(request);
   }
 
   public async settle(address: string, msg: MsgSettle) {
