@@ -1,8 +1,14 @@
 import { client } from '@/client';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
+import {
+  bytesFromBase64,
+  Long,
+  RedundancyType,
+  VisibilityType,
+} from '@bnb-chain/greenfield-js-sdk';
+import { ReedSolomon } from '@bnb-chain/reed-solomon';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
-import { ReedSolomon } from '@bnb-chain/reed-solomon';
 
 export const CreateObject = () => {
   const { address, connector } = useAccount();
@@ -52,13 +58,6 @@ export const CreateObject = () => {
               return;
             }
 
-            const provider = await connector?.getProvider();
-            const offChainData = await getOffchainAuthKeys(address, provider);
-            if (!offChainData) {
-              alert('No offchain, please create offchain pairs first');
-              return;
-            }
-
             // const checksumWorker = getCheckSumsWorker();
             // const multiCal = await checksumWorker.generateCheckSumV2(file);
             // console.log('multiCal', multiCal);
@@ -67,28 +66,16 @@ export const CreateObject = () => {
             const fileBytes = await file.arrayBuffer();
             const expectCheckSums = rs.encode(new Uint8Array(fileBytes));
 
-            console.log('offChainData', offChainData);
-
-            const createObjectTx = await client.object.createObject(
-              {
-                bucketName: createObjectInfo.bucketName,
-                objectName: createObjectInfo.objectName,
-                creator: address,
-                visibility: 'VISIBILITY_TYPE_PRIVATE',
-                fileType: file.type,
-                redundancyType: 'REDUNDANCY_EC_TYPE',
-                contentLength: fileBytes.byteLength,
-                expectCheckSums: expectCheckSums,
-              },
-              {
-                type: 'EDDSA',
-                domain: window.location.origin,
-                seed: offChainData.seedString,
-                address,
-                // type: 'ECDSA',
-                // privateKey: ACCOUNT_PRIVATEKEY,
-              },
-            );
+            const createObjectTx = await client.object.createObject({
+              bucketName: createObjectInfo.bucketName,
+              objectName: createObjectInfo.objectName,
+              creator: address,
+              visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+              contentType: file.type,
+              redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+              payloadSize: Long.fromInt(fileBytes.byteLength),
+              expectChecksums: expectCheckSums.map((x) => bytesFromBase64(x)),
+            });
 
             const simulateInfo = await createObjectTx.simulate({
               denom: 'BNB',
@@ -163,19 +150,13 @@ export const CreateObject = () => {
               return;
             }
 
-            const createFolderTx = await client.object.createFolder(
-              {
-                bucketName: createObjectInfo.bucketName,
-                objectName: createObjectInfo.objectName + '/',
-                creator: address,
-              },
-              {
-                type: 'EDDSA',
-                domain: window.location.origin,
-                seed: offChainData.seedString,
-                address,
-              },
-            );
+            const createFolderTx = await client.object.createFolder({
+              bucketName: createObjectInfo.bucketName,
+              objectName: createObjectInfo.objectName + '/',
+              creator: address,
+              redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+              visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+            });
 
             const simulateInfo = await createFolderTx.simulate({
               denom: 'BNB',
