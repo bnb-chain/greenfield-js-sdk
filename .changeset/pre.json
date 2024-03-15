@@ -13,7 +13,9 @@
     "@bnb-chain/greenfield-zk-crypto": "1.0.0"
   },
   "changesets": [
+    "calm-cougars-kiss",
     "heavy-dolphins-obey",
+    "heavy-suits-punch",
     "sixty-mayflies-sin",
     "wet-dragons-obey"
   ]

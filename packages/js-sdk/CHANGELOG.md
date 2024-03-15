@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.3.0-alpha.2
+
+### Minor Changes
+
+- [#498](https://github.com/bnb-chain/greenfield-js-sdk/pull/498)
+  [`10244a5`](https://github.com/bnb-chain/greenfield-js-sdk/commit/10244a56dd2da222e85bc25523d25756585dfc43)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove approval when creating object
+
+- [#498](https://github.com/bnb-chain/greenfield-js-sdk/pull/498)
+  [`25e8a99`](https://github.com/bnb-chain/greenfield-js-sdk/commit/25e8a99a319fe2129fb5d3eb2f0c8658323ed0e3)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove approval when create bucket
+
 ## 1.3.0-alpha.1
 
 ### Patch Changes
