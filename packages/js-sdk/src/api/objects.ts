@@ -6,10 +6,6 @@ import {
   principalTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import {
-  redundancyTypeFromJSON,
-  visibilityTypeFromJSON,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
-import {
   QueryHeadObjectResponse,
   QueryNFTRequest,
   QueryObjectNFTResponse,
@@ -24,11 +20,10 @@ import {
   MsgPutPolicy,
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { base64FromBytes, bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { hexlify } from '@ethersproject/bytes';
 import { ed25519 } from '@noble/curves/ed25519';
 import { Headers } from 'cross-fetch';
-import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, injectable } from 'tsyringe';
 import {
   GRNToString,
@@ -45,7 +40,6 @@ import {
   getSortQuery,
   HTTPHeaderRegPubKey,
 } from '../clients/spclient/auth';
-import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
 import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
 import {
   getObjectMetaInfo,
@@ -71,8 +65,6 @@ import { MsgDeleteObjectSDKTypeEIP712 } from '../messages/greenfield/storage/Msg
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateObjectInfo';
 import {
   AuthType,
-  CreateObjectApprovalRequest,
-  CreateObjectApprovalResponse,
   GetListObjectPoliciesRequest,
   GetListObjectPoliciesResponse,
   GetPrivewObject,
@@ -88,6 +80,7 @@ import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObje
 import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
 import { PutObjectRequest } from '../types/sp/PutObject';
 import {
+  checkObjectName,
   generateUrlByBucketName,
   verifyBucketName,
   verifyObjectName,
@@ -97,15 +90,7 @@ import { Sp } from './sp';
 import { Storage } from './storage';
 
 export interface IObject {
-  getCreateObjectApproval(
-    configParam: CreateObjectApprovalRequest,
-    authType: AuthType,
-  ): Promise<SpResponse<string>>;
-
-  createObject(
-    getApprovalParams: CreateObjectApprovalRequest,
-    authType: AuthType,
-  ): Promise<TxResponse>;
+  createObject(msg: MsgCreateObject): Promise<TxResponse>;
 
   uploadObject(configParam: PutObjectRequest, authType: AuthType): Promise<SpResponse<null>>;
 
@@ -138,11 +123,7 @@ export interface IObject {
   ): Promise<SpResponse<ListObjectsByBucketNameResponse>>;
 
   createFolder(
-    getApprovalParams: Omit<
-      CreateObjectApprovalRequest,
-      'contentLength' | 'fileType' | 'expectCheckSums'
-    >,
-    authType: AuthType,
+    msg: Omit<MsgCreateObject, 'payloadSize' | 'contentType' | 'expectChecksums'>,
   ): Promise<TxResponse>;
 
   putObjectPolicy(
@@ -193,126 +174,36 @@ export class Objects implements IObject {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
 
-  public async getCreateObjectApproval(params: CreateObjectApprovalRequest, authType: AuthType) {
-    const {
-      bucketName,
-      creator,
-      objectName,
-      visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
-      duration = 3000,
-      fileType = 'application/octet-stream',
-      redundancyType = 'REDUNDANCY_EC_TYPE',
-      contentLength,
-      expectCheckSums,
-    } = params;
+  public async createObject(msg: MsgCreateObject) {
+    verifyBucketName(msg.bucketName);
+    verifyObjectName(msg.objectName);
+    checkObjectName(msg.objectName);
+    assertStringRequire(msg.creator, 'empty creator address');
 
-    try {
-      assertAuthType(authType);
-      verifyBucketName(bucketName);
-      verifyObjectName(objectName);
-      assertStringRequire(creator, 'empty creator address');
+    const createObjMsg: MsgCreateObject = {
+      ...msg,
+      primarySpApproval: {
+        globalVirtualGroupFamilyId: 0,
+        expiredHeight: Long.fromInt(0),
+        sig: Uint8Array.from([]),
+      },
+    };
 
-      let endpoint = params.endpoint;
-      if (!endpoint) {
-        endpoint = await this.sp.getSPUrlByBucket(bucketName);
-      }
-      const { reqMeta, optionsWithOutHeaders, url } =
-        getApprovalMetaInfo<CreateObjectApprovalResponse>(endpoint, 'CreateObject', {
-          bucket_name: bucketName,
-          content_type: fileType,
-          creator: creator,
-          expect_checksums: expectCheckSums,
-          object_name: objectName,
-          payload_size: contentLength.toString(),
-          primary_sp_approval: {
-            expired_height: '0',
-            global_virtual_group_family_id: 0,
-            sig: null,
-          },
-          redundancy_type: redundancyType,
-          visibility,
-        });
-
-      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
-
-      const result = await this.spClient.callApi(
-        url,
-        {
-          ...optionsWithOutHeaders,
-          headers: signHeaders,
-        },
-        duration,
-        {
-          code: -1,
-          message: 'Get create object approval error.',
-        },
-      );
-
-      const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-      const signedMsg = JSON.parse(
-        bytesToUtf8(hexToBytes(signedMsgString)),
-      ) as CreateObjectApprovalResponse;
-
-      return {
-        code: 0,
-        message: 'Get create object approval success.',
-        body: result.headers.get('X-Gnfd-Signed-Msg') ?? '',
-        statusCode: result.status,
-        signedMsg,
-      };
-    } catch (error: any) {
-      throw {
-        code: -1,
-        message: error.message,
-        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
-      };
-    }
-  }
-
-  private async createObjectTx(msg: MsgCreateObject, signedMsg: CreateObjectApprovalResponse) {
     return await this.txClient.tx(
       MsgCreateObjectTypeUrl,
       msg.creator,
       MsgCreateObjectSDKTypeEIP712,
       {
-        ...signedMsg,
-        type: MsgCreateObjectTypeUrl,
+        ...MsgCreateObject.toSDK(createObjMsg),
         primary_sp_approval: {
-          expired_height: signedMsg.primary_sp_approval.expired_height,
-          global_virtual_group_family_id:
-            signedMsg.primary_sp_approval.global_virtual_group_family_id,
-          sig: signedMsg.primary_sp_approval.sig,
+          expired_height: '0',
+          global_virtual_group_family_id: 0,
         },
+        expect_checksums: createObjMsg.expectChecksums.map((e) => base64FromBytes(e)),
+        payload_size: createObjMsg.payloadSize.toNumber(),
       },
-      MsgCreateObject.encode(msg).finish(),
+      MsgCreateObject.encode(createObjMsg).finish(),
     );
-  }
-
-  public async createObject(getApprovalParams: CreateObjectApprovalRequest, authType: AuthType) {
-    assertAuthType(authType);
-
-    const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams, authType);
-    if (!signedMsg) {
-      throw new Error('Get create object approval error');
-    }
-
-    const msg: MsgCreateObject = {
-      bucketName: signedMsg.bucket_name,
-      creator: signedMsg.creator,
-      objectName: signedMsg.object_name,
-      contentType: signedMsg.content_type,
-      payloadSize: Long.fromString(signedMsg.payload_size),
-      visibility: visibilityTypeFromJSON(signedMsg.visibility),
-      expectChecksums: signedMsg.expect_checksums.map((e: string) => bytesFromBase64(e)),
-      redundancyType: redundancyTypeFromJSON(signedMsg.redundancy_type),
-      primarySpApproval: {
-        expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig || ''),
-        globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
-      },
-    };
-
-    return await this.createObjectTx(msg, signedMsg);
   }
 
   public async uploadObject(
@@ -580,14 +471,9 @@ export class Objects implements IObject {
   }
 
   public async createFolder(
-    getApprovalParams: Omit<
-      CreateObjectApprovalRequest,
-      'contentLength' | 'fileType' | 'expectCheckSums'
-    >,
-    authType: AuthType,
+    msg: Omit<MsgCreateObject, 'payloadSize' | 'contentType' | 'expectChecksums'>,
   ) {
-    assertAuthType(authType);
-    if (!getApprovalParams.objectName.endsWith('/')) {
+    if (!msg.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
       );
@@ -597,17 +483,16 @@ export class Objects implements IObject {
      * const file = new File([], 'scc', { type: 'text/plain' });
       const fileBytes = await file.arrayBuffer();
       console.log('fileBytes', fileBytes);
-      const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
-      console.log('hashResult', hashResult);
-      const { contentLength, expectCheckSums } = hashResult;
+      const rs = new ReedSolomon();
+      const fileBytes = await file.arrayBuffer();
+      const expectCheckSums = rs.encode(new Uint8Array(fileBytes));
      */
 
-    const params: CreateObjectApprovalRequest = {
-      bucketName: getApprovalParams.bucketName,
-      objectName: getApprovalParams.objectName,
-      contentLength: 0,
-      fileType: 'text/plain',
-      expectCheckSums: [
+    const newMsg: MsgCreateObject = {
+      ...msg,
+      payloadSize: Long.fromInt(0),
+      contentType: 'text/plain',
+      expectChecksums: [
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
@@ -615,11 +500,10 @@ export class Objects implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-      ],
-      creator: getApprovalParams.creator,
+      ].map((x) => bytesFromBase64(x)),
     };
 
-    return this.createObject(params, authType);
+    return this.createObject(newMsg);
   }
 
   public async putObjectPolicy(

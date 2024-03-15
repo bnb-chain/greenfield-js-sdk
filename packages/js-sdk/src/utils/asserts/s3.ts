@@ -115,20 +115,20 @@ const generateUrlByBucketName = (endpoint = '', bucketName: string) => {
 };
 
 const isSQLInjection = (input: string) => {
-  // Define patterns that may indicate SQL injection, especially those with a semicolon followed by common SQL keywords
+  // define patterns that may indicate SQL injection
   const patterns = [
-    '(?i).*;.*select', // Matches any string with a semicolon followed by "select"
-    '(?i).*;.*insert', // Matches any string with a semicolon followed by "insert"
-    '(?i).*;.*update', // Matches any string with a semicolon followed by "update"
-    '(?i).*;.*delete', // Matches any string with a semicolon followed by "delete"
-    '(?i).*;.*drop', // Matches any string with a semicolon followed by "drop"
-    '(?i).*;.*alter', // Matches any string with a semicolon followed by "alter"
-    '/\\*.*\\*/', // Matches SQL block comment
+    /;.*select/, // Matches any string with a semicolon followed by "select"
+    /;.*insert/, // Matches any string with a semicolon followed by "insert"
+    /;.*update/, // Matches any string with a semicolon followed by "update"
+    /;.*delete/, // Matches any string with a semicolon followed by "delete"
+    /;.*drop/, // Matches any string with a semicolon followed by "drop"
+    /;.*alter/, // Matches any string with a semicolon followed by "alter"
+    /\/\*[\s\S]*?\*\//, // Matches SQL block comment
   ];
 
   for (const pattern of patterns) {
-    const regex = new RegExp(pattern);
-    if (regex.test(input)) {
+    const match = pattern.test(input);
+    if (match) {
       return true;
     }
   }

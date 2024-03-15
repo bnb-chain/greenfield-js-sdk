@@ -15,7 +15,6 @@ export * from './ListObjectsByIDs';
 export * from './ListUserGroups';
 export * from './ListUserOwnedGroups';
 export * from './MigrateBucket';
-export * from './ObjectApproval';
 export * from './PutObject';
 export * from './ReadQuota';
 export * from './RequestNonce';
