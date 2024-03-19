@@ -1,5 +1,5 @@
 import { EMPTY_STRING_SHA256, METHOD_PUT } from '@/constants';
-import { ReqMeta } from '@/types';
+import { ReqMeta, VisibilityType } from '@/types';
 import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { encodePath, getSortQueryParams } from '../auth';
 
@@ -13,9 +13,18 @@ export const getPutObjectMetaInfo = async (
     body: File;
     delegated?: boolean;
     txnHash?: string;
+    visibility?: VisibilityType;
   },
 ) => {
-  const { bucketName, objectName, txnHash, contentType, body, delegated = false } = params;
+  const {
+    bucketName,
+    objectName,
+    txnHash,
+    contentType,
+    body,
+    delegated = false,
+    visibility = VisibilityType.VISIBILITY_TYPE_PRIVATE,
+  } = params;
   const path = `/${encodePath(objectName)}`;
   let queryMap = {};
 
@@ -24,7 +33,7 @@ export const getPutObjectMetaInfo = async (
       delegate: '',
       is_update: 'false',
       payload_size: String(body.size),
-      visibility: '0',
+      visibility: visibility,
     };
   }
 

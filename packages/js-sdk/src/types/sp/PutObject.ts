@@ -1,3 +1,5 @@
+import { VisibilityType } from '../common';
+
 export type PutObjectRequest = {
   bucketName: string;
   objectName: string;
@@ -12,6 +14,7 @@ export type DelegatedPubObjectRequest = {
   bucketName: string;
   objectName: string;
   body: File;
+  visibility?: VisibilityType;
   endpoint?: string;
   timeout?: number;
   contentType?: string;

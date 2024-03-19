@@ -156,6 +156,7 @@ export const CreateObject = () => {
                 bucketName: createObjectInfo.bucketName,
                 objectName: createObjectInfo.objectName,
                 body: file,
+                visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
               },
               {
                 type: 'EDDSA',
