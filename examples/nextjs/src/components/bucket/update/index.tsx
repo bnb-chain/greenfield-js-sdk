@@ -22,6 +22,11 @@ export const UpdateBucket = () => {
         onClick={async () => {
           if (!address) return;
 
+          // const toggleSpAsDelegatedAgentTx = await client.bucket.toggleSpAsDelegatedAgent({
+          //   bucketName: 'foo',
+          //   operator: address,
+          // });
+
           const updateBucketTx = await client.bucket.updateBucketInfo({
             bucketName: bucketName,
             operator: address,
