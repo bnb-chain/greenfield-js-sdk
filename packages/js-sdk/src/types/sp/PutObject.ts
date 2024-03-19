@@ -5,4 +5,14 @@ export type PutObjectRequest = {
   body: File;
   duration?: number;
   endpoint?: string;
+  delegated?: boolean;
+};
+
+export type DelegatedPubObjectRequest = {
+  bucketName: string;
+  objectName: string;
+  body: File;
+  endpoint?: string;
+  timeout?: number;
+  contentType?: string;
 };

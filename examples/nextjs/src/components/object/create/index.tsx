@@ -51,6 +51,7 @@ export const CreateObject = () => {
           }}
         />
         <br />
+        upload object with tx:{' '}
         <button
           onClick={async () => {
             if (!address || !file) {
@@ -101,8 +102,7 @@ export const CreateObject = () => {
           }}
         >
           1. create object tx
-        </button>
-        <br />
+        </button>{' '}
         <button
           onClick={async () => {
             if (!address || !file || !txHash) return;
@@ -137,6 +137,41 @@ export const CreateObject = () => {
           }}
         >
           2. upload
+        </button>
+        <br />
+        or uploaded by delegated agent
+        <button
+          onClick={async () => {
+            if (!address || !file) return;
+
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
+            const uploadRes = await client.object.delegateUploadObject(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName,
+                body: file,
+              },
+              {
+                type: 'EDDSA',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                address,
+              },
+            );
+            console.log('uploadRes', uploadRes);
+
+            if (uploadRes.code === 0) {
+              alert('success');
+            }
+          }}
+        >
+          delegated upload
         </button>
         <br />
         <button
