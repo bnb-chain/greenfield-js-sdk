@@ -212,7 +212,14 @@ export class Objects implements IObject {
   }
 
   public async delegateUploadObject(params: DelegatedPubObjectRequest, authType: AuthType) {
-    const { bucketName, objectName, body, contentType = body.type, timeout = 5000 } = params;
+    const {
+      bucketName,
+      objectName,
+      body,
+      contentType = body.type,
+      timeout = 5000,
+      visibility,
+    } = params;
     verifyBucketName(bucketName);
     verifyObjectName(objectName);
     assertAuthType(authType);
@@ -226,6 +233,7 @@ export class Objects implements IObject {
       objectName,
       contentType,
       body,
+      visibility,
       delegated: true,
     });
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
