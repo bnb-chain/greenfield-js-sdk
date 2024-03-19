@@ -78,7 +78,7 @@ import {
 import { GetObjectRequest } from '../types/sp/GetObject';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
 import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
-import { PutObjectRequest } from '../types/sp/PutObject';
+import { DelegatedPubObjectRequest, PutObjectRequest } from '../types/sp/PutObject';
 import {
   checkObjectName,
   generateUrlByBucketName,
@@ -93,6 +93,11 @@ export interface IObject {
   createObject(msg: MsgCreateObject): Promise<TxResponse>;
 
   uploadObject(configParam: PutObjectRequest, authType: AuthType): Promise<SpResponse<null>>;
+
+  delegateUploadObject(
+    params: DelegatedPubObjectRequest,
+    authType: AuthType,
+  ): Promise<SpResponse<null>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
@@ -206,6 +211,46 @@ export class Objects implements IObject {
     );
   }
 
+  public async delegateUploadObject(params: DelegatedPubObjectRequest, authType: AuthType) {
+    const { bucketName, objectName, body, contentType = body.type, timeout = 5000 } = params;
+    verifyBucketName(bucketName);
+    verifyObjectName(objectName);
+    assertAuthType(authType);
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    }
+
+    const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
+      bucketName,
+      objectName,
+      contentType,
+      body,
+      delegated: true,
+    });
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    try {
+      const result = await this.spClient.callApi(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        timeout,
+      );
+      const { status } = result;
+
+      return { code: 0, message: 'Put object success.', statusCode: status };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
   public async uploadObject(
     params: PutObjectRequest,
     authType: AuthType,
@@ -226,6 +271,7 @@ export class Objects implements IObject {
       contentType: body.type,
       txnHash,
       body,
+      delegated: false,
     });
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
