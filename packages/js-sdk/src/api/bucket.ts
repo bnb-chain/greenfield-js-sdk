@@ -1,3 +1,4 @@
+import { MsgToggleSPAsDelegatedAgentSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgToggleSpAsDelegatedAgent';
 import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
@@ -22,6 +23,7 @@ import {
   MsgDeletePolicy,
   MsgMigrateBucket,
   MsgPutPolicy,
+  MsgToggleSPAsDelegatedAgent,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { PickVGFStrategy } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/common';
@@ -35,6 +37,7 @@ import {
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
   MsgMigrateBucketTypeUrl,
+  MsgToggleSPAsDelegatedAgentTypeUrl,
   MsgUpdateBucketInfoTypeUrl,
   newBucketGRN,
   TxResponse,
@@ -111,6 +114,8 @@ export interface IBucket {
     principalAddr: string,
     principalType: keyof typeof PrincipalType,
   ): Promise<TxResponse>;
+
+  toggleSpAsDelegatedAgent(msg: MsgToggleSPAsDelegatedAgent): Promise<TxResponse>;
 
   getBucketMeta(params: GetBucketMetaRequest): Promise<SpResponse<GetBucketMetaResponse>>;
 
@@ -245,6 +250,22 @@ export class Bucket implements IBucket {
       MsgDeleteBucketSDKTypeEIP712,
       MsgDeleteBucket.toSDK(msg),
       MsgDeleteBucket.encode(msg).finish(),
+    );
+  }
+
+  public async toggleSpAsDelegatedAgent(msg: MsgToggleSPAsDelegatedAgent) {
+    const { bucketInfo } = await this.headBucket(msg.bucketName);
+
+    if (!bucketInfo) {
+      throw new Error(`Bucket ${msg.bucketName} not found`);
+    }
+
+    return await this.txClient.tx(
+      MsgToggleSPAsDelegatedAgentTypeUrl,
+      msg.operator,
+      MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
+      MsgToggleSPAsDelegatedAgent.toSDK(msg),
+      MsgToggleSPAsDelegatedAgent.encode(msg).finish(),
     );
   }
 
