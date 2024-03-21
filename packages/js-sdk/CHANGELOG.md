@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.2.3
+
+### Patch Changes
+
+- [#502](https://github.com/bnb-chain/greenfield-js-sdk/pull/502)
+  [`b074346`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b07434677781c4f224c6b9e828b8e1f1c4eab16a)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Avoid Object override
+
 ## 1.2.2
 
 ### Patch Changes
