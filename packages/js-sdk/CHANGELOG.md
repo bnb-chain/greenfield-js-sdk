@@ -1,5 +1,21 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.3.0-alpha.3
+
+### Patch Changes
+
+- [#500](https://github.com/bnb-chain/greenfield-js-sdk/pull/500)
+  [`1990d9f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/1990d9ffe0627e7044484a29d98ae2523ee4bb70)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: bucket toggleSpAsDelegatedAgent API
+
+- [#500](https://github.com/bnb-chain/greenfield-js-sdk/pull/500)
+  [`c7cf96f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c7cf96f1d26b4a6fbc89b3af2e548f26883b6c3b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Uploading Object support resumable
+
+- [#500](https://github.com/bnb-chain/greenfield-js-sdk/pull/500)
+  [`7b938f0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/7b938f014c9961cf156326580bbddbb62f6c928c)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add delegateUploadObject API
+
 ## 1.3.0-alpha.2
 
 ### Minor Changes
