@@ -88,7 +88,7 @@ export class SpClient implements ISpClient {
 
       return response;
     } catch (error) {
-      return Promise.reject(error);
+      return Promise.reject(error + ': timeout, try to increase the request time');
     }
   }
 

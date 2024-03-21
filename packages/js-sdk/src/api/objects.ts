@@ -1,3 +1,13 @@
+import {
+  getObjectOffsetInfo,
+  parseObjectOffsetResponse,
+} from '@/clients/spclient/spApis/getObjectOffset';
+import {
+  getObjectStatusInfo,
+  parseObjectStatusResponse,
+} from '@/clients/spclient/spApis/getObjectStatus';
+import { getResumablePutObjectMetaInfo } from '@/clients/spclient/spApis/resumablePutObject';
+import { UploadProgressResponse } from '@/types/sp/UploadProgress';
 import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import {
   ActionType,
@@ -26,6 +36,7 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { Headers } from 'cross-fetch';
 import { container, delay, inject, injectable } from 'tsyringe';
 import {
+  DEFAULT_PART_SIZE,
   GRNToString,
   MsgCancelCreateObjectTypeUrl,
   MsgCreateObjectTypeUrl,
@@ -72,13 +83,15 @@ import {
   ListObjectsByIDsRequest,
   ListObjectsByIDsResponse,
   Long,
+  ObjectStatus,
   SpResponse,
   TxResponse,
+  UploadOffsetResponse,
 } from '../types';
 import { GetObjectRequest } from '../types/sp/GetObject';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
 import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
-import { DelegatedPubObjectRequest, PutObjectRequest } from '../types/sp/PutObject';
+import { DelegatedOpts, DelegatedPubObjectRequest, PutObjectRequest } from '../types/sp/PutObject';
 import {
   checkObjectName,
   generateUrlByBucketName,
@@ -166,6 +179,15 @@ export interface IObject {
   listObjectPolicies(
     params: GetListObjectPoliciesRequest,
   ): Promise<SpResponse<GetListObjectPoliciesResponse>>;
+
+  /**
+   * return the status of object including the uploading progress
+   */
+  getObjectUploadProgress(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ): Promise<string>;
 }
 
 @injectable()
@@ -212,74 +234,140 @@ export class Objects implements IObject {
   }
 
   public async delegateUploadObject(params: DelegatedPubObjectRequest, authType: AuthType) {
-    const {
-      bucketName,
-      objectName,
-      body,
-      contentType = body.type,
-      timeout = 5000,
-      visibility,
-    } = params;
+    const { bucketName, objectName, body, resumableOpts, timeout = 30000, delegatedOpts } = params;
+
+    assertAuthType(authType);
     verifyBucketName(bucketName);
     verifyObjectName(objectName);
-    assertAuthType(authType);
+
+    const disableResumable = resumableOpts?.disableResumable ?? true;
+    const partSize = resumableOpts?.partSize ?? DEFAULT_PART_SIZE;
+
     let endpoint = params.endpoint;
     if (!endpoint) {
       endpoint = await this.sp.getSPUrlByBucket(bucketName);
     }
 
-    const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
+    const { params: storageParams } = await this.storage.params();
+    const maxSegmentSize = storageParams.versionedParams.maxSegmentSize.toNumber();
+
+    if (partSize % maxSegmentSize !== 0) {
+      throw new Error(
+        'partSize should be an integer multiple of the segment size: ' + maxSegmentSize,
+      );
+    }
+
+    if (body.size <= partSize || disableResumable) {
+      return this.putObject({
+        endpoint,
+        bucketName,
+        objectName,
+        body,
+        authType,
+        delegatedOpts,
+        timeout,
+        txnHash: '',
+      });
+    }
+
+    return await this.putResumableObject(
+      endpoint,
       bucketName,
       objectName,
-      contentType,
       body,
-      visibility,
-      delegated: true,
-    });
-    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
-
-    try {
-      const result = await this.spClient.callApi(
-        url,
-        {
-          ...optionsWithOutHeaders,
-          headers: signHeaders,
-        },
-        timeout,
-      );
-      const { status } = result;
-
-      return { code: 0, message: 'Put object success.', statusCode: status };
-    } catch (error: any) {
-      return {
-        code: -1,
-        message: error.message,
-        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
-      };
-    }
+      partSize,
+      authType,
+      delegatedOpts,
+    );
   }
 
   public async uploadObject(
     params: PutObjectRequest,
     authType: AuthType,
   ): Promise<SpResponse<null>> {
+    const { bucketName, objectName, body, duration = 30000, resumableOpts } = params;
     assertAuthType(authType);
-    const { bucketName, objectName, txnHash, body, duration = 30000 } = params;
     verifyBucketName(bucketName);
     verifyObjectName(objectName);
-    assertStringRequire(txnHash, 'Transaction hash is empty, please check.');
 
     let endpoint = params.endpoint;
     if (!endpoint) {
       endpoint = await this.sp.getSPUrlByBucket(bucketName);
     }
+
+    let txnHash = params.txnHash;
+    if (!txnHash) {
+      const { body } = await this.getObjectMeta({
+        bucketName,
+        objectName,
+        endpoint,
+      });
+      txnHash = body.GfSpGetObjectMetaResponse.Object.CreateTxHash;
+    }
+
+    const { params: storageParams } = await this.storage.params();
+
+    const maxSegmentSize = storageParams.versionedParams.maxSegmentSize.toNumber();
+
+    const disableResumable = resumableOpts?.disableResumable ?? true;
+    const partSize = resumableOpts?.partSize ?? DEFAULT_PART_SIZE;
+
+    if (partSize % maxSegmentSize !== 0) {
+      throw new Error(
+        'partSize should be an integer multiple of the segment size: ' + maxSegmentSize,
+      );
+    }
+
+    if (body.size <= partSize || disableResumable) {
+      return this.putObject({
+        endpoint,
+        bucketName,
+        objectName,
+        body,
+        txnHash,
+        authType,
+        timeout: duration,
+      });
+    }
+
+    return await this.putResumableObject(
+      endpoint,
+      bucketName,
+      objectName,
+      body,
+      partSize,
+      authType,
+    );
+  }
+
+  private async putObject(params: {
+    endpoint: string;
+    bucketName: string;
+    objectName: string;
+    body: File;
+    txnHash: string;
+    authType: AuthType;
+    delegatedOpts?: DelegatedOpts;
+    timeout: number;
+  }): Promise<SpResponse<null>> {
+    const {
+      authType,
+      body,
+      bucketName,
+      delegatedOpts,
+      timeout: duration,
+      endpoint,
+      objectName,
+      txnHash,
+    } = params;
+
     const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
       bucketName,
       objectName,
       contentType: body.type,
       txnHash,
       body,
-      delegated: false,
+      delegatedOpts,
     });
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
@@ -295,6 +383,242 @@ export class Objects implements IObject {
       const { status } = result;
 
       return { code: 0, message: 'Put object success.', statusCode: status };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  private splitPartInfo(objectSize: number, configuredPartSize: number) {
+    const partSizeFlt = configuredPartSize;
+    // Total parts count.
+    const totalPartsCount = Math.ceil(objectSize / partSizeFlt);
+    // Part size.
+    const partSize = partSizeFlt;
+    // Last part size.
+    const lastPartSize = objectSize - (totalPartsCount - 1) * partSize;
+    return {
+      totalPartsCount,
+      partSize,
+      lastPartSize,
+    };
+  }
+
+  private async putResumableObject(
+    endpoint: string,
+    bucketName: string,
+    objectName: string,
+    body: File,
+    partSize: number,
+    authType: AuthType,
+    delegatedOpts?: DelegatedOpts,
+  ) {
+    let offset = 0;
+    if (!delegatedOpts) {
+      const isObjectExist = await this.headSPObjectInfo(bucketName, objectName, authType);
+      if (!isObjectExist) {
+        throw new Error('Object does not exist');
+      }
+
+      offset = await this.getObjectResumableUploadOffset(bucketName, objectName, authType);
+    }
+
+    const { totalPartsCount } = this.splitPartInfo(body.size, partSize);
+
+    // split file
+    const chunks = [];
+    for (let i = 0; i < totalPartsCount; i++) {
+      const start = i * partSize;
+      const end = Math.min(start + partSize, body.size);
+      const chunk = body.slice(start, end);
+      chunks.push(chunk);
+    }
+
+    let startPartNumber = offset / partSize;
+    while (startPartNumber < totalPartsCount) {
+      const chunkFile = new File([chunks[startPartNumber]], '');
+
+      const { reqMeta, optionsWithOutHeaders, url } = await getResumablePutObjectMetaInfo(
+        endpoint,
+        {
+          bucketName,
+          objectName,
+          contentType: body.type,
+          body: chunkFile,
+          offset: startPartNumber * partSize,
+          complete: startPartNumber === totalPartsCount - 1,
+          delegatedOpts,
+        },
+      );
+
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+      try {
+        await this.spClient.callApi(
+          url,
+          {
+            ...optionsWithOutHeaders,
+            headers: signHeaders,
+          },
+          30000,
+        );
+      } catch (error: any) {
+        return {
+          code: -1,
+          message: error.message,
+          statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+        };
+      } finally {
+        startPartNumber++;
+      }
+    }
+
+    return { code: 0, message: 'Put all object parts success.', statusCode: 200 };
+  }
+
+  private async headSPObjectInfo(bucketName: string, objectName: string, authType: AuthType) {
+    const { code } = await this.getObjectStatusFromSp(bucketName, objectName, authType);
+
+    if (code === 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async getObjectResumableUploadOffset(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ) {
+    const { objectInfo } = await this.headObject(bucketName, objectName);
+    if (!objectInfo) {
+      throw new Error('Object not found');
+    }
+
+    if (objectInfo.objectStatus == ObjectStatus.OBJECT_STATUS_CREATED) {
+      const { code, body } = await this.getObjectOffsetFromSP(bucketName, objectName, authType);
+
+      if (body) {
+        return body.QueryResumeOffset.Offset;
+      }
+    }
+
+    return 0;
+  }
+
+  private async getObjectOffsetFromSP(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ): Promise<SpResponse<UploadOffsetResponse>> {
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+
+    const { url, optionsWithOutHeaders, reqMeta } = await getObjectOffsetInfo(endpoint, {
+      bucketName,
+      objectName,
+    });
+
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    try {
+      const result = await this.spClient.callApi(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        5000,
+      );
+      // console.log('upload-context result', result);
+      const { status } = result;
+
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        return {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+          body: {
+            QueryResumeOffset: {
+              Offset: 0,
+            },
+          },
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = parseObjectOffsetResponse(xmlData);
+
+      return { code: 0, message: 'get upload offset success', statusCode: status, body: res };
+    } catch (error: any) {
+      // console.log('err', error);
+      const message = error.message;
+
+      if (message.includes('no uploading record')) {
+        return {
+          code: -1,
+          message: message,
+          statusCode: error.code,
+          body: {
+            QueryResumeOffset: {
+              Offset: 0,
+            },
+          },
+        };
+      }
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  private async getObjectStatusFromSp(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ): Promise<SpResponse<UploadProgressResponse>> {
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+
+    const { url, optionsWithOutHeaders, reqMeta } = await getObjectStatusInfo(endpoint, {
+      bucketName,
+      objectName,
+    });
+
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    try {
+      const result = await this.spClient.callApi(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        5000,
+      );
+      // console.log('upload-progress result', result);
+      const { status } = result;
+
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = parseObjectStatusResponse(xmlData);
+
+      return { code: 0, message: 'success', statusCode: status, body: res };
     } catch (error: any) {
       return {
         code: -1,
@@ -707,5 +1031,25 @@ export class Objects implements IObject {
       statusCode: result.status,
       body: res,
     };
+  }
+
+  public async getObjectUploadProgress(bucketName: string, objectName: string, authType: AuthType) {
+    const { objectInfo } = await this.headObject(bucketName, objectName);
+
+    if (!objectInfo) {
+      throw new Error('object not exist');
+    }
+
+    if (objectInfo.objectStatus == ObjectStatus.OBJECT_STATUS_CREATED) {
+      const { body, message } = await this.getObjectStatusFromSp(bucketName, objectName, authType);
+
+      if (!body) {
+        throw new Error('fail to fetch object uploading progress from sp ' + message);
+      }
+
+      return body.QueryUploadProgress.ProgressDescription;
+    }
+
+    return objectInfo.objectStatus.toString();
   }
 }

@@ -105,7 +105,7 @@ export const CreateObject = () => {
         </button>{' '}
         <button
           onClick={async () => {
-            if (!address || !file || !txHash) return;
+            if (!address || !file) return;
             console.log(file);
 
             const provider = await connector?.getProvider();
@@ -136,10 +136,47 @@ export const CreateObject = () => {
             }
           }}
         >
-          2. upload
+          * upload
+        </button>{' '}
+        <button
+          onClick={async () => {
+            if (!address || !file) return;
+
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
+            const uploadRes = await client.object.uploadObject(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName,
+                body: file,
+                resumableOpts: {
+                  partSize: 1024 * 1024 * 16,
+                  disableResumable: false,
+                },
+              },
+              {
+                type: 'EDDSA',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                address,
+              },
+            );
+            console.log('uploadRes', uploadRes);
+
+            if (uploadRes.code === 0) {
+              alert('success');
+            }
+          }}
+        >
+          * resumable upload(part size is 16MB)
         </button>
         <br />
-        or uploaded by delegated agent
+        or uploaded by delegated agent :{' '}
         <button
           onClick={async () => {
             if (!address || !file) return;
@@ -156,7 +193,9 @@ export const CreateObject = () => {
                 bucketName: createObjectInfo.bucketName,
                 objectName: createObjectInfo.objectName,
                 body: file,
-                visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+                delegatedOpts: {
+                  visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+                },
               },
               {
                 type: 'EDDSA',
@@ -172,7 +211,75 @@ export const CreateObject = () => {
             }
           }}
         >
-          delegated upload
+          * delegated upload
+        </button>{' '}
+        <button
+          onClick={async () => {
+            if (!address || !file) return;
+
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
+            const uploadRes = await client.object.delegateUploadObject(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName,
+                body: file,
+                delegatedOpts: {
+                  visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+                },
+                resumableOpts: {
+                  partSize: 1024 * 1024 * 16,
+                  disableResumable: false,
+                },
+              },
+              {
+                type: 'EDDSA',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                address,
+              },
+            );
+            console.log('uploadRes', uploadRes);
+
+            if (uploadRes.code === 0) {
+              alert('success');
+            }
+          }}
+        >
+          * delegated resumable upload (part size is 16mb)
+        </button>
+        <br />
+        <button
+          onClick={async () => {
+            if (!address) return;
+
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
+            const res = await client.object.getObjectUploadProgress(
+              createObjectInfo.bucketName,
+              createObjectInfo.objectName,
+              {
+                type: 'EDDSA',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                address,
+              },
+            );
+
+            alert('progress: ' + res);
+          }}
+        >
+          get object's upload progress
         </button>
         <br />
         <button

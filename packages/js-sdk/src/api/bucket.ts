@@ -1,4 +1,10 @@
-import { MsgToggleSPAsDelegatedAgentSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgToggleSpAsDelegatedAgent';
+import {
+  MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
+  MsgCreateBucketSDKTypeEIP712,
+  MsgDeleteBucketSDKTypeEIP712,
+  MsgMigrateBucketSDKTypeEIP712,
+  MsgUpdateBucketInfoSDKTypeEIP712,
+} from '@/messages/greenfield';
 import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
@@ -73,10 +79,6 @@ import {
 import { SpClient } from '../clients/spclient/spClient';
 import { TxClient } from '../clients/txClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
-import { MsgCreateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateBucket';
-import { MsgDeleteBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteBucket';
-import { MsgMigrateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgMigrateBucket';
-import { MsgUpdateBucketInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateBucketInfo';
 import type {
   GetBucketMetaRequest,
   GetBucketMetaResponse,
