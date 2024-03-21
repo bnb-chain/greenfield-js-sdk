@@ -44,6 +44,14 @@
   [`d45791`](https://github.com/bnb-chain/greenfield-js-sdk/commit/d45791aa715a5bcef2777c3f2a2213fd8124150e)
   Thanks [@rrr523](https://github.com/rrr523)! - feat: Replace zk crypto with ed25519.
 
+## 1.2.3
+
+### Patch Changes
+
+- [#502](https://github.com/bnb-chain/greenfield-js-sdk/pull/502)
+  [`b074346`](https://github.com/bnb-chain/greenfield-js-sdk/commit/b07434677781c4f224c6b9e828b8e1f1c4eab16a)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Avoid Object override
+
 ## 1.2.2
 
 ### Patch Changes

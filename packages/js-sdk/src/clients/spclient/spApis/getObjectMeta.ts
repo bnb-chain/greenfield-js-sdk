@@ -31,19 +31,19 @@ export const parseGetObjectMetaResponse = async (data: string) => {
   });
   const res = xmlParser.parse(data) as GetObjectMetaResponse;
 
-  const Object = res.GfSpGetObjectMetaResponse.Object || {};
-  if (Object) {
+  const ObjectTmp = res.GfSpGetObjectMetaResponse.Object || {};
+  if (ObjectTmp) {
     // @ts-ignore
-    Object.Removed = convertStrToBool(Object.Removed);
-    Object.UpdateAt = Number(Object.UpdateAt);
-    Object.DeleteAt = Number(Object.DeleteAt);
+    ObjectTmp.Removed = convertStrToBool(ObjectTmp.Removed);
+    ObjectTmp.UpdateAt = Number(ObjectTmp.UpdateAt);
+    ObjectTmp.DeleteAt = Number(ObjectTmp.DeleteAt);
 
-    Object.ObjectInfo = formatObjectInfo(Object.ObjectInfo);
+    ObjectTmp.ObjectInfo = formatObjectInfo(ObjectTmp.ObjectInfo);
   }
 
   res.GfSpGetObjectMetaResponse = {
     ...res.GfSpGetObjectMetaResponse,
-    Object,
+    Object: ObjectTmp,
   };
 
   return res;
