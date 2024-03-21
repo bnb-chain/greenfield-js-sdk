@@ -19,4 +19,6 @@ export * from './PutObject';
 export * from './ReadQuota';
 export * from './RequestNonce';
 export * from './SuccessResponse';
+export * from './UploadOffset';
+export * from './UploadProgress';
 export * from './VerifyPermission';

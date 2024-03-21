@@ -1,29 +1,31 @@
-import { EMPTY_STRING_SHA256, METHOD_PUT } from '@/constants';
-import { ReqMeta, VisibilityType } from '@/types';
+import { EMPTY_STRING_SHA256, METHOD_POST } from '@/constants';
+import { DelegatedOpts, ReqMeta } from '@/types';
 import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { encodePath, getSortQueryParams } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/put_object
-export const getPutObjectMetaInfo = async (
+// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/resumable_put_object
+export const getResumablePutObjectMetaInfo = async (
   endpoint: string,
   params: {
     objectName: string;
     bucketName: string;
     contentType: string;
     body: File;
-    txnHash?: string;
-    delegatedOpts?: {
-      visibility: VisibilityType;
-      isUpdate?: boolean;
-    };
+    offset: number;
+    complete: boolean;
+    delegatedOpts?: DelegatedOpts;
   },
 ) => {
-  const { bucketName, objectName, txnHash, contentType, body, delegatedOpts } = params;
+  const { bucketName, objectName, contentType, body, offset, complete, delegatedOpts } = params;
   const path = `/${encodePath(objectName)}`;
-  let queryMap = {};
+  let queryMap: Record<string, string> = {
+    offset: String(offset),
+    complete: String(complete),
+  };
 
   if (delegatedOpts) {
     queryMap = {
+      ...queryMap,
       delegate: '',
       payload_size: String(body.size),
       visibility: delegatedOpts.visibility.toString(),
@@ -36,8 +38,8 @@ export const getPutObjectMetaInfo = async (
 
   const reqMeta: Partial<ReqMeta> = {
     contentSHA256: EMPTY_STRING_SHA256,
-    txnHash: txnHash,
-    method: METHOD_PUT,
+    // txnHash: txnHash,
+    method: METHOD_POST,
     url: {
       hostname: url.hostname,
       query: url.searchParams.toString(),
@@ -47,7 +49,7 @@ export const getPutObjectMetaInfo = async (
   };
 
   const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
-    method: METHOD_PUT,
+    method: METHOD_POST,
     body,
   };
 
