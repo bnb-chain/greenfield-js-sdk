@@ -102,19 +102,13 @@ console.log('objectName', objectName);
   }
 
   // create folder example:
-  const createFolderTx = await client.object.createFolder(
-    {
-      bucketName: bucketName,
-      objectName: objectName + '/',
-      creator: ACCOUNT_ADDRESS,
-      redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
-      visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
-    },
-    {
-      type: 'ECDSA',
-      privateKey: ACCOUNT_PRIVATEKEY,
-    },
-  );
+  const createFolderTx = await client.object.createFolder({
+    bucketName: bucketName,
+    objectName: objectName + '/',
+    creator: ACCOUNT_ADDRESS,
+    redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+    visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+  });
   const simulateInfo = await createFolderTx.simulate({
     denom: 'BNB',
   });

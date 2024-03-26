@@ -18,7 +18,6 @@ Send `CancelCreateObject` txn to greenfield chain.
 | bucketName | the name of the bucket              |
 | objectName | the name of the object              |
 
-<!-- <Tx /> -->
 
 ## createFolder <ApiTypes type="Storage Provider" /> <ApiTypes type="Tx" />
 
@@ -27,13 +26,11 @@ Send create empty object txn to greenfield chain.
 | params     | description                            |
 | ---------- | -------------------------------------- |
 | bucketName | bucket name                            |
-| objectName | object name                            |
+| objectName | folder name, end with `/`                            |
 | creator    | the creator of object                  |
-| tags | defines a list of tags which will be set to the object |
-| authType   | [AuthType](/client/sp-client#authtype) |
+| visibility      | [VisibilityType](/types/visibility)                                     |
+| redundancyType  | [RedundancyType](/types/redundancy)                                     |
 
-<Tabs groupId="example">
-<TabItem value="Browser" label="Browser">
 
 ```jsx
 const tx = await client.object.createFolder(
@@ -41,48 +38,19 @@ const tx = await client.object.createFolder(
     bucketName: createObjectInfo.bucketName,
     objectName: createObjectInfo.objectName + '/',
     creator: address,
-    tags: {
-      tags: [],
-    },
-  },
-  // highlight-start
-  {
-    type: 'EDDSA',
-    domain: window.location.origin,
-    seed: offChainData.seedString,
-    address,
-  },
-  // highlight-end
+    redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+    visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+  }
 );
 ```
-
-</TabItem>
-<TabItem value="Nodejs" label="Nodejs">
-
-```js
-const tx = await client.object.createFolder(
-  {
-    bucketName: bucketName,
-    objectName: objectName + '/',
-    creator: ACCOUNT_ADDRESS,
-  },
-  // highlight-start
-  {
-    type: 'ECDSA',
-    privateKey: ACCOUNT_PRIVATEKEY,
-  },
-  // highlight-end
-);
-```
-
-</TabItem>
-</Tabs>
 
 <Tx />
 
-## createObject <ApiTypes type="Storage Provider" /> <ApiTypes type="Tx" />
+## createObject
 
-Get approval of creating object and send createObject txn to greenfield chain.
+<!-- <ApiTypes type="Storage Provider" /> <ApiTypes type="Tx" /> -->
+
+Creating object and send createObject txn to greenfield chain.
 
 | params          | description                                                             |
 | --------------- | ----------------------------------------------------------------------- |
@@ -90,69 +58,25 @@ Get approval of creating object and send createObject txn to greenfield chain.
 | objectName      | object name                                                             |
 | creator         | the creator of object                                                   |
 | visibility      | [VisibilityType](/types/visibility)                                     |
-| fileType        | [file type](https://developer.mozilla.org/en-US/docs/Web/API/File/type) |
+| contentType        | [file type](https://developer.mozilla.org/en-US/docs/Web/API/File/type) |
 | redundancyType  | [RedundancyType](/types/redundancy)                                     |
-| authType        | [AuthType](/client/sp-client#authtype)                                  |
-| contentLength   | file content length                                                     |
-| expectCheckSums | file's expectCheckSums                                                  |
-| tags | defines a list of tags which will be set to the object |
-
-<Tabs groupId="example">
-<TabItem value="Browser" label="Browser">
+| payloadSize   | file content [Long](/types/long)length                                                     |
+| expectChecksums | file's expectChecksums                                                  |
 
 ```jsx
-// https://github.com/bnb-chain/greenfield-js-sdk/blob/main/examples/nextjs/src/components/object/create/index.tsx#L76-L95
 const tx = await client.object.createObject(
   {
     bucketName: 'bucket_name',
     objectName: 'object_name',
     creator: '0x...',
-    visibility: 'VISIBILITY_TYPE_PRIVATE',
-    fileType: 'json',
-    redundancyType: 'REDUNDANCY_EC_TYPE',
-    contentLength: 13311,
-    expectCheckSums: JSON.parse(expectCheckSums),
-    tags: {
-      tags: [],
-    },
-  },
-  // highlight-start
-  {
-    type: 'EDDSA',
-    domain: window.location.origin,
-    seed: offChainData.seedString,
-    address,
-  },
-  // highlight-end
+    visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+    contentType: 'json',
+    redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+    payloadSize: Long.fromInt(13311),
+    expectCheckSums: expectCheckSums.map((x) => bytesFromBase64(x)),
+  }
 );
 ```
-</TabItem>
-<TabItem value="Nodejs" label="Nodejs">
-
-```js
-// https://github.com/bnb-chain/greenfield-js-sdk/blob/main/examples/nodejs/cases/storage.js#L61-L76
-const tx = await client.object.createObject(
-  {
-    bucketName: bucketName,
-    objectName: objectName,
-    creator: ACCOUNT_ADDRESS,
-    visibility: 'VISIBILITY_TYPE_PRIVATE',
-    fileType: fileType,
-    redundancyType: 'REDUNDANCY_EC_TYPE',
-    contentLength,
-    expectCheckSums: JSON.parse(expectCheckSums),
-  },
-  // highlight-start
-  {
-    type: 'ECDSA',
-    privateKey: ACCOUNT_PRIVATEKEY,
-  },
-  // highlight-end
-);
-```
-
-</TabItem>
-</Tabs>
 
 <Tx />
 
