@@ -2,7 +2,13 @@ require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { NodeAdapterReedSolomon } = require('@bnb-chain/reed-solomon/node.adapter');
-const { Client } = require('@bnb-chain/greenfield-js-sdk');
+const {
+  Client,
+  Long,
+  VisibilityType,
+  RedundancyType,
+  bytesFromBase64,
+} = require('@bnb-chain/greenfield-js-sdk');
 const mimeTypes = require('mime-types');
 const client = Client.create('https://gnfd-testnet-fullnode-tendermint-ap.bnbchain.org', '5600');
 
@@ -30,26 +36,19 @@ console.log('objectName', objectName);
   const sps = await client.sp.getStorageProviders();
 
   // choose the first up to be the primary SP
-  const primarySP = sps[0].operatorAddress;
+  // const primarySP = sps[0].operatorAddress;
+  const primarySP = '0xD142052d8C0881FC7485C1270c3510BC442E05DD';
   console.log('primarySP', primarySP);
 
   // create bucket
-  const createBucketTx = await client.bucket.createBucket(
-    {
-      bucketName: bucketName,
-      creator: ACCOUNT_ADDRESS,
-      visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-      chargedReadQuota: '0',
-      spInfo: {
-        primarySpAddress: primarySP,
-      },
-      paymentAddress: ACCOUNT_ADDRESS,
-    },
-    {
-      type: 'ECDSA',
-      privateKey: ACCOUNT_PRIVATEKEY,
-    },
-  );
+  const createBucketTx = await client.bucket.createBucket({
+    bucketName: bucketName,
+    creator: ACCOUNT_ADDRESS,
+    visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+    chargedReadQuota: Long.fromString('0'),
+    primarySpAddress: primarySP,
+    paymentAddress: ACCOUNT_ADDRESS,
+  });
 
   const createBucketTxSimulateInfo = await createBucketTx.simulate({
     denom: 'BNB',
@@ -76,22 +75,16 @@ console.log('objectName', objectName);
   const expectCheckSums = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer));
 
   // create object tx
-  const createObjectTx = await client.object.createObject(
-    {
-      bucketName: bucketName,
-      objectName: objectName,
-      creator: ACCOUNT_ADDRESS,
-      visibility: 'VISIBILITY_TYPE_PRIVATE',
-      fileType: fileType,
-      redundancyType: 'REDUNDANCY_EC_TYPE',
-      contentLength: fileBuffer.length,
-      expectCheckSums,
-    },
-    {
-      type: 'ECDSA',
-      privateKey: ACCOUNT_PRIVATEKEY,
-    },
-  );
+  const createObjectTx = await client.object.createObject({
+    bucketName: bucketName,
+    objectName: objectName,
+    creator: ACCOUNT_ADDRESS,
+    visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+    contentType: fileType,
+    redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+    payloadSize: Long.fromInt(fileBuffer.length),
+    expectChecksums: expectCheckSums.map((x) => bytesFromBase64(x)),
+  });
   const createObjectTxSimulateInfo = await createObjectTx.simulate({
     denom: 'BNB',
   });
@@ -114,7 +107,7 @@ console.log('objectName', objectName);
     {
       bucketName: bucketName,
       objectName: objectName,
-      body: fileBuffer,
+      body: createFile(filePath),
       txnHash: createObjectTxRes.transactionHash,
     },
     {
@@ -123,3 +116,15 @@ console.log('objectName', objectName);
     },
   );
 })();
+
+function createFile(path) {
+  const stats = fs.statSync(path);
+  const fileSize = stats.size;
+
+  return {
+    name: path,
+    type: '',
+    size: fileSize,
+    content: fs.readFileSync(path),
+  };
+}

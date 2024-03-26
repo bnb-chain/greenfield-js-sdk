@@ -1,7 +1,11 @@
 # Browser File Management
 
 ```bash
-> cp .env.simple .env
+> pnpm install
+
+> pnpm -F "@bnb-chain/**" build
 ```
 
-And then fill your account info in `.env`.
+```bash
+> cp .env.simple .env
+```
