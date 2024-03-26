@@ -1,4 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
+import { bytesFromBase64, Long, RedundancyType, VisibilityType } from '../src';
 import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } from './env';
 import { client, generateString, selectSp } from './utils';
 
@@ -16,22 +17,14 @@ describe('storageTx', () => {
 
     test('create bucket', async () => {
       const spInfo = await selectSp();
-      const createBucketTx = await client.bucket.createBucket(
-        {
-          bucketName: BUCKET_NAME,
-          creator: ACCOUNT_ADDRESS,
-          visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-          chargedReadQuota: '0',
-          spInfo: {
-            primarySpAddress: spInfo.primarySpAddress,
-          },
-          paymentAddress: ACCOUNT_ADDRESS,
-        },
-        {
-          type: 'ECDSA',
-          privateKey: ACCOUNT_PRIVATEKEY,
-        },
-      );
+      const createBucketTx = await client.bucket.createBucket({
+        bucketName: BUCKET_NAME,
+        creator: ACCOUNT_ADDRESS,
+        visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+        chargedReadQuota: Long.fromString('0'),
+        primarySpAddress: spInfo.primarySpAddress,
+        paymentAddress: ACCOUNT_ADDRESS,
+      });
 
       const simulateInfo = await createBucketTx.simulate({
         denom: 'BNB',
@@ -65,28 +58,24 @@ describe('storageTx', () => {
     console.log('object name', OBJECT_NAME);
 
     test('create Object', async () => {
-      const createObjectTx = await client.object.createObject(
-        {
-          bucketName: BUCKET_NAME,
-          objectName: OBJECT_NAME,
-          contentLength: 0,
-          fileType: 'text/plain',
-          expectCheckSums: [
-            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-            '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-          ],
-          creator: ACCOUNT_ADDRESS,
-        },
-        {
-          type: 'ECDSA',
-          privateKey: ACCOUNT_PRIVATEKEY,
-        },
-      );
+      const createObjectTx = await client.object.createObject({
+        bucketName: BUCKET_NAME,
+        objectName: OBJECT_NAME,
+        payloadSize: Long.fromString('0'),
+        contentType: 'text/plain',
+        expectChecksums: [
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+        ].map((x) => bytesFromBase64(x)),
+        creator: ACCOUNT_ADDRESS,
+        redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+        visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+      });
 
       const simulateInfo = await createObjectTx.simulate({
         denom: 'BNB',
