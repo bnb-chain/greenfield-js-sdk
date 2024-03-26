@@ -2,10 +2,15 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const mimeTypes = require('mime-types');
-const { getCheckSums } = require('@bnb-chain/greenfiled-file-handle');
 const { NodeAdapterReedSolomon } = require('@bnb-chain/reed-solomon/node.adapter');
 const { client, selectSp, generateString } = require('../client');
 const { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } = require('../env');
+const {
+  VisibilityType,
+  RedundancyType,
+  Long,
+  bytesFromBase64,
+} = require('@bnb-chain/greenfield-js-sdk');
 
 const filePath = './CHANGELOG.md';
 const bucketName = generateString(10);
@@ -22,31 +27,20 @@ console.log('objectName', objectName);
   const spInfo = await selectSp();
 
   // create bucket example:
-  const createBucketTx = await client.bucket.createBucket(
-    {
-      bucketName: bucketName,
-      creator: ACCOUNT_ADDRESS,
-      visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-      chargedReadQuota: '0',
-      spInfo: {
-        primarySpAddress: spInfo.primarySpAddress,
-      },
-      paymentAddress: ACCOUNT_ADDRESS,
-      tags: {
-        tags: [],
-      },
-    },
-    {
-      type: 'ECDSA',
-      privateKey: ACCOUNT_PRIVATEKEY,
-    },
-  );
+  const createBucketTx = await client.bucket.createBucket({
+    bucketName: bucketName,
+    creator: ACCOUNT_ADDRESS,
+    visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+    chargedReadQuota: Long.fromString('0'),
+    paymentAddress: ACCOUNT_ADDRESS,
+    primarySpAddress: spInfo.primarySpAddress,
+  });
 
   const createBucketTxSimulateInfo = await createBucketTx.simulate({
     denom: 'BNB',
   });
 
-  console.log('createBucketTxSimulateInfo', createBucketTxSimulateInfo);
+  // console.log('createBucketTxSimulateInfo', createBucketTxSimulateInfo);
 
   const createBucketTxRes = await createBucketTx.broadcast({
     denom: 'BNB',
@@ -57,27 +51,23 @@ console.log('objectName', objectName);
     privateKey: ACCOUNT_PRIVATEKEY,
   });
 
-  console.log('create bucket success', createBucketTxRes);
+  if (createBucketTxRes.code === 0) {
+    console.log('create bucket success');
+  }
 
   // create object example:
   const expectCheckSums = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer));
 
-  const createObjectTx = await client.object.createObject(
-    {
-      bucketName: bucketName,
-      objectName: objectName,
-      creator: ACCOUNT_ADDRESS,
-      visibility: 'VISIBILITY_TYPE_PRIVATE',
-      fileType: fileType,
-      redundancyType: 'REDUNDANCY_EC_TYPE',
-      contentLength: fileBuffer.length,
-      expectCheckSums,
-    },
-    {
-      type: 'ECDSA',
-      privateKey: ACCOUNT_PRIVATEKEY,
-    },
-  );
+  const createObjectTx = await client.object.createObject({
+    bucketName: bucketName,
+    objectName: objectName,
+    creator: ACCOUNT_ADDRESS,
+    visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+    contentType: fileType,
+    redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+    payloadSize: Long.fromInt(fileBuffer.byteLength),
+    expectChecksums: expectCheckSums.map((x) => bytesFromBase64(x)),
+  });
 
   const createObjectTxSimulateInfo = await createObjectTx.simulate({
     denom: 'BNB',
@@ -98,7 +88,7 @@ console.log('objectName', objectName);
     {
       bucketName: bucketName,
       objectName: objectName,
-      body: fileBuffer,
+      body: createFile(filePath),
       txnHash: createObjectTxRes.transactionHash,
     },
     {
@@ -117,6 +107,8 @@ console.log('objectName', objectName);
       bucketName: bucketName,
       objectName: objectName + '/',
       creator: ACCOUNT_ADDRESS,
+      redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+      visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
     },
     {
       type: 'ECDSA',
@@ -140,3 +132,15 @@ console.log('objectName', objectName);
     console.log('create folder success', res);
   }
 })();
+
+function createFile(path) {
+  const stats = fs.statSync(path);
+  const fileSize = stats.size;
+
+  return {
+    name: path,
+    type: '',
+    size: fileSize,
+    content: fs.readFileSync(path),
+  };
+}

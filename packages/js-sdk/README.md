@@ -7,20 +7,12 @@ npm install @bnb-chain/greenfield-js-sdk
 ```
 
 ## Create Client
+
 ```js
 import {Client} from '@bnb-chain/greenfield-js-sdk'
 
-// Node.js
 const client = Client.create(GRPC_URL, GREEN_CHAIN_ID);
-
-// Browser
-Client.create(GRPC_URL, String(GREEN_CHAIN_ID), {
-  zkCryptoUrl:
-    'https://unpkg.com/@bnb-chain/greenfield-zk-crypto@0.0.2-alpha.4/dist/node/zk-crypto.wasm',
-});
 ```
-
-> Browser need load wasm manually.
 
 ## Usage
 
@@ -92,6 +84,7 @@ const broadcastRes = await transferTx.broadcast({
 ```
 
 If you broadcast in Nodejs, you can broadcast a tx by `privateKey`:
+
 ```js
 const broadcastRes = await transferTx.broadcast({
   // ...
@@ -107,6 +100,7 @@ await client.account.getAccount(address);
 ```
 
 Examples:
+
 * [Next.js](../../examples/nextjs/README.md)
 * [Node.js](../../examples/nodejs/README.md)
 
