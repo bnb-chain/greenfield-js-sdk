@@ -1,3 +1,4 @@
+import { getDelegatedCreateFolderMetaInfo } from '@/clients/spclient/spApis/delegatedCreateFolder';
 import {
   getObjectOffsetInfo,
   parseObjectOffsetResponse,
@@ -91,7 +92,12 @@ import {
 import { GetObjectRequest } from '../types/sp/GetObject';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
 import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
-import { DelegatedOpts, DelegatedPubObjectRequest, PutObjectRequest } from '../types/sp/PutObject';
+import {
+  DelegatedCreateFolderRequest,
+  DelegatedOpts,
+  DelegatedPubObjectRequest,
+  PutObjectRequest,
+} from '../types/sp/PutObject';
 import {
   checkObjectName,
   generateUrlByBucketName,
@@ -143,6 +149,11 @@ export interface IObject {
   createFolder(
     msg: Omit<MsgCreateObject, 'payloadSize' | 'contentType' | 'expectChecksums'>,
   ): Promise<TxResponse>;
+
+  delegateCreateFolder(
+    params: DelegatedCreateFolderRequest,
+    authType: AuthType,
+  ): Promise<SpResponse<null>>;
 
   putObjectPolicy(
     bucketName: string,
@@ -882,6 +893,45 @@ export class Objects implements IObject {
     };
 
     return this.createObject(newMsg);
+  }
+
+  public async delegateCreateFolder(params: DelegatedCreateFolderRequest, authType: AuthType) {
+    const { bucketName, objectName, delegatedOpts, timeout = 10000 } = params;
+
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    }
+    const { reqMeta, optionsWithOutHeaders, url } = await getDelegatedCreateFolderMetaInfo(
+      endpoint,
+      {
+        bucketName: bucketName,
+        objectName: objectName,
+        // contentType: '',
+        delegatedOpts,
+      },
+    );
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    try {
+      const result = await this.spClient.callApi(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        timeout,
+      );
+      const { status } = result;
+
+      return { code: 0, message: 'Put object success.', statusCode: status };
+    } catch (error: any) {
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
   }
 
   public async putObjectPolicy(

@@ -323,6 +323,40 @@ export const CreateObject = () => {
           }}
         >
           create folder
+        </button>{' '}
+        <button
+          onClick={async () => {
+            if (!address) return;
+
+            const provider = await connector?.getProvider();
+            const offChainData = await getOffchainAuthKeys(address, provider);
+            if (!offChainData) {
+              alert('No offchain, please create offchain pairs first');
+              return;
+            }
+
+            const res = await client.object.delegateCreateFolder(
+              {
+                bucketName: createObjectInfo.bucketName,
+                objectName: createObjectInfo.objectName,
+                delegatedOpts: {
+                  visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+                },
+              },
+              {
+                type: 'EDDSA',
+                domain: window.location.origin,
+                seed: offChainData.seedString,
+                address,
+              },
+            );
+
+            if (res.code === 0) {
+              alert('success');
+            }
+          }}
+        >
+          delegate create folder
         </button>
       </>
     </div>

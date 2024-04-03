@@ -21,6 +21,14 @@ export type DelegatedPubObjectRequest = {
   resumableOpts?: ResumableOpts;
 };
 
+export type DelegatedCreateFolderRequest = {
+  bucketName: string;
+  objectName: string;
+  delegatedOpts: DelegatedOpts;
+  endpoint?: string;
+  timeout?: number;
+};
+
 export type DelegatedOpts = {
   visibility: VisibilityType;
   isUpdate?: boolean;
