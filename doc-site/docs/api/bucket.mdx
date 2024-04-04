@@ -131,7 +131,7 @@ This API is used to get bucket meta by bucket name.
 
 ```jsx title="Browser | Nodejs"
 const bucketInfo = await client.bucket.getBucketMeta({
-  bucketName,
+  bucketName: 'bucketName',
 });
 ```
 
@@ -162,7 +162,7 @@ Query the quota info of the specific bucket of current month.
 ```jsx
 const tx = await client.bucket.getBucketReadQuota(
   {
-    bucketName,
+    bucketName: 'bucketName',
   },
   // highlight-start
   {
@@ -181,7 +181,7 @@ const tx = await client.bucket.getBucketReadQuota(
 ```js
 const tx = await client.bucket.getBucketReadQuota(
   {
-    bucketName,
+    bucketName: 'bucketName',
   },
   // highlight-start
   {
@@ -226,7 +226,7 @@ Queries a bucket extra info (with gvg bindings and price time) with specify name
 | bucketName | bucket name |
 
 ```jsx title="Browser | Nodejs"
-const bucketInfo = await client.bucket.headBucketExtra(bucketName);
+const bucketInfo = await client.bucket.headBucketExtra('bucketName');
 ```
 
 <!-- ## headBucketNFT <ApiTypes type="Query" /> -->
@@ -246,7 +246,7 @@ List the download record info of the specific bucket of the current month.
 ```jsx
 const tx = await client.bucket.listBucketReadRecords(
   {
-    bucketName,
+    bucketName: 'bucketName',
     startTimeStamp,
     endTimeStamp,
     maxRecords: 1000,
@@ -268,7 +268,7 @@ const tx = await client.bucket.listBucketReadRecords(
 ```js
 const tx = await client.bucket.listBucketReadRecords(
   {
-    bucketName,
+    bucketName: 'bucketName',
     startTimeStamp,
     endTimeStamp,
     maxRecords: 1000,
@@ -295,7 +295,7 @@ Lists the bucket info of the user.
 
 ```jsx title="Browser | Nodejs"
 const res = await client.bucket.listBuckets({
-  address,
+  address: '0x...',
 });
 ```
 
