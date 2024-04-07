@@ -14,6 +14,8 @@ export interface ReadQuotaResponse {
     SPFreeReadQuotaSize: number;
     ReadConsumedSize: number;
     FreeConsumedSize: number;
+    MonthlyFreeQuota: number;
+    MonthlyQuotaConsumedSize: number;
   };
 }
 
@@ -22,4 +24,6 @@ export interface IQuotaProps {
   freeQuota: number;
   consumedQuota: number;
   freeConsumedSize: number;
+  monthlyFreeQuota: number;
+  monthlyQuotaConsumedSize: number;
 }
