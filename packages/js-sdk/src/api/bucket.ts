@@ -400,6 +400,8 @@ export class Bucket implements IBucket {
           freeQuota: Number(res.GetReadQuotaResult.SPFreeReadQuotaSize ?? '0'),
           consumedQuota: Number(res.GetReadQuotaResult.ReadConsumedSize ?? '0'),
           freeConsumedSize: Number(res.GetReadQuotaResult.FreeConsumedSize ?? '0'),
+          monthlyFreeQuota: Number(res.GetReadQuotaResult.MonthlyFreeQuota ?? '0'),
+          monthlyQuotaConsumedSize: Number(res.GetReadQuotaResult.MonthlyQuotaConsumedSize ?? '0'),
         },
         message: 'Get bucket read quota.',
         statusCode: result.status,
