@@ -1,13 +1,58 @@
 export type BucketMeta = {
+  /**
+   * defines the information of the bucket.
+   */
   BucketInfo: BucketInfo;
+
+  /**
+   * defines the creation transaction hash of bucket
+   */
   CreateTxHash: string;
+
+  /**
+   * defines the block number when the bucket deleted.
+   */
   DeleteAt: number;
+
+  /**
+   * defines the deleted reason of bucket
+   */
   DeleteReason: string;
+
+  /**
+   * defines the operator address of bucket
+   */
   Operator: string;
+
+  /**
+   * defines the bucket is deleted or not
+   */
   Removed: boolean;
+
+  /**
+   * defines the block number when the bucket updated
+   */
   UpdateAt: number;
+
+  /**
+   * defines the block number when the bucket updated
+   */
   UpdateTime: number;
+
+  /**
+   * defines the update transaction hash of bucket
+   */
   UpdateTxHash: string;
+
+  /**
+   * OffChainStatus represents the status of a bucket in the off-chain storage.
+	  It is used to track the current state of the bucket with respect to off-chain operations,
+	  1 means 0001 -> OffChainStatusIsLimited is true
+	  0 means 0000 -> OffChainStatusIsLimited is false
+
+    For an explanation of the different OffChainStatus values, please visit:https://github.com/bnb-chain/greenfield-storage-provider/blob/9d7048ad33cf51a2f7eb347e2113c5d0cc45f970/modular/blocksyncer/modules/bucket/bucket_handle.go#L40
+   */
+  OffChainStatus: number;
 };
 
 export type GlobalVirtualGroupFamily = {
@@ -18,6 +63,9 @@ export type GlobalVirtualGroupFamily = {
 };
 
 export interface BucketMetaWithVGF extends BucketMeta {
+  /**
+   * serve as a means of grouping global virtual groups.
+   */
   Vgf: GlobalVirtualGroupFamily;
 }
 
@@ -31,23 +79,73 @@ export function formatVGF(vgf: GlobalVirtualGroupFamily): GlobalVirtualGroupFami
 }
 
 export interface BucketInfo {
-  // PrimarySpId: number;
+  /**
+   * globally unique name of bucket
+   */
   BucketName: string;
+
+  /**
+   * define the status of the bucket.
+   */
   BucketStatus: number;
+
+  /**
+   * charged_read_quota defines the traffic quota for read in bytes per month.
+	  The available read data for each user is the sum of the free read data provided by SP and
+	  the ChargeReadQuota specified here.
+   */
   ChargedReadQuota: number;
+
+  /**
+   * define the block timestamp when the bucket created.
+   */
   CreateAt: number;
+
+  /**
+   * defines the unique id of gvg family
+   */
   GlobalVirtualGroupFamilyId: number;
+
+  /**
+   * the unique identification for bucket.
+   */
   Id: string;
+
+  /**
+   * the account address of bucket creator, it is also the bucket owner.
+   */
   Owner: string;
+
+  /**
+   * the address of the payment account
+   */
   PaymentAddress: string;
+
+  /**
+   * defines which chain the user should send the bucket management transactions to
+   */
   SourceType: number;
+
+  /**
+   * defines the highest permissions for bucket. When a bucket is public, everyone can get storage objects in it.
+   */
   Visibility: number;
+
+  /**
+   * defines a list of tags the bucket has
+   */
   Tags: {
     Tags: {
       Key: string;
       Value: string;
     }[];
   };
+
+  /**
+   * indicates that whether bucket owner disable SP as the upload agent.
+	when a bucket is created, by default, this is false, means SP is allowed to create object for delegator
+   */
+  SpAsDelegatedAgentDisabled: string;
 }
 
 export interface StreamRecord {
@@ -114,6 +212,8 @@ export function formatBucketInfo(o: BucketInfo): BucketInfo {
     GlobalVirtualGroupFamilyId: Number(o.GlobalVirtualGroupFamilyId),
     SourceType: Number(o.SourceType),
     Visibility: Number(o.Visibility),
+    // @ts-ignore
+    SpAsDelegatedAgentDisabled: convertStrToBool(o.SpAsDelegatedAgentDisabled),
     Tags: {
       Tags: tags,
     },
