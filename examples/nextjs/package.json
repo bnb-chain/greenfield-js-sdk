@@ -1,6 +1,6 @@
 {
   "name": "@demo/wallet",
-  "version": "0.0.28-alpha.4",
+  "version": "0.0.28-alpha.5",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development next dev",

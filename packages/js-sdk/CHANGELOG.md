@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.0.0-alpha.5
+
+### Patch Changes
+
+- [#509](https://github.com/bnb-chain/greenfield-js-sdk/pull/509)
+  [`c9ab316`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c9ab316597c2b4d6f30cdcb4a6d3645096dbeecc)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: `Bucket.getBucketReadQuota` add monthly field
+
+- [#510](https://github.com/bnb-chain/greenfield-js-sdk/pull/510)
+  [`159c01f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/159c01fe5e4a798d23b0593497c0845e6371d7d2)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: SpResponse - bucketinfo add
+  SpAsDelegatedAgentDisabled and offchainstatus field
+
 ## 2.0.0-alpha.4
 
 ### Major Changes
