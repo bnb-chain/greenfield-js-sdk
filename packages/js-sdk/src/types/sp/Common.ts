@@ -52,7 +52,7 @@ export type BucketMeta = {
 
     For an explanation of the different OffChainStatus values, please visit:https://github.com/bnb-chain/greenfield-storage-provider/blob/9d7048ad33cf51a2f7eb347e2113c5d0cc45f970/modular/blocksyncer/modules/bucket/bucket_handle.go#L40
    */
-  OffChainStatus: number;
+  OffChainStatus: string;
 };
 
 export type GlobalVirtualGroupFamily = {
