@@ -1,7 +1,9 @@
 import { EMPTY_STRING_SHA256, METHOD_POST } from '@/constants';
 import { ReqMeta } from '@/types';
+import { DelegateCreateFolderRepsonse } from '@/types/sp/DelegateCreateFolder';
 import { generateUrlByBucketName } from '@/utils';
 import { VisibilityType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
+import { XMLParser } from 'fast-xml-parser';
 import { encodePath, getSortQueryParams } from '../auth';
 
 export const getDelegatedCreateFolderMetaInfo = async (
@@ -49,4 +51,13 @@ export const getDelegatedCreateFolderMetaInfo = async (
     optionsWithOutHeaders,
     reqMeta,
   };
+};
+
+export const parseDelegatedCreateFolderResponse = (data: string) => {
+  const xmlParser = new XMLParser({
+    parseTagValue: false,
+  });
+
+  const res = xmlParser.parse(data) as DelegateCreateFolderRepsonse;
+  return res;
 };

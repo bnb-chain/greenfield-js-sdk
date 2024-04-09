@@ -1,4 +1,7 @@
-import { getDelegatedCreateFolderMetaInfo } from '@/clients/spclient/spApis/delegatedCreateFolder';
+import {
+  getDelegatedCreateFolderMetaInfo,
+  parseDelegatedCreateFolderResponse,
+} from '@/clients/spclient/spApis/delegatedCreateFolder';
 import {
   getObjectOffsetInfo,
   parseObjectOffsetResponse,
@@ -8,6 +11,12 @@ import {
   parseObjectStatusResponse,
 } from '@/clients/spclient/spApis/getObjectStatus';
 import { getResumablePutObjectMetaInfo } from '@/clients/spclient/spApis/resumablePutObject';
+import { DelegatedOpts } from '@/types/sp/Common';
+import {
+  DelegateCreateFolderRepsonse,
+  DelegatedCreateFolderRequest,
+} from '@/types/sp/DelegateCreateFolder';
+import { DelegatedPubObjectRequest } from '@/types/sp/DelegatedPubObject';
 import { UploadProgressResponse } from '@/types/sp/UploadProgress';
 import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import {
@@ -92,12 +101,7 @@ import {
 import { GetObjectRequest } from '../types/sp/GetObject';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
 import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
-import {
-  DelegatedCreateFolderRequest,
-  DelegatedOpts,
-  DelegatedPubObjectRequest,
-  PutObjectRequest,
-} from '../types/sp/PutObject';
+import { PutObjectRequest } from '../types/sp/PutObject';
 import {
   checkObjectName,
   generateUrlByBucketName,
@@ -153,7 +157,7 @@ export interface IObject {
   delegateCreateFolder(
     params: DelegatedCreateFolderRequest,
     authType: AuthType,
-  ): Promise<SpResponse<null>>;
+  ): Promise<SpResponse<DelegateCreateFolderRepsonse>>;
 
   putObjectPolicy(
     bucketName: string,
@@ -396,7 +400,7 @@ export class Objects implements IObject {
       return { code: 0, message: 'Put object success.', statusCode: status };
     } catch (error: any) {
       return {
-        code: -1,
+        code: error.code || -1,
         message: error.message,
         statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };
@@ -924,10 +928,13 @@ export class Objects implements IObject {
       );
       const { status } = result;
 
-      return { code: 0, message: 'Put object success.', statusCode: status };
+      const xmlData = await result.text();
+      const res = parseDelegatedCreateFolderResponse(xmlData);
+
+      return { code: 0, message: 'Create folder success.', statusCode: status, body: res };
     } catch (error: any) {
       return {
-        code: -1,
+        code: error.code || -1,
         message: error.message,
         statusCode: error?.statusCode || NORMAL_ERROR_CODE,
       };

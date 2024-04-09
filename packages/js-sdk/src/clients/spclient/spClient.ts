@@ -79,6 +79,7 @@ export class SpClient implements ISpClient {
       if (!response.ok) {
         const xmlError = await response.text();
         const { code, message } = await parseError(xmlError);
+
         throw {
           code: code || customError?.code,
           message: message || customError?.message,
@@ -88,7 +89,7 @@ export class SpClient implements ISpClient {
 
       return response;
     } catch (error) {
-      return Promise.reject(error + ': timeout, try to increase the request time');
+      return Promise.reject(error);
     }
   }
 
