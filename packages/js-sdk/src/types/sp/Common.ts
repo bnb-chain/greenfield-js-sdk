@@ -1,3 +1,5 @@
+import { VisibilityType } from '../common';
+
 export type BucketMeta = {
   /**
    * defines the information of the bucket.
@@ -322,3 +324,13 @@ export interface PolicyMeta {
    */
   ExpirationTime: number;
 }
+
+export type DelegatedOpts = {
+  visibility: VisibilityType;
+  isUpdate?: boolean;
+};
+
+export type ResumableOpts = {
+  disableResumable: boolean;
+  partSize?: number;
+};

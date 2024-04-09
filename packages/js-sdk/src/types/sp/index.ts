@@ -1,3 +1,5 @@
+export * from './DelegateCreateFolder';
+export * from './DelegatedPubObject';
 export * from './ErrorResponse';
 export * from './GetBucketMeta';
 export * from './GetObject';

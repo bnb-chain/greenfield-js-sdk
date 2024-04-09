@@ -351,6 +351,8 @@ export const CreateObject = () => {
               },
             );
 
+            console.log('res', res);
+
             if (res.code === 0) {
               alert('success');
             }

@@ -1,5 +1,6 @@
 import { EMPTY_STRING_SHA256, METHOD_POST } from '@/constants';
-import { DelegatedOpts, ReqMeta } from '@/types';
+import { ReqMeta } from '@/types';
+import { DelegatedOpts } from '@/types/sp/Common';
 import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { encodePath, getSortQueryParams } from '../auth';
 
