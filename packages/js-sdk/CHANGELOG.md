@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.0.0-alpha.6
+
+### Patch Changes
+
+- [#513](https://github.com/bnb-chain/greenfield-js-sdk/pull/513)
+  [`cb9658e`](https://github.com/bnb-chain/greenfield-js-sdk/commit/cb9658e65e630f5ff071d415efa8d6f14cb10dea)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Delegated Create Folder APi return parse error
+  message
+
+- [#512](https://github.com/bnb-chain/greenfield-js-sdk/pull/512)
+  [`acf8644`](https://github.com/bnb-chain/greenfield-js-sdk/commit/acf8644ba0b893d6c0a4395845c365995b520ce1)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: OffchainStatus type number -> string
+
 ## 2.0.0-alpha.5
 
 ### Patch Changes
