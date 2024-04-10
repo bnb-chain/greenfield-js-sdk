@@ -147,28 +147,13 @@ export const CreateObj = () => {
             },
           );
 
-          const setTagTx = await client.storage.setTag({
-            operator: granteeAddr,
-            resource: GRNToString(newObjectGRN(bucketName, objectName)),
-            tags: {
-              tags: [
-                {
-                  key: 'x',
-                  value: 'xx',
-                },
-              ],
-            },
-          });
-
-          const multiTx = await client.txClient.multiTx([createObjectTx, setTagTx]);
-
-          const simulateInfo = await multiTx.simulate({
+          const simulateInfo = await createObjectTx.simulate({
             denom: 'BNB',
           });
 
           console.log('simulateInfo', simulateInfo);
 
-          const res = await multiTx.broadcast({
+          const res = await createObjectTx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',
@@ -178,7 +163,7 @@ export const CreateObj = () => {
           });
 
           if (res.code === 0) {
-            alert('success');
+            alert('create objectTx success');
           }
 
           // const uploadRes = await client.object.uploadObject({
