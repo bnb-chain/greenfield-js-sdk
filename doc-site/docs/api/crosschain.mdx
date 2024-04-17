@@ -1,0 +1,156 @@
+---
+id: crosschain
+title: 'Crosschain'
+---
+
+import ApiTypes from '../../src/components/snippers/api-types.tsx';
+import Tx from '../../src/components/snippers/tx.mdx';
+
+## getChannelSendSequence <ApiTypes type="Query" />
+
+Get the next send sequence for a channel.
+
+| params      | description                           |
+| ----------- | ------------------------------------- |
+| destChainId | destination chain id                  |
+| channelId   | channel id of the cross chain package |
+
+```jsx title="example"
+await client.crosschain.getChannelSendSequence({
+  destChainId: '5600',
+  channelId: '97',
+});
+```
+
+## getChannelReceiveSequence <ApiTypes type="Query" />
+
+Get the next receive sequence for a channel.
+
+| params      | description                           |
+| ----------- | ------------------------------------- |
+| destChainId | destination chain id                  |
+| channelId   | channel id of the cross chain package |
+
+```jsx title="example"
+await client.crosschain.getChannelReceiveSequence({
+  destChainId: '5600',
+  channelId: '97',
+});
+```
+
+## getCrosschainPackage <ApiTypes type="Query" />
+
+Get the cross-chain package by sequence.
+
+| params      | description                           |
+| ----------- | ------------------------------------- |
+| destChainId | destination chain id                  |
+| channelId   | channel id of the cross chain package |
+| sequence    | sequence of the cross chain package   |
+
+```jsx title="example"
+await client.crosschain.getCrosschainPackage({
+  destChainId: '5600',
+  channelId: '97',
+  sequence: '111',
+});
+```
+
+## getInturnRelayer <ApiTypes type="Query" />
+
+Get the in-turn relayer bls public key and its relay interval.
+
+```jsx title="example"
+await client.crosschain.getInturnRelayer();
+```
+
+## mirrorBucket <ApiTypes type="Tx" />
+
+Mirror the bucket to BSC as an NFT.
+
+| params      | description                                                                                                 |
+| ----------- | ----------------------------------------------------------------------------------------------------------- |
+| creator     | defines the account address of the grantee who has the DeleteBucket permission of the bucket to be deleted. |
+| id          | defines the unique u256 for bucket                                                                          |
+| bucketName  | defines a globally unique name of bucket                                                                    |
+| destChainId | destination chain id                                                                                        |
+
+```jsx title="example"
+const tx = await client.crosschain.mirrorBucket({
+  bucketName: 'bucket_name',
+  id: 'bucket_id',
+  creator: '0x00...',
+  destChainId: '97',
+});
+```
+
+<Tx />
+
+## mirrorGroup <ApiTypes type="Tx" />
+
+Mirror the group to BSC as an NFT.
+
+| params      | description                                                               |
+| ----------- | ------------------------------------------------------------------------- |
+| operator    | defines the account address of the operator who is the owner of the group |
+| id          | the unique u256 for group                                                 |
+| groupName   | the name of the group                                                     |
+| destChainId | destination chain id                                                      |
+
+```jsx title="example"
+const tx = await client.crosschain.mirrorGroup({
+  groupName: 'group_name',
+  id: 'group_id',
+  operator: '0x00...',
+  destChainId: '97',
+});
+```
+
+<Tx />
+
+## mirrorObject <ApiTypes type="Tx" />
+
+Mirror the object to BSC as an NFT.
+
+| params      | description                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------------------- |
+| operator    | the account address of the operator who has the DeleteObject permission of the object to be deleted |
+| id          | the unique u256 for object                                                                          |
+| bucketName  | the name of the bucket where the object is stored                                                   |
+| objectName  | the name of object                                                                                  |
+| destChainId | destination chain id                                                                                |
+
+```jsx title="example"
+const tx = await client.crosschain.mirrorObject({
+  bucketName: 'bucket_name',
+  objectName: 'object_name',
+  id: 'object_id',
+  operator: '0x00...',
+  destChainId: '97',
+});
+```
+
+<Tx />
+
+## transferOut <ApiTypes type="Tx" />
+
+Make a transfer from Greenfield to BSC.
+
+| params | description         |
+| ------ | ------------------- |
+| from   | from address        |
+| to     | to address          |
+| amount | [Coin](/types/coin) |
+
+```jsx title="example"
+const tx = await client.crosschain.transferOut({
+  from: '0x00...',
+  to: '0x0000000000000000000000000000000000000001',
+  amount: {
+    amount: '1000000000',
+    denom: 'BNB',
+  },
+});
+```
+
+<Tx />

@@ -1,0 +1,26 @@
+---
+id: action
+title: ActionType
+---
+
+The operations you can execute in greenfield storage network
+
+```jsx
+export enum ActionType {
+  ACTION_UNSPECIFIED = 0,
+  ACTION_UPDATE_BUCKET_INFO = 1,
+  ACTION_DELETE_BUCKET = 2,
+  ACTION_CREATE_OBJECT = 3,
+  ACTION_DELETE_OBJECT = 4,
+  ACTION_COPY_OBJECT = 5,
+  ACTION_GET_OBJECT = 6,
+  ACTION_EXECUTE_OBJECT = 7,
+  ACTION_LIST_OBJECT = 8,
+  ACTION_UPDATE_GROUP_MEMBER = 9,
+  ACTION_DELETE_GROUP = 10,
+  ACTION_UPDATE_OBJECT_INFO = 11,
+  ACTION_UPDATE_GROUP_EXTRA = 12,
+  ACTION_TYPE_ALL = 99,
+  UNRECOGNIZED = -1,
+}
+```

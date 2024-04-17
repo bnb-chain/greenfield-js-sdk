@@ -42,13 +42,13 @@ export const CreateGroup = () => {
             gasPrice: simulateInfo.gasPrice,
             payer: address,
             granter: '',
-            signTypedDataCallback: async (addr: string, message: string) => {
-              const provider = await connector?.getProvider();
-              return await provider?.request({
-                method: 'eth_signTypedData_v4',
-                params: [addr, message],
-              });
-            },
+            // signTypedDataCallback: async (addr: string, message: string) => {
+            //   const provider = await connector?.getProvider();
+            //   return await provider?.request({
+            //     method: 'eth_signTypedData_v4',
+            //     params: [addr, message],
+            //   });
+            // },
           });
 
           if (res.code === 0) {

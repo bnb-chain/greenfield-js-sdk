@@ -1,0 +1,14 @@
+{
+  "position": 4,
+  "label": "Types",
+  "collapsible": true,
+  "collapsed": false,
+  "className": "red",
+  "link": {
+    "type": "generated-index",
+    "title": "Types"
+  },
+  "customProps": {
+    "description": ""
+  }
+}

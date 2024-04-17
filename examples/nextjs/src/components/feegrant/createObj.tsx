@@ -4,6 +4,7 @@ import {
   GRNToString,
   MsgCreateObjectTypeUrl,
   newBucketGRN,
+  newObjectGRN,
   PermissionTypes,
   toTimestamp,
 } from '@bnb-chain/greenfield-js-sdk';
@@ -11,6 +12,7 @@ import { Wallet } from '@ethersproject/wallet';
 import { ChangeEvent, useState } from 'react';
 import { parseEther } from 'viem';
 import { useAccount } from 'wagmi';
+import { ReedSolomon } from '@bnb-chain/reed-solomon';
 
 /**
  * fee grant for creat object
@@ -91,7 +93,7 @@ export const CreateObj = () => {
           });
 
           // 4. broadcast txs include 2 msg
-          const txs = await client.basic.multiTx([grantAllowanceTx, putPolicyTx]);
+          const txs = await client.txClient.multiTx([grantAllowanceTx, putPolicyTx]);
           const simuluateInfo = await txs.simulate({
             denom: 'BNB',
           });
@@ -124,11 +126,9 @@ export const CreateObj = () => {
 
           console.log('temp account', granteeAddr, privateKey);
 
+          const rs = new ReedSolomon();
           const fileBytes = await file.arrayBuffer();
-          const hashResult = await (window as any).FileHandle.getCheckSums(
-            new Uint8Array(fileBytes),
-          );
-          const { contentLength, expectCheckSums } = hashResult;
+          const expectCheckSums = rs.encode(new Uint8Array(fileBytes));
 
           const createObjectTx = await client.object.createObject(
             {
@@ -137,23 +137,38 @@ export const CreateObj = () => {
               objectName: objectName,
               visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
               redundancyType: 'REDUNDANCY_EC_TYPE',
-              contentLength,
+              contentLength: fileBytes.byteLength,
               expectCheckSums,
               fileType: file.type,
             },
             {
               type: 'ECDSA',
-              privateKey: ACCOUNT_PRIVATEKEY,
+              privateKey: privateKey,
             },
           );
 
-          const simulateInfo = await createObjectTx.simulate({
+          const setTagTx = await client.storage.setTag({
+            operator: granteeAddr,
+            resource: GRNToString(newObjectGRN(bucketName, objectName)),
+            tags: {
+              tags: [
+                {
+                  key: 'x',
+                  value: 'xx',
+                },
+              ],
+            },
+          });
+
+          const multiTx = await client.txClient.multiTx([createObjectTx, setTagTx]);
+
+          const simulateInfo = await multiTx.simulate({
             denom: 'BNB',
           });
 
           console.log('simulateInfo', simulateInfo);
 
-          const res = await createObjectTx.broadcast({
+          const res = await multiTx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',

@@ -1,7 +1,6 @@
 import { client } from '@/client';
-import { toTimestamp } from '@bnb-chain/greenfield-js-sdk';
+import { GRNToString, newGroupGRN, toTimestamp } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
-import { zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
 export const GroupUpdate = () => {
@@ -17,6 +16,7 @@ export const GroupUpdate = () => {
           setGroupName(e.target.value);
         }}
       />
+      <br />
       <button
         onClick={async () => {
           if (!address) return;
@@ -56,6 +56,7 @@ export const GroupUpdate = () => {
       >
         update group (add)
       </button>
+      <br />
       <button
         onClick={async () => {
           if (!address) return;
@@ -87,6 +88,7 @@ export const GroupUpdate = () => {
       >
         update group (delete)
       </button>
+      <br />
       <button
         onClick={async () => {
           if (!address) return;
@@ -116,6 +118,48 @@ export const GroupUpdate = () => {
         }}
       >
         updateGroupExtra
+      </button>
+      <br />
+      <button
+        onClick={async () => {
+          if (!address) return;
+
+          const resource = GRNToString(newGroupGRN(address, groupName));
+
+          const updateGroupTx = await client.storage.setTag({
+            operator: address,
+            resource,
+            // tags: {
+            //   tags: [],
+            // },
+            tags: {
+              tags: [
+                {
+                  key: 'x',
+                  value: 'xx',
+                },
+              ],
+            },
+          });
+
+          const simulateInfo = await updateGroupTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log(simulateInfo);
+
+          const res = await updateGroupTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo.gasLimit),
+            gasPrice: simulateInfo.gasPrice,
+            payer: address,
+            granter: '',
+          });
+
+          console.log('res', res);
+        }}
+      >
+        update group tags
       </button>
     </div>
   );

@@ -7,7 +7,8 @@
   "scripts": {
     "prepare": "husky install",
     "version": "pnpm install && changeset version",
-    "clean": "rimraf node_modules **/*/node_modules"
+    "clean": "rimraf node_modules **/*/node_modules",
+    "build": "pnpm run -F \"./packages/**\" -r build"
   },
   "keywords": [
     "greenfield"
@@ -15,7 +16,7 @@
   "author": "",
   "license": "GPLv3",
   "devDependencies": {
-    "@babel/core": "^7.22.5",
+    "@babel/core": "^7.23.3",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.1",
     "@commitlint/cli": "^17.6.5",
@@ -26,7 +27,7 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-strip": "^3.0.2",
-    "@rollup/plugin-typescript": "^8.5.0",
+    "@rollup/plugin-typescript": "^11.1.3",
     "@types/chai": "^4.3.5",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.16.18",
@@ -36,13 +37,16 @@
     "@typescript-eslint/parser": "^5.59.11",
     "chai": "^4.3.7",
     "conventional-changelog-cmyr-config": "^2.1.0",
-    "eslint": "^8.42.0",
+    "eslint": "^8.48.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.2",
     "mocha": "^10.2.0",
     "prettier": "^2.8.8",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "rollup": "^2.79.1",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-polyfill-node": "^0.10.2"
   }
 }

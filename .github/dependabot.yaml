@@ -1,0 +1,29 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/packages/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "16:00"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "@npmcli/arborist"
+          - "nock"
+          - "npm"
+          - "semver"
+        exclude-patterns:
+          - "detect-indent"  # temp excluded due to https://github.com/dependabot/dependabot-core/pull/5683#issuecomment-1243468605
+      pnpm-dependencies:
+        patterns:
+          - "@pnpm/lockfile-file"
+          - "@pnpm/dependency-path"
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "npm"
+        update-types: ["version-update:semver-major"]

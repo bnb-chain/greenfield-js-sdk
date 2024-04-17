@@ -2,11 +2,29 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@demo/wallet": "0.0.5",
-    "@demo/nodejs": "0.0.8",
-    "@bnb-chain/greenfield-js-sdk": "0.2.4",
-    "@bnb-chain/greenfiled-file-handle": "0.2.1",
-    "@bnb-chain/greenfield-zk-crypto": "0.0.2"
+    "greenfield-js-sdk-docs": "0.0.0",
+    "browser-file-management": "0.1.0",
+    "@demo/wallet": "0.0.27",
+    "@demo/nodejs": "0.0.26",
+    "@bnb-chain/create-gnfd-app": "1.0.0",
+    "@bnb-chain/greenfiled-file-handle": "1.0.2",
+    "@bnb-chain/greenfield-js-sdk": "1.2.2",
+    "@bnb-chain/reed-solomon": "1.1.3",
+    "@bnb-chain/greenfield-zk-crypto": "1.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "calm-cougars-kiss",
+    "eleven-dragons-report",
+    "fifty-moles-serve",
+    "grumpy-suns-roll",
+    "heavy-dolphins-obey",
+    "heavy-suits-punch",
+    "nasty-tomatoes-occur",
+    "rare-vans-talk",
+    "silent-crews-cover",
+    "sixty-mayflies-sin",
+    "strange-maps-begin",
+    "thin-readers-listen",
+    "wet-dragons-obey"
+  ]
 }

@@ -6,7 +6,7 @@ export const DeleteGroup = () => {
   const { address, connector } = useAccount();
 
   const [deleteGroupInfo, setDeleteGroupInfo] = useState({
-    bucketName: '',
+    groupName: '',
   });
 
   return (
@@ -14,10 +14,10 @@ export const DeleteGroup = () => {
       <h3>delete group</h3>
 
       <input
-        value={deleteGroupInfo.bucketName}
+        value={deleteGroupInfo.groupName}
         placeholder="group name"
         onChange={(e) => {
-          setDeleteGroupInfo({ ...setDeleteGroupInfo, bucketName: e.target.value });
+          setDeleteGroupInfo({ ...setDeleteGroupInfo, groupName: e.target.value });
         }}
       />
 
@@ -26,7 +26,7 @@ export const DeleteGroup = () => {
           if (!address) return;
 
           const deleteGroupTx = await client.group.deleteGroup({
-            groupName: deleteGroupInfo.bucketName,
+            groupName: deleteGroupInfo.groupName,
             operator: address,
           });
 

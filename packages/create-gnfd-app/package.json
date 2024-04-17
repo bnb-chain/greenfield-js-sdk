@@ -1,0 +1,50 @@
+{
+  "name": "@bnb-chain/create-gnfd-app",
+  "version": "1.0.0",
+  "description": "help you create greenfield project quickly",
+  "main": "index.js",
+  "bin": {
+    "create-gnfd-app": "./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnb-chain/greenfield-js-sdk",
+    "directory": "packages/create-gnfd-app"
+  },
+  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/tree/alpha/packages/create-gnfd-app#readme",
+  "bugs": "https://github.com/bnb-chain/greenfield-js-sdk/issues",
+  "scripts": {
+    "dev": "rollup -cw",
+    "build": "rollup -c"
+  },
+  "keywords": [
+    "greenfield",
+    "quickstart",
+    "create-app"
+  ],
+  "author": "",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^3.1.1",
+    "commander": "^11.0.0",
+    "cross-spawn": "^7.0.3",
+    "download-git-repo": "^3.0.2",
+    "fs-extra": "^11.1.1",
+    "handlebars": "^4.7.8",
+    "ora": "^5.4.0",
+    "picocolors": "^1.0.0",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.14.0"
+  },
+  "devDependencies": {
+    "@types/cross-spawn": "^6.0.3",
+    "@types/fs-extra": "^11.0.1",
+    "@types/validate-npm-package-name": "^4.0.0"
+  }
+}

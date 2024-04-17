@@ -1,71 +1,38 @@
-# GreenField JS SDK
+# GreenField JS SDK ![License](https://img.shields.io/npm/l/%40bnb-chain%2Fgreenfield-js-sdk) ![version](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfield-js-sdk?color=blue)
+
 A Greenfield JS SDK is an easy-to-use tool designed to help developers build decentralized applications (DApps) on the Greenfield blockchain using JavaScript. It provides a simple and straightforward starting point for developers to create DApps with the latest technology and best practices, making Dapp development more efficient. This SDK includes features and tools to make interacting with the Greenfield blockchain easy, such as libraries for common functionality, testing tools, and documentation. With a Greenfield JS SDK, developers can create scalable, maintainable, and efficient DApps for a variety of use cases.
 
 ## Documentation
 
 You can find some package documentation below:
 
-| Package | Description |
-| --- | --- |
-| [@bnb-chain/greenfield-js-sdk](./packages/chain-sdk/README.md) | A client library for Greenfield Chain |
-| [@bnb-chain/greenfiled-file-handle](./packages/file-handle/README.md) | WASM module that handle file, such as `checksums` |
-| [@bnb-chain/greenfield-zk-crypto](./packages/zk-crypto/README.md) | WASM module about sign crypto |
+| Package | Description | Version |
+| --- | --- | --- |
+| [@bnb-chain/greenfield-js-sdk](./packages/js-sdk/README.md) | A client library for Greenfield Chain | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfield-js-sdk?color=blue)](https://www.npmjs.com/package/@bnb-chain/greenfield-js-sdk) |
+| [@bnb-chain/reed-solomon](./packages/reed-solomon/README.md) | calculate file's `checksums` | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Freed-solomon?color=blue)](https://www.npmjs.com/package/@bnb-chain/reed-solomon) |
+| [@bnb-chain/create-gnfd-app](./packages/create-gnfd-app/README.md) | Create Greenfield App Quickly | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fcreate-gnfd-app?color=blue)](https://www.npmjs.com/package/@bnb-chain/create-gnfd-app) |
 
-## Document
-[Document](./packages/chain-sdk/README.md)
+## Playground
 
-## Examples
+* [Browser](https://codesandbox.io/p/github/rrr523/greenfield-nextjs-template/main?import=true)
+<!-- TODO: after upgrade SDK version -->
+<!-- * [Nodejs](https://codesandbox.io/p/devbox/nodejs-greenfield-js-sdk-demo-wd5zft) -->
 
-There are runnable examples included in the [examples](./examples/) folder
+## Online Examples
 
-* [Next.js Example(TypeScript)](./examples/nextjs/README.md)
-* [Nodejs](./examples/nodejs/README.md)
+* [Nextjs](https://codesandbox.io/p/github/rrr523/greenfield-nextjs-template/main?import=true)
+* [Vite](https://codesandbox.io/p/github/rrr523/greenfield-vite-template/main)
+* [Create React App](https://codesandbox.io/p/github/rrr523/greenfield-cra-template/main?import=true)
 
-### Try in Stackblitz
+## Quick Start
 
-You can try out some examples directly in your browser through Stackblitz:
+You can use [`create-gnfd-app`](./packages/create-gnfd-app/README.md) to create a app quickly.
 
-* [Next.js Exmaple(Typescript)](https://stackblitz.com/edit/github-kikred?file=src%2Fpages%2Ftx.tsx)
-
-### Running Examples Locally
-
-Clone the project and install dependencies:
 ```bash
-> git clone git@github.com:bnb-chain/greenfield-js-sdk.git
-> cd greenfield-js-sdk
-> pnpm install
+> npx @bnb-chain/create-gnfd-app
 ```
 
-and build package:
-```bash
-> pnpm run -r build
-```
-
-and then copy env template file:
-```bash
-> cp .env.simple .env
-```
-
-and then enter your own configuration. Take testnet, for example:
-```bash
-NEXT_PUBLIC_GRPC_URL=https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org
-NEXT_PUBLIC_GREENFIELD_RPC_URL=https://gnfd-testnet-fullnode-tendermint-us.bnbchain.org
-NEXT_PUBLIC_GREEN_CHAIN_ID=5600
-NEXT_PUBLIC_BSC_RPC_URL=https://gnfd-bsc-testnet-dataseed1.bnbchain.org
-NEXT_PUBLIC_BSC_CHAIN_ID=97
-
-# refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list
-NEXT_PUBLIC_TOKEN_HUB_CONTRACT_ADDRESS=
-NEXT_PUBLIC_CROSS_CHAIN_CONTRACT_ADDRESS=
-```
-
-> The contract address may be outdated due to Greenfield reset, refer to https://docs.bnbchain.org/greenfield-docs/docs/guide/dapp/contract-list get the latest contract address.
-
-
-abd then run example:
-```bash
-> npx next dev
-```
+![quick start example](./packages/create-gnfd-app/example.gif)
 
 ## Supported JS environments
 
@@ -75,8 +42,19 @@ abd then run example:
 
 ## Contribution
 
-Look over [CONTRIBUTING](./CONTRIBUTING.md)
+1. install dependencies
 
+```bash
+> pnpm install
+```
+
+2. Build packages:
+
+```bash
+> pnpm -F "@bnb-chain/**" build
+```
+
+Look over [CONTRIBUTING](./CONTRIBUTING.md)
 
 ## Disclaimer
 

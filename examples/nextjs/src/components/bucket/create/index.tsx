@@ -1,6 +1,5 @@
 import { client, selectSp } from '@/client';
-import { ACCOUNT_PRIVATEKEY } from '@/config/env';
-import { getOffchainAuthKeys } from '@/utils/offchainAuth';
+import { GRNToString, Long, newBucketGRN, VisibilityType } from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -31,41 +30,41 @@ export const CreateBucket = () => {
           const spInfo = await selectSp();
           console.log('spInfo', spInfo);
 
-          const provider = await connector?.getProvider();
-          const offChainData = await getOffchainAuthKeys(address, provider);
-          if (!offChainData) {
-            alert('No offchain, please create offchain pairs first');
-            return;
-          }
+          const createBucketTx = await client.bucket.createBucket({
+            bucketName: createBucketInfo.bucketName,
+            creator: address,
+            visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+            chargedReadQuota: Long.fromString('0'),
+            paymentAddress: address,
+            primarySpAddress: spInfo.primarySpAddress,
+          });
 
-          const createBucketTx = await client.bucket.createBucket(
-            {
-              bucketName: createBucketInfo.bucketName,
-              creator: address,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              chargedReadQuota: '0',
-              spInfo: {
-                primarySpAddress: spInfo.primarySpAddress,
-              },
-              paymentAddress: address,
+          const setTagTx = await client.storage.setTag({
+            operator: address,
+            resource: GRNToString(newBucketGRN(createBucketInfo.bucketName)),
+            tags: {
+              tags: [
+                {
+                  key: 'x',
+                  value: 'xx',
+                },
+                {
+                  key: 'y',
+                  value: 'yy',
+                },
+              ],
             },
-            {
-              // type: 'ECDSA',
-              // privateKey: ACCOUNT_PRIVATEKEY,
-              type: 'EDDSA',
-              domain: window.location.origin,
-              seed: offChainData.seedString,
-              address,
-            },
-          );
+          });
 
-          const simulateInfo = await createBucketTx.simulate({
+          const tx = await client.txClient.multiTx([createBucketTx, setTagTx]);
+
+          const simulateInfo = await tx.simulate({
             denom: 'BNB',
           });
 
           console.log('simulateInfo', simulateInfo);
 
-          const res = await createBucketTx.broadcast({
+          const res = await tx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',

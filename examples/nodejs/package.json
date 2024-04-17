@@ -1,19 +1,13 @@
 {
   "name": "@demo/nodejs",
-  "version": "0.0.8",
+  "version": "0.0.25",
   "type": "commonjs",
   "private": true,
-  "scripts": {
-    "dev": "cross-env NODE_ENV=development next dev",
-    "dev:qa": "cross-env NODE_ENV=test next dev",
-    "build": "",
-    "build:qa": ""
-  },
+  "scripts": {},
   "dependencies": {
     "@bnb-chain/greenfield-js-sdk": "workspace:*",
-    "@bnb-chain/greenfiled-file-handle": "workspace:*"
-  },
-  "devDependencies": {
-    "cross-env": "^7.0.3"
+    "@bnb-chain/reed-solomon": "workspace:*",
+    "dotenv": "^16.0.3",
+    "mime-types": "^2.1.35"
   }
 }

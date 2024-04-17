@@ -1,0 +1,16 @@
+---
+id: principal
+title: PrincipalType
+---
+
+PrincipalType refers to the identity type of system users or entities. In Greenfield, it usually
+refers to accounts or groups.
+
+```jsx
+export enum PrincipalType {
+  PRINCIPAL_TYPE_UNSPECIFIED = 0,
+  PRINCIPAL_TYPE_GNFD_ACCOUNT = 1,
+  PRINCIPAL_TYPE_GNFD_GROUP = 2,
+  UNRECOGNIZED = -1,
+}
+```

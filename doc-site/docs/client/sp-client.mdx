@@ -1,0 +1,119 @@
+---
+id: sp-client
+sidebar_position: 3
+title: 'Storage Provider Client'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The API related to storage providers is troublesome.
+
+## AuthType
+
+SDK support two
+[authentication type](https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest#authentication-type):
+
+- ECDSA: It is usually used on Node.js(Because it need to use a private key)
+- EDDSA: It is usually used in a browser
+
+```jsx title="AuthType"
+/**
+ * ECDSA Signature
+ */
+export type ECDSA = {
+  type: 'ECDSA',
+  privateKey: string,
+};
+/**
+ * EDDSA Signature
+ */
+export type EDDSA = {
+  type: 'EDDSA',
+  seed: string,
+  domain: string,
+  address: string,
+};
+export type AuthType = ECDSA | EDDSA;
+```
+
+<!-- ## SpInfo
+
+This is the sp service information you want to use.
+
+## OffchainAuth
+
+If you use SDK in the browser, you have to get it manually (because you can't get the private key in the
+browser). -->
+
+## Sp Api Example
+
+Take `getBucketReadQuota` as a complete example:
+
+```js title="offchainAuth"
+const getAllSps = async () => {
+  const sps = await getSps();
+
+  return sps.map((sp) => {
+    return {
+      address: sp.operatorAddress,
+      endpoint: sp.endpoint,
+      name: sp.description?.moniker,
+    };
+  });
+};
+
+// generate seed:
+const allSps = await getAllSps();
+const offchainAuthRes = await client.offchainauth.genOffChainAuthKeyPairAndUpload(
+  {
+    sps: allSps,
+    chainId: GREEN_CHAIN_ID,
+    expirationMs: 5 * 24 * 60 * 60 * 1000,
+    domain: window.location.origin,
+    address: 'your address',
+  },
+  provider: 'wallet provider',
+);
+```
+
+<Tabs>
+<TabItem value="Browser" label="Browser">
+
+```jsx title="browser"
+// request sp api
+const bucketQuota = await client.bucket.getBucketReadQuota(
+  {
+    bucketName,
+  },
+  // highlight-start
+  {
+    type: 'EDDSA',
+    seed: offchainAuthRes.seedString,
+    domain: window.location.origin,
+    address: '0x...',
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```jsx title="Nodejs"
+// request sp api
+const bucketQuota = await client.bucket.getBucketReadQuota(
+  {
+    bucketName,
+  },
+  // highlight-start
+  {
+    type: 'ECDSA',
+    privateKey: '0x....',
+  },
+  // highlight-end
+);
+```
+
+</TabItem>
+</Tabs>

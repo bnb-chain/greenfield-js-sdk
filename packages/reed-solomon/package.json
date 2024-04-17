@@ -1,0 +1,81 @@
+{
+  "name": "@bnb-chain/reed-solomon",
+  "version": "1.1.3",
+  "description": "lighting implement for reed solomon",
+  "module": "./dist/index.esm.js",
+  "main": "./dist/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "main": "./dist/index.js",
+      "default": "./dist/index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./node.adapter": {
+      "default": "./dist/node.adapter.js",
+      "types": "./types/node.adapter.d.ts",
+      "node": "./dist/node.adapter.js",
+      "require": "./dist/node.adapter.js"
+    },
+    "./web.adapter": {
+      "default": "./dist/web.adapter.js",
+      "types": "./types/web.adapter.d.ts",
+      "import": "./dist/web.adapter.js"
+    },
+    "./utils": {
+      "import": "./dist/utils.esm.js",
+      "require": "./dist/utils.js",
+      "main": "./dist/utils.js",
+      "default": "./dist/utils.js",
+      "types": "./types/utils.d.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "node.adapter": [
+        "./types/node.adapter.d.ts"
+      ],
+      "web.adapter": [
+        "./types/web.adapter.d.ts"
+      ],
+      "utils": [
+        "./types/utils.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnb-chain/greenfield-js-sdk",
+    "directory": "packages/reed-solomon"
+  },
+  "homepage": "https://github.com/bnb-chain/greenfield-js-sdk/tree/alpha/packages/reed-solomon#readme",
+  "bugs": "https://github.com/bnb-chain/greenfield-js-sdk/issues",
+  "keywords": [
+    "greenfiled",
+    "checksums",
+    "reed-solomon"
+  ],
+  "author": "",
+  "license": "GPLv3",
+  "files": [
+    "dist",
+    "types"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "dependencies": {
+    "@ethersproject/base64": "^5.7.0",
+    "ethereum-cryptography": "^2.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4"
+  }
+}
