@@ -305,8 +305,8 @@ importers:
   packages/bsc-cross-sdk:
     dependencies:
       '@bnb-chain/greenfield-cosmos-types':
-        specifier: 0.4.0-alpha.31
-        version: 0.4.0-alpha.31
+        specifier: 0.4.0-alpha.32
+        version: 0.4.0-alpha.32
       long:
         specifier: ^5.2.1
         version: 5.2.1
@@ -3654,6 +3654,13 @@ packages:
 
   /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.31:
     resolution: {integrity: sha512-EPKQyQC/oe4/2p1Pn0FCECl7RyIvsXKs8bOmQHaylZweS6rZkXj5yov9oD1dVoHglV/tbQ/6EjdPg3wXUR+rww==}
+    dependencies:
+      long: 4.0.0
+      protobufjs: 6.11.4
+    dev: false
+
+  /@bnb-chain/greenfield-cosmos-types@0.4.0-alpha.32:
+    resolution: {integrity: sha512-7hrp+NpkNkbrz4BOB1hyJPUcUjTbNDJQZBqIEC4JO03i5TOMXvQtaFLXI8zQUmg7u3043D8knddq+dtwL9C8EA==}
     dependencies:
       long: 4.0.0
       protobufjs: 6.11.4
@@ -7668,7 +7675,6 @@ packages:
     resolution: {integrity: sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==}
     dependencies:
       undici-types: 5.26.5
-    dev: true
 
   /@types/node@20.6.0:
     resolution: {integrity: sha512-najjVq5KN2vsH2U/xyh2opaSEz6cZMR2SetLIlxlj08nOcmPOemJmUK2o4kUzfLqfrWE0PIrNeE16XhYDd3nqg==}
@@ -7872,7 +7878,7 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 18.16.18
+      '@types/node': 20.6.0
     dev: false
 
   /@types/ws@8.5.10:
@@ -17922,7 +17928,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.2
-      '@types/node': 18.16.18
+      '@types/node': 20.12.7
       long: 4.0.0
     dev: false
 
