@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.0.0-alpha.7
+
+### Patch Changes
+
+- [#520](https://github.com/bnb-chain/greenfield-js-sdk/pull/520)
+  [`caf93ce`](https://github.com/bnb-chain/greenfield-js-sdk/commit/caf93ce0cdc0a3242a35a6af82ffb3d201378821)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Vgf strategy
+
 ## 2.0.0-alpha.6
 
 ### Patch Changes
