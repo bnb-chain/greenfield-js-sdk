@@ -217,7 +217,7 @@ export class Bucket implements IBucket {
     const { globalVirtualGroupFamilyId } =
       await this.virtualGroup.getSpOptimalGlobalVirtualGroupFamily({
         spId: storageProvider.id,
-        pickVgfStrategy: PickVGFStrategy.Strategy_Maximize_Free_Store_Size,
+        pickVgfStrategy: PickVGFStrategy.Strategy_Oldest_Create_Time,
       });
 
     const createBucketMsg: MsgCreateBucket = {
