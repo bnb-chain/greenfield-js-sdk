@@ -1,48 +1,38 @@
 import { createPublicClient, createWalletClient, http, parseAbi, PrivateKeyAccount } from 'viem';
-import { bscTestnet } from 'viem/chains';
-import { CrossChainABI } from '../../abi/CrossChain.abi';
 import { privateKeyToAccount } from 'viem/accounts';
-import { ExecutorABI } from '../../abi/Executor.abi';
+import { bscTestnet } from 'viem/chains';
+import { ExecutorABI } from '../abi/Executor.abi';
 import { ExecuteParams } from '../types';
 import { splitParams } from './messages';
 
 export default class ExecutorClient {
   account: PrivateKeyAccount;
 
-  constructor(
-    privateKey: `0x${string}`,
-    public executorAddress: `0x${string}`,
-    public crossChainAddress: `0x${string}`,
-    private publicClient = createPublicClient({
-      chain: bscTestnet,
-      transport: http(),
-    }),
-    private walletClient = createWalletClient({
-      chain: bscTestnet,
-      transport: http(),
-    }),
-  ) {
+  private publicClient = createPublicClient({
+    chain: bscTestnet,
+    transport: http(),
+  });
+
+  private walletClient = createWalletClient({
+    chain: bscTestnet,
+    transport: http(),
+  });
+
+  constructor(privateKey: `0x${string}`, public executorAddress: `0x${string}`) {
     this.account = privateKeyToAccount(privateKey);
     this.executorAddress = executorAddress;
-    this.crossChainAddress = crossChainAddress;
   }
 
-  async getRelayFee(address: `0x${string}`) {
-    const data = await this.publicClient.readContract({
-      address,
-      abi: parseAbi(CrossChainABI),
-      functionName: 'getRelayFees',
-    });
-
-    return data[0];
-  }
-
-  async execute(params: ExecuteParams[]) {
+  async execute(
+    params: ExecuteParams[],
+    opts: {
+      relayFee: bigint;
+    },
+  ) {
     if (params.length === 0) throw new Error('execute params is empty');
 
     const { types, bytes } = splitParams(params);
-
-    const relayFee = await this.getRelayFee(this.crossChainAddress);
+    const { relayFee } = opts;
 
     const { request } = await this.publicClient.simulateContract({
       account: this.account,
