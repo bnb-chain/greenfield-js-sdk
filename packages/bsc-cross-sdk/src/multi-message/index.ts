@@ -46,6 +46,9 @@ interface IMultiMessageClient {
 
   updateGroup(synPkg: UpdateGroupSynPackage, opts: MultiMessageParamOptions): SendMessagesParams;
 
+  /**
+   * `createPolicy` is special function, need pass Greenfield protobuf message not synPackage message
+   */
   createPolicy(msg: Policy, opts: MultiMessageParamOptions): SendMessagesParams;
 
   deletePolicy(synPkg: DeletePolicySynPackage, opts: MultiMessageParamOptions): SendMessagesParams;
