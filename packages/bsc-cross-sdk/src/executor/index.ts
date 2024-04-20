@@ -3,7 +3,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { bscTestnet } from 'viem/chains';
 import { ExecutorABI } from '../abi/Executor.abi';
 import { ExecuteParams } from '../types';
-import { splitParams } from './messages';
+import { splitExecutorParams } from '../utils';
 
 export default class ExecutorClient {
   account: PrivateKeyAccount;
@@ -31,7 +31,7 @@ export default class ExecutorClient {
   ) {
     if (params.length === 0) throw new Error('execute params is empty');
 
-    const { types, bytes } = splitParams(params);
+    const { types, bytes } = splitExecutorParams(params);
     const { relayFee } = opts;
 
     const { request } = await this.publicClient.simulateContract({

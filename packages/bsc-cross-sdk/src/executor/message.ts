@@ -16,7 +16,7 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { toHex } from 'viem';
-import { ExecuteParams } from '../../types';
+import { ExecuteParams } from '../types';
 
 // https://github.com/bnb-chain/greenfield-contracts/blob/develop/contracts/middle-layer/GreenfieldExecutor.sol
 
@@ -86,18 +86,3 @@ export default class ExecutorMsg {
     toHex(MsgSetTag.encode(msg).finish()),
   ];
 }
-
-export const splitParams = (params: ExecuteParams[]) => {
-  const types: number[] = [];
-  const bytes: `0x${string}`[] = [];
-
-  params.forEach((p) => {
-    types.push(p[0]);
-    bytes.push(p[1]);
-  });
-
-  return {
-    types,
-    bytes,
-  };
-};

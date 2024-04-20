@@ -1653,114 +1653,114 @@ export const GroupHubAbi = [
     stateMutability: 'payable',
     type: 'function',
   },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'operator',
-            type: 'address',
-          },
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'enum GroupStorage.UpdateGroupOpType',
-            name: 'opType',
-            type: 'uint8',
-          },
-          {
-            internalType: 'address[]',
-            name: 'members',
-            type: 'address[]',
-          },
-          {
-            internalType: 'bytes',
-            name: 'extraData',
-            type: 'bytes',
-          },
-          {
-            internalType: 'uint64[]',
-            name: 'memberExpiration',
-            type: 'uint64[]',
-          },
-        ],
-        internalType: 'struct GroupStorage.UpdateGroupSynPackage',
-        name: '',
-        type: 'tuple',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'appAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'refundAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'enum PackageQueue.FailureHandleStrategy',
-            name: 'failureHandleStrategy',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes',
-            name: 'callbackData',
-            type: 'bytes',
-          },
-        ],
-        internalType: 'struct CmnStorage.ExtraData',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    name: 'prepareUpdateGroup',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
+  // {
+  //   inputs: [
+  //     {
+  //       internalType: 'address',
+  //       name: '',
+  //       type: 'address',
+  //     },
+  //     {
+  //       components: [
+  //         {
+  //           internalType: 'address',
+  //           name: 'operator',
+  //           type: 'address',
+  //         },
+  //         {
+  //           internalType: 'uint256',
+  //           name: 'id',
+  //           type: 'uint256',
+  //         },
+  //         {
+  //           internalType: 'enum GroupStorage.UpdateGroupOpType',
+  //           name: 'opType',
+  //           type: 'uint8',
+  //         },
+  //         {
+  //           internalType: 'address[]',
+  //           name: 'members',
+  //           type: 'address[]',
+  //         },
+  //         {
+  //           internalType: 'bytes',
+  //           name: 'extraData',
+  //           type: 'bytes',
+  //         },
+  //         {
+  //           internalType: 'uint64[]',
+  //           name: 'memberExpiration',
+  //           type: 'uint64[]',
+  //         },
+  //       ],
+  //       internalType: 'struct GroupStorage.UpdateGroupSynPackage',
+  //       name: '',
+  //       type: 'tuple',
+  //     },
+  //     {
+  //       internalType: 'uint256',
+  //       name: '',
+  //       type: 'uint256',
+  //     },
+  //     {
+  //       components: [
+  //         {
+  //           internalType: 'address',
+  //           name: 'appAddress',
+  //           type: 'address',
+  //         },
+  //         {
+  //           internalType: 'address',
+  //           name: 'refundAddress',
+  //           type: 'address',
+  //         },
+  //         {
+  //           internalType: 'enum PackageQueue.FailureHandleStrategy',
+  //           name: 'failureHandleStrategy',
+  //           type: 'uint8',
+  //         },
+  //         {
+  //           internalType: 'bytes',
+  //           name: 'callbackData',
+  //           type: 'bytes',
+  //         },
+  //       ],
+  //       internalType: 'struct CmnStorage.ExtraData',
+  //       name: '',
+  //       type: 'tuple',
+  //     },
+  //   ],
+  //   name: 'prepareUpdateGroup',
+  //   outputs: [
+  //     {
+  //       internalType: 'uint8',
+  //       name: '',
+  //       type: 'uint8',
+  //     },
+  //     {
+  //       internalType: 'bytes',
+  //       name: '',
+  //       type: 'bytes',
+  //     },
+  //     {
+  //       internalType: 'uint256',
+  //       name: '',
+  //       type: 'uint256',
+  //     },
+  //     {
+  //       internalType: 'uint256',
+  //       name: '',
+  //       type: 'uint256',
+  //     },
+  //     {
+  //       internalType: 'address',
+  //       name: '',
+  //       type: 'address',
+  //     },
+  //   ],
+  //   stateMutability: 'payable',
+  //   type: 'function',
+  // },
   {
     inputs: [
       {
