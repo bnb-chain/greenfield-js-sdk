@@ -2,18 +2,22 @@ import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/commo
 import { VisibilityType } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import { Long } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { describe, expect, test } from '@jest/globals';
-import { privateKeyToAccount } from 'viem/accounts';
+import { Account, privateKeyToAccount } from 'viem/accounts';
 import CrossChainClient from '../src/cross-chain';
 import ExecutorClient from '../src/executor';
-import ExecutorMsg from '../src/executor/messages';
 import { ACCOUNT_PRIVATEKEY, CrossChainAddress, ExecutorAddress } from './env';
-
-const account = privateKeyToAccount(ACCOUNT_PRIVATEKEY);
-
-const crossChainClient = new CrossChainClient(CrossChainAddress);
+import ExecutorMsg from '../src/executor/message';
 
 describe('executor', () => {
-  const executorClient = new ExecutorClient(ACCOUNT_PRIVATEKEY, ExecutorAddress);
+  let account: Account;
+  let crossChainClient: CrossChainClient;
+  let executorClient: ExecutorClient;
+
+  beforeEach(() => {
+    account = privateKeyToAccount(ACCOUNT_PRIVATEKEY);
+    crossChainClient = new CrossChainClient(CrossChainAddress);
+    executorClient = new ExecutorClient(ACCOUNT_PRIVATEKEY, ExecutorAddress);
+  });
 
   test('deposit', async () => {
     const { relayFee } = await crossChainClient.getRelayFee();
@@ -50,7 +54,7 @@ describe('executor', () => {
     const { relayFee } = await crossChainClient.getRelayFee();
 
     const params = ExecutorMsg.getUpdateBucketInfoParams({
-      bucketName: 'test',
+      bucketName: 'stplfiijom',
       operator: account.address,
       paymentAddress: account.address,
       visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
