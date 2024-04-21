@@ -1,4 +1,4 @@
-import { MultiMessageClient, BasicClientParams } from '@bnb-chain/bsc-cross-greenfield-sdk';
+import { BasicClientParams } from '@bnb-chain/bsc-cross-greenfield-sdk';
 
 /**
  * bsc testnet
