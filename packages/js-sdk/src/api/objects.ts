@@ -144,7 +144,7 @@ export interface IObject {
     bucketName: string,
     objectName: string,
     // expirationTime: Date,
-    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+    srcMsg: Omit<MsgPutPolicy, 'resource'>,
   ): Promise<TxResponse>;
 
   deleteObjectPolicy(
@@ -618,7 +618,7 @@ export class Objects implements IObject {
     bucketName: string,
     objectName: string,
     // expirationTime: Date,
-    srcMsg: Omit<MsgPutPolicy, 'resource' | 'expirationTime'>,
+    srcMsg: Omit<MsgPutPolicy, 'resource'>,
   ) {
     const resource = GRNToString(newObjectGRN(bucketName, objectName));
     const msg: MsgPutPolicy = {
