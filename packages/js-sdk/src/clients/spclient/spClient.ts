@@ -60,10 +60,14 @@ export class SpClient implements ISpClient {
     try {
       const controller = new AbortController();
       const _id = setTimeout(() => controller.abort(), timeout);
-      const response = await fetchWithTimeout(url, {
-        ...options,
-        signal: controller.signal,
-      });
+      const response = await fetchWithTimeout(
+        url,
+        {
+          ...options,
+          signal: controller.signal,
+        },
+        timeout,
+      );
       clearTimeout(_id);
 
       const { status } = response;
