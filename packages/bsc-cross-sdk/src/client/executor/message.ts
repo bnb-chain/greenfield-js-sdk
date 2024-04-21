@@ -16,11 +16,11 @@ import {
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
 import { toHex } from 'viem';
-import { ExecuteParams } from '../types';
+import { ExecuteParams } from '../../types';
 
 // https://github.com/bnb-chain/greenfield-contracts/blob/develop/contracts/middle-layer/GreenfieldExecutor.sol
 
-export default class ExecutorMsg {
+export class ExecutorMsg {
   static getCreatePaymentAccountParams = (msg: MsgCreatePaymentAccount): ExecuteParams => [
     1,
     toHex(MsgCreatePaymentAccount.encode(msg).finish()),

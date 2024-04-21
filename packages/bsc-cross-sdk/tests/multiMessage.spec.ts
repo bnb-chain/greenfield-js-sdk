@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { Account, privateKeyToAccount } from 'viem/accounts';
-import CrossChainClient from '../src/cross-chain';
-import MultiMessageClient from '../src/multi-message';
 import {
   ACCOUNT_PRIVATEKEY,
   BucketHubAddress,
@@ -19,6 +17,9 @@ import {
   ActionType,
   Effect,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
+import { CrossChainClient } from '../src/client/cross-chain';
+import { MultiMessageClient } from '../src/client/multi-message';
+import { BasicClientParams } from '../src/types';
 
 describe('base', () => {
   let account: Account;
@@ -26,16 +27,24 @@ describe('base', () => {
   let mutliMsgClient: MultiMessageClient;
 
   beforeEach(() => {
-    mutliMsgClient = new MultiMessageClient(ACCOUNT_PRIVATEKEY, MultiMessageAddress, {
+    account = privateKeyToAccount(ACCOUNT_PRIVATEKEY);
+
+    const config: BasicClientParams = {
+      chainConfig: 'testnet',
+      accountConfig: {
+        privateKey: ACCOUNT_PRIVATEKEY,
+      },
+    };
+
+    crossChainClient = new CrossChainClient(config, CrossChainAddress);
+
+    mutliMsgClient = new MultiMessageClient(config, MultiMessageAddress, {
       bucketHubAddress: BucketHubAddress,
       objectHubAddress: ObjectHubAddress,
       groupHubAddress: GroupHubAddress,
       permissionHubAddress: PermissionHubAddress,
       tokenHubAddress: TokenHubAddress,
     });
-    account = privateKeyToAccount(ACCOUNT_PRIVATEKEY);
-
-    crossChainClient = new CrossChainClient(CrossChainAddress);
   });
 
   test('createBucket', async () => {
@@ -47,7 +56,7 @@ describe('base', () => {
     const args = mutliMsgClient.createBucket(
       {
         name: bucketName,
-        chargedReadQuota: BigInt(11),
+        chargedReadQuota: BigInt(0),
         creator: account.address,
         visibility: 1,
         paymentAddress: account.address,
@@ -77,7 +86,7 @@ describe('base', () => {
 
     const args = mutliMsgClient.deleteBucket(
       {
-        id: BigInt(180011),
+        id: BigInt(180010),
       },
       {
         sender: account.address,

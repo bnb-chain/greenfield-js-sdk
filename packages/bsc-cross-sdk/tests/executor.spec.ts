@@ -3,10 +3,11 @@ import { VisibilityType } from '@bnb-chain/greenfield-cosmos-types/greenfield/st
 import { Long } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { describe, expect, test } from '@jest/globals';
 import { Account, privateKeyToAccount } from 'viem/accounts';
-import CrossChainClient from '../src/cross-chain';
-import ExecutorClient from '../src/executor';
 import { ACCOUNT_PRIVATEKEY, CrossChainAddress, ExecutorAddress } from './env';
-import ExecutorMsg from '../src/executor/message';
+import { CrossChainClient } from '../src/client/cross-chain';
+import { BasicClientParams } from '../src/types';
+import { ExecutorClient } from '../src';
+import { ExecutorMsg } from '../src/client/executor/message';
 
 describe('executor', () => {
   let account: Account;
@@ -15,8 +16,17 @@ describe('executor', () => {
 
   beforeEach(() => {
     account = privateKeyToAccount(ACCOUNT_PRIVATEKEY);
-    crossChainClient = new CrossChainClient(CrossChainAddress);
-    executorClient = new ExecutorClient(ACCOUNT_PRIVATEKEY, ExecutorAddress);
+
+    const config: BasicClientParams = {
+      chainConfig: 'testnet',
+      accountConfig: {
+        privateKey: ACCOUNT_PRIVATEKEY,
+      },
+    };
+
+    crossChainClient = new CrossChainClient(config, CrossChainAddress);
+
+    executorClient = new ExecutorClient(config, ExecutorAddress);
   });
 
   test('deposit', async () => {

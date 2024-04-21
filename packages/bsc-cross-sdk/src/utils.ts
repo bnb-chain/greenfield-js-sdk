@@ -1,5 +1,10 @@
 import { Address } from 'viem';
-import { ExecuteParams, SendMessagesParams } from './types';
+import { ChainConfig, ExecuteParams, SendMessagesParams } from './types';
+import { bsc, bscTestnet } from 'viem/chains';
+
+export const getChain = (chainConfig: ChainConfig) => {
+  return chainConfig === 'testnet' ? bscTestnet : bsc;
+};
 
 export const splitExecutorParams = (params: ExecuteParams[]) => {
   const types: number[] = [];

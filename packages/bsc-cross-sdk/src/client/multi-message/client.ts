@@ -1,37 +1,28 @@
 import { Policy } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/types';
+import { Address, encodeFunctionData, parseAbi, toHex } from 'viem';
+import { BucketHubAbi } from '../../abi/BucketHub.abi';
+import { GroupHubAbi } from '../../abi/GroupHub.abi';
+import { MultiMessageAbi } from '../../abi/MultiMessage.abi';
+import { ObjectHubAbi } from '../../abi/ObjectHub.abi';
+import { PermissionHubAbi } from '../../abi/PermissionHub.abi';
+import { TokenHubAbi } from '../../abi/TokenHub.abi';
+import { assertAddress, assertHubAddress } from '../../asserts';
 import {
-  Address,
-  createPublicClient,
-  createWalletClient,
-  encodeFunctionData,
-  http,
-  parseAbi,
-  PrivateKeyAccount,
-  toHex,
-} from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import { bscTestnet } from 'viem/chains';
-import { BucketHubAbi } from '../abi/BucketHub.abi';
-import { GroupHubAbi } from '../abi/GroupHub.abi';
-import { MultiMessageAbi } from '../abi/MultiMessage.abi';
-import { ObjectHubAbi } from '../abi/ObjectHub.abi';
-import { PermissionHubAbi } from '../abi/PermissionHub.abi';
-import {
+  BasicClientParams,
   CreateBucketSynPackage,
   CreateGroupSynPackage,
   DeleteBucketSynPackage,
   DeleteGroupSynPackage,
   DeleteObjectSynPackage,
   DeletePolicySynPackage,
-  MultiMessageClientInitParams,
+  HubAddresses,
   MultiMessageParamOptions,
   SendMessagesParams,
   TransferOutSynPackage,
   UpdateGroupSynPackage,
-} from '../types';
-import { splitMultiMessageParams } from '../utils';
-import { assertAddress, assertHubAddress } from './asserts';
-import { TokenHubAbi } from '../abi/TokenHub.abi';
+} from '../../types';
+import { splitMultiMessageParams } from '../../utils';
+import { BasicClient } from '../basic';
 
 interface IMultiMessageClient {
   createBucket(synPkg: CreateBucketSynPackage, opts: MultiMessageParamOptions): SendMessagesParams;
@@ -58,23 +49,13 @@ interface IMultiMessageClient {
   sendMessages(params: SendMessagesParams[]): Promise<Address>;
 }
 
-export default class MultiMessageClient implements IMultiMessageClient {
-  account: PrivateKeyAccount;
-
+export class MultiMessageClient extends BasicClient implements IMultiMessageClient {
   constructor(
-    privateKey: `0x${string}`,
+    initParams: BasicClientParams,
     public multiMsgAddress: `0x${string}`,
-    public hubAddress: MultiMessageClientInitParams,
-    private publicClient = createPublicClient({
-      chain: bscTestnet,
-      transport: http(),
-    }),
-    private walletClient = createWalletClient({
-      chain: bscTestnet,
-      transport: http(),
-    }),
+    public hubAddress: HubAddresses,
   ) {
-    this.account = privateKeyToAccount(privateKey);
+    super(initParams);
     this.multiMsgAddress = multiMsgAddress;
     this.hubAddress = hubAddress;
   }

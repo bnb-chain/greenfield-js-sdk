@@ -1,14 +1,12 @@
-import alias from '@rollup/plugin-alias';
 import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
-import nodePolyfills from 'rollup-plugin-polyfill-node';
+import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
-import path from 'path';
-
 import autoExternal from 'rollup-plugin-auto-external';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
+
 import pkg from './package.json';
-const pathResolve = (p) => path.resolve(__dirname, p);
+// const pathResolve = (p) => path.resolve(__dirname, p);
 
 function resolveExternal() {
   return [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})];
@@ -16,41 +14,37 @@ function resolveExternal() {
 
 export default async () => {
   return [
+    // ESM
     {
       input: './src/index.ts',
       output: {
         dir: './dist/esm',
         format: 'esm',
         sourcemap: true,
+        // entryFileNames: '[name].esm.js',
       },
       external: resolveExternal(),
       context: 'window',
       treeshake: true,
       plugins: [
-        json({
-          include: ['src/**'],
+        commonjs({
+          defaultIsModuleExports: false,
         }),
-        // builtins(),
         resolve({
           exportConditions: ['default', 'module', 'import'],
           mainFields: ['module', 'main'],
           modulesOnly: true,
           preferBuiltins: false,
         }),
-        commonjs({
-          defaultIsModuleExports: false,
-        }),
         typescript({
           tsconfig: './config/tsconfig-esm.json',
           declarationDir: './dist/esm',
         }),
-        alias({
-          entries: {
-            '@': pathResolve('src'),
-          },
-        }),
+        // terser()
       ],
     },
+
+    // CJS
     {
       input: './src/index.ts',
       output: {
@@ -60,9 +54,6 @@ export default async () => {
       },
       external: resolveExternal(),
       plugins: [
-        json({
-          include: ['src/**'],
-        }),
         autoExternal(),
         nodePolyfills({
           include: 'node_modules/**',
@@ -74,11 +65,7 @@ export default async () => {
           tsconfig: './config/tsconfig-cjs.json',
           declarationDir: './dist/cjs/types',
         }),
-        alias({
-          entries: {
-            '@': pathResolve('src'),
-          },
-        }),
+        // terser()
       ],
     },
   ];

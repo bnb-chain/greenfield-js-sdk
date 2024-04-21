@@ -1,4 +1,20 @@
-import { Address } from 'viem';
+import { Address, EIP1193Provider } from 'viem';
+
+export type ChainConfig = 'testnet' | 'mainnet';
+export type AccountConfig = PrivateKeyAccountConfig | JSONRpcAccountConfig;
+export type PrivateKeyAccountConfig = {
+  privateKey: Address;
+  // chainConfig: ChainConfig;
+};
+export type JSONRpcAccountConfig = {
+  address: Address;
+  // chainConfig: ChainConfig;
+  ethereumProvider: EIP1193Provider;
+};
+export type BasicClientParams = {
+  chainConfig: ChainConfig;
+  accountConfig: AccountConfig;
+};
 
 export type ExecuteParams = [number, `0x${string}`];
 
@@ -8,7 +24,7 @@ export type SendMessagesParams = {
   values: bigint;
 };
 
-export type MultiMessageClientInitParams = {
+export type HubAddresses = {
   bucketHubAddress?: Address;
   objectHubAddress?: Address;
   tokenHubAddress?: Address;
