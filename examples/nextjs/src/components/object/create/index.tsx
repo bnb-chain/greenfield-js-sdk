@@ -134,6 +134,7 @@ export const CreateObject = () => {
                 objectName: createObjectInfo.objectName,
                 body: file,
                 txnHash: txHash,
+                duration: 20000,
               },
               {
                 type: 'EDDSA',
