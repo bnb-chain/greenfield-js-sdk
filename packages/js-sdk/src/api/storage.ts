@@ -83,8 +83,13 @@ export class Storage implements IStorage {
         ...toSdk,
         expiration_time: msg.expirationTime ? fromTimestamp(msg.expirationTime) : '',
         statements: toSdk.statements.map((e) => {
-          // @ts-ignore
-          e.expiration_time = '';
+          if (e.expiration_time) {
+            // @ts-ignore
+            e.expiration_time = fromTimestamp(e.expiration_time);
+          } else {
+            // @ts-ignore
+            e.expiration_time = '';
+          }
 
           if (e.resources.length == 0) {
             // @ts-ignore
