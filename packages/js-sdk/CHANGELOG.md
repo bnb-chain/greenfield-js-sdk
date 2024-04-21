@@ -1,5 +1,17 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 1.2.4
+
+### Patch Changes
+
+- [#523](https://github.com/bnb-chain/greenfield-js-sdk/pull/523)
+  [`e746b6c`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e746b6c65fe4809c2ab7dc447c99f770ac747071)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Fetch timeout
+
+- [#524](https://github.com/bnb-chain/greenfield-js-sdk/pull/524)
+  [`5a3de3f`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5a3de3f0349260d6d4e99640d91a53fb6b3299ff)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Statment's expiratime compatibility
+
 ## 1.2.3
 
 ### Patch Changes
