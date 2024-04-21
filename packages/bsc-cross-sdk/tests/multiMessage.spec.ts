@@ -24,7 +24,7 @@ import { BasicClientParams } from '../src/types';
 describe('base', () => {
   let account: Account;
   let crossChainClient: CrossChainClient;
-  let mutliMsgClient: MultiMessageClient;
+  let multiMsgClient: MultiMessageClient;
 
   beforeEach(() => {
     account = privateKeyToAccount(ACCOUNT_PRIVATEKEY);
@@ -38,7 +38,7 @@ describe('base', () => {
 
     crossChainClient = new CrossChainClient(config, CrossChainAddress);
 
-    mutliMsgClient = new MultiMessageClient(config, MultiMessageAddress, {
+    multiMsgClient = new MultiMessageClient(config, MultiMessageAddress, {
       bucketHubAddress: BucketHubAddress,
       objectHubAddress: ObjectHubAddress,
       groupHubAddress: GroupHubAddress,
@@ -53,7 +53,7 @@ describe('base', () => {
 
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.createBucket(
+    const args = multiMsgClient.createBucket(
       {
         name: bucketName,
         chargedReadQuota: BigInt(0),
@@ -73,7 +73,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
@@ -84,7 +84,7 @@ describe('base', () => {
   test('deleteBucket', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.deleteBucket(
+    const args = multiMsgClient.deleteBucket(
       {
         id: BigInt(180010),
       },
@@ -95,7 +95,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
@@ -106,7 +106,7 @@ describe('base', () => {
   test('deleteObject', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.deleteObject(
+    const args = multiMsgClient.deleteObject(
       {
         id: BigInt(423155),
       },
@@ -117,7 +117,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
@@ -127,7 +127,7 @@ describe('base', () => {
   test('createGroup', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.createGroup(
+    const args = multiMsgClient.createGroup(
       {
         name: generateString(5),
         owner: account.address,
@@ -139,7 +139,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
@@ -149,7 +149,7 @@ describe('base', () => {
   test('updateGroup', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.updateGroup(
+    const args = multiMsgClient.updateGroup(
       {
         id: BigInt(546),
         operator: account.address,
@@ -165,7 +165,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
@@ -175,7 +175,7 @@ describe('base', () => {
   test('deleteGroup', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.deleteGroup(
+    const args = multiMsgClient.deleteGroup(
       {
         id: BigInt(545),
       },
@@ -186,7 +186,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
@@ -196,7 +196,7 @@ describe('base', () => {
   test('createPolicy', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.createPolicy(
+    const args = multiMsgClient.createPolicy(
       {
         id: '0',
         resourceId: '180009',
@@ -216,7 +216,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
@@ -226,7 +226,7 @@ describe('base', () => {
   test('transferOut', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = mutliMsgClient.transferOut(
+    const args = multiMsgClient.transferOut(
       {
         recipient: zeroAddress,
         amount: parseEther('0.0001'),
@@ -238,7 +238,7 @@ describe('base', () => {
       },
     );
 
-    const txHash = await mutliMsgClient.sendMessages([args]);
+    const txHash = await multiMsgClient.sendMessages([args]);
 
     // eslint-disable-next-line no-console
     console.log('txHash', txHash);
