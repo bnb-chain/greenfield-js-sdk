@@ -1,6 +1,11 @@
-export function assertBucketHubAddress(address?: `0x${string}`): asserts address is `0x${string}` {
-  if (!address) {
-    throw new Error('bucket hub address is required in init params');
+import { isAddress } from 'viem';
+
+export function assertHubAddress(
+  errMsg: string,
+  address?: `0x${string}`,
+): asserts address is `0x${string}` {
+  if (!address || !isAddress(address)) {
+    throw new Error(errMsg);
   }
 }
 

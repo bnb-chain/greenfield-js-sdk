@@ -30,7 +30,7 @@ import {
   UpdateGroupSynPackage,
 } from '../types';
 import { splitMultiMessageParams } from '../utils';
-import { assertAddress, assertBucketHubAddress } from './asserts';
+import { assertAddress, assertHubAddress } from './asserts';
 import { TokenHubAbi } from '../abi/TokenHub.abi';
 
 interface IMultiMessageClient {
@@ -80,7 +80,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   transferOut(synPkg: TransferOutSynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.tokenHubAddress);
+    assertHubAddress(
+      'token hub address is required in init params',
+      this.hubAddress.tokenHubAddress,
+    );
 
     const fee = opts.relayFee + opts.minAckRelayFee + synPkg.amount;
     return {
@@ -95,7 +98,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   updateGroup(synPkg: UpdateGroupSynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.groupHubAddress);
+    assertHubAddress(
+      'group hub address is required in init params',
+      this.hubAddress.groupHubAddress,
+    );
 
     const fee = opts.relayFee + opts.minAckRelayFee;
     return {
@@ -110,7 +116,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   createGroup(synPkg: CreateGroupSynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.groupHubAddress);
+    assertHubAddress(
+      'group hub address is required in init params',
+      this.hubAddress.groupHubAddress,
+    );
 
     const fee = opts.relayFee + opts.minAckRelayFee;
     return {
@@ -125,7 +134,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   deleteGroup(synPkg: DeleteGroupSynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.groupHubAddress);
+    assertHubAddress(
+      'group hub address is required in init params',
+      this.hubAddress.groupHubAddress,
+    );
 
     const fee = opts.relayFee + opts.minAckRelayFee;
     return {
@@ -140,7 +152,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   createBucket(synPkg: CreateBucketSynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.bucketHubAddress);
+    assertHubAddress(
+      'bucket hub address is required in init params',
+      this.hubAddress.bucketHubAddress,
+    );
     assertAddress(synPkg.creator);
     assertAddress(synPkg.primarySpAddress);
 
@@ -157,7 +172,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   deleteBucket(synPkg: DeleteBucketSynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.bucketHubAddress);
+    assertHubAddress(
+      'bucket hub address is required in init params',
+      this.hubAddress.bucketHubAddress,
+    );
 
     const fee = opts.relayFee + opts.minAckRelayFee;
     return {
@@ -172,7 +190,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   deleteObject(synPkg: DeleteObjectSynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.objectHubAddress);
+    assertHubAddress(
+      'object hub address is required in init params',
+      this.hubAddress.objectHubAddress,
+    );
 
     const fee = opts.relayFee + opts.minAckRelayFee;
     return {
@@ -187,7 +208,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   createPolicy(msg: Policy, opts: MultiMessageParamOptions) {
-    assertBucketHubAddress(this.hubAddress.permissionHubAddress);
+    assertHubAddress(
+      'permission hub address is required in init params',
+      this.hubAddress.permissionHubAddress,
+    );
 
     const data = toHex(Policy.encode(msg).finish());
 
@@ -204,7 +228,10 @@ export default class MultiMessageClient implements IMultiMessageClient {
   }
 
   deletePolicy(synPkg: DeletePolicySynPackage, opts: MultiMessageParamOptions): SendMessagesParams {
-    assertBucketHubAddress(this.hubAddress.permissionHubAddress);
+    assertHubAddress(
+      'permission hub address is required in init params',
+      this.hubAddress.permissionHubAddress,
+    );
 
     const fee = opts.relayFee + opts.minAckRelayFee;
     return {
