@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkgreenfield_js_sdk_docs=self.webpackChunkgreenfield_js_sdk_docs||[]).push([[920],{4490:e=>{e.exports=JSON.parse('{"title":"Getting Started","slug":"/category/getting-started","permalink":"/greenfield-js-sdk/category/getting-started","navigation":{"next":{"title":"Overview","permalink":"/greenfield-js-sdk/"}}}')}}]);
