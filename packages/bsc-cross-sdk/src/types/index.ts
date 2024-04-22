@@ -36,6 +36,7 @@ export type MultiMessageParamOptions = {
   minAckRelayFee: bigint;
   cb?: {
     gasLimit: bigint;
+    gasPrice: bigint;
     extraData: {
       appAddress: Address;
       refundAddress: Address;

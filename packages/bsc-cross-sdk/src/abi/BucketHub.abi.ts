@@ -1,5 +1,5 @@
 // https://github.com/bnb-chain/greenfield-contracts/blob/develop/contracts/interface/IBucketHub.sol
-export const BucketHubAbi = [
+const BaseBucketHubAbi = [
   {
     inputs: [],
     stateMutability: 'nonpayable',
@@ -1354,350 +1354,7 @@ export const BucketHubAbi = [
     stateMutability: 'view',
     type: 'function',
   },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'creator',
-            type: 'address',
-          },
-          {
-            internalType: 'string',
-            name: 'name',
-            type: 'string',
-          },
-          {
-            internalType: 'enum BucketStorage.BucketVisibilityType',
-            name: 'visibility',
-            type: 'uint8',
-          },
-          {
-            internalType: 'address',
-            name: 'paymentAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'primarySpAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'uint64',
-            name: 'primarySpApprovalExpiredHeight',
-            type: 'uint64',
-          },
-          {
-            internalType: 'uint32',
-            name: 'globalVirtualGroupFamilyId',
-            type: 'uint32',
-          },
-          {
-            internalType: 'bytes',
-            name: 'primarySpSignature',
-            type: 'bytes',
-          },
-          {
-            internalType: 'uint64',
-            name: 'chargedReadQuota',
-            type: 'uint64',
-          },
-          {
-            internalType: 'bytes',
-            name: 'extraData',
-            type: 'bytes',
-          },
-        ],
-        internalType: 'struct BucketStorage.CreateBucketSynPackage',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    name: 'prepareCreateBucket',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'creator',
-            type: 'address',
-          },
-          {
-            internalType: 'string',
-            name: 'name',
-            type: 'string',
-          },
-          {
-            internalType: 'enum BucketStorage.BucketVisibilityType',
-            name: 'visibility',
-            type: 'uint8',
-          },
-          {
-            internalType: 'address',
-            name: 'paymentAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'primarySpAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'uint64',
-            name: 'primarySpApprovalExpiredHeight',
-            type: 'uint64',
-          },
-          {
-            internalType: 'uint32',
-            name: 'globalVirtualGroupFamilyId',
-            type: 'uint32',
-          },
-          {
-            internalType: 'bytes',
-            name: 'primarySpSignature',
-            type: 'bytes',
-          },
-          {
-            internalType: 'uint64',
-            name: 'chargedReadQuota',
-            type: 'uint64',
-          },
-          {
-            internalType: 'bytes',
-            name: 'extraData',
-            type: 'bytes',
-          },
-        ],
-        internalType: 'struct BucketStorage.CreateBucketSynPackage',
-        name: '',
-        type: 'tuple',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'appAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'refundAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'enum PackageQueue.FailureHandleStrategy',
-            name: 'failureHandleStrategy',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes',
-            name: 'callbackData',
-            type: 'bytes',
-          },
-        ],
-        internalType: 'struct CmnStorage.ExtraData',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    name: 'prepareCreateBucket',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'prepareDeleteBucket',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'appAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'refundAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'enum PackageQueue.FailureHandleStrategy',
-            name: 'failureHandleStrategy',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes',
-            name: 'callbackData',
-            type: 'bytes',
-          },
-        ],
-        internalType: 'struct CmnStorage.ExtraData',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    name: 'prepareDeleteBucket',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
+
   {
     inputs: [
       {
@@ -1829,6 +1486,366 @@ export const BucketHubAbi = [
       },
     ],
     stateMutability: 'pure',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareCreateBucketHubAbi = [
+  ...BaseBucketHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'creator',
+            type: 'address',
+          },
+          {
+            internalType: 'string',
+            name: 'name',
+            type: 'string',
+          },
+          {
+            internalType: 'enum BucketStorage.BucketVisibilityType',
+            name: 'visibility',
+            type: 'uint8',
+          },
+          {
+            internalType: 'address',
+            name: 'paymentAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'primarySpAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint64',
+            name: 'primarySpApprovalExpiredHeight',
+            type: 'uint64',
+          },
+          {
+            internalType: 'uint32',
+            name: 'globalVirtualGroupFamilyId',
+            type: 'uint32',
+          },
+          {
+            internalType: 'bytes',
+            name: 'primarySpSignature',
+            type: 'bytes',
+          },
+          {
+            internalType: 'uint64',
+            name: 'chargedReadQuota',
+            type: 'uint64',
+          },
+          {
+            internalType: 'bytes',
+            name: 'extraData',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct BucketStorage.CreateBucketSynPackage',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    name: 'prepareCreateBucket',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareCreateBucketHubCallbackAbi = [
+  ...BaseBucketHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'creator',
+            type: 'address',
+          },
+          {
+            internalType: 'string',
+            name: 'name',
+            type: 'string',
+          },
+          {
+            internalType: 'enum BucketStorage.BucketVisibilityType',
+            name: 'visibility',
+            type: 'uint8',
+          },
+          {
+            internalType: 'address',
+            name: 'paymentAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'primarySpAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint64',
+            name: 'primarySpApprovalExpiredHeight',
+            type: 'uint64',
+          },
+          {
+            internalType: 'uint32',
+            name: 'globalVirtualGroupFamilyId',
+            type: 'uint32',
+          },
+          {
+            internalType: 'bytes',
+            name: 'primarySpSignature',
+            type: 'bytes',
+          },
+          {
+            internalType: 'uint64',
+            name: 'chargedReadQuota',
+            type: 'uint64',
+          },
+          {
+            internalType: 'bytes',
+            name: 'extraData',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct BucketStorage.CreateBucketSynPackage',
+        name: '',
+        type: 'tuple',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'appAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'refundAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'enum PackageQueue.FailureHandleStrategy',
+            name: 'failureHandleStrategy',
+            type: 'uint8',
+          },
+          {
+            internalType: 'bytes',
+            name: 'callbackData',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct CmnStorage.ExtraData',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    name: 'prepareCreateBucket',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareDeleteBucketHubAbi = [
+  ...BaseBucketHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'prepareDeleteBucket',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareDeleteBucketHubCallbackAbi = [
+  ...BaseBucketHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'appAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'refundAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'enum PackageQueue.FailureHandleStrategy',
+            name: 'failureHandleStrategy',
+            type: 'uint8',
+          },
+          {
+            internalType: 'bytes',
+            name: 'callbackData',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct CmnStorage.ExtraData',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    name: 'prepareDeleteBucket',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
     type: 'function',
   },
 ] as const;

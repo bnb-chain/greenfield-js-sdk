@@ -1,4 +1,5 @@
-export const PermissionHubAbi = [
+// https://github.com/bnb-chain/greenfield-contracts/blob/develop/contracts/interface/IPermissionHub.sol
+const PermissionHubAbi = [
   {
     inputs: [],
     stateMutability: 'nonpayable',
@@ -1132,236 +1133,6 @@ export const PermissionHubAbi = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-    ],
-    name: 'prepareCreatePolicy',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'appAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'refundAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'enum PackageQueue.FailureHandleStrategy',
-            name: 'failureHandleStrategy',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes',
-            name: 'callbackData',
-            type: 'bytes',
-          },
-        ],
-        internalType: 'struct CmnStorage.ExtraData',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    name: 'prepareCreatePolicy',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'prepareDeletePolicy',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'address',
-            name: 'appAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'address',
-            name: 'refundAddress',
-            type: 'address',
-          },
-          {
-            internalType: 'enum PackageQueue.FailureHandleStrategy',
-            name: 'failureHandleStrategy',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes',
-            name: 'callbackData',
-            type: 'bytes',
-          },
-        ],
-        internalType: 'struct CmnStorage.ExtraData',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    name: 'prepareDeletePolicy',
-    outputs: [
-      {
-        internalType: 'uint8',
-        name: '',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
     inputs: [],
     name: 'retryPackage',
     outputs: [],
@@ -1456,6 +1227,252 @@ export const PermissionHubAbi = [
       },
     ],
     stateMutability: 'pure',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareCreatePolicyAbi = [
+  ...PermissionHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+    ],
+    name: 'prepareCreatePolicy',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareCreatePolicyCallbackAbi = [
+  ...PermissionHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'appAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'refundAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'enum PackageQueue.FailureHandleStrategy',
+            name: 'failureHandleStrategy',
+            type: 'uint8',
+          },
+          {
+            internalType: 'bytes',
+            name: 'callbackData',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct CmnStorage.ExtraData',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    name: 'prepareCreatePolicy',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareDeletePolicyAbi = [
+  ...PermissionHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'prepareDeletePolicy',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+] as const;
+
+export const PrepareDeletePolicyCallbackAbi = [
+  ...PermissionHubAbi,
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'appAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'address',
+            name: 'refundAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'enum PackageQueue.FailureHandleStrategy',
+            name: 'failureHandleStrategy',
+            type: 'uint8',
+          },
+          {
+            internalType: 'bytes',
+            name: 'callbackData',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct CmnStorage.ExtraData',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    name: 'prepareDeletePolicy',
+    outputs: [
+      {
+        internalType: 'uint8',
+        name: '',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'payable',
     type: 'function',
   },
 ] as const;

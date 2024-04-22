@@ -3,4 +3,4 @@
 export const CrossChainABI = [
   'function callbackGasPrice() external returns (uint256)',
   'function getRelayFees() view returns (uint256 relayFee, uint256 minAckRelayFee)',
-] as const;
+];

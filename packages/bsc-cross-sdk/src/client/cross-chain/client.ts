@@ -9,7 +9,7 @@ interface ICrossChainClient {
     minAckRelayFee: bigint;
   }>;
 
-  getCallbackGasPrice(): Promise<readonly [bigint, bigint]>;
+  getCallbackGasPrice(): Promise<bigint>;
 }
 
 export class CrossChainClient extends BasicClient implements ICrossChainClient {
@@ -34,9 +34,9 @@ export class CrossChainClient extends BasicClient implements ICrossChainClient {
     const data = await this.publicClient.readContract({
       address: this.crossChainAddress,
       abi: parseAbi(CrossChainABI),
-      functionName: 'getRelayFees',
+      functionName: 'callbackGasPrice',
     });
 
-    return data;
+    return data as bigint;
   }
 }

@@ -1,10 +1,27 @@
 import { Policy } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/types';
 import { Address, encodeFunctionData, parseAbi, toHex } from 'viem';
-import { BucketHubAbi } from '../../abi/BucketHub.abi';
-import { GroupHubAbi } from '../../abi/GroupHub.abi';
+import {
+  PrepareCreateBucketHubAbi,
+  PrepareCreateBucketHubCallbackAbi,
+  PrepareDeleteBucketHubAbi,
+  PrepareDeleteBucketHubCallbackAbi,
+} from '../../abi/BucketHub.abi';
+import {
+  PrepareCreateGroupAbi,
+  PrepareCreateGroupHubCallbackAbi,
+  PrepareDeleteGroupHubAbi,
+  PrepareDeleteGroupHubCallbackAbi,
+  PrepareUpdateGroupHubAbi,
+  PrepareUpdateGroupHubCallbackAbi,
+} from '../../abi/GroupHub.abi';
 import { MultiMessageAbi } from '../../abi/MultiMessage.abi';
-import { ObjectHubAbi } from '../../abi/ObjectHub.abi';
-import { PermissionHubAbi } from '../../abi/PermissionHub.abi';
+import { PrepareDeleteObjectAbi, PrepareDeleteObjectCallbackAbi } from '../../abi/ObjectHub.abi';
+import {
+  PrepareCreatePolicyAbi,
+  PrepareCreatePolicyCallbackAbi,
+  PrepareDeletePolicyAbi,
+  PrepareDeletePolicyCallbackAbi,
+} from '../../abi/PermissionHub.abi';
 import { TokenHubAbi } from '../../abi/TokenHub.abi';
 import { assertAddress, assertHubAddress } from '../../asserts';
 import {
@@ -66,7 +83,11 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
       this.hubAddress.tokenHubAddress,
     );
 
-    const fee = opts.relayFee + opts.minAckRelayFee + synPkg.amount;
+    if (opts.cb) throw new Error('callback is not supported in transferOut');
+
+    let fee = this.calculateFee(opts);
+    fee += synPkg.amount;
+
     return {
       target: this.hubAddress.tokenHubAddress,
       msgBytes: encodeFunctionData({
@@ -84,13 +105,15 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
       this.hubAddress.groupHubAddress,
     );
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.groupHubAddress,
       msgBytes: encodeFunctionData({
-        abi: GroupHubAbi,
+        abi: opts.cb ? PrepareUpdateGroupHubCallbackAbi : PrepareUpdateGroupHubAbi,
         functionName: 'prepareUpdateGroup',
-        args: [opts.sender, synPkg],
+        args: !opts.cb
+          ? [opts.sender, synPkg]
+          : [opts.sender, synPkg, opts.cb.gasLimit, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -102,13 +125,15 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
       this.hubAddress.groupHubAddress,
     );
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.groupHubAddress,
       msgBytes: encodeFunctionData({
-        abi: GroupHubAbi,
+        abi: opts.cb ? PrepareCreateGroupHubCallbackAbi : PrepareCreateGroupAbi,
         functionName: 'prepareCreateGroup',
-        args: [opts.sender, synPkg.owner, synPkg.name],
+        args: !opts.cb
+          ? [opts.sender, synPkg.owner, synPkg.name]
+          : [opts.sender, synPkg.owner, synPkg.name, opts.cb.gasLimit, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -120,13 +145,15 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
       this.hubAddress.groupHubAddress,
     );
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.groupHubAddress,
       msgBytes: encodeFunctionData({
-        abi: GroupHubAbi,
+        abi: opts.cb ? PrepareDeleteGroupHubCallbackAbi : PrepareDeleteGroupHubAbi,
         functionName: 'prepareDeleteGroup',
-        args: [opts.sender, synPkg.id],
+        args: !opts.cb
+          ? [opts.sender, synPkg.id]
+          : [opts.sender, synPkg.id, opts.cb.gasLimit, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -140,13 +167,15 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
     assertAddress(synPkg.creator);
     assertAddress(synPkg.primarySpAddress);
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.bucketHubAddress,
       msgBytes: encodeFunctionData({
-        abi: BucketHubAbi,
+        abi: opts.cb ? PrepareCreateBucketHubCallbackAbi : PrepareCreateBucketHubAbi,
         functionName: 'prepareCreateBucket',
-        args: [opts.sender, synPkg],
+        args: !opts.cb
+          ? [opts.sender, synPkg]
+          : [opts.sender, synPkg, opts.cb.gasLimit, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -158,13 +187,15 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
       this.hubAddress.bucketHubAddress,
     );
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.bucketHubAddress,
       msgBytes: encodeFunctionData({
-        abi: BucketHubAbi,
+        abi: opts.cb ? PrepareDeleteBucketHubCallbackAbi : PrepareDeleteBucketHubAbi,
         functionName: 'prepareDeleteBucket',
-        args: [opts.sender, synPkg.id],
+        args: !opts.cb
+          ? [opts.sender, synPkg.id]
+          : [opts.sender, synPkg.id, opts.cb.gasLimit, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -176,13 +207,15 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
       this.hubAddress.objectHubAddress,
     );
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.objectHubAddress,
       msgBytes: encodeFunctionData({
-        abi: ObjectHubAbi,
+        abi: opts.cb ? PrepareDeleteObjectCallbackAbi : PrepareDeleteObjectAbi,
         functionName: 'prepareDeleteObject',
-        args: [opts.sender, synPkg.id],
+        args: !opts.cb
+          ? [opts.sender, synPkg.id]
+          : [opts.sender, synPkg.id, opts.cb.gasLimit, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -196,13 +229,13 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
 
     const data = toHex(Policy.encode(msg).finish());
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.permissionHubAddress,
       msgBytes: encodeFunctionData({
-        abi: PermissionHubAbi,
+        abi: opts.cb ? PrepareCreatePolicyCallbackAbi : PrepareCreatePolicyAbi,
         functionName: 'prepareCreatePolicy',
-        args: [opts.sender, data],
+        args: !opts.cb ? [opts.sender, data] : [opts.sender, data, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -214,13 +247,13 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
       this.hubAddress.permissionHubAddress,
     );
 
-    const fee = opts.relayFee + opts.minAckRelayFee;
+    const fee = this.calculateFee(opts);
     return {
       target: this.hubAddress.permissionHubAddress,
       msgBytes: encodeFunctionData({
-        abi: PermissionHubAbi,
+        abi: opts.cb ? PrepareDeletePolicyCallbackAbi : PrepareDeletePolicyAbi,
         functionName: 'prepareDeletePolicy',
-        args: [opts.sender, synPkg.id],
+        args: !opts.cb ? [opts.sender, synPkg.id] : [opts.sender, synPkg.id, opts.cb.extraData],
       }),
       values: fee,
     };
@@ -245,5 +278,16 @@ export class MultiMessageClient extends BasicClient implements IMultiMessageClie
     const txHash = await this.walletClient.writeContract(request);
 
     return txHash;
+  }
+
+  private calculateFee(opts: MultiMessageParamOptions) {
+    let fee = opts.relayFee + opts.minAckRelayFee;
+
+    if (opts.cb) {
+      const callbackGasCost = opts.cb.gasLimit * opts.cb.gasPrice;
+      fee += callbackGasCost;
+    }
+
+    return fee;
   }
 }

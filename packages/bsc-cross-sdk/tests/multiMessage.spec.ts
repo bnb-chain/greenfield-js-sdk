@@ -11,7 +11,7 @@ import {
   TokenHubAddress,
 } from './env';
 import { generateString } from './utils';
-import { parseEther, zeroAddress } from 'viem';
+import { parseEther, toHex, zeroAddress } from 'viem';
 import { ResourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/resource/types';
 import {
   ActionType,
@@ -85,17 +85,97 @@ describe('base', () => {
     expect(txHash).toBeDefined();
   });
 
-  test('deleteBucket', async () => {
+  test('createBucketCb', async () => {
+    const gasPrice = await crossChainClient.getCallbackGasPrice();
+    const bucketName = generateString(10);
+
+    // eslint-disable-next-line no-console
+    console.log('bucketName', bucketName);
+
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
-    const args = multiMsgClient.deleteBucket(
+    const args = multiMsgClient.createBucket(
       {
-        id: BigInt(180010),
+        name: bucketName,
+        chargedReadQuota: BigInt(0),
+        creator: account.address,
+        visibility: 1,
+        paymentAddress: account.address,
+        primarySpAddress: '0xd142052d8c0881fc7485c1270c3510bc442e05dd',
+        primarySpApprovalExpiredHeight: BigInt(0),
+        globalVirtualGroupFamilyId: 1,
+        primarySpSignature: '0x',
+        extraData: '0x',
       },
       {
         sender: account.address,
         minAckRelayFee,
         relayFee,
+        cb: {
+          gasPrice,
+          gasLimit: BigInt(1000000),
+          extraData: {
+            appAddress: account.address,
+            refundAddress: account.address,
+            failureHandleStrategy: 0,
+            callbackData: toHex(''),
+          },
+        },
+      },
+    );
+
+    const txHash = await multiMsgClient.sendMessages([args]);
+
+    // eslint-disable-next-line no-console
+    console.log('txHash', txHash);
+
+    expect(txHash).toBeDefined();
+  });
+
+  test('deleteBucket', async () => {
+    const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
+
+    const args = multiMsgClient.deleteBucket(
+      {
+        id: BigInt(180005),
+      },
+      {
+        sender: account.address,
+        minAckRelayFee,
+        relayFee,
+      },
+    );
+
+    const txHash = await multiMsgClient.sendMessages([args]);
+
+    // eslint-disable-next-line no-console
+    console.log('txHash', txHash);
+
+    expect(txHash).toBeDefined();
+  });
+
+  test('deleteBucketCb', async () => {
+    const gasPrice = await crossChainClient.getCallbackGasPrice();
+    const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
+
+    const args = multiMsgClient.deleteBucket(
+      {
+        id: BigInt(180006),
+      },
+      {
+        sender: account.address,
+        minAckRelayFee,
+        relayFee,
+        cb: {
+          gasPrice,
+          gasLimit: BigInt(100000),
+          extraData: {
+            appAddress: account.address,
+            refundAddress: account.address,
+            failureHandleStrategy: 0,
+            callbackData: toHex(''),
+          },
+        },
       },
     );
 
@@ -131,15 +211,56 @@ describe('base', () => {
   test('createGroup', async () => {
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
+    const groupName = generateString(5);
+    // eslint-disable-next-line no-console
+    console.log('groupName', groupName);
+
     const args = multiMsgClient.createGroup(
       {
-        name: generateString(5),
+        name: groupName,
         owner: account.address,
       },
       {
         sender: account.address,
         minAckRelayFee,
         relayFee,
+      },
+    );
+
+    const txHash = await multiMsgClient.sendMessages([args]);
+
+    // eslint-disable-next-line no-console
+    console.log('txHash', txHash);
+    expect(txHash).toBeDefined();
+  });
+
+  test('createGroupCb', async () => {
+    const gasPrice = await crossChainClient.getCallbackGasPrice();
+    const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
+
+    const groupName = generateString(5);
+    // eslint-disable-next-line no-console
+    console.log('groupName', groupName);
+
+    const args = multiMsgClient.createGroup(
+      {
+        name: groupName,
+        owner: account.address,
+      },
+      {
+        sender: account.address,
+        minAckRelayFee,
+        relayFee,
+        cb: {
+          gasPrice,
+          gasLimit: BigInt(100000),
+          extraData: {
+            appAddress: account.address,
+            refundAddress: account.address,
+            failureHandleStrategy: 0,
+            callbackData: toHex(''),
+          },
+        },
       },
     );
 
