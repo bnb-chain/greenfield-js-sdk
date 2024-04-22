@@ -1,14 +1,12 @@
-import { Address, EIP1193Provider } from 'viem';
+import { Address, EIP1193Provider, Hex } from 'viem';
 
 export type ChainConfig = 'testnet' | 'mainnet';
 export type AccountConfig = PrivateKeyAccountConfig | JSONRpcAccountConfig;
 export type PrivateKeyAccountConfig = {
   privateKey: Address;
-  // chainConfig: ChainConfig;
 };
 export type JSONRpcAccountConfig = {
   address: Address;
-  // chainConfig: ChainConfig;
   ethereumProvider: EIP1193Provider;
 };
 export type BasicClientParams = {
@@ -36,16 +34,31 @@ export type MultiMessageParamOptions = {
   sender: Address;
   relayFee: bigint;
   minAckRelayFee: bigint;
+  cb?: {
+    gasLimit: bigint;
+    extraData: {
+      appAddress: Address;
+      refundAddress: Address;
+      failureHandleStrategy: FailureHandleStrategy;
+      callbackData: Hex;
+    };
+  };
 };
 
-enum BucketVisibilityType {
+export enum FailureHandleStrategy {
+  BlockOnFail = 0,
+  CacheOnFail,
+  SkipOnFail,
+}
+
+export enum BucketVisibilityType {
   Unspecified = 0,
   PublicRead,
   Private,
   Inherit,
 }
 
-enum UpdateGroupOpType {
+export enum UpdateGroupOpType {
   AddMembers = 0,
   RemoveMembers,
   RenewMembers,
