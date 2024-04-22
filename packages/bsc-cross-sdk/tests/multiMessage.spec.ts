@@ -16,6 +16,7 @@ import { ResourceType } from '@bnb-chain/greenfield-cosmos-types/greenfield/reso
 import {
   ActionType,
   Effect,
+  PrincipalType,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
 import { CrossChainClient } from '../src/client/cross-chain';
 import { MultiMessageClient } from '../src/client/multi-message';
@@ -50,6 +51,9 @@ describe('base', () => {
   test('createBucket', async () => {
     // const gasPrice = crossChainClient.getCallbackGasPrice();
     const bucketName = generateString(10);
+
+    // eslint-disable-next-line no-console
+    console.log('bucketName', bucketName);
 
     const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
 
@@ -199,7 +203,7 @@ describe('base', () => {
     const args = multiMsgClient.createPolicy(
       {
         id: '0',
-        resourceId: '180009',
+        resourceId: '234011',
         resourceType: ResourceType.RESOURCE_TYPE_BUCKET,
         statements: [
           {
@@ -208,6 +212,31 @@ describe('base', () => {
             resources: [],
           },
         ],
+        principal: {
+          type: PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
+          value: '0x0C02787e83948e7aD29abE3a99b29c480f9F0096',
+        },
+      },
+      {
+        sender: account.address,
+        minAckRelayFee,
+        relayFee,
+      },
+    );
+
+    const txHash = await multiMsgClient.sendMessages([args]);
+
+    // eslint-disable-next-line no-console
+    console.log('txHash', txHash);
+    expect(txHash).toBeDefined();
+  });
+
+  test('deletePolicy', async () => {
+    const { relayFee, minAckRelayFee } = await crossChainClient.getRelayFee();
+
+    const args = multiMsgClient.deletePolicy(
+      {
+        id: BigInt(646),
       },
       {
         sender: account.address,
