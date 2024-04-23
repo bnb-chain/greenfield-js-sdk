@@ -1,11 +1,16 @@
-import { ResumableOpts } from './Common';
+import { OnProgress } from '../common';
+import { ResumableOpts, UploadFile } from './Common';
 
 export type PutObjectRequest = {
+  endpoint?: string;
   bucketName: string;
   objectName: string;
+  body: UploadFile;
   txnHash?: string;
-  body: File;
   duration?: number;
-  endpoint?: string;
   resumableOpts?: ResumableOpts;
+  /**
+   * resumable upload is not supported `onProgress`
+   */
+  onProgress?: OnProgress;
 };

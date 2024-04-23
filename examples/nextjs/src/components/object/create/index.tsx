@@ -6,6 +6,7 @@ import {
   RedundancyType,
   VisibilityType,
 } from '@bnb-chain/greenfield-js-sdk';
+import { OnProgressEvent } from '@bnb-chain/greenfield-js-sdk/src/types/common';
 import { ReedSolomon } from '@bnb-chain/reed-solomon';
 import { ChangeEvent, useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -122,6 +123,9 @@ export const CreateObject = () => {
                 body: file,
                 txnHash: txHash,
                 duration: 20000,
+                onProgress: (e: OnProgressEvent) => {
+                  console.log('progress: ', e.percent);
+                },
               },
               {
                 type: 'EDDSA',
@@ -197,6 +201,9 @@ export const CreateObject = () => {
                 delegatedOpts: {
                   visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
                 },
+                onProgress: (e: OnProgressEvent) => {
+                  console.log('progress: ', e.percent);
+                },
               },
               {
                 type: 'EDDSA',
@@ -230,6 +237,7 @@ export const CreateObject = () => {
                 bucketName: createObjectInfo.bucketName,
                 objectName: createObjectInfo.objectName,
                 body: file,
+                timeout: 20000,
                 delegatedOpts: {
                   visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
                 },
