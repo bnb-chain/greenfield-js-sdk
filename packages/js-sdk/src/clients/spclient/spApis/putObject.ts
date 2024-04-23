@@ -1,5 +1,6 @@
 import { EMPTY_STRING_SHA256, METHOD_PUT } from '@/constants';
 import { ReqMeta, VisibilityType } from '@/types';
+import { UploadFile } from '@/types/sp/Common';
 import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { encodePath, getSortQueryParams } from '../auth';
 
@@ -10,7 +11,7 @@ export const getPutObjectMetaInfo = async (
     objectName: string;
     bucketName: string;
     contentType: string;
-    body: File;
+    body: UploadFile;
     txnHash?: string;
     delegatedOpts?: {
       visibility: VisibilityType;
@@ -48,12 +49,12 @@ export const getPutObjectMetaInfo = async (
 
   const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
     method: METHOD_PUT,
-    body,
   };
 
   return {
     url: url.href,
     optionsWithOutHeaders,
     reqMeta,
+    file: body,
   };
 };

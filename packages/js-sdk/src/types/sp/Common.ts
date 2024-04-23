@@ -334,3 +334,11 @@ export type ResumableOpts = {
   disableResumable: boolean;
   partSize?: number;
 };
+
+export type NodeFile = {
+  name: string;
+  type: string;
+  size: number;
+  content: Buffer;
+};
+export type UploadFile = File | NodeFile;

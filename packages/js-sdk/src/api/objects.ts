@@ -1,24 +1,5 @@
-import {
-  getDelegatedCreateFolderMetaInfo,
-  parseDelegatedCreateFolderResponse,
-} from '@/clients/spclient/spApis/delegatedCreateFolder';
-import {
-  getObjectOffsetInfo,
-  parseObjectOffsetResponse,
-} from '@/clients/spclient/spApis/getObjectOffset';
-import {
-  getObjectStatusInfo,
-  parseObjectStatusResponse,
-} from '@/clients/spclient/spApis/getObjectStatus';
 import { getResumablePutObjectMetaInfo } from '@/clients/spclient/spApis/resumablePutObject';
-import { DelegatedOpts } from '@/types/sp/Common';
-import {
-  DelegateCreateFolderRepsonse,
-  DelegatedCreateFolderRequest,
-} from '@/types/sp/DelegateCreateFolder';
-import { DelegatedPubObjectRequest } from '@/types/sp/DelegatedPubObject';
-import { UploadProgressResponse } from '@/types/sp/UploadProgress';
-import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
+import { DelegatedOpts, UploadFile } from '@/types/sp/Common';
 import {
   ActionType,
   Principal,
@@ -56,16 +37,28 @@ import {
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import {
+  HTTPHeaderRegPubKey,
   encodePath,
   getAuthorization,
   getSortQuery,
-  HTTPHeaderRegPubKey,
 } from '../clients/spclient/auth';
+import {
+  getDelegatedCreateFolderMetaInfo,
+  parseDelegatedCreateFolderResponse,
+} from '../clients/spclient/spApis/delegatedCreateFolder';
 import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
 import {
   getObjectMetaInfo,
   parseGetObjectMetaResponse,
 } from '../clients/spclient/spApis/getObjectMeta';
+import {
+  getObjectOffsetInfo,
+  parseObjectOffsetResponse,
+} from '../clients/spclient/spApis/getObjectOffset';
+import {
+  getObjectStatusInfo,
+  parseObjectStatusResponse,
+} from '../clients/spclient/spApis/getObjectStatus';
 import {
   getListObjectPoliciesMetaInfo,
   parseGetListObjectPoliciesResponse,
@@ -94,14 +87,22 @@ import {
   ListObjectsByIDsResponse,
   Long,
   ObjectStatus,
+  OnProgress,
   SpResponse,
   TxResponse,
   UploadOffsetResponse,
 } from '../types';
+import {
+  DelegateCreateFolderRepsonse,
+  DelegatedCreateFolderRequest,
+} from '../types/sp/DelegateCreateFolder';
+import { DelegatedPubObjectRequest } from '../types/sp/DelegatedPubObject';
 import { GetObjectRequest } from '../types/sp/GetObject';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
 import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
 import { PutObjectRequest } from '../types/sp/PutObject';
+import { UploadProgressResponse } from '../types/sp/UploadProgress';
+import { assertAuthType, assertFileType, assertStringRequire } from '../utils/asserts/params';
 import {
   checkObjectName,
   generateUrlByBucketName,
@@ -249,7 +250,15 @@ export class Objects implements IObject {
   }
 
   public async delegateUploadObject(params: DelegatedPubObjectRequest, authType: AuthType) {
-    const { bucketName, objectName, body, resumableOpts, timeout = 30000, delegatedOpts } = params;
+    const {
+      bucketName,
+      objectName,
+      body,
+      resumableOpts,
+      timeout = 30000,
+      delegatedOpts,
+      onProgress,
+    } = params;
 
     assertAuthType(authType);
     verifyBucketName(bucketName);
@@ -280,8 +289,9 @@ export class Objects implements IObject {
         body,
         authType,
         delegatedOpts,
-        timeout,
+        duration: timeout,
         txnHash: '',
+        onProgress,
       });
     }
 
@@ -292,6 +302,7 @@ export class Objects implements IObject {
       body,
       partSize,
       authType,
+      timeout,
       delegatedOpts,
     );
   }
@@ -300,7 +311,7 @@ export class Objects implements IObject {
     params: PutObjectRequest,
     authType: AuthType,
   ): Promise<SpResponse<null>> {
-    const { bucketName, objectName, body, duration = 30000, resumableOpts } = params;
+    const { bucketName, objectName, body, duration = 30000, resumableOpts, onProgress } = params;
     assertAuthType(authType);
     verifyBucketName(bucketName);
     verifyObjectName(objectName);
@@ -341,7 +352,8 @@ export class Objects implements IObject {
         body,
         txnHash,
         authType,
-        timeout: duration,
+        duration,
+        onProgress,
       });
     }
 
@@ -352,6 +364,7 @@ export class Objects implements IObject {
       body,
       partSize,
       authType,
+      duration,
     );
   }
 
@@ -359,24 +372,26 @@ export class Objects implements IObject {
     endpoint: string;
     bucketName: string;
     objectName: string;
-    body: File;
+    body: UploadFile;
     txnHash: string;
     authType: AuthType;
     delegatedOpts?: DelegatedOpts;
-    timeout: number;
+    duration: number;
+    onProgress?: OnProgress;
   }): Promise<SpResponse<null>> {
     const {
       authType,
       body,
       bucketName,
       delegatedOpts,
-      timeout: duration,
+      duration,
       endpoint,
       objectName,
       txnHash,
+      onProgress,
     } = params;
 
-    const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
+    const { reqMeta, optionsWithOutHeaders, url, file } = await getPutObjectMetaInfo(endpoint, {
       bucketName,
       objectName,
       contentType: body.type,
@@ -387,14 +402,19 @@ export class Objects implements IObject {
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
     try {
-      const result = await this.spClient.callApi(
+      const result = await this.spClient.upload(
         url,
         {
           ...optionsWithOutHeaders,
           headers: signHeaders,
         },
         duration,
+        file,
+        {
+          onProgress,
+        },
       );
+
       const { status } = result;
 
       return { code: 0, message: 'Put object success.', statusCode: status };
@@ -426,9 +446,10 @@ export class Objects implements IObject {
     endpoint: string,
     bucketName: string,
     objectName: string,
-    body: File,
+    body: UploadFile,
     partSize: number,
     authType: AuthType,
+    timeout: number,
     delegatedOpts?: DelegatedOpts,
   ) {
     let offset = 0;
@@ -444,11 +465,12 @@ export class Objects implements IObject {
     const { totalPartsCount } = this.splitPartInfo(body.size, partSize);
 
     // split file
+    const file = assertFileType(body) ? body.content : body;
     const chunks = [];
     for (let i = 0; i < totalPartsCount; i++) {
       const start = i * partSize;
       const end = Math.min(start + partSize, body.size);
-      const chunk = body.slice(start, end);
+      const chunk = file.slice(start, end);
       chunks.push(chunk);
     }
 
@@ -478,7 +500,7 @@ export class Objects implements IObject {
             ...optionsWithOutHeaders,
             headers: signHeaders,
           },
-          30000,
+          timeout,
         );
       } catch (error: any) {
         return {
@@ -918,7 +940,7 @@ export class Objects implements IObject {
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
     try {
-      const result = await this.spClient.callApi(
+      const result = await this.spClient.callApiV2(
         url,
         {
           ...optionsWithOutHeaders,
@@ -928,7 +950,8 @@ export class Objects implements IObject {
       );
       const { status } = result;
 
-      const xmlData = await result.text();
+      //@ts-ignore
+      const xmlData = result.text;
       const res = parseDelegatedCreateFolderResponse(xmlData);
 
       return { code: 0, message: 'Create folder success.', statusCode: status, body: res };
