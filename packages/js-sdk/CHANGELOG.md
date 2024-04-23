@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.0.0-alpha.9
+
+### Patch Changes
+
+- [#529](https://github.com/bnb-chain/greenfield-js-sdk/pull/529)
+  [`e789764d3f38290e47467916e610df0430c801d9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e789764d3f38290e47467916e610df0430c801d9)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Uploading progress
+
 ## 2.0.0-alpha.8
 
 ### Patch Changes
