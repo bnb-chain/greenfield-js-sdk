@@ -29,6 +29,7 @@ import {
   MsgDeletePolicy,
   MsgMigrateBucket,
   MsgPutPolicy,
+  MsgSetBucketFlowRateLimit,
   MsgToggleSPAsDelegatedAgent,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
@@ -43,6 +44,7 @@ import {
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
   MsgMigrateBucketTypeUrl,
+  MsgSetBucketFlowRateLimitTypeUrl,
   MsgToggleSPAsDelegatedAgentTypeUrl,
   MsgUpdateBucketInfoTypeUrl,
   newBucketGRN,
@@ -101,6 +103,8 @@ import { decodeObjectFromHexString } from '../utils/encoding';
 import { Sp } from './sp';
 import { Storage } from './storage';
 import { VirtualGroup } from './virtualGroup';
+import { Payment } from './payment';
+import { MsgSetBucketFlowRateLimitSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket2';
 
 export interface IBucket {
   /**
@@ -187,6 +191,11 @@ export interface IBucket {
   updateBucketInfo(
     srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota?: string },
   ): Promise<TxResponse>;
+
+  /**
+   * Get the flow rate limit of the bucket.
+   */
+  setPaymentAccountFlowRateLimit(msg: MsgSetBucketFlowRateLimit): Promise<TxResponse>;
 }
 
 @injectable()
@@ -200,6 +209,16 @@ export class Bucket implements IBucket {
 
   private queryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
+
+  public async setPaymentAccountFlowRateLimit(msg: MsgSetBucketFlowRateLimit) {
+    return await this.txClient.tx(
+      MsgSetBucketFlowRateLimitTypeUrl,
+      msg.operator,
+      MsgSetBucketFlowRateLimitSDKTypeEIP712,
+      MsgSetBucketFlowRateLimit.toSDK(msg),
+      MsgSetBucketFlowRateLimit.encode(msg).finish(),
+    );
+  }
 
   public async createBucket(msg: MsgCreateBucket) {
     assertStringRequire(msg.primarySpAddress, 'Primary sp address is missing');
