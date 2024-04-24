@@ -1,10 +1,11 @@
 import {
-  MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
   MsgCreateBucketSDKTypeEIP712,
   MsgDeleteBucketSDKTypeEIP712,
   MsgMigrateBucketSDKTypeEIP712,
+  MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
   MsgUpdateBucketInfoSDKTypeEIP712,
 } from '@/messages/greenfield';
+import { MsgSetBucketFlowRateLimitSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgSetBucketFlowRateLimit';
 import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
@@ -47,8 +48,8 @@ import {
   MsgSetBucketFlowRateLimitTypeUrl,
   MsgToggleSPAsDelegatedAgentTypeUrl,
   MsgUpdateBucketInfoTypeUrl,
-  newBucketGRN,
   TxResponse,
+  newBucketGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { HTTPHeaderUserAddress } from '../clients/spclient/auth';
@@ -103,8 +104,6 @@ import { decodeObjectFromHexString } from '../utils/encoding';
 import { Sp } from './sp';
 import { Storage } from './storage';
 import { VirtualGroup } from './virtualGroup';
-import { Payment } from './payment';
-import { MsgSetBucketFlowRateLimitSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgDeleteBucket2';
 
 export interface IBucket {
   /**
