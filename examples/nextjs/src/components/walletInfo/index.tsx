@@ -6,7 +6,7 @@ export const WalletInfo = () => {
 
   return (
     <div>
-      <ConnectButton accountStatus="address" />
+      <ConnectButton accountStatus="address" chainStatus="name" showBalance />
     </div>
   );
 };
