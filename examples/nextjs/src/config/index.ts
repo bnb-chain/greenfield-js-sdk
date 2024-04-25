@@ -24,8 +24,8 @@ const greenFieldChain: Chain = {
     },
   },
   nativeCurrency: {
-    name: 'BNB',
-    symbol: 'BNB',
+    name: 'tBNB',
+    symbol: 'tBNB',
     decimals: 18,
   },
 };
@@ -52,6 +52,9 @@ export const bscChain: Chain = {
   // testnet: true,
 };
 
+console.log('bscChain', bscChain);
+console.log('greenFieldChain', greenFieldChain);
+
 const connectors = connectorsForWallets(
   [
     {
@@ -66,7 +69,16 @@ const connectors = connectorsForWallets(
 );
 
 export const wagmiConfig = createConfig({
-  chains: [mainnet, bscChain, greenFieldChain],
+  chains: [
+    mainnet,
+    bscChain,
+    {
+      ...greenFieldChain,
+      network: 'greenfield',
+      iconUrl:
+        'https://github.com/wagmi-dev/wagmi/assets/5653652/44446c8c-5c72-4e89-b8eb-3042ef618eed',
+    },
+  ],
   transports: {
     [mainnet.id]: http(),
     [bscChain.id]: http(),
