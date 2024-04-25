@@ -6,7 +6,13 @@ export const WalletInfo = () => {
 
   return (
     <div>
-      <ConnectButton accountStatus="address" chainStatus="name" showBalance />
+      <ConnectButton
+        accountStatus="address"
+        showBalance={{
+          largeScreen: true,
+          smallScreen: true,
+        }}
+      />
     </div>
   );
 };
