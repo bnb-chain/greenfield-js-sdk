@@ -1,10 +1,11 @@
 import {
-  MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
   MsgCreateBucketSDKTypeEIP712,
   MsgDeleteBucketSDKTypeEIP712,
   MsgMigrateBucketSDKTypeEIP712,
+  MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
   MsgUpdateBucketInfoSDKTypeEIP712,
 } from '@/messages/greenfield';
+import { MsgSetBucketFlowRateLimitSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgSetBucketFlowRateLimit';
 import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
@@ -29,6 +30,7 @@ import {
   MsgDeletePolicy,
   MsgMigrateBucket,
   MsgPutPolicy,
+  MsgSetBucketFlowRateLimit,
   MsgToggleSPAsDelegatedAgent,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
@@ -43,10 +45,11 @@ import {
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
   MsgMigrateBucketTypeUrl,
+  MsgSetBucketFlowRateLimitTypeUrl,
   MsgToggleSPAsDelegatedAgentTypeUrl,
   MsgUpdateBucketInfoTypeUrl,
-  newBucketGRN,
   TxResponse,
+  newBucketGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { HTTPHeaderUserAddress } from '../clients/spclient/auth';
@@ -187,6 +190,11 @@ export interface IBucket {
   updateBucketInfo(
     srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota?: string },
   ): Promise<TxResponse>;
+
+  /**
+   * Get the flow rate limit of the bucket.
+   */
+  setPaymentAccountFlowRateLimit(msg: MsgSetBucketFlowRateLimit): Promise<TxResponse>;
 }
 
 @injectable()
@@ -200,6 +208,16 @@ export class Bucket implements IBucket {
 
   private queryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
+
+  public async setPaymentAccountFlowRateLimit(msg: MsgSetBucketFlowRateLimit) {
+    return await this.txClient.tx(
+      MsgSetBucketFlowRateLimitTypeUrl,
+      msg.operator,
+      MsgSetBucketFlowRateLimitSDKTypeEIP712,
+      MsgSetBucketFlowRateLimit.toSDK(msg),
+      MsgSetBucketFlowRateLimit.encode(msg).finish(),
+    );
+  }
 
   public async createBucket(msg: MsgCreateBucket) {
     assertStringRequire(msg.primarySpAddress, 'Primary sp address is missing');

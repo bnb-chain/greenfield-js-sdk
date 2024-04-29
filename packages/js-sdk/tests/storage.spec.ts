@@ -2,6 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 import { bytesFromBase64, Long, RedundancyType, VisibilityType } from '../src';
 import { ACCOUNT_ADDRESS, ACCOUNT_PRIVATEKEY } from './env';
 import { client, generateString, selectSp } from './utils';
+import { Account } from '../src/api/account';
 
 const BUCKET_NAME = generateString(10);
 const OBJECT_NAME = generateString(10);
@@ -150,5 +151,34 @@ describe('storageTx', () => {
 
       expect(res.code).toEqual(0);
     }, 300000);
+  });
+
+  describe('payment', () => {
+    test('setPaymentAccountFlowRateLimit', async () => {
+      const tx = await client.bucket.setPaymentAccountFlowRateLimit({
+        bucketName: 'dfg',
+        bucketOwner: ACCOUNT_ADDRESS,
+        operator: ACCOUNT_ADDRESS,
+        paymentAddress: ACCOUNT_ADDRESS,
+        flowRateLimit: '1000',
+      });
+
+      const simulateInfo = await tx.simulate({
+        denom: 'BNB',
+      });
+
+      expect(simulateInfo).not.toBeNull();
+
+      const res = await tx.broadcast({
+        denom: 'BNB',
+        gasLimit: Number(simulateInfo?.gasLimit),
+        gasPrice: simulateInfo?.gasPrice || '5000000000',
+        payer: ACCOUNT_ADDRESS,
+        granter: '',
+        privateKey: ACCOUNT_PRIVATEKEY,
+      });
+
+      expect(res.code).toEqual(0);
+    });
   });
 });
