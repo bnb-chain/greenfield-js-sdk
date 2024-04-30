@@ -13,6 +13,7 @@
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.30",
     "@bnb-chain/greenfield-js-sdk": "workspace:*",
+    "@bnb-chain/bsc-cross-greenfield-sdk": "workspace:*",
     "@bnb-chain/reed-solomon": "workspace:*",
     "@cosmjs/encoding": "^0.32.0",
     "@cosmjs/proto-signing": "^0.32.0",
