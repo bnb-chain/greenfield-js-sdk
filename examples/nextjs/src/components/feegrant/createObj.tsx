@@ -1,12 +1,16 @@
 import { client } from '@/client';
 import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import {
+  bytesFromBase64,
   GRNToString,
+  Long,
   MsgCreateObjectTypeUrl,
   newBucketGRN,
   newObjectGRN,
   PermissionTypes,
+  RedundancyType,
   toTimestamp,
+  VisibilityType,
 } from '@bnb-chain/greenfield-js-sdk';
 import { Wallet } from '@ethersproject/wallet';
 import { ChangeEvent, useState } from 'react';
@@ -135,40 +139,25 @@ export const CreateObj = () => {
               creator: granteeAddr,
               bucketName: bucketName,
               objectName: objectName,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              redundancyType: 'REDUNDANCY_EC_TYPE',
-              contentLength: fileBytes.byteLength,
-              expectCheckSums,
-              fileType: file.type,
+              visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+              redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+              payloadSize: Long.fromInt(fileBytes.byteLength),
+              expectChecksums: expectCheckSums.map((x) => bytesFromBase64(x)),
+              contentType: file.type,
             },
-            {
-              type: 'ECDSA',
-              privateKey: privateKey,
-            },
+            // {
+            //   type: 'ECDSA',
+            //   privateKey: privateKey,
+            // },
           );
 
-          const setTagTx = await client.storage.setTag({
-            operator: granteeAddr,
-            resource: GRNToString(newObjectGRN(bucketName, objectName)),
-            tags: {
-              tags: [
-                {
-                  key: 'x',
-                  value: 'xx',
-                },
-              ],
-            },
-          });
-
-          const multiTx = await client.txClient.multiTx([createObjectTx, setTagTx]);
-
-          const simulateInfo = await multiTx.simulate({
+          const simulateInfo = await createObjectTx.simulate({
             denom: 'BNB',
           });
 
           console.log('simulateInfo', simulateInfo);
 
-          const res = await multiTx.broadcast({
+          const res = await createObjectTx.broadcast({
             denom: 'BNB',
             gasLimit: Number(simulateInfo?.gasLimit),
             gasPrice: simulateInfo?.gasPrice || '5000000000',
@@ -178,7 +167,7 @@ export const CreateObj = () => {
           });
 
           if (res.code === 0) {
-            alert('success');
+            alert('create objectTx success');
           }
 
           // const uploadRes = await client.object.uploadObject({

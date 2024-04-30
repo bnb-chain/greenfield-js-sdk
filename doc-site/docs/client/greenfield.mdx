@@ -4,16 +4,34 @@ title: 'Greenfield Client'
 sidebar_position: 1
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Create Greenfield Client
 
 | params         | description         |
 | -------------- | ------------------- |
 | GRPC_URL       | Greenfield grpc url |
 | GREEN_CHAIN_ID | Greenfield chain id |
 
+<Tabs groupId="example">
+<TabItem value="Browser" label="Browser">
+
 ```js
 import { Client } from '@bnb-chain/greenfield-js-sdk';
 const client = Client.create(GRPC_URL, GREEN_CHAIN_ID);
 ```
+
+</TabItem>
+<TabItem value="Nodejs" label="Nodejs">
+
+```js
+const { Client } = require('@bnb-chain/greenfield-js-sdk');
+const client = Client.create(GRPC_URL, GREEN_CHAIN_ID);
+```
+
+</TabItem>
+</Tabs>
 
 The JS SDK consists of two parts:
 

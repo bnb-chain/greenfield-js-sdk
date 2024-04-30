@@ -52,7 +52,7 @@ export default async () => {
       ],
     },
     {
-      input: './src/index.ts',
+      input: ['./src/index.ts', './src/node/adapter.ts'],
       output: {
         dir: './dist/cjs',
         format: 'cjs',

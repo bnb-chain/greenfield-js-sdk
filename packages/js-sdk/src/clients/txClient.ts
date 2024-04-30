@@ -289,6 +289,7 @@ export class TxClient implements ITxClient {
       gasLimit,
       granter,
       payer,
+      // @ts-ignore
       712,
     );
 

@@ -1,5 +1,10 @@
 import { client } from '@/client';
-import { GRNToString, newBucketGRN, PermissionTypes } from '@bnb-chain/greenfield-js-sdk';
+import {
+  GRNToString,
+  newBucketGRN,
+  PermissionTypes,
+  toTimestamp,
+} from '@bnb-chain/greenfield-js-sdk';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -25,10 +30,14 @@ export const BucketPolicy = () => {
         onClick={async () => {
           if (!address) return;
 
+          const date = new Date();
+          date.setDate(date.getMinutes() + 10);
+
           const statement: PermissionTypes.Statement = {
             effect: PermissionTypes.Effect.EFFECT_ALLOW,
             actions: [PermissionTypes.ActionType.ACTION_UPDATE_BUCKET_INFO],
             resources: [GRNToString(newBucketGRN(policyBucketInfo.bucketName))],
+            expirationTime: toTimestamp(date),
           };
 
           const tx = await client.bucket.putBucketPolicy(policyBucketInfo.bucketName, {
@@ -38,6 +47,7 @@ export const BucketPolicy = () => {
               type: PermissionTypes.PrincipalType.PRINCIPAL_TYPE_GNFD_ACCOUNT,
               value: '0x0000000000000000000000000000000000000001',
             },
+            expirationTime: toTimestamp(date),
           });
 
           const simulateInfo = await tx.simulate({

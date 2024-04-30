@@ -1,5 +1,26 @@
 # @demo/wallet
 
+## 0.0.28-alpha.9
+
+### Patch Changes
+
+- [#529](https://github.com/bnb-chain/greenfield-js-sdk/pull/529)
+  [`e789764d3f38290e47467916e610df0430c801d9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e789764d3f38290e47467916e610df0430c801d9)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Uploading progress
+
+- Updated dependencies
+  [[`e789764d3f38290e47467916e610df0430c801d9`](https://github.com/bnb-chain/greenfield-js-sdk/commit/e789764d3f38290e47467916e610df0430c801d9)]:
+  - @bnb-chain/greenfield-js-sdk@2.0.0-alpha.9
+
+## 0.0.28-alpha.8
+
+### Patch Changes
+
+- Updated dependencies
+  [[`6113b84`](https://github.com/bnb-chain/greenfield-js-sdk/commit/6113b8446396c5ffecefd548523300af9869c7ea),
+  [`7c3bb38`](https://github.com/bnb-chain/greenfield-js-sdk/commit/7c3bb38f6ab9066096aed218cebdf85f37db3c06)]:
+  - @bnb-chain/greenfield-js-sdk@2.0.0-alpha.8
+
 ## 0.0.28-alpha.7
 
 ### Patch Changes
