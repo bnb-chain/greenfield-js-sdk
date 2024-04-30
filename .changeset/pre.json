@@ -10,13 +10,15 @@
     "@bnb-chain/greenfiled-file-handle": "1.0.2",
     "@bnb-chain/greenfield-js-sdk": "1.2.2",
     "@bnb-chain/reed-solomon": "1.1.3",
-    "@bnb-chain/greenfield-zk-crypto": "1.0.0"
+    "@bnb-chain/greenfield-zk-crypto": "1.0.0",
+    "@bnb-chain/bsc-cross-greenfield-sdk": "0.0.1"
   },
   "changesets": [
     "breezy-scissors-fold",
     "calm-cougars-kiss",
     "eleven-dragons-report",
     "fifty-moles-serve",
+    "five-chefs-lay",
     "four-baboons-itch",
     "funny-rice-clap",
     "grumpy-suns-roll",
@@ -25,6 +27,7 @@
     "lucky-insects-reply",
     "nasty-tomatoes-occur",
     "rare-vans-talk",
+    "rich-jars-fix",
     "silent-crews-cover",
     "sixty-mayflies-sin",
     "strange-maps-begin",

@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.0.0-alpha.10
+
+### Patch Changes
+
+- [#531](https://github.com/bnb-chain/greenfield-js-sdk/pull/531)
+  [`87df8646927b390800c01d321ac2f72c04baf8f7`](https://github.com/bnb-chain/greenfield-js-sdk/commit/87df8646927b390800c01d321ac2f72c04baf8f7)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: MsgSetBucketFlowRateLimit
+
 ## 2.0.0-alpha.9
 
 ### Patch Changes
