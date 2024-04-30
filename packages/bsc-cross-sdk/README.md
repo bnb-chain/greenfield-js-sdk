@@ -1,4 +1,4 @@
-# BSC corss greenfield SDK
+# BSC Cross greenfield SDK
 
 ## Install
 

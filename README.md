@@ -11,6 +11,7 @@ You can find some package documentation below:
 | [@bnb-chain/greenfield-js-sdk](./packages/js-sdk/README.md) | A client library for Greenfield Chain | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fgreenfield-js-sdk?color=blue)](https://www.npmjs.com/package/@bnb-chain/greenfield-js-sdk) |
 | [@bnb-chain/reed-solomon](./packages/reed-solomon/README.md) | calculate file's `checksums` | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Freed-solomon?color=blue)](https://www.npmjs.com/package/@bnb-chain/reed-solomon) |
 | [@bnb-chain/create-gnfd-app](./packages/create-gnfd-app/README.md) | Create Greenfield App Quickly | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fcreate-gnfd-app?color=blue)](https://www.npmjs.com/package/@bnb-chain/create-gnfd-app) |
+| [@bnb-chain/bsc-cross-greenfield-sdk](./packages/bsc-cross-sdk/README.md) | Execute tx in BSC | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fbsc-cross-greenfield-sdk?color=blue)](https://www.npmjs.com/package/@bnb-chain/bsc-cross-greenfield-sdk) |
 
 ## Playground
 
