@@ -63,8 +63,6 @@
   "dependencies": {
     "@bnb-chain/greenfield-cosmos-types": "0.4.0-alpha.32",
     "long": "^5.2.1",
-    "reflect-metadata": "^0.1.13",
-    "tsyringe": "^4.8.0",
     "viem": "^2.9.23"
   },
   "devDependencies": {
