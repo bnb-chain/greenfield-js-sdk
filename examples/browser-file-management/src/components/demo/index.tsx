@@ -3,6 +3,12 @@ import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { ReedSolomon } from '@bnb-chain/reed-solomon';
+import {
+  bytesFromBase64,
+  Long,
+  RedundancyType,
+  VisibilityType,
+} from '@bnb-chain/greenfield-js-sdk';
 
 export const Demo = () => {
   const { address, connector } = useAccount();
@@ -141,24 +147,14 @@ export const Demo = () => {
               }
 
               try {
-                const createBucketTx = await client.bucket.createBucket(
-                  {
-                    bucketName: info.bucketName,
-                    creator: address,
-                    visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-                    chargedReadQuota: '0',
-                    spInfo: {
-                      primarySpAddress: spInfo.primarySpAddress,
-                    },
-                    paymentAddress: address,
-                  },
-                  {
-                    type: 'EDDSA',
-                    domain: window.location.origin,
-                    seed: offChainData.seedString,
-                    address,
-                  },
-                );
+                const createBucketTx = await client.bucket.createBucket({
+                  bucketName: info.bucketName,
+                  creator: address,
+                  visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+                  chargedReadQuota: Long.fromString('0'),
+                  primarySpAddress: spInfo.primarySpAddress,
+                  paymentAddress: address,
+                });
 
                 const simulateInfo = await createBucketTx.simulate({
                   denom: 'BNB',
@@ -260,24 +256,16 @@ export const Demo = () => {
               const expectCheckSums = rs.encode(new Uint8Array(fileBytes));
 
               try {
-                const createObjectTx = await client.object.createObject(
-                  {
-                    bucketName: info.bucketName,
-                    objectName: info.objectName,
-                    creator: address,
-                    visibility: 'VISIBILITY_TYPE_PRIVATE',
-                    fileType: info.file.type,
-                    redundancyType: 'REDUNDANCY_EC_TYPE',
-                    contentLength: fileBytes.byteLength,
-                    expectCheckSums: expectCheckSums,
-                  },
-                  {
-                    type: 'EDDSA',
-                    domain: window.location.origin,
-                    seed: offChainData.seedString,
-                    address,
-                  },
-                );
+                const createObjectTx = await client.object.createObject({
+                  bucketName: info.bucketName,
+                  objectName: info.objectName,
+                  creator: address,
+                  visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+                  contentType: info.file.type,
+                  redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+                  payloadSize: Long.fromInt(fileBytes.byteLength),
+                  expectChecksums: expectCheckSums.map((x) => bytesFromBase64(x)),
+                });
 
                 const simulateInfo = await createObjectTx.simulate({
                   denom: 'BNB',

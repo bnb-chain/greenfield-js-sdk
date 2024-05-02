@@ -1,12 +1,16 @@
 import { client } from '@/client';
 import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import {
+  bytesFromBase64,
   GRNToString,
+  Long,
   MsgCreateObjectTypeUrl,
   newBucketGRN,
   newObjectGRN,
   PermissionTypes,
+  RedundancyType,
   toTimestamp,
+  VisibilityType,
 } from '@bnb-chain/greenfield-js-sdk';
 import { Wallet } from '@ethersproject/wallet';
 import { ChangeEvent, useState } from 'react';
@@ -135,16 +139,16 @@ export const CreateObj = () => {
               creator: granteeAddr,
               bucketName: bucketName,
               objectName: objectName,
-              visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-              redundancyType: 'REDUNDANCY_EC_TYPE',
-              contentLength: fileBytes.byteLength,
-              expectCheckSums,
-              fileType: file.type,
+              visibility: VisibilityType.VISIBILITY_TYPE_PRIVATE,
+              redundancyType: RedundancyType.REDUNDANCY_EC_TYPE,
+              payloadSize: Long.fromInt(fileBytes.byteLength),
+              expectChecksums: expectCheckSums.map((x) => bytesFromBase64(x)),
+              contentType: file.type,
             },
-            {
-              type: 'ECDSA',
-              privateKey: privateKey,
-            },
+            // {
+            //   type: 'ECDSA',
+            //   privateKey: privateKey,
+            // },
           );
 
           const simulateInfo = await createObjectTx.simulate({

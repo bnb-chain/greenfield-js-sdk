@@ -1,14 +1,11 @@
-import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
+import { getResumablePutObjectMetaInfo } from '@/clients/spclient/spApis/resumablePutObject';
+import { DelegatedOpts, UploadFile } from '@/types/sp/Common';
 import {
   ActionType,
   Principal,
   PrincipalType,
   principalTypeFromJSON,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/permission/common';
-import {
-  redundancyTypeFromJSON,
-  visibilityTypeFromJSON,
-} from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/common';
 import {
   QueryHeadObjectResponse,
   QueryNFTRequest,
@@ -24,12 +21,13 @@ import {
   MsgPutPolicy,
   MsgUpdateObjectInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
-import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
+import { base64FromBytes, bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { hexlify } from '@ethersproject/bytes';
+import { ed25519 } from '@noble/curves/ed25519';
 import { Headers } from 'cross-fetch';
-import { bytesToUtf8, hexToBytes, utf8ToBytes } from 'ethereum-cryptography/utils';
 import { container, delay, inject, injectable } from 'tsyringe';
 import {
+  DEFAULT_PART_SIZE,
   GRNToString,
   MsgCancelCreateObjectTypeUrl,
   MsgCreateObjectTypeUrl,
@@ -38,13 +36,29 @@ import {
   newObjectGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
-import { encodePath, getMsgToSign, getSortQuery, secpSign } from '../clients/spclient/auth';
-import { getApprovalMetaInfo } from '../clients/spclient/spApis/approval';
+import {
+  HTTPHeaderRegPubKey,
+  encodePath,
+  getAuthorization,
+  getSortQuery,
+} from '../clients/spclient/auth';
+import {
+  getDelegatedCreateFolderMetaInfo,
+  parseDelegatedCreateFolderResponse,
+} from '../clients/spclient/spApis/delegatedCreateFolder';
 import { getGetObjectMetaInfo } from '../clients/spclient/spApis/getObject';
 import {
   getObjectMetaInfo,
   parseGetObjectMetaResponse,
 } from '../clients/spclient/spApis/getObjectMeta';
+import {
+  getObjectOffsetInfo,
+  parseObjectOffsetResponse,
+} from '../clients/spclient/spApis/getObjectOffset';
+import {
+  getObjectStatusInfo,
+  parseObjectStatusResponse,
+} from '../clients/spclient/spApis/getObjectStatus';
 import {
   getListObjectPoliciesMetaInfo,
   parseGetListObjectPoliciesResponse,
@@ -63,11 +77,8 @@ import { MsgCancelCreateObjectSDKTypeEIP712 } from '../messages/greenfield/stora
 import { MsgCreateObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateObject';
 import { MsgDeleteObjectSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteObject';
 import { MsgUpdateObjectInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateObjectInfo';
-import { signSignatureByEddsa } from '../offchainauth';
 import {
   AuthType,
-  CreateObjectApprovalRequest,
-  CreateObjectApprovalResponse,
   GetListObjectPoliciesRequest,
   GetListObjectPoliciesResponse,
   GetPrivewObject,
@@ -75,14 +86,25 @@ import {
   ListObjectsByIDsRequest,
   ListObjectsByIDsResponse,
   Long,
+  ObjectStatus,
+  OnProgress,
   SpResponse,
   TxResponse,
+  UploadOffsetResponse,
 } from '../types';
+import {
+  DelegateCreateFolderRepsonse,
+  DelegatedCreateFolderRequest,
+} from '../types/sp/DelegateCreateFolder';
+import { DelegatedPubObjectRequest } from '../types/sp/DelegatedPubObject';
 import { GetObjectRequest } from '../types/sp/GetObject';
 import { GetObjectMetaRequest, GetObjectMetaResponse } from '../types/sp/GetObjectMeta';
 import { ListObjectsByBucketNameResponse } from '../types/sp/ListObjectsByBucketName';
 import { PutObjectRequest } from '../types/sp/PutObject';
+import { UploadProgressResponse } from '../types/sp/UploadProgress';
+import { assertAuthType, assertFileType, assertStringRequire } from '../utils/asserts/params';
 import {
+  checkObjectName,
   generateUrlByBucketName,
   verifyBucketName,
   verifyObjectName,
@@ -92,17 +114,14 @@ import { Sp } from './sp';
 import { Storage } from './storage';
 
 export interface IObject {
-  getCreateObjectApproval(
-    configParam: CreateObjectApprovalRequest,
-    authType: AuthType,
-  ): Promise<SpResponse<string>>;
-
-  createObject(
-    getApprovalParams: CreateObjectApprovalRequest,
-    authType: AuthType,
-  ): Promise<TxResponse>;
+  createObject(msg: MsgCreateObject): Promise<TxResponse>;
 
   uploadObject(configParam: PutObjectRequest, authType: AuthType): Promise<SpResponse<null>>;
+
+  delegateUploadObject(
+    params: DelegatedPubObjectRequest,
+    authType: AuthType,
+  ): Promise<SpResponse<null>>;
 
   cancelCreateObject(msg: MsgCancelCreateObject): Promise<TxResponse>;
 
@@ -133,12 +152,13 @@ export interface IObject {
   ): Promise<SpResponse<ListObjectsByBucketNameResponse>>;
 
   createFolder(
-    getApprovalParams: Omit<
-      CreateObjectApprovalRequest,
-      'contentLength' | 'fileType' | 'expectCheckSums'
-    >,
-    authType: AuthType,
+    msg: Omit<MsgCreateObject, 'payloadSize' | 'contentType' | 'expectChecksums'>,
   ): Promise<TxResponse>;
+
+  delegateCreateFolder(
+    params: DelegatedCreateFolderRequest,
+    authType: AuthType,
+  ): Promise<SpResponse<DelegateCreateFolderRepsonse>>;
 
   putObjectPolicy(
     bucketName: string,
@@ -175,6 +195,15 @@ export interface IObject {
   listObjectPolicies(
     params: GetListObjectPoliciesRequest,
   ): Promise<SpResponse<GetListObjectPoliciesResponse>>;
+
+  /**
+   * return the status of object including the uploading progress
+   */
+  getObjectUploadProgress(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ): Promise<string>;
 }
 
 @injectable()
@@ -188,149 +217,348 @@ export class Objects implements IObject {
   private queryClient: RpcQueryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
 
-  public async getCreateObjectApproval(params: CreateObjectApprovalRequest, authType: AuthType) {
-    const {
-      bucketName,
-      creator,
-      objectName,
-      visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
-      duration = 3000,
-      fileType = 'application/octet-stream',
-      redundancyType = 'REDUNDANCY_EC_TYPE',
-      contentLength,
-      expectCheckSums,
-    } = params;
+  public async createObject(msg: MsgCreateObject) {
+    verifyBucketName(msg.bucketName);
+    verifyObjectName(msg.objectName);
+    checkObjectName(msg.objectName);
+    assertStringRequire(msg.creator, 'empty creator address');
 
-    try {
-      assertAuthType(authType);
-      verifyBucketName(bucketName);
-      verifyObjectName(objectName);
-      assertStringRequire(creator, 'empty creator address');
+    const createObjMsg: MsgCreateObject = {
+      ...msg,
+      primarySpApproval: {
+        globalVirtualGroupFamilyId: 0,
+        expiredHeight: Long.fromInt(0),
+        sig: Uint8Array.from([]),
+      },
+    };
 
-      let endpoint = params.endpoint;
-      if (!endpoint) {
-        endpoint = await this.sp.getSPUrlByBucket(bucketName);
-      }
-      const { reqMeta, optionsWithOutHeaders, url } =
-        getApprovalMetaInfo<CreateObjectApprovalResponse>(endpoint, 'CreateObject', {
-          bucket_name: bucketName,
-          content_type: fileType,
-          creator: creator,
-          expect_checksums: expectCheckSums,
-          object_name: objectName,
-          payload_size: contentLength.toString(),
-          primary_sp_approval: {
-            expired_height: '0',
-            global_virtual_group_family_id: 0,
-            sig: null,
-          },
-          redundancy_type: redundancyType,
-          visibility,
-        });
-
-      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
-
-      const result = await this.spClient.callApi(
-        url,
-        {
-          ...optionsWithOutHeaders,
-          headers: signHeaders,
-        },
-        duration,
-        {
-          code: -1,
-          message: 'Get create object approval error.',
-        },
-      );
-
-      const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-      const signedMsg = JSON.parse(
-        bytesToUtf8(hexToBytes(signedMsgString)),
-      ) as CreateObjectApprovalResponse;
-
-      return {
-        code: 0,
-        message: 'Get create object approval success.',
-        body: result.headers.get('X-Gnfd-Signed-Msg') ?? '',
-        statusCode: result.status,
-        signedMsg,
-      };
-    } catch (error: any) {
-      throw {
-        code: -1,
-        message: error.message,
-        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
-      };
-    }
-  }
-
-  private async createObjectTx(msg: MsgCreateObject, signedMsg: CreateObjectApprovalResponse) {
     return await this.txClient.tx(
       MsgCreateObjectTypeUrl,
       msg.creator,
       MsgCreateObjectSDKTypeEIP712,
       {
-        ...signedMsg,
-        type: MsgCreateObjectTypeUrl,
+        ...MsgCreateObject.toSDK(createObjMsg),
         primary_sp_approval: {
-          expired_height: signedMsg.primary_sp_approval.expired_height,
-          global_virtual_group_family_id:
-            signedMsg.primary_sp_approval.global_virtual_group_family_id,
-          sig: signedMsg.primary_sp_approval.sig,
+          expired_height: '0',
+          global_virtual_group_family_id: 0,
         },
+        expect_checksums: createObjMsg.expectChecksums.map((e) => base64FromBytes(e)),
+        payload_size: createObjMsg.payloadSize.toNumber(),
       },
-      MsgCreateObject.encode(msg).finish(),
+      MsgCreateObject.encode(createObjMsg).finish(),
     );
   }
 
-  public async createObject(getApprovalParams: CreateObjectApprovalRequest, authType: AuthType) {
-    assertAuthType(authType);
+  public async delegateUploadObject(params: DelegatedPubObjectRequest, authType: AuthType) {
+    const {
+      bucketName,
+      objectName,
+      body,
+      resumableOpts,
+      timeout = 30000,
+      delegatedOpts,
+      onProgress,
+    } = params;
 
-    const { signedMsg } = await this.getCreateObjectApproval(getApprovalParams, authType);
-    if (!signedMsg) {
-      throw new Error('Get create object approval error');
+    assertAuthType(authType);
+    verifyBucketName(bucketName);
+    verifyObjectName(objectName);
+
+    const disableResumable = resumableOpts?.disableResumable ?? true;
+    const partSize = resumableOpts?.partSize ?? DEFAULT_PART_SIZE;
+
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
     }
 
-    const msg: MsgCreateObject = {
-      bucketName: signedMsg.bucket_name,
-      creator: signedMsg.creator,
-      objectName: signedMsg.object_name,
-      contentType: signedMsg.content_type,
-      payloadSize: Long.fromString(signedMsg.payload_size),
-      visibility: visibilityTypeFromJSON(signedMsg.visibility),
-      expectChecksums: signedMsg.expect_checksums.map((e: string) => bytesFromBase64(e)),
-      redundancyType: redundancyTypeFromJSON(signedMsg.redundancy_type),
-      primarySpApproval: {
-        expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig || ''),
-        globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
-      },
-    };
+    const { params: storageParams } = await this.storage.params();
+    const maxSegmentSize = storageParams.versionedParams.maxSegmentSize.toNumber();
 
-    return await this.createObjectTx(msg, signedMsg);
+    if (partSize % maxSegmentSize !== 0) {
+      throw new Error(
+        'partSize should be an integer multiple of the segment size: ' + maxSegmentSize,
+      );
+    }
+
+    if (body.size <= partSize || disableResumable) {
+      return this.putObject({
+        endpoint,
+        bucketName,
+        objectName,
+        body,
+        authType,
+        delegatedOpts,
+        duration: timeout,
+        txnHash: '',
+        onProgress,
+      });
+    }
+
+    return await this.putResumableObject(
+      endpoint,
+      bucketName,
+      objectName,
+      body,
+      partSize,
+      authType,
+      timeout,
+      delegatedOpts,
+    );
   }
 
   public async uploadObject(
     params: PutObjectRequest,
     authType: AuthType,
   ): Promise<SpResponse<null>> {
+    const { bucketName, objectName, body, duration = 30000, resumableOpts, onProgress } = params;
     assertAuthType(authType);
-    const { bucketName, objectName, txnHash, body, duration = 30000 } = params;
     verifyBucketName(bucketName);
     verifyObjectName(objectName);
-    assertStringRequire(txnHash, 'Transaction hash is empty, please check.');
 
     let endpoint = params.endpoint;
     if (!endpoint) {
       endpoint = await this.sp.getSPUrlByBucket(bucketName);
     }
-    const { reqMeta, optionsWithOutHeaders, url } = await getPutObjectMetaInfo(endpoint, {
+
+    let txnHash = params.txnHash;
+    if (!txnHash) {
+      const { body } = await this.getObjectMeta({
+        bucketName,
+        objectName,
+        endpoint,
+      });
+      txnHash = body.GfSpGetObjectMetaResponse.Object.CreateTxHash;
+    }
+
+    const { params: storageParams } = await this.storage.params();
+
+    const maxSegmentSize = storageParams.versionedParams.maxSegmentSize.toNumber();
+
+    const disableResumable = resumableOpts?.disableResumable ?? true;
+    const partSize = resumableOpts?.partSize ?? DEFAULT_PART_SIZE;
+
+    if (partSize % maxSegmentSize !== 0) {
+      throw new Error(
+        'partSize should be an integer multiple of the segment size: ' + maxSegmentSize,
+      );
+    }
+
+    if (body.size <= partSize || disableResumable) {
+      return this.putObject({
+        endpoint,
+        bucketName,
+        objectName,
+        body,
+        txnHash,
+        authType,
+        duration,
+        onProgress,
+      });
+    }
+
+    return await this.putResumableObject(
+      endpoint,
+      bucketName,
+      objectName,
+      body,
+      partSize,
+      authType,
+      duration,
+    );
+  }
+
+  private async putObject(params: {
+    endpoint: string;
+    bucketName: string;
+    objectName: string;
+    body: UploadFile;
+    txnHash: string;
+    authType: AuthType;
+    delegatedOpts?: DelegatedOpts;
+    duration: number;
+    onProgress?: OnProgress;
+  }): Promise<SpResponse<null>> {
+    const {
+      authType,
+      body,
+      bucketName,
+      delegatedOpts,
+      duration,
+      endpoint,
+      objectName,
+      txnHash,
+      onProgress,
+    } = params;
+
+    const { reqMeta, optionsWithOutHeaders, url, file } = await getPutObjectMetaInfo(endpoint, {
       bucketName,
       objectName,
       contentType: body.type,
       txnHash,
       body,
+      delegatedOpts,
     });
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    try {
+      const result = await this.spClient.upload(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        duration,
+        file,
+        {
+          onProgress,
+        },
+      );
+
+      const { status } = result;
+
+      return { code: 0, message: 'Put object success.', statusCode: status };
+    } catch (error: any) {
+      return {
+        code: error.code || -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  private splitPartInfo(objectSize: number, configuredPartSize: number) {
+    const partSizeFlt = configuredPartSize;
+    // Total parts count.
+    const totalPartsCount = Math.ceil(objectSize / partSizeFlt);
+    // Part size.
+    const partSize = partSizeFlt;
+    // Last part size.
+    const lastPartSize = objectSize - (totalPartsCount - 1) * partSize;
+    return {
+      totalPartsCount,
+      partSize,
+      lastPartSize,
+    };
+  }
+
+  private async putResumableObject(
+    endpoint: string,
+    bucketName: string,
+    objectName: string,
+    body: UploadFile,
+    partSize: number,
+    authType: AuthType,
+    timeout: number,
+    delegatedOpts?: DelegatedOpts,
+  ) {
+    let offset = 0;
+    if (!delegatedOpts) {
+      const isObjectExist = await this.headSPObjectInfo(bucketName, objectName, authType);
+      if (!isObjectExist) {
+        throw new Error('Object does not exist');
+      }
+
+      offset = await this.getObjectResumableUploadOffset(bucketName, objectName, authType);
+    }
+
+    const { totalPartsCount } = this.splitPartInfo(body.size, partSize);
+
+    // split file
+    const file = assertFileType(body) ? body.content : body;
+    const chunks = [];
+    for (let i = 0; i < totalPartsCount; i++) {
+      const start = i * partSize;
+      const end = Math.min(start + partSize, body.size);
+      const chunk = file.slice(start, end);
+      chunks.push(chunk);
+    }
+
+    let startPartNumber = offset / partSize;
+    while (startPartNumber < totalPartsCount) {
+      const chunkFile = new File([chunks[startPartNumber]], '');
+
+      const { reqMeta, optionsWithOutHeaders, url } = await getResumablePutObjectMetaInfo(
+        endpoint,
+        {
+          bucketName,
+          objectName,
+          contentType: body.type,
+          body: chunkFile,
+          offset: startPartNumber * partSize,
+          complete: startPartNumber === totalPartsCount - 1,
+          delegatedOpts,
+        },
+      );
+
+      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+      try {
+        await this.spClient.callApi(
+          url,
+          {
+            ...optionsWithOutHeaders,
+            headers: signHeaders,
+          },
+          timeout,
+        );
+      } catch (error: any) {
+        return {
+          code: -1,
+          message: error.message,
+          statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+        };
+      } finally {
+        startPartNumber++;
+      }
+    }
+
+    return { code: 0, message: 'Put all object parts success.', statusCode: 200 };
+  }
+
+  private async headSPObjectInfo(bucketName: string, objectName: string, authType: AuthType) {
+    const { code } = await this.getObjectStatusFromSp(bucketName, objectName, authType);
+
+    if (code === 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async getObjectResumableUploadOffset(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ) {
+    const { objectInfo } = await this.headObject(bucketName, objectName);
+    if (!objectInfo) {
+      throw new Error('Object not found');
+    }
+
+    if (objectInfo.objectStatus == ObjectStatus.OBJECT_STATUS_CREATED) {
+      const { code, body } = await this.getObjectOffsetFromSP(bucketName, objectName, authType);
+
+      if (body) {
+        return body.QueryResumeOffset.Offset;
+      }
+    }
+
+    return 0;
+  }
+
+  private async getObjectOffsetFromSP(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ): Promise<SpResponse<UploadOffsetResponse>> {
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+
+    const { url, optionsWithOutHeaders, reqMeta } = await getObjectOffsetInfo(endpoint, {
+      bucketName,
+      objectName,
+    });
+
     const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
 
     try {
@@ -340,11 +568,94 @@ export class Objects implements IObject {
           ...optionsWithOutHeaders,
           headers: signHeaders,
         },
-        duration,
+        5000,
       );
+      // console.log('upload-context result', result);
       const { status } = result;
 
-      return { code: 0, message: 'Put object success.', statusCode: status };
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        return {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+          body: {
+            QueryResumeOffset: {
+              Offset: 0,
+            },
+          },
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = parseObjectOffsetResponse(xmlData);
+
+      return { code: 0, message: 'get upload offset success', statusCode: status, body: res };
+    } catch (error: any) {
+      // console.log('err', error);
+      const message = error.message;
+
+      if (message.includes('no uploading record')) {
+        return {
+          code: -1,
+          message: message,
+          statusCode: error.code,
+          body: {
+            QueryResumeOffset: {
+              Offset: 0,
+            },
+          },
+        };
+      }
+      return {
+        code: -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
+  }
+
+  private async getObjectStatusFromSp(
+    bucketName: string,
+    objectName: string,
+    authType: AuthType,
+  ): Promise<SpResponse<UploadProgressResponse>> {
+    const endpoint = await this.sp.getSPUrlByBucket(bucketName);
+
+    const { url, optionsWithOutHeaders, reqMeta } = await getObjectStatusInfo(endpoint, {
+      bucketName,
+      objectName,
+    });
+
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    try {
+      const result = await this.spClient.callApi(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        5000,
+      );
+      // console.log('upload-progress result', result);
+      const { status } = result;
+
+      if (!result.ok) {
+        const xmlError = await result.text();
+        const { code, message } = await parseError(xmlError);
+        throw {
+          code: code || -1,
+          message: message || 'error',
+          statusCode: status,
+        };
+      }
+
+      const xmlData = await result.text();
+      const res = parseObjectStatusResponse(xmlData);
+
+      return { code: 0, message: 'success', statusCode: status, body: res };
     } catch (error: any) {
       return {
         code: -1,
@@ -463,6 +774,9 @@ export class Objects implements IObject {
 
   public async getObjectPreviewUrl(params: GetPrivewObject, authType: AuthType) {
     assertAuthType(authType);
+    if (authType.type === 'ECDSA') {
+      throw new Error('Get object preview url only support EDDSA');
+    }
     const { bucketName, objectName, queryMap } = params;
     verifyBucketName(bucketName);
     verifyObjectName(objectName);
@@ -474,7 +788,15 @@ export class Objects implements IObject {
     const path = '/' + encodePath(objectName);
     const url = generateUrlByBucketName(endpoint, bucketName) + path;
 
-    const queryRaw = getSortQuery(queryMap);
+    let pubKey = '';
+    if (authType.type === 'EDDSA') {
+      pubKey = hexlify(ed25519.getPublicKey(authType.seed.slice(2)));
+    }
+
+    const queryRaw = getSortQuery({
+      ...queryMap,
+      [HTTPHeaderRegPubKey]: pubKey.slice(2),
+    });
 
     const canonicalRequest = [
       METHOD_GET,
@@ -484,17 +806,9 @@ export class Objects implements IObject {
       '\n',
     ].join('\n');
 
-    const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
-    let authorization = '';
-    if (authType.type === 'ECDSA') {
-      const sig = secpSign(unsignedMsg, authType.privateKey);
-      authorization = `GNFD1-ECDSA, Signature=${sig.slice(2)}`;
-    } else {
-      const sig = await signSignatureByEddsa(authType.seed, hexlify(unsignedMsg).slice(2));
-      authorization = `GNFD1-EDDSA,Signature=${sig}`;
-    }
+    const auth = getAuthorization(canonicalRequest, authType);
 
-    return `${url}?Authorization=${encodeURIComponent(authorization)}&${queryRaw}`;
+    return `${url}?Authorization=${encodeURIComponent(auth)}&${queryRaw}`;
   }
 
   public async downloadFile(configParam: GetObjectRequest, authType: AuthType): Promise<void> {
@@ -572,14 +886,9 @@ export class Objects implements IObject {
   }
 
   public async createFolder(
-    getApprovalParams: Omit<
-      CreateObjectApprovalRequest,
-      'contentLength' | 'fileType' | 'expectCheckSums'
-    >,
-    authType: AuthType,
+    msg: Omit<MsgCreateObject, 'payloadSize' | 'contentType' | 'expectChecksums'>,
   ) {
-    assertAuthType(authType);
-    if (!getApprovalParams.objectName.endsWith('/')) {
+    if (!msg.objectName.endsWith('/')) {
       throw new Error(
         'failed to create folder. Folder names must end with a forward slash (/) character',
       );
@@ -589,17 +898,16 @@ export class Objects implements IObject {
      * const file = new File([], 'scc', { type: 'text/plain' });
       const fileBytes = await file.arrayBuffer();
       console.log('fileBytes', fileBytes);
-      const hashResult = await FileHandler.getPieceHashRoots(new Uint8Array(fileBytes));
-      console.log('hashResult', hashResult);
-      const { contentLength, expectCheckSums } = hashResult;
+      const rs = new ReedSolomon();
+      const fileBytes = await file.arrayBuffer();
+      const expectCheckSums = rs.encode(new Uint8Array(fileBytes));
      */
 
-    const params: CreateObjectApprovalRequest = {
-      bucketName: getApprovalParams.bucketName,
-      objectName: getApprovalParams.objectName,
-      contentLength: 0,
-      fileType: 'text/plain',
-      expectCheckSums: [
+    const newMsg: MsgCreateObject = {
+      ...msg,
+      payloadSize: Long.fromInt(0),
+      contentType: 'text/plain',
+      expectChecksums: [
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
@@ -607,11 +915,53 @@ export class Objects implements IObject {
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
         '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
-      ],
-      creator: getApprovalParams.creator,
+      ].map((x) => bytesFromBase64(x)),
     };
 
-    return this.createObject(params, authType);
+    return this.createObject(newMsg);
+  }
+
+  public async delegateCreateFolder(params: DelegatedCreateFolderRequest, authType: AuthType) {
+    const { bucketName, objectName, delegatedOpts, timeout = 10000 } = params;
+
+    let endpoint = params.endpoint;
+    if (!endpoint) {
+      endpoint = await this.sp.getSPUrlByBucket(bucketName);
+    }
+    const { reqMeta, optionsWithOutHeaders, url } = await getDelegatedCreateFolderMetaInfo(
+      endpoint,
+      {
+        bucketName: bucketName,
+        objectName: objectName,
+        // contentType: '',
+        delegatedOpts,
+      },
+    );
+    const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
+
+    try {
+      const result = await this.spClient.callApiV2(
+        url,
+        {
+          ...optionsWithOutHeaders,
+          headers: signHeaders,
+        },
+        timeout,
+      );
+      const { status } = result;
+
+      //@ts-ignore
+      const xmlData = result.text;
+      const res = parseDelegatedCreateFolderResponse(xmlData);
+
+      return { code: 0, message: 'Create folder success.', statusCode: status, body: res };
+    } catch (error: any) {
+      return {
+        code: error.code || -1,
+        message: error.message,
+        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
+      };
+    }
   }
 
   public async putObjectPolicy(
@@ -761,5 +1111,25 @@ export class Objects implements IObject {
       statusCode: result.status,
       body: res,
     };
+  }
+
+  public async getObjectUploadProgress(bucketName: string, objectName: string, authType: AuthType) {
+    const { objectInfo } = await this.headObject(bucketName, objectName);
+
+    if (!objectInfo) {
+      throw new Error('object not exist');
+    }
+
+    if (objectInfo.objectStatus == ObjectStatus.OBJECT_STATUS_CREATED) {
+      const { body, message } = await this.getObjectStatusFromSp(bucketName, objectName, authType);
+
+      if (!body) {
+        throw new Error('fail to fetch object uploading progress from sp ' + message);
+      }
+
+      return body.QueryUploadProgress.ProgressDescription;
+    }
+
+    return objectInfo.objectStatus.toString();
   }
 }

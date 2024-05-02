@@ -114,9 +114,49 @@ const generateUrlByBucketName = (endpoint = '', bucketName: string) => {
   return endpoint.replace(`${protocol}//`, `${protocol}//${bucketName}.`);
 };
 
+const isSQLInjection = (input: string) => {
+  // define patterns that may indicate SQL injection
+  const patterns = [
+    /;.*select/, // Matches any string with a semicolon followed by "select"
+    /;.*insert/, // Matches any string with a semicolon followed by "insert"
+    /;.*update/, // Matches any string with a semicolon followed by "update"
+    /;.*delete/, // Matches any string with a semicolon followed by "delete"
+    /;.*drop/, // Matches any string with a semicolon followed by "drop"
+    /;.*alter/, // Matches any string with a semicolon followed by "alter"
+    /\/\*[\s\S]*?\*\//, // Matches SQL block comment
+  ];
+
+  for (const pattern of patterns) {
+    const match = pattern.test(input);
+    if (match) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+// CheckObjectName  This code block checks for unsupported or potentially risky formats in object names.
+// The checks are essential for ensuring the security and compatibility of the object names within the system.
+// 1. ".." in object names: Checked to prevent path traversal attacks which might access directories outside the intended scope.
+// 2. Object name being "/": The root directory should not be used as an object name due to potential security risks and ambiguity.
+// 3. "\\" in object names: Backslashes are checked because they are often not supported in UNIX-like file systems and can cause issues in path parsing.
+// 4. SQL Injection patterns in object names: Ensures that the object name does not contain patterns that could be used for SQL injection attacks, maintaining the integrity of the database.
+const checkObjectName = (objectName: string) => {
+  if (
+    objectName.includes('..') ||
+    objectName === '/' ||
+    objectName.includes('\\') ||
+    isSQLInjection(objectName)
+  ) {
+    throw new Error(`fail to check object name: ${objectName}`);
+  }
+};
+
 export {
   verifyBucketName,
   verifyObjectName,
+  checkObjectName,
   verifyAddress,
   trimString,
   verifyUrl,

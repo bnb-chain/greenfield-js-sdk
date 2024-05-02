@@ -36,7 +36,6 @@ NEXT_PUBLIC_BSC_CHAIN_ID=5601
 
 > this is TESTNET's configuration.
 
-
 Run the demo application: `npm run dev`
 
 ## Usage case
@@ -46,4 +45,6 @@ Run the demo application: `npm run dev`
   * [withdraw](./src/components/withdraw/index.tsx)
   * [bucket](./src/components/bucket/index.tsx)
   * [object](./src/components/object/index.tsx)
+    * [create object with tx](./src/components/object/create/withTx.tsx)
+    * [create object and uploading object by delegrated agent](./src/components/object/create/delegrate.tsx)
 * [query](./src/components/withdraw/query.tsx)

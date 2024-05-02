@@ -18,68 +18,22 @@ for creating bucket and sends the createBucket transaction to the Greenfield.
 | bucketName       | bucket name                                             |
 | creator          | creator account address                                 |
 | visibility       | [VisibilityType](/types/visibility)                     |
-| chargedReadQuota | defines the traffic quota that you read from primary sp |
-| spInfo           | primary sp address                                      |
+| chargedReadQuota | [Long](/types/long)defines the traffic quota that you read from primary sp |
+| primarySpAddress | primary sp address                                      |
 | paymentAddress   | payment address                                         |
-| tags  |  defines a list of tags which will be set to the bucket |
-| authType         | [AuthType](/client/sp-client#authtype)                  |
 
-
-<Tabs groupId="example">
-<TabItem value="Browser" label="Browser">
-
-```jsx
+```js
 const tx = await client.bucket.createBucket(
   {
     bucketName: 'bucket_name',
-    creator: address,
-    visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-    chargedReadQuota: '0',
-    spInfo: {
-      primarySpAddress: 'primary_sp_address',
-    },
+    creator: '0x...',
+    visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+    chargedReadQuota: Long.fromString('0'),
+    primarySpAddress: '0x....',
     paymentAddress: address,
-    tags: {
-      tags: [],
-    },
-  },
-  // highlight-start
-  {
-    type: 'EDDSA',
-    domain: window.location.origin,
-    seed: offChainData.seedString,
-    address,
-  },
-  // highlight-end
+  }
 );
 ```
-
-</TabItem>
-<TabItem value="Nodejs" label="Nodejs">
-
-```js
-const createBucketTx = await client.bucket.createBucket(
-  {
-    bucketName: bucketName,
-    creator: ACCOUNT_ADDRESS,
-    visibility: 'VISIBILITY_TYPE_PUBLIC_READ',
-    chargedReadQuota: '0',
-    spInfo: {
-      primarySpAddress: spInfo.primarySpAddress,
-    },
-    paymentAddress: ACCOUNT_ADDRESS,
-  },
-  // highlight-start
-  {
-    type: 'ECDSA',
-    privateKey: ACCOUNT_PRIVATEKEY,
-  },
-  // highlight-end
-);
-```
-
-</TabItem>
-</Tabs>
 
 ## deleteBucket <ApiTypes type="Tx" />
 
@@ -90,7 +44,7 @@ Send DeleteBucket msg to greenfield chain and return txn hash.
 | bucketName | The name of the bucket to be deleted |
 | operator   | operator account address             |
 
-```jsx title="Browser | Nodejs"
+```js
 const tx = await client.bucket.deleteBucket({
   bucketName: bucketName,
   operator: address,
@@ -110,7 +64,7 @@ Delete the bucket policy of the principal.
 | principalAddr | Principal define the roles that can grant permissions                  |
 | principalType | PrincipalType refers to the identity type of system users or entities. |
 
-```jsx title="Browser | Nodejs"
+```js
 const tx = await client.bucket.deleteBucketPolicy(
   address,
   bucketName,
@@ -129,7 +83,7 @@ This API is used to get bucket meta by bucket name.
 | ---------- | ----------- |
 | bucketName | bucket name |
 
-```jsx title="Browser | Nodejs"
+```js
 const bucketInfo = await client.bucket.getBucketMeta({
   bucketName: 'bucketName',
 });

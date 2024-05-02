@@ -1,4 +1,5 @@
 import { client, selectSp } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -96,7 +97,7 @@ export const ObjectInfo = () => {
                   view: '1',
                   'X-Gnfd-User-Address': address,
                   'X-Gnfd-App-Domain': window.location.origin,
-                  'X-Gnfd-Expiry-Timestamp': '2023-09-03T09%3A23%3A39Z',
+                  'X-Gnfd-Expiry-Timestamp': '2024-03-12T09:39:22Z',
                 },
               },
               {

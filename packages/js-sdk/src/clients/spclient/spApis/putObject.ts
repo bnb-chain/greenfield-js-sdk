@@ -1,7 +1,8 @@
 import { EMPTY_STRING_SHA256, METHOD_PUT } from '@/constants';
-import { ReqMeta } from '@/types';
+import { ReqMeta, VisibilityType } from '@/types';
+import { UploadFile } from '@/types/sp/Common';
 import { generateUrlByBucketName } from '@/utils/asserts/s3';
-import { encodePath } from '../auth';
+import { encodePath, getSortQueryParams } from '../auth';
 
 // https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/put_object
 export const getPutObjectMetaInfo = async (
@@ -9,15 +10,30 @@ export const getPutObjectMetaInfo = async (
   params: {
     objectName: string;
     bucketName: string;
-    txnHash: string;
     contentType: string;
-    body: File;
+    body: UploadFile;
+    txnHash?: string;
+    delegatedOpts?: {
+      visibility: VisibilityType;
+      isUpdate?: boolean;
+    };
   },
 ) => {
-  const { bucketName, objectName, txnHash, contentType, body } = params;
+  const { bucketName, objectName, txnHash, contentType, body, delegatedOpts } = params;
   const path = `/${encodePath(objectName)}`;
-  const query = '';
-  const url = new URL(path, generateUrlByBucketName(endpoint, bucketName));
+  let queryMap = {};
+
+  if (delegatedOpts) {
+    queryMap = {
+      delegate: '',
+      payload_size: String(body.size),
+      visibility: delegatedOpts.visibility.toString(),
+      is_update: String(delegatedOpts.isUpdate || false),
+    };
+  }
+
+  let url = new URL(path, generateUrlByBucketName(endpoint, bucketName));
+  url = getSortQueryParams(url, queryMap);
 
   const reqMeta: Partial<ReqMeta> = {
     contentSHA256: EMPTY_STRING_SHA256,
@@ -25,7 +41,7 @@ export const getPutObjectMetaInfo = async (
     method: METHOD_PUT,
     url: {
       hostname: url.hostname,
-      query,
+      query: url.searchParams.toString(),
       path,
     },
     contentType,
@@ -33,12 +49,12 @@ export const getPutObjectMetaInfo = async (
 
   const optionsWithOutHeaders: Omit<RequestInit, 'headers'> = {
     method: METHOD_PUT,
-    body,
   };
 
   return {
     url: url.href,
     optionsWithOutHeaders,
     reqMeta,
+    file: body,
   };
 };

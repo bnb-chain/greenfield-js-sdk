@@ -1,3 +1,11 @@
+import {
+  MsgCreateBucketSDKTypeEIP712,
+  MsgDeleteBucketSDKTypeEIP712,
+  MsgMigrateBucketSDKTypeEIP712,
+  MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
+  MsgUpdateBucketInfoSDKTypeEIP712,
+} from '@/messages/greenfield';
+import { MsgSetBucketFlowRateLimitSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgSetBucketFlowRateLimit';
 import { assertAuthType, assertStringRequire } from '@/utils/asserts/params';
 import { UInt64Value } from '@bnb-chain/greenfield-cosmos-types/greenfield/common/wrapper';
 import {
@@ -22,11 +30,13 @@ import {
   MsgDeletePolicy,
   MsgMigrateBucket,
   MsgPutPolicy,
+  MsgSetBucketFlowRateLimit,
+  MsgToggleSPAsDelegatedAgent,
   MsgUpdateBucketInfo,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/tx';
+import { PickVGFStrategy } from '@bnb-chain/greenfield-cosmos-types/greenfield/virtualgroup/common';
 import { bytesFromBase64 } from '@bnb-chain/greenfield-cosmos-types/helpers';
 import { Headers } from 'cross-fetch';
-import { bytesToUtf8, hexToBytes } from 'ethereum-cryptography/utils';
 import Long from 'long';
 import { container, delay, inject, injectable } from 'tsyringe';
 import {
@@ -35,9 +45,11 @@ import {
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
   MsgMigrateBucketTypeUrl,
+  MsgSetBucketFlowRateLimitTypeUrl,
+  MsgToggleSPAsDelegatedAgentTypeUrl,
   MsgUpdateBucketInfoTypeUrl,
-  newBucketGRN,
   TxResponse,
+  newBucketGRN,
 } from '..';
 import { RpcQueryClient } from '../clients/queryclient';
 import { HTTPHeaderUserAddress } from '../clients/spclient/auth';
@@ -70,13 +82,7 @@ import {
 import { SpClient } from '../clients/spclient/spClient';
 import { TxClient } from '../clients/txClient';
 import { METHOD_GET, NORMAL_ERROR_CODE } from '../constants/http';
-import { MsgCreateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgCreateBucket';
-import { MsgDeleteBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgDeleteBucket';
-import { MsgMigrateBucketSDKTypeEIP712 } from '../messages/greenfield/storage/MsgMigrateBucket';
-import { MsgUpdateBucketInfoSDKTypeEIP712 } from '../messages/greenfield/storage/MsgUpdateBucketInfo';
 import type {
-  CreateBucketApprovalRequest,
-  CreateBucketApprovalResponse,
   GetBucketMetaRequest,
   GetBucketMetaResponse,
   GetUserBucketsRequest,
@@ -97,12 +103,13 @@ import { verifyAddress, verifyBucketName, verifyUrl } from '../utils/asserts/s3'
 import { decodeObjectFromHexString } from '../utils/encoding';
 import { Sp } from './sp';
 import { Storage } from './storage';
+import { VirtualGroup } from './virtualGroup';
 
 export interface IBucket {
   /**
-   * get approval of creating bucket and send createBucket txn to greenfield chain
+   * send createBucket txn to greenfield chain
    */
-  createBucket(params: CreateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
+  createBucket(msg: MsgCreateBucket): Promise<TxResponse>;
 
   deleteBucket(msg: MsgDeleteBucket): Promise<TxResponse>;
 
@@ -112,6 +119,8 @@ export interface IBucket {
     principalAddr: string,
     principalType: keyof typeof PrincipalType,
   ): Promise<TxResponse>;
+
+  toggleSpAsDelegatedAgent(msg: MsgToggleSPAsDelegatedAgent): Promise<TxResponse>;
 
   getBucketMeta(params: GetBucketMetaRequest): Promise<SpResponse<GetBucketMetaResponse>>;
 
@@ -124,14 +133,6 @@ export interface IBucket {
     configParam: ReadQuotaRequest,
     authType: AuthType,
   ): Promise<SpResponse<IQuotaProps>>;
-
-  /**
-   * returns the signature info for the approval of preCreating resources
-   */
-  getCreateBucketApproval(
-    configParam: CreateBucketApprovalRequest,
-    authType: AuthType,
-  ): Promise<SpResponse<string>>;
 
   getMigrateBucketApproval(
     params: MigrateBucketApprovalRequest,
@@ -189,6 +190,11 @@ export interface IBucket {
   updateBucketInfo(
     srcMsg: Omit<MsgUpdateBucketInfo, 'chargedReadQuota'> & { chargedReadQuota?: string },
   ): Promise<TxResponse>;
+
+  /**
+   * Get the flow rate limit of the bucket.
+   */
+  setPaymentAccountFlowRateLimit(msg: MsgSetBucketFlowRateLimit): Promise<TxResponse>;
 }
 
 @injectable()
@@ -197,117 +203,64 @@ export class Bucket implements IBucket {
     @inject(delay(() => TxClient)) private txClient: TxClient,
     @inject(delay(() => Sp)) private sp: Sp,
     @inject(delay(() => Storage)) private storage: Storage,
+    @inject(delay(() => VirtualGroup)) private virtualGroup: VirtualGroup,
   ) {}
 
   private queryClient = container.resolve(RpcQueryClient);
   private spClient = container.resolve(SpClient);
 
-  public async getCreateBucketApproval(
-    params: CreateBucketApprovalRequest,
-    authType: AuthType,
-  ): Promise<SpResponse<string>> {
-    const {
-      bucketName,
-      creator,
-      visibility = 'VISIBILITY_TYPE_PUBLIC_READ',
-      chargedReadQuota,
-      spInfo,
-      duration,
-      paymentAddress,
-    } = params;
-
-    try {
-      assertAuthType(authType);
-      assertStringRequire(spInfo.primarySpAddress, 'Primary sp address is missing');
-      assertStringRequire(creator, 'Empty creator address');
-      verifyBucketName(bucketName);
-
-      const endpoint = await this.sp.getSPUrlByPrimaryAddr(spInfo.primarySpAddress);
-
-      const { reqMeta, optionsWithOutHeaders, url } =
-        getApprovalMetaInfo<CreateBucketApprovalResponse>(endpoint, 'CreateBucket', {
-          bucket_name: bucketName,
-          creator,
-          visibility,
-          primary_sp_address: spInfo.primarySpAddress,
-          primary_sp_approval: {
-            expired_height: '0',
-            sig: '',
-            global_virtual_group_family_id: 0,
-          },
-          charged_read_quota: chargedReadQuota,
-          payment_address: paymentAddress,
-        });
-
-      const signHeaders = await this.spClient.signHeaders(reqMeta, authType);
-      const requestOptions: RequestInit = {
-        ...optionsWithOutHeaders,
-        headers: signHeaders,
-      };
-
-      const result = await this.spClient.callApi(url, requestOptions, duration, {
-        code: -1,
-        message: 'Get create bucket approval error.',
-      });
-
-      const signedMsgString = result.headers.get('X-Gnfd-Signed-Msg') || '';
-
-      return {
-        code: 0,
-        message: 'Get create bucket approval success.',
-        body: signedMsgString,
-        statusCode: result.status,
-      } as SpResponse<string>;
-    } catch (error: any) {
-      throw {
-        code: -1,
-        message: error.message,
-        statusCode: error?.statusCode || NORMAL_ERROR_CODE,
-      };
-    }
+  public async setPaymentAccountFlowRateLimit(msg: MsgSetBucketFlowRateLimit) {
+    return await this.txClient.tx(
+      MsgSetBucketFlowRateLimitTypeUrl,
+      msg.operator,
+      MsgSetBucketFlowRateLimitSDKTypeEIP712,
+      MsgSetBucketFlowRateLimit.toSDK(msg),
+      MsgSetBucketFlowRateLimit.encode(msg).finish(),
+    );
   }
 
-  private async createBucketTx(msg: MsgCreateBucket, signedMsg: CreateBucketApprovalResponse) {
+  public async createBucket(msg: MsgCreateBucket) {
+    assertStringRequire(msg.primarySpAddress, 'Primary sp address is missing');
+    assertStringRequire(msg.creator, 'Empty creator address');
+    verifyBucketName(msg.bucketName);
+
+    const { storageProvider } = await this.sp.getStorageProviderByOperatorAddress({
+      operatorAddress: msg.primarySpAddress,
+    });
+
+    if (!storageProvider) {
+      throw new Error(`Storage provider ${msg.primarySpAddress} not found`);
+    }
+
+    const { globalVirtualGroupFamilyId } =
+      await this.virtualGroup.getSpOptimalGlobalVirtualGroupFamily({
+        spId: storageProvider.id,
+        pickVgfStrategy: PickVGFStrategy.Strategy_Oldest_Create_Time,
+      });
+
+    const createBucketMsg: MsgCreateBucket = {
+      ...msg,
+      primarySpApproval: {
+        globalVirtualGroupFamilyId: globalVirtualGroupFamilyId,
+        expiredHeight: Long.fromInt(0),
+        sig: Uint8Array.from([]),
+      },
+    };
+
     return await this.txClient.tx(
       MsgCreateBucketTypeUrl,
       msg.creator,
       MsgCreateBucketSDKTypeEIP712,
       {
-        ...signedMsg,
-        type: MsgCreateBucketTypeUrl,
-        charged_read_quota: signedMsg.charged_read_quota,
-        visibility: signedMsg.visibility,
-        primary_sp_approval: signedMsg.primary_sp_approval,
+        ...MsgCreateBucket.toSDK(createBucketMsg),
+        primary_sp_approval: {
+          expired_height: '0',
+          global_virtual_group_family_id: globalVirtualGroupFamilyId,
+        },
+        charged_read_quota: createBucketMsg.chargedReadQuota.toString(),
       },
-      MsgCreateBucket.encode(msg).finish(),
+      MsgCreateBucket.encode(createBucketMsg).finish(),
     );
-  }
-
-  public async createBucket(params: CreateBucketApprovalRequest, authType: AuthType) {
-    assertAuthType(authType);
-    const { body } = await this.getCreateBucketApproval(params, authType);
-
-    if (!body) {
-      throw new Error('Get create bucket approval error');
-    }
-
-    const signedMsg = JSON.parse(bytesToUtf8(hexToBytes(body))) as CreateBucketApprovalResponse;
-
-    const msg: MsgCreateBucket = {
-      bucketName: signedMsg.bucket_name,
-      creator: signedMsg.creator,
-      visibility: visibilityTypeFromJSON(signedMsg.visibility),
-      primarySpAddress: signedMsg.primary_sp_address,
-      primarySpApproval: {
-        expiredHeight: Long.fromString(signedMsg.primary_sp_approval.expired_height),
-        sig: bytesFromBase64(signedMsg.primary_sp_approval.sig),
-        globalVirtualGroupFamilyId: signedMsg.primary_sp_approval.global_virtual_group_family_id,
-      },
-      chargedReadQuota: Long.fromString(signedMsg.charged_read_quota),
-      paymentAddress: signedMsg.payment_address,
-    };
-
-    return await this.createBucketTx(msg, signedMsg);
   }
 
   public async deleteBucket(msg: MsgDeleteBucket) {
@@ -317,6 +270,22 @@ export class Bucket implements IBucket {
       MsgDeleteBucketSDKTypeEIP712,
       MsgDeleteBucket.toSDK(msg),
       MsgDeleteBucket.encode(msg).finish(),
+    );
+  }
+
+  public async toggleSpAsDelegatedAgent(msg: MsgToggleSPAsDelegatedAgent) {
+    const { bucketInfo } = await this.headBucket(msg.bucketName);
+
+    if (!bucketInfo) {
+      throw new Error(`Bucket ${msg.bucketName} not found`);
+    }
+
+    return await this.txClient.tx(
+      MsgToggleSPAsDelegatedAgentTypeUrl,
+      msg.operator,
+      MsgToggleSPAsDelegatedAgentSDKTypeEIP712,
+      MsgToggleSPAsDelegatedAgent.toSDK(msg),
+      MsgToggleSPAsDelegatedAgent.encode(msg).finish(),
     );
   }
 
@@ -449,6 +418,8 @@ export class Bucket implements IBucket {
           freeQuota: Number(res.GetReadQuotaResult.SPFreeReadQuotaSize ?? '0'),
           consumedQuota: Number(res.GetReadQuotaResult.ReadConsumedSize ?? '0'),
           freeConsumedSize: Number(res.GetReadQuotaResult.FreeConsumedSize ?? '0'),
+          monthlyFreeQuota: Number(res.GetReadQuotaResult.MonthlyFreeQuota ?? '0'),
+          monthlyQuotaConsumedSize: Number(res.GetReadQuotaResult.MonthlyQuotaConsumedSize ?? '0'),
         },
         message: 'Get bucket read quota.',
         statusCode: result.status,

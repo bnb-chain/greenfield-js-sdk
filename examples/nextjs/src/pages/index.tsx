@@ -28,6 +28,12 @@ export default function Home() {
             Query
           </Link>
         </li>
+
+        <li>
+          <Link href="/cross" color="#900" style={{ fontSize: 30 }}>
+            Bsc Cross-Chain Greenfield
+          </Link>
+        </li>
       </div>
     </>
   );

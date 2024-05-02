@@ -1,3 +1,4 @@
+import { NodeFile, UploadFile } from '@/types/sp/Common';
 import { AuthType } from '../..';
 
 export const assertStringRequire = (s: string, errMsg: string) => {
@@ -21,3 +22,16 @@ export const assertAuthType = (authType: AuthType) => {
     assertStringRequire(authType.domain, 'domain param is required');
   }
 };
+
+export function assertFileType(file: UploadFile): file is NodeFile {
+  if ('content' in file) {
+    return true;
+  }
+
+  return false;
+}
+
+export function assertHttpMethod(method?: string): asserts method is 'GET' | 'POST' | 'PUT' {
+  if (method !== 'GET' && method !== 'POST' && method !== 'PUT')
+    throw new Error('method should be GET, POST or PUT');
+}
