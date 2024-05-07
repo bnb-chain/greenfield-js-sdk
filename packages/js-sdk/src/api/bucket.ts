@@ -25,6 +25,7 @@ import {
   QueryVerifyPermissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
+  MsgCancelMigrateBucket,
   MsgCreateBucket,
   MsgDeleteBucket,
   MsgDeletePolicy,

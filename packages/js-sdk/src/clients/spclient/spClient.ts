@@ -195,7 +195,11 @@ export class SpClient implements ISpClient {
         });
       }
 
+      debugger;
       const file = assertFileType(uploadFile) ? uploadFile.content : uploadFile;
+      // eslint-disable-next-line no-console
+      console.log('file::::', file);
+
       const response = await R.send(file);
       const { status } = response;
 

@@ -24,12 +24,19 @@ describe('upload', () => {
   }, 50000);
 
   test('delegrateUpload', async () => {
-    const file = createFile('./README.md');
+    // const file = createFile('./hello0503.json');
+    // const file = createFile('./package.json');
+    // const file = createFile('./image.png');
+
+    const file = createFile('./hello0503.json');
+    // eslint-disable-next-line no-console
+    console.log('file', file);
 
     const res = await client.object.delegateUploadObject(
       {
-        bucketName: 'dfg',
-        objectName: 'b333',
+        // bucketName: 'dfg',
+        bucketName: 'nucvscdifk',
+        objectName: 'b4420',
         body: file,
         delegatedOpts: {
           visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,

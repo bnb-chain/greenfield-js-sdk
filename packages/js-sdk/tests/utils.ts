@@ -4,6 +4,9 @@ import { GREENFIELD_CHAIN_ID, GREENFIELD_URL } from './env';
 
 export const client = Client.create(GREENFIELD_URL, GREENFIELD_CHAIN_ID);
 
+// eslint-disable-next-line no-console
+console.log('GREENFIELD_URL', GREENFIELD_URL);
+
 export const ZERO_ACCOUNT_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const DEFAULT_SIMULATE_INFO: ISimulateGasFee = {

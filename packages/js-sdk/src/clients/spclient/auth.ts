@@ -58,7 +58,8 @@ export const getCanonicalRequest = (reqMeta: Partial<ReqMeta>, reqHeaders: Heade
 };
 
 export const getAuthorization = (canonicalRequest: string, authType: AuthType) => {
-  // console.log('canonicalRequest', canonicalRequest);
+  // eslint-disable-next-line no-console
+  console.log('canonicalRequest', canonicalRequest);
 
   const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
   let authorization = '';

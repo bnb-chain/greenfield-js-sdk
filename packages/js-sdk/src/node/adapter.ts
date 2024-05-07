@@ -12,6 +12,8 @@ export function createFile(filePath: string): NodeFile {
 
   if (!type) throw new Error(`Unsupported file type: ${filePath}`);
 
+  // console.log('fs.readFileSync(filePath)', fs.readFileSync(filePath));
+
   return {
     name: filePath,
     type,
