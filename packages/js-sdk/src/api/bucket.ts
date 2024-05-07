@@ -25,6 +25,7 @@ import {
   QueryVerifyPermissionResponse,
 } from '@bnb-chain/greenfield-cosmos-types/greenfield/storage/query';
 import {
+  MsgCancelMigrateBucket,
   MsgCreateBucket,
   MsgDeleteBucket,
   MsgDeletePolicy,
@@ -42,6 +43,7 @@ import { container, delay, inject, injectable } from 'tsyringe';
 import {
   AuthType,
   GRNToString,
+  MsgCancelMigrateBucketTypeUrl,
   MsgCreateBucketTypeUrl,
   MsgDeleteBucketTypeUrl,
   MsgMigrateBucketTypeUrl,
@@ -104,6 +106,7 @@ import { decodeObjectFromHexString } from '../utils/encoding';
 import { Sp } from './sp';
 import { Storage } from './storage';
 import { VirtualGroup } from './virtualGroup';
+import { MsgCancelMigrateBucketSDKTypeEIP712 } from '@/messages/greenfield/storage/MsgCancelMigrateBucket';
 
 export interface IBucket {
   /**
@@ -181,6 +184,8 @@ export interface IBucket {
   ): Promise<SpResponse<ListBucketsByPaymentAccountResponse>>;
 
   migrateBucket(params: MigrateBucketApprovalRequest, authType: AuthType): Promise<TxResponse>;
+
+  cancelMigrateBucket(msg: MsgCancelMigrateBucket): Promise<TxResponse>;
 
   putBucketPolicy(bucketName: string, srcMsg: Omit<MsgPutPolicy, 'resource'>): Promise<TxResponse>;
 
@@ -566,6 +571,16 @@ export class Bucket implements IBucket {
     };
 
     return await this.migrateBucketTx(msg, signedMsg);
+  }
+
+  public async cancelMigrateBucket(msg: MsgCancelMigrateBucket): Promise<TxResponse> {
+    return await this.txClient.tx(
+      MsgCancelMigrateBucketTypeUrl,
+      msg.operator,
+      MsgCancelMigrateBucketSDKTypeEIP712,
+      MsgCancelMigrateBucket.toSDK(msg),
+      MsgCancelMigrateBucket.encode(msg).finish(),
+    );
   }
 
   private async migrateBucketTx(msg: MsgMigrateBucket, signedMsg: MigrateBucketApprovalResponse) {
