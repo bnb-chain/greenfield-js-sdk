@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.1.0-alpha.0
+
+### Minor Changes
+
+- [#540](https://github.com/bnb-chain/greenfield-js-sdk/pull/540)
+  [`3e7f1cae3ac12215d5d46ef6755fd198ad450190`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3e7f1cae3ac12215d5d46ef6755fd198ad450190)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `bucket.cancelMigrateBucket` API.
+
 ## 2.0.0
 
 ### Major Changes
