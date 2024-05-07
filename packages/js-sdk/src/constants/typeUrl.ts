@@ -12,6 +12,7 @@ export const MsgDisableRefundTypeUrl = '/greenfield.payment.MsgDisableRefund';
 export const MsgWithdrawTypeUrl = '/greenfield.payment.MsgWithdraw';
 export const MsgCancelCreateObjectTypeUrl = '/greenfield.storage.MsgCancelCreateObject';
 export const MsgMigrateBucketTypeUrl = '/greenfield.storage.MsgMigrateBucket';
+export const MsgCancelMigrateBucketTypeUrl = '/greenfield.storage.MsgCancelMigrateBucket';
 export const MsgCreateBucketTypeUrl = '/greenfield.storage.MsgCreateBucket';
 export const MsgCreateGroupTypeUrl = '/greenfield.storage.MsgCreateGroup';
 export const MsgCreateObjectTypeUrl = '/greenfield.storage.MsgCreateObject';
