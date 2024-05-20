@@ -1,4 +1,5 @@
 import { client } from '@/client';
+import { ACCOUNT_PRIVATEKEY } from '@/config/env';
 import { getOffchainAuthKeys } from '@/utils/offchainAuth';
 import {
   bytesFromBase64,
@@ -76,10 +77,12 @@ export const DelegrateObject = () => {
                 },
               },
               {
-                type: 'EDDSA',
-                domain: window.location.origin,
-                seed: offChainData.seedString,
-                address,
+                type: 'ECDSA',
+                privateKey: ACCOUNT_PRIVATEKEY,
+                // type: 'EDDSA',
+                // domain: window.location.origin,
+                // seed: offChainData.seedString,
+                // address,
               },
             );
             console.log('uploadRes', uploadRes);

@@ -36,7 +36,7 @@ describe('upload', () => {
       {
         // bucketName: 'dfg',
         bucketName: 'nucvscdifk',
-        objectName: 'b4420',
+        objectName: 'b5432',
         body: file,
         delegatedOpts: {
           visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,

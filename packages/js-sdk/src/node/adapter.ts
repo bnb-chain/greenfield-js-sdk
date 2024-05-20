@@ -16,6 +16,7 @@ export function createFile(filePath: string): NodeFile {
 
   return {
     name: filePath,
+    // type: 'application/octet-stream',
     type,
     size: fileSize,
     content: fs.readFileSync(filePath),

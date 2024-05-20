@@ -178,8 +178,16 @@ export class SpClient implements ISpClient {
     }
 
     try {
+      debugger;
       const R = superagent.put(url);
+      // R.setEncoding('')
       R.buffer(true);
+      // .parse((s: any) => {
+      //   console.log('s', s);
+      //   return s;
+      // });
+      // R.set('Content-Type', 'application/json');
+      // R.type('json');
       R.timeout(timeout);
       R.ok((res) => res.status < 500);
 
