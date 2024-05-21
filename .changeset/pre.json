@@ -12,6 +12,7 @@
     "@bnb-chain/reed-solomon": "1.1.3"
   },
   "changesets": [
+    "perfect-panthers-add",
     "sour-eggs-explode"
   ]
 }
