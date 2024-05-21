@@ -1,6 +1,7 @@
 import { AuthType, ReqMeta } from '@/types/auth';
-import { hexlify, joinSignature } from '@ethersproject/bytes';
+import { arrayify, hexlify, joinSignature } from '@ethersproject/bytes';
 import { SigningKey } from '@ethersproject/signing-key';
+import { toUtf8Bytes } from '@ethersproject/strings';
 import { ed25519 } from '@noble/curves/ed25519';
 import { Headers } from 'cross-fetch';
 import { keccak256 } from 'ethereum-cryptography/keccak.js';
@@ -58,7 +59,8 @@ export const getCanonicalRequest = (reqMeta: Partial<ReqMeta>, reqHeaders: Heade
 };
 
 export const getAuthorization = (canonicalRequest: string, authType: AuthType) => {
-  // console.log('canonicalRequest', canonicalRequest);
+  // eslint-disable-next-line no-console
+  console.log('canonicalRequest', canonicalRequest);
 
   const unsignedMsg = getMsgToSign(utf8ToBytes(canonicalRequest));
   let authorization = '';
@@ -170,6 +172,7 @@ export const getMsgToSign = (unsignedBytes: Uint8Array): Uint8Array => {
 };
 
 export const encodePath = (pathName: string) => {
+  debugger;
   const reservedNames = /^[a-zA-Z0-9-_.~/]+$/;
   if (reservedNames.test(pathName)) {
     return pathName;
@@ -196,16 +199,14 @@ export const encodePath = (pathName: string) => {
         continue;
 
       // others characters need to be encoded
-      default:
-        // . ! @ # $ % ^ & * ) ( - + = { } [ ] / " , ' < > ~ \ .` ? : ; | \\
-        if (/[.!@#\$%\^&\*\)\(\-+=\{\}\[\]\/\",'<>~\·`\?:;|\\]+$/.test(s)) {
-          // english characters
-          const hexStr = s.charCodeAt(0).toString(16);
-          encodedPathName += '%' + hexStr.toUpperCase();
-        } else {
-          // others characters
-          encodedPathName += encodeURI(s);
+      default: {
+        const u = toUtf8Bytes(s);
+
+        for (let i = 0; i < u.length; i++) {
+          const hexStr = hexlify(u[i]);
+          encodedPathName += '%' + hexStr.slice(2).toUpperCase();
         }
+      }
     }
   }
   return encodedPathName;
