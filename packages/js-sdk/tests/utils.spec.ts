@@ -12,6 +12,12 @@ describe('encodePaths', () => {
 
   it('encode chinese chars', () => {
     expect(encodePath('中文')).equals('%E4%B8%AD%E6%96%87');
+
+    expect(encodePath('·')).equals('%C2%B7');
+
+    expect(encodePath('。，！·#@……*？《》+')).equals(
+      '%E3%80%82%EF%BC%8C%EF%BC%81%C2%B7%23%40%E2%80%A6%E2%80%A6%2A%EF%BC%9F%E3%80%8A%E3%80%8B%2B',
+    );
   });
 
   it('encode complex utf-8 chars', () => {
