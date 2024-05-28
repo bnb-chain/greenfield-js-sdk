@@ -1,3 +1,5 @@
+import { encodePath } from '../clients/spclient/auth';
+
 const toHex = (char = '') => {
   return char.charCodeAt(0).toString(16);
 };
@@ -54,4 +56,5 @@ export {
   encodeObjectToHexString,
   decodeObjectFromHexString,
   encodeToHexString,
+  encodePath,
 };
