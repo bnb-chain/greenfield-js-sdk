@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.1.0-alpha.2
+
+### Patch Changes
+
+- [#553](https://github.com/bnb-chain/greenfield-js-sdk/pull/553)
+  [`909b463c72a0c83bddc1e41b840d5c871325d54a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/909b463c72a0c83bddc1e41b840d5c871325d54a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: export `encodePath`
+
 ## 2.1.0-alpha.1
 
 ### Patch Changes
