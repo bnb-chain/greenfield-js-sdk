@@ -171,43 +171,44 @@ export class SpClient implements ISpClient {
     R.timeout(timeout);
     R.ok((res) => res.status < 500);
 
+    // let headers: any = {
+    //   // @ts-ignore
+    //   Authorization: options.headers!.get('authorization'),
+    //   // @ts-ignore
+    //   'content-type': options.headers!.get('content-type'),
+    //   // @ts-ignore
+    //   'x-gnfd-content-sha256': options.headers!.get('x-gnfd-content-sha256'),
+    //   // @ts-ignore
+    //   'x-gnfd-date': options.headers!.get('x-gnfd-date'),
+    //   // @ts-ignore
+    //   'x-gnfd-expiry-timestamp': options.headers!.get('x-gnfd-expiry-timestamp'),
+    // };
+
+    R.buffer(true);
     if (options.headers) {
       (options.headers as Headers).forEach((v: string, k: string) => {
         R.set(k, v);
       });
     }
 
+    // R.set('Accept', 'application/json');
+
+    if (callback && callback.onProgress) {
+      R.on('progress', (e) => {
+        callback.onProgress?.(e);
+      });
+    }
+
     try {
       debugger;
-      const R = superagent.put(url);
-      // R.setEncoding('')
-      R.buffer(true);
-      // .parse((s: any) => {
-      //   console.log('s', s);
-      //   return s;
-      // });
-      // R.set('Content-Type', 'application/json');
-      // R.type('json');
-      R.timeout(timeout);
-      R.ok((res) => res.status < 500);
-
-      if (options.headers) {
-        (options.headers as Headers).forEach((v: string, k: string) => {
-          R.set(k, v);
-        });
-      }
-
-      if (callback && callback.onProgress) {
-        R.on('progress', (e) => {
-          callback.onProgress?.(e);
-        });
-      }
-
-      debugger;
+      // console.log('uploadFile:', uploadFile);
       const file = assertFileType(uploadFile) ? uploadFile.content : uploadFile;
       // eslint-disable-next-line no-console
-      console.log('file::::', file);
+      console.log('file::::> ', file);
 
+      // const response = await axios.put(url, file, {
+      //   headers,
+      // });
       const response = await R.send(file);
       const { status } = response;
 
@@ -219,17 +220,17 @@ export class SpClient implements ISpClient {
         };
       }
 
-      if (!response.ok) {
-        const xmlError = response.text;
+      // if (!response.ok) {
+      //   const xmlError = response.text;
 
-        const { code, message } = await parseError(xmlError);
+      //   const { code, message } = await parseError(xmlError);
 
-        throw {
-          code: callback?.customError?.code || code,
-          message: callback?.customError?.message || message,
-          statusCode: status,
-        };
-      }
+      //   throw {
+      //     code: callback?.customError?.code || code,
+      //     message: callback?.customError?.message || message,
+      //     statusCode: status,
+      //   };
+      // }
 
       return response;
     } catch (error) {
