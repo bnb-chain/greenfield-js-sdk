@@ -82,7 +82,7 @@
     "long": "^5.2.1",
     "mime-types": "^2.1.35",
     "reflect-metadata": "^0.1.13",
-    "superagent": "^8.1.2",
+    "superagent": "^9.0.2",
     "tsyringe": "^4.8.0"
   },
   "devDependencies": {
