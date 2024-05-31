@@ -3,7 +3,7 @@ import { convertStrToBool, formatBucketInfo, formatVGF } from '@/types/sp/Common
 import { XMLParser } from 'fast-xml-parser';
 import { SPMetaInfo } from './metaInfos';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_user_buckets
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/get_user_buckets.md
 export const getUserBucketMetaInfo = (endpoint: string): Pick<SPMetaInfo, 'url'> => {
   return {
     url: endpoint,

@@ -2,7 +2,7 @@ import { convertStrToBool, formatObjectInfo } from '@/types/sp/Common';
 import { ListObjectsByBucketNameResponse } from '@/types/sp/ListObjectsByBucketName';
 import { XMLParser } from 'fast-xml-parser';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_objects_by_bucket
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/list_objects_by_bucket.md
 export const parseListObjectsByBucketNameResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,

@@ -6,7 +6,7 @@ import {
 import { XMLParser } from 'fast-xml-parser';
 import { getSortQueryParams } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_payment_account_streams
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/list_payment_account_streams.md
 export const getListBucketByPaymentMetaInfo = (
   endpoint: string,
   params: ListBucketsByPaymentAccountRequest,

@@ -4,8 +4,7 @@ title: 'Query Client'
 sidebar_position: 2
 ---
 
-It's an encapsulation of the
-[Blockchain API](https://docs.bnbchain.org/greenfield-docs/docs/api/blockchain-rest).
+It's an encapsulation of the [BlockChain API](https://greenfield-chain.bnbchain.org/openapi#/Query/StorageParams)
 
 :::info
 
@@ -22,7 +21,7 @@ await rpc.Account({
 });
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/account-info
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/AccountInfo
 
 ## getBankQueryClient
 
@@ -34,7 +33,7 @@ await rpc.Balance({
 });
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/account-info
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/AccountInfo
 
 ## getBridgeQueryClient
 
@@ -43,7 +42,7 @@ const rpc = await client.queryClient.getBridgeQueryClient();
 await rpc.Params();
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/bridge-params
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/BridgeParams
 
 ## getChallengeQueryClient
 
@@ -52,7 +51,7 @@ const rpc = await client.queryClient.getChallengeQueryClient();
 await rpc.Params();
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/attested-challenge
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/AttestedChallenge
 
 ## getCrosschainQueryClient
 
@@ -61,7 +60,7 @@ const rpc = await client.queryClient.getCrosschainQueryClient();
 await rpc.Params();
 ```
 
-More apis: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/attested-challenge
+More apis: https://greenfield-chain.bnbchain.org/openapi#/Query/AttestedChallenge
 
 ## getFeeGrantQueryClient
 
@@ -70,7 +69,7 @@ const rpc = await client.queryClient.getFeeGrantQueryClient();
 await rpc.Params();
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/allowance
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/Allowance
 
 ## getGashubClient
 
@@ -79,7 +78,7 @@ const rpc = await this.queryClient.getGashubClient();
 await rpc.MsgGasParams(request);
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/msg-gas-params
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/MsgGasParams
 
 ## getPaymentQueryClient
 
@@ -88,7 +87,7 @@ const rpc = await this.queryClient.getPaymentQueryClient();
 await rpc.Params();
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/msg-gas-params
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/MsgGasParams
 
 ## getSpQueryClient
 
@@ -97,8 +96,7 @@ const rpc = await this.queryClient.getSpQueryClient();
 await rpc.Params();
 ```
 
-More APIs:
-https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/query-global-sp-store-price-by-time
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/QueryGlobalSpStorePriceByTime
 
 ## getStorageQueryClient
 
@@ -109,7 +107,7 @@ await rpc.HeadBucketById({
 });
 ```
 
-More APIs: https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/query-group-members-exist
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/QueryGroupMembersExist
 
 ## getVirtualGroupClient
 
@@ -118,5 +116,4 @@ const rpc = await client.queryClient.getVirtualGroupClient();
 await rpc.Params();
 ```
 
-More APIs:
-https://docs.bnbchain.org/greenfield-docs/docs/greenfield-api/available-global-virtual-group-families
+More APIs: https://greenfield-chain.bnbchain.org/openapi#/Query/AvailableGlobalVirtualGroupFamilies
