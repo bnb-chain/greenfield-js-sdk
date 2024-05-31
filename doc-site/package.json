@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "3.2.1",
-    "@docusaurus/plugin-ideal-image": "^3.2.1",
+    "@docusaurus/plugin-ideal-image": "3.2.1",
     "@docusaurus/preset-classic": "3.2.1",
     "@mdx-js/react": "^3.0.1",
     "clsx": "^1.2.1",
