@@ -1,5 +1,14 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.0.1
+
+### Patch Changes
+
+- [#554](https://github.com/bnb-chain/greenfield-js-sdk/pull/554)
+  [`64a62b1e1d0387148bbd621448a67b2bb2c2aa5b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/64a62b1e1d0387148bbd621448a67b2bb2c2aa5b)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Upload file that `content-type` is
+  `application/json`, cancel serialize.
+
 ## 2.0.0
 
 ### Major Changes
