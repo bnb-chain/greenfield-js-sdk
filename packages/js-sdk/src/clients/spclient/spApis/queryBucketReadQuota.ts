@@ -5,7 +5,7 @@ import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { XMLParser } from 'fast-xml-parser';
 import { getSortQuery } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/query_bucket_read_quota
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/query_bucket_read_quota.md
 export const getQueryBucketReadQuotaMetaInfo = async (
   endpoint: string,
   params: ReadQuotaRequest,

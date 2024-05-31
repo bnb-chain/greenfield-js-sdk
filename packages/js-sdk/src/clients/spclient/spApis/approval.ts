@@ -5,7 +5,7 @@ import { getSortQueryParams } from '../auth';
 
 export type APPROVAL_ACTION = 'CreateBucket' | 'CreateObject' | 'MigrateBucket';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_approval
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/get_approval.md
 export const getApprovalMetaInfo = <T>(endpoint: string, action: APPROVAL_ACTION, msg: T) => {
   const path = '/greenfield/admin/v1/get-approval';
   const queryMap = {

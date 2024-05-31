@@ -4,7 +4,7 @@ import { DelegatedOpts } from '@/types/sp/Common';
 import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { encodePath, getSortQueryParams } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/resumable_put_object
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/resumable_put_object.md
 export const getResumablePutObjectMetaInfo = async (
   endpoint: string,
   params: {

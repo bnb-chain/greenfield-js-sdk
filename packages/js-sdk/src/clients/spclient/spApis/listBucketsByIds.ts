@@ -4,7 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { getSortQueryParams } from '../auth';
 import { SPMetaInfo } from './metaInfos';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_buckets_by_ids
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/list_buckets_by_ids.md
 export const getListBucketsByIDsMetaInfo = (
   endpoint: string,
   params: ListBucketsByIDsRequest,
