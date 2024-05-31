@@ -429,6 +429,9 @@ importers:
       '@noble/curves':
         specifier: ^1.3.0
         version: 1.4.0
+      browser-or-node:
+        specifier: ^3.0.0
+        version: 3.0.0
       cross-fetch:
         specifier: ^4.0.0
         version: 4.0.0
@@ -4368,6 +4371,9 @@ packages:
 
   brorand@1.1.0:
     resolution: {integrity: sha512-cKV8tMCEpQs4hK/ik71d6LrPOnpkpGBR0wzxqr68g2m/LB2GxVYQroAjMJZRVM1Y4BCjCKc3vAamxSzOY2RP+w==}
+
+  browser-or-node@3.0.0:
+    resolution: {integrity: sha512-iczIdVJzGEYhP5DqQxYM9Hh7Ztpqqi+CXZpSmX8ALFs9ecXkQIeqRyM6TfxEfMVpwhl3dSuDvxdzzo9sUOIVBQ==}
 
   browser-stdout@1.3.1:
     resolution: {integrity: sha512-qhAVI1+Av2X7qelOfAIYwXONood6XlZE/fXaBSmW/T5SzLAmCgzi+eiWE7fUvbHaeNBQH13UftjpXxsfLkMpgw==}
@@ -15035,7 +15041,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 20.6.0
+      '@types/node': 18.19.33
       '@types/yargs': 15.0.19
       chalk: 4.1.2
 
@@ -18273,6 +18279,8 @@ snapshots:
 
   brorand@1.1.0: {}
 
+  browser-or-node@3.0.0: {}
+
   browser-stdout@1.3.1: {}
 
   browserify-aes@1.2.0:
@@ -18519,7 +18527,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 20.6.0
+      '@types/node': 18.19.33
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2

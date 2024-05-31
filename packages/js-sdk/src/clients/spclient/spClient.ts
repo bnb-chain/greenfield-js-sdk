@@ -20,6 +20,7 @@ import { getGetObjectMetaInfo } from './spApis/getObject';
 import { getPutObjectMetaInfo } from './spApis/putObject';
 import { assertFileType, assertHttpMethod } from '@/utils';
 import { UploadFile } from '@/types/sp/Common';
+import { isNode } from 'browser-or-node';
 
 export interface ISpClient {
   callApi(
@@ -168,6 +169,7 @@ export class SpClient implements ISpClient {
     },
   ) {
     const R = superagent.put(url);
+    R.buffer(true);
     R.timeout(timeout);
     R.ok((res) => res.status < 500);
 
@@ -178,11 +180,6 @@ export class SpClient implements ISpClient {
     }
 
     try {
-      const R = superagent.put(url);
-      R.buffer(true);
-      R.timeout(timeout);
-      R.ok((res) => res.status < 500);
-
       if (options.headers) {
         (options.headers as Headers).forEach((v: string, k: string) => {
           R.set(k, v);
@@ -196,7 +193,11 @@ export class SpClient implements ISpClient {
       }
 
       const file = assertFileType(uploadFile) ? uploadFile.content : uploadFile;
-      const response = await R.send(file);
+
+      // https://ladjs.github.io/superagent/docs/index.html#serializing-request-body
+      const serializeFile =
+        isNode && R.get('Content-Type') === 'application/json' ? file.toString() : file;
+      const response = await R.send(serializeFile);
       const { status } = response;
 
       if (status === SP_NOT_AVAILABLE_ERROR_CODE) {
