@@ -169,7 +169,6 @@ export class SpClient implements ISpClient {
     },
   ) {
     const R = superagent.put(url);
-    R.buffer(true);
     R.timeout(timeout);
     R.ok((res) => res.status < 500);
 
@@ -179,25 +178,23 @@ export class SpClient implements ISpClient {
       });
     }
 
+    if (callback && callback.onProgress) {
+      R.on('progress', (e) => {
+        callback.onProgress?.(e);
+      });
+    }
+
+    const file = assertFileType(uploadFile) ? uploadFile.content : uploadFile;
+
+    // https://ladjs.github.io/superagent/docs/index.html#serializing-request-body
+    const sendFile =
+      isNode && R.get('Content-Type') === 'application/json' ? file.toString() : file;
+    if (isNode) {
+      R.buffer(true);
+    }
+
     try {
-      if (options.headers) {
-        (options.headers as Headers).forEach((v: string, k: string) => {
-          R.set(k, v);
-        });
-      }
-
-      if (callback && callback.onProgress) {
-        R.on('progress', (e) => {
-          callback.onProgress?.(e);
-        });
-      }
-
-      const file = assertFileType(uploadFile) ? uploadFile.content : uploadFile;
-
-      // https://ladjs.github.io/superagent/docs/index.html#serializing-request-body
-      const serializeFile =
-        isNode && R.get('Content-Type') === 'application/json' ? file.toString() : file;
-      const response = await R.send(serializeFile);
+      const response = await R.send(sendFile);
       const { status } = response;
 
       if (status === SP_NOT_AVAILABLE_ERROR_CODE) {
