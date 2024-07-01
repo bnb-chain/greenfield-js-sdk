@@ -4,7 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { getSortQueryParams } from '../auth';
 import { SPMetaInfo } from './metaInfos';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_group_list
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/get_group_list.md
 export const getListGroupMetaInfo = (
   endpoint: string,
   params: ListGroupsResquest,

@@ -5,7 +5,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { encodePath, getSortQueryParams } from '../auth';
 import type { SPMetaInfo } from './metaInfos';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_object_meta
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/get_object_meta.md
 export const getObjectMetaInfo = (
   endpoint: string,
   params: GetObjectMetaRequest,

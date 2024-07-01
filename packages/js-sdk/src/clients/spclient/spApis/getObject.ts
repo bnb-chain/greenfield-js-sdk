@@ -3,7 +3,7 @@ import { ReqMeta } from '@/types';
 import { generateUrlByBucketName } from '@/utils/asserts/s3';
 import { encodePath } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/get_object
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/get_object.md
 export const getGetObjectMetaInfo = async (
   endpoint: string,
   params: {

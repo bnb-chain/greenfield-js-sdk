@@ -3,7 +3,7 @@ import { formatObjectInfo, convertStrToBool } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
 import { getSortQueryParams } from '../auth';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_objects_by_ids
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/list_objects_by_ids.md
 export const getListObjectsByIDsMetaInfo = (endpoint: string, params: ListObjectsByIDsRequest) => {
   const path = '';
   const queryMap = {

@@ -2,7 +2,7 @@ import { ListGroupsMembersResponse } from '@/types';
 import { formatGroupInfo, convertStrToBool } from '@/types/sp/Common';
 import { XMLParser } from 'fast-xml-parser';
 
-// https://docs.bnbchain.org/greenfield-docs/docs/api/storage-provider-rest/list_group_members
+// https://github.com/bnb-chain/greenfield-storage-provider/blob/master/docs/storage-provider-rest-api/list_group_members.md
 export const parseListGroupsMembersResponse = async (data: string) => {
   const xmlParser = new XMLParser({
     parseTagValue: false,
