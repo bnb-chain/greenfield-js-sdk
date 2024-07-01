@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.1.1
+
+### Patch Changes
+
+- [#558](https://github.com/bnb-chain/greenfield-js-sdk/pull/558)
+  [`3a2b8deecad7e4ba001151f4fc293d33ec2baa07`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3a2b8deecad7e4ba001151f4fc293d33ec2baa07)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Remove warning in browser.
+
 ## 2.1.0
 
 ### Minor Changes
