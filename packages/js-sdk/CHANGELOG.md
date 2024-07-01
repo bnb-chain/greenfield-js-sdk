@@ -1,13 +1,46 @@
 # @bnb-chain/greenfield-js-sdk
 
-## 2.0.1
+## 2.1.0
+
+### Minor Changes
+
+- [#540](https://github.com/bnb-chain/greenfield-js-sdk/pull/540)
+  [`3e7f1cae3ac12215d5d46ef6755fd198ad450190`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3e7f1cae3ac12215d5d46ef6755fd198ad450190)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `bucket.cancelMigrateBucket` API.
 
 ### Patch Changes
 
-- [#554](https://github.com/bnb-chain/greenfield-js-sdk/pull/554)
-  [`64a62b1e1d0387148bbd621448a67b2bb2c2aa5b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/64a62b1e1d0387148bbd621448a67b2bb2c2aa5b)
-  Thanks [@rrr523](https://github.com/rrr523)! - fix: Upload file that `content-type` is
-  `application/json`, cancel serialize.
+- [#553](https://github.com/bnb-chain/greenfield-js-sdk/pull/553)
+  [`909b463c72a0c83bddc1e41b840d5c871325d54a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/909b463c72a0c83bddc1e41b840d5c871325d54a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: export `encodePath`
+
+- [#549](https://github.com/bnb-chain/greenfield-js-sdk/pull/549)
+  [`34aa1c71d9ee1bc3856aa199a3eee9e50827376b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/34aa1c71d9ee1bc3856aa199a3eee9e50827376b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: EncodePath UTF-8
+
+## 2.1.0-alpha.2
+
+### Patch Changes
+
+- [#553](https://github.com/bnb-chain/greenfield-js-sdk/pull/553)
+  [`909b463c72a0c83bddc1e41b840d5c871325d54a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/909b463c72a0c83bddc1e41b840d5c871325d54a)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: export `encodePath`
+
+## 2.1.0-alpha.1
+
+### Patch Changes
+
+- [#549](https://github.com/bnb-chain/greenfield-js-sdk/pull/549)
+  [`34aa1c71d9ee1bc3856aa199a3eee9e50827376b`](https://github.com/bnb-chain/greenfield-js-sdk/commit/34aa1c71d9ee1bc3856aa199a3eee9e50827376b)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: EncodePath UTF-8
+
+## 2.1.0-alpha.0
+
+### Minor Changes
+
+- [#540](https://github.com/bnb-chain/greenfield-js-sdk/pull/540)
+  [`3e7f1cae3ac12215d5d46ef6755fd198ad450190`](https://github.com/bnb-chain/greenfield-js-sdk/commit/3e7f1cae3ac12215d5d46ef6755fd198ad450190)
+  Thanks [@rrr523](https://github.com/rrr523)! - feat: Add `bucket.cancelMigrateBucket` API.
 
 ## 2.0.0
 

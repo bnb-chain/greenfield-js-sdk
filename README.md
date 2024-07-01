@@ -13,18 +13,6 @@ You can find some package documentation below:
 | [@bnb-chain/create-gnfd-app](./packages/create-gnfd-app/README.md) | Create Greenfield App Quickly | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fcreate-gnfd-app?color=blue)](https://www.npmjs.com/package/@bnb-chain/create-gnfd-app) |
 | [@bnb-chain/bsc-cross-greenfield-sdk](./packages/bsc-cross-sdk/README.md) | Execute tx in BSC | [![npm](https://img.shields.io/npm/v/%40bnb-chain%2Fbsc-cross-greenfield-sdk?color=blue)](https://www.npmjs.com/package/@bnb-chain/bsc-cross-greenfield-sdk) |
 
-<!-- ## Playground
-
-* [Browser](https://codesandbox.io/p/github/rrr523/greenfield-nextjs-template/main?import=true) -->
-<!-- TODO: after upgrade SDK version -->
-<!-- * [Nodejs](https://codesandbox.io/p/devbox/nodejs-greenfield-js-sdk-demo-wd5zft) -->
-
-## Online Examples / Playground
-
-* [Nextjs](https://stackblitz.com/github/rrr523/greenfield-nextjs-template)
-* [Vite](https://stackblitz.com/github/rrr523/greenfield-vite-template)
-* [Create React App](https://stackblitz.com/github/rrr523/greenfield-cra-template)
-
 ## Quick Start
 
 You can use [`create-gnfd-app`](./packages/create-gnfd-app/README.md) to create a app quickly.

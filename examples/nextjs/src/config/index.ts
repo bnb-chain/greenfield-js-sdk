@@ -93,4 +93,5 @@ export const wagmiConfig = createConfig({
     [bscChain.id]: http(),
   },
   connectors,
+  ssr: true,
 });

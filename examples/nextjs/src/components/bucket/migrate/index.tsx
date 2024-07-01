@@ -9,7 +9,7 @@ export const MigrateBucket = () => {
 
   return (
     <>
-      <h4>Migrate Bucket</h4>
+      <h4>Migrate Bucket / Cancel Migrate Bucket</h4>
       <div>
         bucket name:
         <input
@@ -68,7 +68,48 @@ export const MigrateBucket = () => {
           }
         }}
       >
-        broadcast with simulate
+        Migrate Bucket
+      </button>
+
+      <br />
+      <button
+        onClick={async () => {
+          if (!address) return;
+
+          const provider = await connector?.getProvider();
+          const offChainData = await getOffchainAuthKeys(address, provider);
+          if (!offChainData) {
+            alert('No offchain, please create offchain pairs first');
+            return;
+          }
+
+          const cancelMigrateBucketTx = await client.bucket.cancelMigrateBucket({
+            bucketName,
+            operator: address,
+          });
+
+          const simulateInfo = await cancelMigrateBucketTx.simulate({
+            denom: 'BNB',
+          });
+
+          console.log('simulateInfo', simulateInfo);
+
+          const res = await cancelMigrateBucketTx.broadcast({
+            denom: 'BNB',
+            gasLimit: Number(simulateInfo?.gasLimit),
+            gasPrice: simulateInfo?.gasPrice || '5000000000',
+            payer: address,
+            granter: '',
+          });
+
+          console.log('res', res);
+
+          if (res.code === 0) {
+            alert('success');
+          }
+        }}
+      >
+        Cancel Migrate Bucket
       </button>
     </>
   );
