@@ -74,7 +74,7 @@
     "cross-fetch": "^4.0.0",
     "dayjs": "^1.11.7",
     "ethereum-cryptography": "^2.0.0",
-    "fast-xml-parser": "^4.2.7",
+    "fast-xml-parser": "^4.4.1",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.mapvalues": "^4.6.0",
