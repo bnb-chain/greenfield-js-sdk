@@ -33,7 +33,7 @@ export const createEIP712 = (types: object, chainId: string, message: object) =>
       name: 'Greenfield Tx',
       version: '1.0.0',
       chainId,
-      verifyingContract: 'greenfield',
+      verifyingContract: '0x71e835aff094655dEF897fbc85534186DbeaB75d',
       salt: '0',
     },
     message,
