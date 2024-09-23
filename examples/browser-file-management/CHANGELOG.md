@@ -1,5 +1,13 @@
 # browser-file-management
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`c53eed26400e30cc3aac3991216e802831b9512c`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c53eed26400e30cc3aac3991216e802831b9512c)]:
+  - @bnb-chain/greenfield-js-sdk@2.2.0
+
 ## 0.1.4-alpha.0
 
 ### Patch Changes

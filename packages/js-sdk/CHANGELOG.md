@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.2.0
+
+### Minor Changes
+
+- [#568](https://github.com/bnb-chain/greenfield-js-sdk/pull/568)
+  [`c53eed26400e30cc3aac3991216e802831b9512c`](https://github.com/bnb-chain/greenfield-js-sdk/commit/c53eed26400e30cc3aac3991216e802831b9512c)
+  Thanks [@rrr523](https://github.com/rrr523)! - fix: Metamask now must using valid contract address
+
 ## 2.2.0-alpha.0
 
 ### Minor Changes
