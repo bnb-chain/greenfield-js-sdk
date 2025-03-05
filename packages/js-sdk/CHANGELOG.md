@@ -1,5 +1,13 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.2.1-alpha.0
+
+### Patch Changes
+
+- [#580](https://github.com/bnb-chain/greenfield-js-sdk/pull/580)
+  [`68606cc1366d248cc3de08701d0eb1fed0ffd2c0`](https://github.com/bnb-chain/greenfield-js-sdk/commit/68606cc1366d248cc3de08701d0eb1fed0ffd2c0)
+  Thanks [@devinxl](https://github.com/devinxl)! - Upgrade elliptic to v6.6.1
+
 ## 2.2.0
 
 ### Minor Changes

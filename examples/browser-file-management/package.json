@@ -1,6 +1,6 @@
 {
   "name": "browser-file-management",
-  "version": "0.1.4",
+  "version": "0.1.5-alpha.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

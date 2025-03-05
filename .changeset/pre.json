@@ -11,5 +11,7 @@
     "@bnb-chain/greenfield-js-sdk": "2.2.0",
     "@bnb-chain/reed-solomon": "1.1.3"
   },
-  "changesets": []
+  "changesets": [
+    "shy-eyes-double"
+  ]
 }
