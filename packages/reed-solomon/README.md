@@ -125,3 +125,130 @@ const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer))
 ## Benchmark
 
 [benchmark](./benchmark.md)
+# Performance Optimization Guide
+
+## Choosing Between Worker Threads and Direct Processing
+
+The Reed-Solomon library provides two methods for calculating checksums:
+
+### Direct Processing: `encode()`
+
+For small files (< 1MB), we recommend using the direct `encode()` method:
+
+```javascript
+import { ReedSolomon } from '@bnb-chain/reed-solomon';
+
+const rs = new ReedSolomon();
+const checksums = rs.encode(fileData);
+```
+
+**Advantages**:
+- Simpler implementation
+- No worker thread overhead
+- No risk of worker context issues
+- Suitable for most common use cases
+
+### Worker Thread Processing: `encodeInWorker()`
+
+For larger files (> 1MB) or when performance is critical, use worker threads:
+
+```javascript
+import { NodeAdapterReedSolomon } from '@bnb-chain/reed-solomon/node.adapter';
+
+const rs = new NodeAdapterReedSolomon();
+const checksums = await rs.encodeInWorker(workerFilePath, fileData);
+```
+
+**Important**: When using `encodeInWorker()`, your worker file must include worker handling code at the top level:
+
+```javascript
+const { isMainThread, parentPort, workerData } = require('node:worker_threads');
+
+// Worker thread code - must be at the top of any file used as a worker
+if (!isMainThread) {
+  try {
+    const { chunk, index } = workerData;
+    if (chunk) {
+      const { ReedSolomon } = require('@bnb-chain/reed-solomon');
+      const rs = new ReedSolomon();
+      const encodeShard = rs.getEncodeShard(chunk, index);
+      parentPort.postMessage(encodeShard);
+    }
+  } catch (error) {
+    parentPort.postMessage({ error: error.message, index: workerData?.index });
+  }
+}
+
+// Main thread code can follow...
+```
+
+## Decision Guide
+
+| File Size | Recommended Method | Notes |
+|-----------|-------------------|-------|
+| < 1MB     | `encode()`        | Simplest, most reliable approach |
+| 1MB-10MB  | Either method     | Consider application requirements |
+| > 10MB    | `encodeInWorker()`| Best for performance with proper worker handling | # Performance Optimization Guide
+
+## Choosing Between Worker Threads and Direct Processing
+
+The Reed-Solomon library provides two methods for calculating checksums:
+
+### Direct Processing: `encode()`
+
+For small files (< 1MB), we recommend using the direct `encode()` method:
+
+```javascript
+import { ReedSolomon } from '@bnb-chain/reed-solomon';
+
+const rs = new ReedSolomon();
+const checksums = rs.encode(fileData);
+```
+
+**Advantages**:
+- Simpler implementation
+- No worker thread overhead
+- No risk of worker context issues
+- Suitable for most common use cases
+
+### Worker Thread Processing: `encodeInWorker()`
+
+For larger files (> 1MB) or when performance is critical, use worker threads:
+
+```javascript
+import { NodeAdapterReedSolomon } from '@bnb-chain/reed-solomon/node.adapter';
+
+const rs = new NodeAdapterReedSolomon();
+const checksums = await rs.encodeInWorker(workerFilePath, fileData);
+```
+
+**Important**: When using `encodeInWorker()`, your worker file must include worker handling code at the top level:
+
+```javascript
+const { isMainThread, parentPort, workerData } = require('node:worker_threads');
+
+// Worker thread code - must be at the top of any file used as a worker
+if (!isMainThread) {
+  try {
+    const { chunk, index } = workerData;
+    if (chunk) {
+      const { ReedSolomon } = require('@bnb-chain/reed-solomon');
+      const rs = new ReedSolomon();
+      const encodeShard = rs.getEncodeShard(chunk, index);
+      parentPort.postMessage(encodeShard);
+    }
+  } catch (error) {
+    parentPort.postMessage({ error: error.message, index: workerData?.index });
+  }
+}
+
+// Main thread code can follow...
+```
+
+## Decision Guide
+
+| File Size | Recommended Method | Notes |
+|-----------|-------------------|-------|
+| < 1MB     | `encode()`        | Simplest, most reliable approach |
+| 1MB-10MB  | Either method     | Consider application requirements |
+| > 10MB    | `encodeInWorker()`| Best for performance with proper worker handling | 

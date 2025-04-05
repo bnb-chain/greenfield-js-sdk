@@ -2,6 +2,7 @@ import { isMainThread, parentPort, Worker, workerData } from 'node:worker_thread
 import { ReedSolomon } from './index';
 import { splitPrice } from './utils';
 
+// Define the class outside of any conditional blocks
 export class NodeAdapterReedSolomon extends ReedSolomon {
   async encodeInWorker(p, sourceData) {
     return new Promise((resolve, reject) => {
@@ -10,6 +11,12 @@ export class NodeAdapterReedSolomon extends ReedSolomon {
         const RES = [];
         const chunkList = splitPrice(sourceData, this.segmentSize);
         const threads = new Set();
+
+        // If there's no data to process, return empty checksums
+        if (!chunkList.length) {
+          resolve([]);
+          return;
+        }
 
         for (let i = 0; i < chunkList.length; i++) {
           const worker = new Worker(p, {
@@ -23,7 +30,7 @@ export class NodeAdapterReedSolomon extends ReedSolomon {
 
         for (const w of threads) {
           w.on('error', (err) => {
-            throw err;
+            reject(err);
           });
           w.on('exit', () => {
             threads.delete(w);
@@ -35,6 +42,10 @@ export class NodeAdapterReedSolomon extends ReedSolomon {
           });
 
           w.on('message', (message) => {
+            if (message.error) {
+              reject(new Error(message.error));
+              return;
+            }
             // console.log('message', message.encodeData.index)
             RES[message.index] = message;
           });
@@ -48,3 +59,22 @@ export class NodeAdapterReedSolomon extends ReedSolomon {
     });
   }
 }
+
+// Worker thread handling code as a separate block
+if (!isMainThread) {
+  try {
+    const { chunk, index } = workerData;
+    if (chunk) {
+      // Create a new Reed-Solomon instance in the worker thread
+      const rs = new ReedSolomon();
+      const encodeShard = rs.getEncodeShard(chunk, index);
+      parentPort.postMessage(encodeShard);
+    } else {
+      // If no chunk data, send empty result with index to avoid errors
+      parentPort.postMessage({ index, encodeDataHash: [] });
+    }
+  } catch (error) {
+    // Send error message back to main thread
+    parentPort.postMessage({ error: error.message, index: workerData?.index });
+  }
+} 

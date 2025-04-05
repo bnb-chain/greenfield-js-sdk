@@ -13,6 +13,11 @@ export function concat(a, b) {
 }
 
 export function getIntegrityUint8Array(uint8arr) {
+  // Add check for empty array to prevent "Reduce of empty array with no initial value" error
+  if (!uint8arr || uint8arr.length === 0) {
+    return new Uint8Array();
+  }
+  
   const arr = uint8arr.reduce((a, b) => {
     return concat(a, b);
   });
@@ -41,4 +46,4 @@ export function splitPrice(data, size) {
   }
 
   return chunkList;
-}
+} 
