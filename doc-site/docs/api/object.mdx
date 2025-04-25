@@ -157,7 +157,7 @@ await client.object.downloadFile(
 <TabItem value="Nodejs" label="Nodejs">
 
 ```js
-await client.object.downloadFile(
+await client.object.getObject(
   {
     bucketName,
     objectName,
@@ -169,6 +169,11 @@ await client.object.downloadFile(
   },
   // highlight-end
 );
+
+// res.body is Blob
+console.log('res', res)
+const buffer = Buffer.from([res.body]);
+fs.writeFileSync('your_output_file', buffer)
 ```
 </TabItem>
 </Tabs>
