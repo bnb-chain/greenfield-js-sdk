@@ -47,5 +47,8 @@
     "rollup": "^2.79.1",
     "rollup-plugin-auto-external": "^2.0.0",
     "rollup-plugin-polyfill-node": "^0.10.2"
+  },
+  "dependencies": {
+    "utf-8-validate": "^6.0.5"
   }
 }
