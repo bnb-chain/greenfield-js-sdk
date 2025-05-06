@@ -15,7 +15,7 @@ export function concat(a, b) {
 export function getIntegrityUint8Array(uint8arr) {
   const arr = uint8arr.reduce((a, b) => {
     return concat(a, b);
-  });
+  }, []);
 
   return Uint8Array.from(arr);
 }

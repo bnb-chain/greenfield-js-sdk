@@ -5,7 +5,7 @@ import { splitPrice } from './utils';
 
 export class NodeAdapterReedSolomon extends ReedSolomon {
   /**
-   * @deprecated please use `encodeInWorker` instead
+   * @deprecated please use `encodeInSubWorker` instead
    * @param {*} p
    * @param {*} sourceData
    * @returns
@@ -30,7 +30,7 @@ export class NodeAdapterReedSolomon extends ReedSolomon {
 
         for (const w of threads) {
           w.on('error', (err) => {
-            throw err;
+            reject(err);
           });
           w.on('exit', () => {
             threads.delete(w);
