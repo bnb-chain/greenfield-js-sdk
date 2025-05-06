@@ -5,12 +5,12 @@ runs:
   steps:
     - uses: actions/setup-node@v4
       with:
-        node-version: '18.20.2'
-    - uses: pnpm/action-setup@v2
+        node-version: '22.15.0'
+    - uses: pnpm/action-setup@v4
       name: Install pnpm
       id: pnpm-install
       with:
-        version: 8
+        version: 10
         run_install: false
 
     - name: Get pnpm store directory
