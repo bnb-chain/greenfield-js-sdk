@@ -1,15 +1,24 @@
 import { isMainThread, parentPort, workerData } from 'node:worker_threads';
 import { ReedSolomon } from './index';
 
-class NodeAdapterReedSolomonWorker extends ReedSolomon {
-  execute() {
-    if (!isMainThread) {
-      const { chunk, index } = workerData;
-      const encodeShard = this.getEncodeShard(chunk, index);
-      parentPort.postMessage(encodeShard);
-    }
+const main = () => {
+  if (isMainThread) {
+    return;
   }
-}
 
-const worker = new NodeAdapterReedSolomonWorker();
-worker.execute();
+  try {
+    const { chunk, index } = workerData;
+    if (!chunk || !(index >= 0)) {
+      parentPort.postMessage({ index, encodeDataHash: [], segChecksum: [] });
+      return;
+    }
+
+    const rs = new ReedSolomon();
+    const encodeShard = rs.getEncodeShard(chunk, index);
+    parentPort.postMessage(encodeShard);
+  } catch (error) {
+    parentPort.postMessage({ index, encodeDataHash: [], segChecksum: [], error: error.message });
+  }
+};
+
+main();
