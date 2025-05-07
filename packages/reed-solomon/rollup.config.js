@@ -34,7 +34,7 @@ export default async () => {
 
     // CJS
     {
-      input: ['./src/index.js', './src/node.adapter.js', './src/utils.js'],
+      input: ['./src/index.js', './src/node.adapter.js', './src/utils.js', './src/sub-worker.js'],
       output: {
         format: 'cjs',
         // file: 'dist/index.js',

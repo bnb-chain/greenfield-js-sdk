@@ -117,7 +117,7 @@ const { NodeAdapterReedSolomon } = require('@bnb-chain/reed-solomon/node.adapter
 const fileBuffer = fs.readFileSync('./output_file');
 
 const rs = new NodeAdapterReedSolomon();
-const res = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer))
+const res = await rs.encodeInSubWorker(Uint8Array.from(fileBuffer))
 ```
 
 [Code](./examples/node-worker.js)
