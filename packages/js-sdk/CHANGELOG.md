@@ -1,5 +1,18 @@
 # @bnb-chain/greenfield-js-sdk
 
+## 2.2.2
+
+### Patch Changes
+
+- [`5df787661218094cbafea32f146e8daf2f8d6126`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5df787661218094cbafea32f146e8daf2f8d6126)
+  Thanks [@devinxl](https://github.com/devinxl)! - Refactor ReedSolomon to support sub-worker
+  encoding
+
+- [#590](https://github.com/bnb-chain/greenfield-js-sdk/pull/590)
+  [`308da9411233672f0c4f006c2337eedca3ecb52a`](https://github.com/bnb-chain/greenfield-js-sdk/commit/308da9411233672f0c4f006c2337eedca3ecb52a)
+  Thanks [@devinxl](https://github.com/devinxl)! - Refactor ReedSolomon to support sub-worker
+  encoding
+
 ## 2.2.2-alpha.0
 
 ### Patch Changes
