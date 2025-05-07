@@ -56,7 +56,7 @@ console.log('objectName', objectName);
   }
 
   // create object example:
-  const expectCheckSums = await rs.encodeInWorker(__filename, Uint8Array.from(fileBuffer));
+  const expectCheckSums = await rs.encodeInSubWorker(Uint8Array.from(fileBuffer));
 
   const createObjectTx = await client.object.createObject({
     bucketName: bucketName,
