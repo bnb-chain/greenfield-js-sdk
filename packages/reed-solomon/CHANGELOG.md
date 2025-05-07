@@ -1,5 +1,14 @@
 # @bnb-chain/reed-solomon
 
+## 1.1.4
+
+### Patch Changes
+
+- [#587](https://github.com/bnb-chain/greenfield-js-sdk/pull/587)
+  [`5b7e2bf1ca744fc2b98f9ca113513623cbe45ad7`](https://github.com/bnb-chain/greenfield-js-sdk/commit/5b7e2bf1ca744fc2b98f9ca113513623cbe45ad7)
+  Thanks [@robot-ux](https://github.com/robot-ux)! - Refactor ReedSolomon to support sub-worker
+  encoding
+
 ## 1.1.3
 
 ### Patch Changes
