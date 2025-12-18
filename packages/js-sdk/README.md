@@ -51,7 +51,7 @@ const simulateInfo = await transferTx.simulate({
 });
 ```
 
-#### 3. Boradcast Tx
+#### 3. Broadcast Tx
 
 ```js
 // broadcast tx
